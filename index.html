@@ -56,24 +56,57 @@
         <div id="portfolio">
             <div class="container-fluid p-0">
                 <div class="row g-0">
-                    <div class="col-lg-4 col-sm-6">
-                        <a class="portfolio-box" href="#" onclick="redirectToGoogle();" title="Introducción Estadística">
+                    <div class="col-lg-4 col-md-6">
+                        <a class="portfolio-box" href="#" onclick="redirect0();" title="Introducción a Python">
                             <div style="text-align: center;">
-                                <img class="img-fluid" src="assets/img/portfolio/thumbnails/1.jpg" alt="..." />
+                                <img class="img-fluid" src="assets/img/portfolio/thumbnails/2.jpg" alt="..." height="200" width="500" />
                             </div>
                             <div class="portfolio-box-caption">
-                                <div class="project-category text-white-50"> </div>
+                                <div class="project-category text-white-50"></div>
+                                <div class="project-name">0. Introducción a Python y Markdown</div>
+                            </div>
+                        </a>
+                    </div>
+        
+                    <div class="col-lg-4 col-md-6">
+                        <a class="portfolio-box" href="#" onclick="redirectToGoogle();" title="Introducción Estadística">
+                            <div style="text-align: center;">
+                                <img class="img-fluid" src="assets/img/portfolio/thumbnails/1.jpg" alt="..." height="200" width="500" />
+                            </div>
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50"></div>
                                 <div class="project-name">1. Introducción a Estadística y Pandas</div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6">
+                        <a class="portfolio-box" href="#" onclick="redirect2();" title="Paramétros y Estadísticos">
+                            <div style="text-align: center;">
+                                <img class="img-fluid" src="assets/img/portfolio/thumbnails/3.jpg" alt="..." height="200" width="500" />
+                            </div>
+                            <div class="portfolio-box-caption">
+                                <div class="project-category text-white-50"></div>
+                                <div class="project-name">2. Población, Muestra, Parámetros y Estadísticos</div>
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+        
         <!-- redireccionamiento-->
         <script>
             function redirectToGoogle() {
                 window.location.href = 'https://colab.research.google.com/github/jazaineam1/PYEF/blob/main/Cuadernos/1_1_Introducci%C3%B3n_a_la_Estad%C3%ADstica_y_Exploraci%C3%B3n_de_Datos_con_Pandas.ipynb';
+            }
+
+            function redirect0() {
+                window.location.href = 'https://colab.research.google.com/github/jazaineam1/PYEF/blob/main/Cuadernos/0_Hola%20Mundo.ipynb';
+            }
+
+            function redirect2() {
+                window.location.href = 'https://colab.research.google.com/github/jazaineam1/PYEF/blob/main/Cuadernos/2_Poblaci%C3%B3n%2C_Muestra%2C_Par%C3%A1metros_y_Estad%C3%ADstico.ipynb';
             }
         </script>
         <!-- Footer-->
