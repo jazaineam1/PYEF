@@ -43,13 +43,14 @@ export const DECISION_OPTIONS={
   comparator:['No llamada','Otra intervención','Sin comparador'],
   outcome:['Pago completo','Pago parcial','Clic inmediato'],
   horizon:['1 día','30 días','90 días'],
-  estimand:['ATE','ATT','CATE','Policy value']
+  estimand:['ATE','ATT','CATE','Policy value'],
+  constraint:['Capacidad máxima','Presupuesto máximo','Riesgo de daño','Sin restricción explícita']
 }
 
 export const EXPERIMENT_BASE={treatmentRate:31.2,controlRate:25.4,eligible:20000}
 
 export const TOOL_GUIDE={
- business:{question:'¿Qué decisión causal está realmente definida?',assumption:'La población, intervención, comparador, outcome y horizonte deben referirse al mismo problema.',decision:'Entrega al equipo una pregunta cerrada y el estimando que importa.'},
+ business:{question:'¿Qué decisión causal está realmente definida?',assumption:'La población, intervención, comparador, outcome y horizonte deben referirse al mismo problema.',decision:'Entrega al equipo una pregunta cerrada, el estimando y la restricción que gobiernan la decisión.'},
  data:{question:'¿Quién probablemente tendrá Y y quién cambia por T?',assumption:'Un estimador de CATE sólo es causal bajo una estrategia de identificación defendible.',decision:'Entrega perfiles con mayor cambio incremental, no sólo mayor score.'},
  context:{question:'¿Qué estructura causal hace válida o sesgada la comparación?',assumption:'Temporalidad y estructura importan; ajustar por todo puede introducir sesgo.',decision:'Entrega un conjunto de ajuste defendible y una advertencia sobre variables que no deben controlarse.'},
  integrator:{question:'¿Qué diseño permite identificar y medir el efecto con precisión útil?',assumption:'La asignación y el análisis deben definirse antes de mirar el resultado.',decision:'Entrega diseño, efecto estimado e incertidumbre.'},
