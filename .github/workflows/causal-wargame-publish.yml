@@ -48,7 +48,7 @@ jobs:
             'https://jazaineam1.github.io/PYEF/dos-futuros/'
             'https://jazaineam1.github.io/PYEF/dos-futuros/play.html'
             'https://jazaineam1.github.io/PYEF/dos-futuros/facilitator.html'
-            'https://jazaineam1.github.io/PYEF/dos-futuros/wall.html?game=FUTUROS26'
+            'https://jazaineam1.github.io/PYEF/dos-futuros/wall.html'
             'https://jazaineam1.github.io/PYEF/dos-futuros/system-check.html'
           )
           for url in "${pages[@]}"; do
