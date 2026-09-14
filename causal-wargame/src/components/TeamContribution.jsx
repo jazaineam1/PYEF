@@ -4,12 +4,13 @@ import{invoke}from'../lib/api'
 import{ROLE_FINDINGS,findingLabel}from'../role-findings'
 import{ROLE_ARCHETYPES}from'../codex'
 
+const jitter=base=>Math.round(base*(.82+Math.random()*.36))
 export function TeamContribution({state}){
   const role=state.player.role_code,round=state.game.round
   const options=ROLE_FINDINGS?.[round]?.[role]||[]
   const[selected,setSelected]=useState('');const[data,setData]=useState(null);const[busy,setBusy]=useState(false);const[err,setErr]=useState('')
   async function refresh(){try{setData(await invoke('role-contribution',{action:'state'}));setErr('')}catch(e){setErr(e.message)}}
-  useEffect(()=>{refresh();const i=setInterval(refresh,3000);return()=>clearInterval(i)},[round])
+  useEffect(()=>{let stop=false,t;const loop=async()=>{await refresh();if(!stop)t=setTimeout(loop,jitter(5500))};loop();return()=>{stop=true;clearTimeout(t)}},[round])
   const own=useMemo(()=>data?.rows?.find(x=>x.player_id===state.player.id),[data,state.player.id])
   useEffect(()=>{if(own?.finding_code)setSelected(own.finding_code)},[own?.finding_code])
   async function submit(){if(!selected)return;setBusy(true);try{await invoke('role-contribution',{action:'submit',round,finding_code:selected});await refresh()}catch(e){setErr(e.message)}finally{setBusy(false)}}
