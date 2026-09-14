@@ -30,3 +30,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.readiness-check]
 verify_jwt = false
+[functions.role-contribution]
+verify_jwt = false
