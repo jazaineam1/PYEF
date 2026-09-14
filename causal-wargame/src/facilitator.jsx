@@ -5,6 +5,7 @@ import './quest.css'
 import './quest-v4.css'
 import './quest-v5.css'
 import './quest-v5-extra.css'
+import './quest-v5-visuals.css'
 import ModeFacilitator from '#facilitator'
 
 createRoot(document.getElementById('root')).render(<ModeFacilitator/>)
