@@ -1,37 +1,270 @@
 {
+  "schema_version": 2,
+  "artifact_status": "verified",
+  "generated_at": "2026-09-14T14:54:40+00:00",
+  "seed": 20260914,
+  "methods": [
+    {
+      "key": "tlearner",
+      "label": "T-Learner",
+      "source": "econml",
+      "estimator": "TLearner(RandomForestRegressor)"
+    },
+    {
+      "key": "drlearner",
+      "label": "DR-Learner",
+      "source": "econml",
+      "estimator": "DRLearner"
+    },
+    {
+      "key": "forest",
+      "label": "CausalForestDML",
+      "source": "econml",
+      "estimator": "CausalForestDML"
+    }
+  ],
   "provenance": {
-    "verified": false,
-    "engine": "pending-offline-precompute",
+    "verified": true,
+    "engine": "EconML",
+    "econml_version": "0.16.0",
+    "sklearn_version": "1.5.2",
     "seed": 20260914,
     "train_rows": 8000,
+    "profile_rows": 24,
     "dataset": "synthetic-banking-causal-scenario",
-    "estimators": ["T-Learner", "DRLearner", "CausalForestDML"],
-    "note": "Bootstrap seed data. GitHub Actions replaces this file with verified EconML outputs before the UI claims EconML provenance."
+    "features": [
+      "age_z",
+      "arrears",
+      "digital",
+      "premium",
+      "engagement"
+    ],
+    "estimators": [
+      "TLearner(RandomForestRegressor)",
+      "DRLearner",
+      "CausalForestDML"
+    ],
+    "browser_runtime": "static-precomputed",
+    "deterministic": true,
+    "contains_hidden_counterfactual_truth": false,
+    "note": "Generado offline. La concordancia entre estimadores no establece identificación causal."
   },
   "clients": [
-    {"id":"C01","name":"Cliente A","segment":"Premium","score":0.91,"tlearner":0.010,"drlearner":0.006,"forest":0.004},
-    {"id":"C02","name":"Cliente B","segment":"Digital","score":0.66,"tlearner":0.292,"drlearner":0.284,"forest":0.280},
-    {"id":"C03","name":"Cliente C","segment":"Mora alta","score":0.72,"tlearner":-0.042,"drlearner":-0.018,"forest":-0.024},
-    {"id":"C04","name":"Cliente D","segment":"Tradicional","score":0.84,"tlearner":0.070,"drlearner":0.058,"forest":0.082},
-    {"id":"C05","name":"Cliente E","segment":"Digital","score":0.58,"tlearner":0.162,"drlearner":0.146,"forest":0.138},
-    {"id":"C06","name":"Cliente F","segment":"Joven","score":0.49,"tlearner":0.208,"drlearner":0.224,"forest":0.214},
-    {"id":"C07","name":"Cliente G","segment":"Premium","score":0.77,"tlearner":0.050,"drlearner":0.062,"forest":0.050},
-    {"id":"C08","name":"Cliente H","segment":"Digital","score":0.63,"tlearner":0.202,"drlearner":0.178,"forest":0.196},
-    {"id":"C09","name":"Cliente I","segment":"Mora alta","score":0.88,"tlearner":-0.032,"drlearner":-0.024,"forest":-0.008},
-    {"id":"C10","name":"Cliente J","segment":"Tradicional","score":0.55,"tlearner":0.110,"drlearner":0.114,"forest":0.098},
-    {"id":"C11","name":"Cliente K","segment":"Joven","score":0.69,"tlearner":0.182,"drlearner":0.182,"forest":0.164},
-    {"id":"C12","name":"Cliente L","segment":"Premium","score":0.81,"tlearner":0.028,"drlearner":0.028,"forest":0.040},
-    {"id":"C13","name":"Cliente M","segment":"Digital","score":0.44,"tlearner":0.240,"drlearner":0.236,"forest":0.246},
-    {"id":"C14","name":"Cliente N","segment":"Tradicional","score":0.74,"tlearner":0.092,"drlearner":0.084,"forest":0.092},
-    {"id":"C15","name":"Cliente O","segment":"Joven","score":0.60,"tlearner":0.128,"drlearner":0.152,"forest":0.128},
-    {"id":"C16","name":"Cliente P","segment":"Premium","score":0.93,"tlearner":0.000,"drlearner":-0.012,"forest":-0.006},
-    {"id":"C17","name":"Cliente Q","segment":"Digital","score":0.52,"tlearner":0.222,"drlearner":0.206,"forest":0.210},
-    {"id":"C18","name":"Cliente R","segment":"Mora alta","score":0.79,"tlearner":0.048,"drlearner":0.064,"forest":0.066},
-    {"id":"C19","name":"Cliente S","segment":"Joven","score":0.67,"tlearner":0.160,"drlearner":0.172,"forest":0.172},
-    {"id":"C20","name":"Cliente T","segment":"Tradicional","score":0.47,"tlearner":0.262,"drlearner":0.238,"forest":0.238},
-    {"id":"C21","name":"Cliente U","segment":"Premium","score":0.86,"tlearner":0.018,"drlearner":0.026,"forest":0.024},
-    {"id":"C22","name":"Cliente V","segment":"Digital","score":0.57,"tlearner":0.130,"drlearner":0.134,"forest":0.130},
-    {"id":"C23","name":"Cliente W","segment":"Tradicional","score":0.71,"tlearner":0.102,"drlearner":0.102,"forest":0.096},
-    {"id":"C24","name":"Cliente X","segment":"Joven","score":0.64,"tlearner":0.168,"drlearner":0.168,"forest":0.192}
+    {
+      "id": "C01",
+      "name": "Cliente 01",
+      "segment": "Digital",
+      "score": 0.711907,
+      "tlearner": 0.101336,
+      "drlearner": 0.088276,
+      "forest": 0.185771
+    },
+    {
+      "id": "C02",
+      "name": "Cliente 02",
+      "segment": "Premium",
+      "score": 0.550947,
+      "tlearner": -0.079175,
+      "drlearner": -0.428808,
+      "forest": 0.095486
+    },
+    {
+      "id": "C03",
+      "name": "Cliente 03",
+      "segment": "Mora alta",
+      "score": 0.154707,
+      "tlearner": -0.068365,
+      "drlearner": -0.014643,
+      "forest": 0.032398
+    },
+    {
+      "id": "C04",
+      "name": "Cliente 04",
+      "segment": "Tradicional",
+      "score": 0.200445,
+      "tlearner": 0.014184,
+      "drlearner": -0.062457,
+      "forest": 0.062473
+    },
+    {
+      "id": "C05",
+      "name": "Cliente 05",
+      "segment": "Digital",
+      "score": 0.388074,
+      "tlearner": 0.140516,
+      "drlearner": 0.359287,
+      "forest": 0.167106
+    },
+    {
+      "id": "C06",
+      "name": "Cliente 06",
+      "segment": "Joven",
+      "score": 0.59454,
+      "tlearner": 0.28733,
+      "drlearner": 0.350429,
+      "forest": 0.198306
+    },
+    {
+      "id": "C07",
+      "name": "Cliente 07",
+      "segment": "Premium",
+      "score": 0.658535,
+      "tlearner": 0.008729,
+      "drlearner": -0.107912,
+      "forest": 0.070106
+    },
+    {
+      "id": "C08",
+      "name": "Cliente 08",
+      "segment": "Digital",
+      "score": 0.467796,
+      "tlearner": 0.317542,
+      "drlearner": 0.415819,
+      "forest": 0.189181
+    },
+    {
+      "id": "C09",
+      "name": "Cliente 09",
+      "segment": "Mora alta",
+      "score": 0.220634,
+      "tlearner": -0.065932,
+      "drlearner": -0.03597,
+      "forest": 0.091916
+    },
+    {
+      "id": "C10",
+      "name": "Cliente 10",
+      "segment": "Tradicional",
+      "score": 0.367444,
+      "tlearner": 0.25011,
+      "drlearner": 0.627401,
+      "forest": 0.15862
+    },
+    {
+      "id": "C11",
+      "name": "Cliente 11",
+      "segment": "Joven",
+      "score": 0.488204,
+      "tlearner": 0.285599,
+      "drlearner": 0.568628,
+      "forest": 0.197648
+    },
+    {
+      "id": "C12",
+      "name": "Cliente 12",
+      "segment": "Premium",
+      "score": 0.38789,
+      "tlearner": -0.068566,
+      "drlearner": -0.215144,
+      "forest": 0.017828
+    },
+    {
+      "id": "C13",
+      "name": "Cliente 13",
+      "segment": "Digital",
+      "score": 0.575412,
+      "tlearner": 0.013926,
+      "drlearner": -0.039233,
+      "forest": 0.122094
+    },
+    {
+      "id": "C14",
+      "name": "Cliente 14",
+      "segment": "Tradicional",
+      "score": 0.235086,
+      "tlearner": 0.199735,
+      "drlearner": 0.294111,
+      "forest": 0.152541
+    },
+    {
+      "id": "C15",
+      "name": "Cliente 15",
+      "segment": "Joven",
+      "score": 0.354294,
+      "tlearner": 0.180076,
+      "drlearner": 0.18952,
+      "forest": 0.136128
+    },
+    {
+      "id": "C16",
+      "name": "Cliente 16",
+      "segment": "Premium",
+      "score": 0.59392,
+      "tlearner": 0.086677,
+      "drlearner": 0.124241,
+      "forest": 0.09017
+    },
+    {
+      "id": "C17",
+      "name": "Cliente 17",
+      "segment": "Digital",
+      "score": 0.728239,
+      "tlearner": 0.108715,
+      "drlearner": 0.289726,
+      "forest": 0.191498
+    },
+    {
+      "id": "C18",
+      "name": "Cliente 18",
+      "segment": "Mora alta",
+      "score": 0.323456,
+      "tlearner": -0.017009,
+      "drlearner": 0.09843,
+      "forest": 0.097595
+    },
+    {
+      "id": "C19",
+      "name": "Cliente 19",
+      "segment": "Joven",
+      "score": 0.360587,
+      "tlearner": 0.235165,
+      "drlearner": 0.282069,
+      "forest": 0.173106
+    },
+    {
+      "id": "C20",
+      "name": "Cliente 20",
+      "segment": "Tradicional",
+      "score": 0.416934,
+      "tlearner": -0.106392,
+      "drlearner": -0.233442,
+      "forest": 0.038762
+    },
+    {
+      "id": "C21",
+      "name": "Cliente 21",
+      "segment": "Premium",
+      "score": 0.365525,
+      "tlearner": 0.108139,
+      "drlearner": 0.24768,
+      "forest": 0.123262
+    },
+    {
+      "id": "C22",
+      "name": "Cliente 22",
+      "segment": "Digital",
+      "score": 0.265397,
+      "tlearner": 0.121731,
+      "drlearner": 0.025022,
+      "forest": 0.139698
+    },
+    {
+      "id": "C23",
+      "name": "Cliente 23",
+      "segment": "Tradicional",
+      "score": 0.273618,
+      "tlearner": 0.066622,
+      "drlearner": 0.263389,
+      "forest": 0.069346
+    },
+    {
+      "id": "C24",
+      "name": "Cliente 24",
+      "segment": "Joven",
+      "score": 0.706817,
+      "tlearner": 0.259395,
+      "drlearner": 0.12179,
+      "forest": 0.198118
+    }
   ]
 }
