@@ -9,6 +9,8 @@ const FACILITATOR_TOKEN = 'df_facilitator_token'
 const PLAYER_GAME_CODE = 'df_game_code'
 const FACILITATOR_GAME_CODE = 'df_facilitator_game_code'
 const RETRYABLE = new Set([408, 425, 429, 500, 502, 503, 504])
+const DEDUPE_ENDPOINTS = new Set(['game-state','leaderboard','wall-state'])
+const inflight = new Map()
 
 function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)) }
 function jitter(baseMs){ return Math.round(baseMs * (0.75 + Math.random() * 0.5)) }
@@ -59,12 +61,19 @@ async function fetchJson(url, init = {}, { attempts = 3, timeoutMs = 9000 } = {}
   throw lastError || new Error('No fue posible conectar con el servidor')
 }
 
-export async function invoke(name, body = {}, kind = 'player', options = {}) {
+export async function invoke(name, body = {}, kind = 'player', options = {}){
   if(!base) throw new Error('VITE_FUNCTIONS_BASE_URL no está configurada')
   const headers = { 'content-type':'application/json', ...(options.headers || {}) }
   const t = token(kind)
   if(t) headers[kind === 'facilitator' ? 'x-facilitator-token' : 'x-game-token'] = t
-  return fetchJson(`${base}/${name}`, { method:'POST', headers, body:JSON.stringify(body) }, options)
+  const dedupeKey = DEDUPE_ENDPOINTS.has(name) ? `${kind}:${name}:${JSON.stringify(body)}` : null
+  if(dedupeKey && inflight.has(dedupeKey)) return inflight.get(dedupeKey)
+  const promise = fetchJson(`${base}/${name}`, { method:'POST', headers, body:JSON.stringify(body) }, options)
+  if(dedupeKey){
+    inflight.set(dedupeKey,promise)
+    promise.finally(()=>inflight.delete(dedupeKey))
+  }
+  return promise
 }
 
 export async function bootstrapGame({game_code, pin, bootstrap_secret}){
