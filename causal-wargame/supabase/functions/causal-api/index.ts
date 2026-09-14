@@ -5,7 +5,6 @@ const cors={
   'Access-Control-Allow-Headers':'content-type,x-player-token,x-facilitator-key',
   'Access-Control-Allow-Methods':'POST,OPTIONS'
 }
-const roles=['negocio','datos','contexto','riesgo','integrador']
 const teamNames=['Cóndor','Jaguar','Puma','Águila']
 
 function secretKey(){
@@ -94,9 +93,10 @@ Deno.serve(async(req)=>{
     if(action==='adminState'){if(!isAdmin(req))return err('Clave de facilitador inválida',403);const g=await ensureGame(String(body.gameCode||'FUTUROS'));return json(await publicState(g,true))}
     if(action==='join'){
       const name=String(body.name||'').trim().slice(0,50),code=String(body.gameCode||'FUTUROS').trim().toUpperCase();if(!name)return err('Nombre requerido')
-      const g=await ensureGame(code);const {data:teams}=await db.from('cg_teams').select('*').eq('game_id',g.id).order('ordinal');const {data:players}=await db.from('cg_players').select('*').eq('game_id',g.id);if((players||[]).length>=20)return err('La partida está completa',409)
-      const idx=(players||[]).length,team=teams![Math.floor(idx/5)%4],role=roles[idx%5],token=crypto.randomUUID()+crypto.randomUUID()
-      const {data:p,error}=await db.from('cg_players').insert({game_id:g.id,team_id:team.id,display_name:name,role_code:role,token_hash:await hash(token)}).select('*,cg_teams(name)').single();if(error)throw error
+      const g=await ensureGame(code);const token=crypto.randomUUID()+crypto.randomUUID()
+      const {data:slot,error:slotError}=await db.rpc('cg_claim_player_slot',{p_game_id:g.id,p_display_name:name,p_token_hash:await hash(token)}).single()
+      if(slotError){if(String(slotError.message||'').includes('GAME_FULL'))return err('La partida está completa',409);throw slotError}
+      const {data:p,error}=await db.from('cg_players').select('*,cg_teams(name)').eq('id',slot.player_id).single();if(error)throw error
       return json({token,player:{id:p.id,name:p.display_name,role:p.role_code,team:p.cg_teams.name},state:await playerState(p)})
     }
     const p=await getPlayer(req)
