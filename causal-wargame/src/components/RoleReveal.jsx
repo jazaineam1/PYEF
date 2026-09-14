@@ -12,7 +12,7 @@ export function RoleReveal({state,role:roleProp,round:roundProp,phase:phaseProp=
   return <div className="quest-reveal power-enter" style={{'--active-accent':meta.accent}}>
     <div className="power-burst" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>
     <div className="role-focus-card">
-      <div className="role-portrait"><img src={meta.portrait} alt={`Ilustración de ${meta.label}`}/><i/></div>
+      <div className={`role-portrait role-portrait-${role}`} aria-label={`Mascota visual de ${meta.label}`}><div className="role-aura"/><div className="role-mascot">{meta.emoji}</div><div className="role-portrait-type">{meta.type}</div><i/></div>
       <div className="role-focus-copy"><div className="eyebrow">TU ROL EN EL EQUIPO</div><div className="type-badge"><Zap size={13}/>{meta.type}</div><h2 className="role-title-glow">{meta.label}</h2><p>{meta.tagline}</p><div className="role-mission"><b>Tu aporte aunque no haya poderes desbloqueados</b><span>{meta.baseContribution}</span></div></div>
     </div>
     <div className="power-grid-simple">{powers.map(p=><div key={p.id} className={`power-box ${p.unlocked?'unlocked':'locked'} ${p.unlocking?'unlocking':''}`}><div className="power-box-icon">{p.unlocked?<Sparkles/>:<LockKeyhole/>}</div><div><div className="eyebrow">{p.unlocking?'NUEVO PODER · SE DESBLOQUEA AHORA':p.unlocked?'PODER DISPONIBLE':`BLOQUEADO · RONDA ${p.unlockRound}`}</div><h3>{p.name}</h3><p>{p.description}</p></div></div>)}</div>
