@@ -1,0 +1,18 @@
+project_id = "dos-futuros"
+
+[functions.health]
+verify_jwt = false
+[functions.join-game]
+verify_jwt = false
+[functions.facilitator-login]
+verify_jwt = false
+[functions.game-state]
+verify_jwt = false
+[functions.submit-decision]
+verify_jwt = false
+[functions.submit-check]
+verify_jwt = false
+[functions.facilitator-transition]
+verify_jwt = false
+[functions.leaderboard]
+verify_jwt = false

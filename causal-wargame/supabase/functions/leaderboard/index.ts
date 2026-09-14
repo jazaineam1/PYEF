@@ -1,0 +1,2 @@
+import { body, json, options } from '../_shared/http.ts';import { rpc } from '../_shared/rpc.ts'
+Deno.serve(async req=>{const pre=options(req);if(pre)return pre;try{const facilitator=req.headers.get('x-facilitator-token');if(facilitator)return json(await rpc('cw_facilitator_state',{p_token:facilitator}));const b=await body(req);if(!b.game_code)return json({error:'game_code obligatorio'},400);return json(await rpc('cw_wall_state',{p_code:b.game_code}))}catch(e){return json({error:e.message},400)}})

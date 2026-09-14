@@ -1,0 +1,2 @@
+import { body, json, options } from '../_shared/http.ts';import { rpc } from '../_shared/rpc.ts'
+Deno.serve(async req=>{const pre=options(req);if(pre)return pre;try{const token=req.headers.get('x-facilitator-token')||'';const b=await body(req);return json(await rpc('cw_facilitator_transition',{p_token:token,p_action:b.action,p_seconds:b.seconds||60}))}catch(e){return json({error:e.message},400)}})

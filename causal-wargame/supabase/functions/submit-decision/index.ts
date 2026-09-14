@@ -1,0 +1,2 @@
+import { body, json, options } from '../_shared/http.ts';import { rpc } from '../_shared/rpc.ts'
+Deno.serve(async req=>{const pre=options(req);if(pre)return pre;try{const token=req.headers.get('x-game-token')||'';const b=await body(req);const data=await rpc('cw_submit_decision',{p_token:token,p_round:b.round,p_payload:b.payload,p_idempotency:b.idempotency_key});return json(data)}catch(e){return json({error:e.message},400)}})

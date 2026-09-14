@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+coverage/
+src/demo/groundTruth.generated.js
+supabase/.temp/
+scenario-private.sql
+!.env.demo
+!.env.secure
+!.env.secure.example
+.env.secure.local
