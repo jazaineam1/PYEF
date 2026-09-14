@@ -22,20 +22,25 @@ export function evidenceByRole(rows=[]){
 }
 
 function check(id,label,status,message,roles=[]){return{id,label,status,message,roles}}
+const riskTolerance=value=>{const s=clean(value);return s.includes('baja')?1:s.includes('alta')?3:2}
 
 export function assessWarRoom(rows=[],round=1){
   const by=evidenceByRole(rows)
   const checks=[]
-  const present=ROLE_ORDER.filter(role=>by[role])
   const missing=ROLE_ORDER.filter(role=>!by[role])
   checks.push(check('coverage','Cobertura de especialidades',missing.length?'pending':'ready',missing.length?`Faltan ${missing.length} especialidades por compartir evidencia.`:'Las cinco especialidades ya aportaron evidencia.',missing))
 
   const decision=by.business?.evidence?.details||{}
   const contractFields=['population','treatment','comparator','outcome','horizon','estimand']
   const contractMissing=contractFields.filter(k=>!decision[k])
+  const constraintNeedsValue=decision.constraint&&decision.constraint!=='Sin restricción explícita'
   if(by.business){
     checks.push(check('contract','Contrato causal',contractMissing.length?'block':'ready',contractMissing.length?`La pregunta causal aún no cierra: falta ${contractMissing.join(', ')}.`:`Pregunta definida para ${decision.outcome} a ${decision.horizon}.`,['business']))
-    if(round>=4)checks.push(check('constraint','Restricción de decisión',decision.constraint?'ready':'warn',decision.constraint?`Restricción declarada: ${decision.constraint}.`:'La política final aún no declara capacidad, presupuesto o riesgo como restricción explícita.',['business','risk']))
+    if(round>=4){
+      const constraintReady=Boolean(decision.constraint)&&(!constraintNeedsValue||decision.constraintValue!=='')
+      const suffix=constraintNeedsValue&&decision.constraintValue!==''?` = ${decision.constraintValue}`:''
+      checks.push(check('constraint','Restricción de decisión',constraintReady?'ready':'warn',constraintReady?`Restricción declarada: ${decision.constraint}${suffix}.`:'La política final debe declarar la restricción y su valor operativo.',['business','risk']))
+    }
   }
 
   if(round>=2&&by.context){
@@ -62,7 +67,17 @@ export function assessWarRoom(rows=[],round=1){
     const policy=by.risk.evidence?.details||{}
     const selected=Array.isArray(policy.selected)?policy.selected:[]
     const feasible=policy.feasible??((policy.used??0)<=(policy.capacity??Infinity)&&(policy.spend??0)<=(policy.budget??Infinity)&&!policy.riskViolation)
-    checks.push(check('policy','Política factible',!selected.length?'warn':feasible?'ready':'block',!selected.length?'Riesgo aún no ha propuesto una política segmentada.':feasible?'La política propuesta respeta las restricciones declaradas.':'La política propuesta viola capacidad, presupuesto o tolerancia de riesgo.',['risk']))
+    checks.push(check('policy','Política factible',!selected.length?'warn':feasible?'ready':'block',!selected.length?'Riesgo aún no ha propuesto una política segmentada.':feasible?'La política propuesta respeta sus controles locales.':'La política propuesta viola capacidad, presupuesto o tolerancia de riesgo.',['risk']))
+
+    if(by.business&&decision.constraint&&decision.constraint!=='Sin restricción explícita'&&decision.constraintValue!==''){
+      const limit=Number(decision.constraintValue)
+      const c=clean(decision.constraint)
+      let ok=true,message='La política respeta la restricción fijada por Decisión.'
+      if(c.includes('capacidad')){ok=Number(policy.used||0)<=limit;message=ok?`Uso ${Number(policy.used||0).toLocaleString()} ≤ capacidad acordada ${limit.toLocaleString()}.`:`Riesgo propone ${Number(policy.used||0).toLocaleString()} personas, por encima de la capacidad acordada ${limit.toLocaleString()}.`}
+      else if(c.includes('presupuesto')){ok=Number(policy.spend||0)<=limit;message=ok?`Gasto ${Math.round(Number(policy.spend||0)).toLocaleString()} ≤ presupuesto acordado ${Math.round(limit).toLocaleString()}.`:`Riesgo propone gastar ${Math.round(Number(policy.spend||0)).toLocaleString()}, por encima del presupuesto acordado ${Math.round(limit).toLocaleString()}.`}
+      else if(c.includes('riesgo')){const allowed=riskTolerance(decision.constraintValue);ok=Number(policy.tolerance||2)<=allowed;message=ok?`Tolerancia de Riesgo no excede el nivel acordado (${decision.constraintValue}).`:`Riesgo opera con una tolerancia mayor que la acordada por Decisión (${decision.constraintValue}).`}
+      checks.push(check('policy-contract','Política ↔ restricción',ok?'ready':'block',message,['business','risk']))
+    }
   }
 
   const blocks=checks.filter(x=>x.status==='block')
