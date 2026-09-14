@@ -30,10 +30,10 @@
 
 Todos los participantes empiezan con el mismo poder universal: **Pregunta Crítica** — “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. El rol se conoce desde el inicio, pero una herramienta avanzada **no se usa antes de ser enseñada**.
 
-- R1: se activan Canvas de Decisión, Administración de Recursos, Radar de Propensión y Escudo de Riesgo. El Analista Causal y el Líder de Experimentos aportan con preguntas de comparabilidad y diseño, sin usar aún DAG/RCT.
-- R2: después de explicar DAG y confusión se activan **Visión DAG + Escáner de Confusión**.
-- R3: después de explicar experimento y ATE se activan **Escudo RCT + Medidor ATE**.
-- R4: después de explicar heterogeneidad se activan **Lente de Uplift + Forja ROI**.
+- R1: se activan **Canvas de Decisión**, **Administración de Recursos** y **Escudo de Riesgo**. Líder de Modelos interpreta el puntaje sin llamarlo causal; Analista Causal formula el contrafactual; Líder de Experimentos pregunta cuál sería la comparación justa.
+- R2: después de explicar confusión, grafo causal y propensión se activan **Radar de Propensión**, **Visión de Grafo Causal (DAG)** y **Escáner de Confusión**.
+- R3: después de explicar experimento y efecto promedio se activan **Escudo de Aleatorización (RCT)** y **Medidor de Efecto Promedio (ATE)**.
+- R4: después de explicar heterogeneidad se activan **Lente de Impacto Incremental** y **Forja de Valor (ROI)**.
 
 Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una **misión permanente en lenguaje no técnico**. Nadie queda sin tarea. La lógica es deliberada: primero se enseña el concepto, luego aparece el poder que lo representa.
 
@@ -44,17 +44,17 @@ Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una
 | 0–10 | Apertura: misión, equipos, roles, mercado y regla de puntuación. |
 | 10–20 | Mini-clase R1: predicción, intervención y contrafactual. |
 | 20–32 | Laboratorio R1 en salas. |
-| 32–38 | Cierre, ranking observado, reveal causal y microcheck. |
-| 38–48 | Mini-clase R2: confusión, DAG, regresión ajustada y propensión. |
+| 32–38 | Cierre, ranking observado, revelación causal y microcheck. |
+| 38–48 | Mini-clase R2: confusión, grafo causal, regresión ajustada y propensión. |
 | 48–60 | Laboratorio R2. |
-| 60–66 | Reveal, debrief y microcheck. |
+| 60–66 | Revelación, cierre docente y microcheck. |
 | 66–71 | Pausa. |
-| 71–81 | Mini-clase R3: aleatorización, ATE, IC y potencia conceptual. |
+| 71–81 | Mini-clase R3: aleatorización, efecto promedio, IC y potencia conceptual. |
 | 81–93 | Laboratorio R3. |
-| 93–99 | Reveal, debrief y microcheck. |
-| 99–108 | Mini-clase R4: CATE, uplift, valor y riesgo. |
+| 93–99 | Revelación, cierre docente y microcheck. |
+| 99–108 | Mini-clase R4: efecto por perfil, impacto incremental, valor y riesgo. |
 | 108–116 | Laboratorio R4. |
-| 116–120 | Reveal final, ranking, aprendizajes y cierre. |
+| 116–120 | Revelación final, ranking, aprendizajes y cierre. |
 
 ## Secuencia por ronda
 
@@ -65,10 +65,10 @@ No se puede abrir laboratorio desde briefing sin pasar por la mini-clase.
 ## Los 5 roles y cómo ayudan desde el inicio
 
 - **Líder de Decisión:** encuadra población, intervención, resultado y horizonte. Administra la bolsa y es el único que confirma compras.
-- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje; más adelante compara esa probabilidad con efecto incremental. No debe llamar “efecto” a una predicción.
-- **Analista Causal:** en R1 pregunta qué tendría que ser comparable para afirmar causalidad. Desde R2 usa DAG y confusión porque ya fueron enseñados.
-- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa RCT y ATE porque ya fueron enseñados.
-- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 suma ROI y heterogeneidad.
+- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje y deja claro qué NO demuestra. Desde R2 usa propensión y, en R4, impacto incremental.
+- **Analista Causal:** en R1 formula el contrafactual y pregunta qué tendría que ser comparable. Desde R2 usa grafo causal y confusión porque ya fueron enseñados.
+- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa aleatorización y efecto promedio porque ya fueron enseñados.
+- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 suma valor económico y heterogeneidad.
 
 Cada participante debe llegar a la decisión del equipo con **un hallazgo estructurado de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado.
 
