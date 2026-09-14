@@ -4,7 +4,7 @@ returns public.cw_players
 language sql security invoker set search_path=public
 as $$
   select p.* from public.cw_player_sessions s join public.cw_players p on p.id=s.player_id
-  where s.token_hash=digest(p_token,'sha256') and s.expires_at>now() and p.active=true
+  where s.token_hash=extensions.digest(p_token,'sha256') and s.expires_at>now() and p.active=true
   limit 1;
 $$;
 
@@ -13,7 +13,7 @@ returns uuid
 language sql security invoker set search_path=public
 as $$
   select game_id from public.cw_facilitator_sessions
-  where token_hash=digest(p_token,'sha256') and expires_at>now()
+  where token_hash=extensions.digest(p_token,'sha256') and expires_at>now()
   limit 1;
 $$;
 
@@ -23,8 +23,8 @@ language plpgsql security invoker set search_path=public
 as $$
 declare gid uuid; names text[] := array['Águila','Jaguar','Cóndor','Puma']; i int;
 begin
-  if length(trim(p_code)) < 4 or length(p_pin) < 4 then raise exception 'Código y PIN deben tener al menos 4 caracteres'; end if;
-  insert into public.cw_games(code,facilitator_pin_hash) values(upper(trim(p_code)),crypt(p_pin,gen_salt('bf'))) returning id into gid;
+  if length(trim(p_code)) < 4 or length(p_pin) < 8 then raise exception 'Código mínimo 4 caracteres y PIN mínimo 8 caracteres'; end if;
+  insert into public.cw_games(code,facilitator_pin_hash) values(upper(trim(p_code)),extensions.crypt(p_pin,extensions.gen_salt('bf'))) returning id into gid;
   for i in 1..4 loop insert into public.cw_teams(game_id,position,name) values(gid,i,names[i]); end loop;
   insert into public.cw_events(game_id,actor,event_type,payload) values(gid,'system','game_created',jsonb_build_object('code',upper(trim(p_code))));
   return gid;
@@ -39,13 +39,14 @@ begin
   select * into g from public.cw_games where code=upper(trim(p_code)) for update;
   if g.id is null then raise exception 'Partida no encontrada'; end if;
   if g.status='finished' then raise exception 'La partida ya terminó'; end if;
+  if trim(coalesce(p_display_name,''))='' then raise exception 'Nombre obligatorio'; end if;
   select count(*) into n from public.cw_players where game_id=g.id and active=true;
   if n>=20 then raise exception 'La partida alcanzó 20 participantes'; end if;
   team_pos := mod(n,4)+1; role_pos := mod(floor(n/4.0)::int,5)+1;
   select id into tid from public.cw_teams where game_id=g.id and position=team_pos;
   insert into public.cw_players(game_id,team_id,display_name,role_code) values(g.id,tid,left(trim(p_display_name),80),roles[role_pos]) returning id into pid;
-  tok := encode(gen_random_bytes(32),'hex');
-  insert into public.cw_player_sessions(player_id,token_hash,expires_at) values(pid,digest(tok,'sha256'),now()+interval '6 hours');
+  tok := encode(extensions.gen_random_bytes(32),'hex');
+  insert into public.cw_player_sessions(player_id,token_hash,expires_at) values(pid,extensions.digest(tok,'sha256'),now()+interval '6 hours');
   insert into public.cw_events(game_id,actor,event_type,payload) values(g.id,pid::text,'player_joined',jsonb_build_object('team_id',tid,'role',roles[role_pos]));
   return jsonb_build_object('token',tok,'player',jsonb_build_object('id',pid,'team_id',tid,'role_code',roles[role_pos],'display_name',p_display_name));
 end $$;
@@ -57,9 +58,9 @@ as $$
 declare g public.cw_games; tok text;
 begin
   select * into g from public.cw_games where code=upper(trim(p_code));
-  if g.id is null or crypt(p_pin,g.facilitator_pin_hash)<>g.facilitator_pin_hash then raise exception 'Código o PIN inválido'; end if;
-  tok := encode(gen_random_bytes(32),'hex');
-  insert into public.cw_facilitator_sessions(game_id,token_hash,expires_at) values(g.id,digest(tok,'sha256'),now()+interval '8 hours');
+  if g.id is null or extensions.crypt(p_pin,g.facilitator_pin_hash)<>g.facilitator_pin_hash then raise exception 'Código o PIN inválido'; end if;
+  tok := encode(extensions.gen_random_bytes(32),'hex');
+  insert into public.cw_facilitator_sessions(game_id,token_hash,expires_at) values(g.id,extensions.digest(tok,'sha256'),now()+interval '8 hours');
   return jsonb_build_object('token',tok,'game_id',g.id);
 end $$;
 
