@@ -19,23 +19,23 @@
 
 ## 15 min antes
 
-- Abrir videollamada y cuatro salas de trabajo: Águila, Jaguar, Cóndor y Puma.
+- Abrir videollamada y cuatro salas de trabajo: **Fisher, Neyman, Rubin y Pearl**.
 - Compartir **sólo `wall.html`** en sala principal.
 - Mantener `facilitator.html` en una ventana no compartida.
 - Confirmar 20/20 participantes o activar plan de ausencia.
-- Explicar que todos los equipos tienen la misma composición de 5 roles y la misma bolsa inicial.
+- Explicar que todos los equipos tienen la misma composición de 5 roles, el mismo poder universal inicial y la misma bolsa de recursos.
 - Explicar mercado en máximo 2 min: pista, herramienta de ronda, Junior, Senior y Llamada al Capítulo.
 
 ## Regla pedagógica de los poderes
 
-El rol se conoce desde el inicio, pero una herramienta avanzada **no se usa antes de ser enseñada**.
+Todos los participantes empiezan con el mismo poder universal: **Pregunta Crítica** — “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. El rol se conoce desde el inicio, pero una herramienta avanzada **no se usa antes de ser enseñada**.
 
-- R1: se activan Canvas de Decisión, Administración de Recursos, Radar de Propensión y Escudo de Riesgo.
-- R2: después de explicar DAG/confusión se activan **Visión DAG + Escáner de Confusión**.
-- R3: después de explicar experimento/ATE se activan **Escudo RCT + Medidor ATE**.
+- R1: se activan Canvas de Decisión, Administración de Recursos, Radar de Propensión y Escudo de Riesgo. El Analista Causal y el Líder de Experimentos aportan con preguntas de comparabilidad y diseño, sin usar aún DAG/RCT.
+- R2: después de explicar DAG y confusión se activan **Visión DAG + Escáner de Confusión**.
+- R3: después de explicar experimento y ATE se activan **Escudo RCT + Medidor ATE**.
 - R4: después de explicar heterogeneidad se activan **Lente de Uplift + Forja ROI**.
 
-Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una **misión permanente** en lenguaje no técnico. Nadie queda sin tarea.
+Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una **misión permanente en lenguaje no técnico**. Nadie queda sin tarea. La lógica es deliberada: primero se enseña el concepto, luego aparece el poder que lo representa.
 
 ## Cronograma recomendado
 
@@ -58,31 +58,31 @@ Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una
 
 ## Secuencia por ronda
 
-`PRESENTAR CONCEPTO → ABRIR LABORATORIO → CERRAR → REVELAR → CIERRE DOCENTE → MICROCHECK → SIGUIENTE`
+`PRESENTAR CONCEPTO → ABRIR LABORATORIO → COMPARTIR 5 HALLAZGOS → CERRAR → REVELAR → CIERRE DOCENTE → MICROCHECK → SIGUIENTE`
 
 No se puede abrir laboratorio desde briefing sin pasar por la mini-clase.
 
-## Los 5 roles
+## Los 5 roles y cómo ayudan desde el inicio
 
-- **Líder de Decisión:** encuadra la decisión y administra la bolsa. Es el único que confirma compras.
-- **Líder de Modelos:** distingue probabilidad, score y efecto incremental.
-- **Analista Causal:** vigila comparabilidad; usa DAG/confusión desde R2.
-- **Líder de Experimentos:** pregunta por el diseño desde R1; usa RCT/ATE desde R3.
-- **Política y Riesgo:** vigila daño y desperdicio desde R1; usa ROI desde R4.
+- **Líder de Decisión:** encuadra población, intervención, resultado y horizonte. Administra la bolsa y es el único que confirma compras.
+- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje; más adelante compara esa probabilidad con efecto incremental. No debe llamar “efecto” a una predicción.
+- **Analista Causal:** en R1 pregunta qué tendría que ser comparable para afirmar causalidad. Desde R2 usa DAG y confusión porque ya fueron enseñados.
+- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa RCT y ATE porque ya fueron enseñados.
+- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 suma ROI y heterogeneidad.
 
-Cada participante debe llegar a la decisión del equipo con **un hallazgo de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado.
+Cada participante debe llegar a la decisión del equipo con **un hallazgo estructurado de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado.
 
 ## Llamada al Capítulo
 
-El Game Master dirige y **no está a la venta**. Los otros tres facilitadores forman una bolsa transversal de expertos. En cada ronda el Game Master define de 0 a 3 atenciones disponibles según capacidad real.
+El Game Master dirige y **no está a la venta**. Los otros tres facilitadores forman una **bolsa transversal de expertos**. No son “experto de DAG”, “experto de ML” o “experto de política” separados en el mercado: la llamada representa al equipo del chapter y debe ser atendida por la persona disponible que domine la duda planteada.
 
-La llamada dura 90 s. El experto puede hacer:
+En cada ronda el Game Master define de 0 a 3 atenciones disponibles según capacidad real. La llamada dura 90 s. El experto puede hacer:
 
 - una observación sobre el problema;
 - una pregunta socrática;
-- una aclaración sobre un concepto ya enseñado.
+- una aclaración sobre **conceptos ya enseñados hasta esa ronda**.
 
-No puede decir cuál opción seleccionar ni revelar información futura.
+No puede explicar un tema futuro, decir cuál opción seleccionar ni revelar información privada del simulador. Por ejemplo, en R1 puede hablar de predicción, intervención y contrafactual, pero todavía no debe resolver la ronda usando DAG, IPW, RCT o CATE.
 
 ## Si falta una persona
 
