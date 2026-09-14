@@ -13,18 +13,18 @@ async function call(path,body={},headers={}){
 function assert(c,msg){if(!c)throw new Error(msg)}
 function p95(xs){const a=[...xs].sort((a,b)=>a-b);return a[Math.min(a.length-1,Math.floor(a.length*.95))]||0}
 
-console.log('1/7 health')
+console.log('1/8 health')
 const health=await fetch(`${base}/health`).then(async r=>({ok:r.ok,data:await r.json()}))
 assert(health.ok&&health.data.ok,'health failed')
 
-console.log('2/7 facilitator login + reset')
+console.log('2/8 facilitator login + reset')
 let login=await call('facilitator-login',{game_code:game,pin})
 assert(login.ok,`facilitator login ${login.status}: ${JSON.stringify(login.data)}`)
 const ft=login.data.token
 let r=await call('facilitator-transition',{action:'reset',seconds:60},{'x-facilitator-token':ft})
 assert(r.ok,`reset failed: ${JSON.stringify(r.data)}`)
 
-console.log('3/7 twenty concurrent joins')
+console.log('3/8 twenty concurrent joins')
 const joins=await Promise.all(Array.from({length:20},(_,i)=>call('join-game',{game_code:game,display_name:`Load User ${String(i+1).padStart(2,'0')}`})))
 assert(joins.every(x=>x.ok),`join failures: ${joins.filter(x=>!x.ok).map(x=>`${x.status}:${JSON.stringify(x.data)}`).join(' | ')}`)
 const teamMap=new Map()
@@ -35,8 +35,20 @@ assert([...teamMap.values()].every(v=>new Set(v.map(x=>x.data.player.role_code))
 const extra=await call('join-game',{game_code:game,display_name:'User 21'})
 assert(!extra.ok&&extra.status===400,'21st participant was not rejected')
 
-console.log('4/7 open + decisions + idempotency')
+console.log('4/8 open + structured specialist evidence')
+r=await call('facilitator-transition',{action:'lesson',seconds:60},{'x-facilitator-token':ft});assert(r.ok,`lesson failed ${JSON.stringify(r.data)}`)
 r=await call('facilitator-transition',{action:'open',seconds:60},{'x-facilitator-token':ft});assert(r.ok,`open failed ${JSON.stringify(r.data)}`)
+const evidencePosts=await Promise.all(joins.map((x,i)=>call('role-contribution',{
+  action:'submit',round:1,finding_code:`smoke_${x.data.player.role_code}`,
+  evidence:{summary:`Smoke evidence ${i+1}`,assumption:'structured packet',decision:'team integration',details:{probe:i+1}}
+},{'x-game-token':x.data.token})))
+assert(evidencePosts.every(x=>x.ok),`role evidence failures: ${evidencePosts.filter(x=>!x.ok).map(x=>`${x.status}:${JSON.stringify(x.data)}`).join(' | ')}`)
+const evidenceState=await call('role-contribution',{action:'state'},{'x-game-token':joins[0].data.token})
+assert(evidenceState.ok,'role evidence state failed')
+assert(Number(evidenceState.data.count)===5,`expected 5 evidence packets in team, got ${evidenceState.data.count}`)
+assert(evidenceState.data.rows?.every(x=>x.evidence?.summary),'structured evidence missing from team state')
+
+console.log('5/8 decisions + lock behavior')
 const selected=['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10']
 const reps=[...teamMap.values()].map(v=>v[0])
 const submits=await Promise.all(reps.map((x,i)=>call('submit-decision',{round:1,payload:{selected},idempotency_key:q(`team${i}`)},{'x-game-token':x.data.token})))
@@ -44,24 +56,22 @@ assert(submits.every(x=>x.ok),'one or more team submissions failed')
 const idemKey=q('idem')
 const first=await call('submit-decision',{round:1,payload:{selected},idempotency_key:idemKey},{'x-game-token':reps[0].data.token})
 assert(!first.ok,'a second distinct lock for same team should fail')
-const lockedIdemKey=submits[0].data.idempotency_key
-// server already validated idempotency in DB test; HTTP duplicate is checked on a fresh reset below to avoid replacing team lock.
 
-console.log('5/7 close + reveal + wall')
+console.log('6/8 close + reveal + wall')
 r=await call('facilitator-transition',{action:'close',seconds:60},{'x-facilitator-token':ft});assert(r.ok,'close failed')
 r=await call('facilitator-transition',{action:'reveal',seconds:60},{'x-facilitator-token':ft});assert(r.ok,'reveal failed')
 const wall=await call('leaderboard',{game_code:game})
 assert(wall.ok&&wall.data.teams?.length===4,'wall/leaderboard failed')
 assert(wall.data.teams.every(t=>Number.isFinite(Number(t.score?.impact))),'impact scores missing')
 
-console.log('6/7 fifty-client burst')
+console.log('7/8 fifty-client burst')
 const burst=await Promise.all(Array.from({length:50},(_,i)=>i%2===0?call('leaderboard',{game_code:game}):fetch(`${base}/health`).then(async resp=>({ok:resp.ok,status:resp.status,data:await resp.json(),ms:0}))))
 assert(burst.every(x=>x.ok),`burst failures: ${burst.filter(x=>!x.ok).length}`)
 const times=burst.filter(x=>x.ms>0).map(x=>x.ms)
 console.log(`burst ok=50/50 p95_post=${p95(times).toFixed(0)}ms`)
 assert(p95(times)<5000,`p95 too high: ${p95(times)}ms`)
 
-console.log('7/7 reset cleanup')
+console.log('8/8 reset cleanup')
 login=await call('facilitator-login',{game_code:game,pin});assert(login.ok,'re-login failed')
 r=await call('facilitator-transition',{action:'reset',seconds:60},{'x-facilitator-token':login.data.token});assert(r.ok,'final reset failed')
 console.log('LIVE_SMOKE_OK')
