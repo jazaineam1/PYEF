@@ -1,0 +1,37 @@
+{
+  "provenance": {
+    "verified": false,
+    "engine": "pending-offline-precompute",
+    "seed": 20260914,
+    "train_rows": 8000,
+    "dataset": "synthetic-banking-causal-scenario",
+    "estimators": ["T-Learner", "DRLearner", "CausalForestDML"],
+    "note": "Bootstrap seed data. GitHub Actions replaces this file with verified EconML outputs before the UI claims EconML provenance."
+  },
+  "clients": [
+    {"id":"C01","name":"Cliente A","segment":"Premium","score":0.91,"tlearner":0.010,"drlearner":0.006,"forest":0.004},
+    {"id":"C02","name":"Cliente B","segment":"Digital","score":0.66,"tlearner":0.292,"drlearner":0.284,"forest":0.280},
+    {"id":"C03","name":"Cliente C","segment":"Mora alta","score":0.72,"tlearner":-0.042,"drlearner":-0.018,"forest":-0.024},
+    {"id":"C04","name":"Cliente D","segment":"Tradicional","score":0.84,"tlearner":0.070,"drlearner":0.058,"forest":0.082},
+    {"id":"C05","name":"Cliente E","segment":"Digital","score":0.58,"tlearner":0.162,"drlearner":0.146,"forest":0.138},
+    {"id":"C06","name":"Cliente F","segment":"Joven","score":0.49,"tlearner":0.208,"drlearner":0.224,"forest":0.214},
+    {"id":"C07","name":"Cliente G","segment":"Premium","score":0.77,"tlearner":0.050,"drlearner":0.062,"forest":0.050},
+    {"id":"C08","name":"Cliente H","segment":"Digital","score":0.63,"tlearner":0.202,"drlearner":0.178,"forest":0.196},
+    {"id":"C09","name":"Cliente I","segment":"Mora alta","score":0.88,"tlearner":-0.032,"drlearner":-0.024,"forest":-0.008},
+    {"id":"C10","name":"Cliente J","segment":"Tradicional","score":0.55,"tlearner":0.110,"drlearner":0.114,"forest":0.098},
+    {"id":"C11","name":"Cliente K","segment":"Joven","score":0.69,"tlearner":0.182,"drlearner":0.182,"forest":0.164},
+    {"id":"C12","name":"Cliente L","segment":"Premium","score":0.81,"tlearner":0.028,"drlearner":0.028,"forest":0.040},
+    {"id":"C13","name":"Cliente M","segment":"Digital","score":0.44,"tlearner":0.240,"drlearner":0.236,"forest":0.246},
+    {"id":"C14","name":"Cliente N","segment":"Tradicional","score":0.74,"tlearner":0.092,"drlearner":0.084,"forest":0.092},
+    {"id":"C15","name":"Cliente O","segment":"Joven","score":0.60,"tlearner":0.128,"drlearner":0.152,"forest":0.128},
+    {"id":"C16","name":"Cliente P","segment":"Premium","score":0.93,"tlearner":0.000,"drlearner":-0.012,"forest":-0.006},
+    {"id":"C17","name":"Cliente Q","segment":"Digital","score":0.52,"tlearner":0.222,"drlearner":0.206,"forest":0.210},
+    {"id":"C18","name":"Cliente R","segment":"Mora alta","score":0.79,"tlearner":0.048,"drlearner":0.064,"forest":0.066},
+    {"id":"C19","name":"Cliente S","segment":"Joven","score":0.67,"tlearner":0.160,"drlearner":0.172,"forest":0.172},
+    {"id":"C20","name":"Cliente T","segment":"Tradicional","score":0.47,"tlearner":0.262,"drlearner":0.238,"forest":0.238},
+    {"id":"C21","name":"Cliente U","segment":"Premium","score":0.86,"tlearner":0.018,"drlearner":0.026,"forest":0.024},
+    {"id":"C22","name":"Cliente V","segment":"Digital","score":0.57,"tlearner":0.130,"drlearner":0.134,"forest":0.130},
+    {"id":"C23","name":"Cliente W","segment":"Tradicional","score":0.71,"tlearner":0.102,"drlearner":0.102,"forest":0.096},
+    {"id":"C24","name":"Cliente X","segment":"Joven","score":0.64,"tlearner":0.168,"drlearner":0.168,"forest":0.192}
+  ]
+}
