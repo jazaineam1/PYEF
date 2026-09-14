@@ -1,13 +1,13 @@
 import React,{useEffect,useMemo,useState}from'react'
 import{CheckCircle2,AlertTriangle,XCircle,RefreshCw,Laptop,Copy,ExternalLink,MonitorCheck}from'lucide-react'
-import{invoke}from'../lib/api'
+import{invoke,getFacilitatorGameCode}from'../lib/api'
 
 export function ReadinessPanel(){
   const[data,setData]=useState(null);const[err,setErr]=useState('');const[busy,setBusy]=useState(false);const[copied,setCopied]=useState(false)
   async function refresh(){setBusy(true);try{setData(await invoke('readiness-check',{action:'report'},'facilitator'));setErr('')}catch(e){setErr(e.message)}finally{setBusy(false)}}
   useEffect(()=>{refresh()},[])
-  const total=Number(data?.total||0),fails=Number(data?.fail||0),warns=Number(data?.warn||0);const game=data?.game_code||'FUTUROS26'
-  const readinessUrl=useMemo(()=>{try{const u=new URL('system-check.html',location.href);u.searchParams.set('game',game);return u.toString()}catch{return `system-check.html?game=${game}`}},[game])
+  const total=Number(data?.total||0),fails=Number(data?.fail||0),warns=Number(data?.warn||0);const game=data?.game_code||getFacilitatorGameCode()||''
+  const readinessUrl=useMemo(()=>{try{const u=new URL('system-check.html',location.href);if(game)u.searchParams.set('game',game);return u.toString()}catch{return game?`system-check.html?game=${game}`:'system-check.html'}},[game])
   const os=useMemo(()=>{const out={Windows:0,macOS:0,Otros:0};for(const r of(data?.rows||[])){if(r.os==='Windows')out.Windows++;else if(r.os==='macOS')out.macOS++;else out.Otros++}return out},[data])
   const ready=total===20&&fails===0
   const message=`Hola equipo. Mañana tendremos Causal Quest. Antes de la sesión, por favor hagan esta prueba de su computador (2–3 minutos):\n\n${readinessUrl}\n\nUsen el mismo computador y navegador con el que participarán. Recomendado: Chrome o Edge actualizado en Windows; Chrome, Edge o Safari en macOS. No usen celular. Al final escriban su nombre y registren el resultado. Si aparece “NO APTO”, envíen una captura hoy mismo.`
