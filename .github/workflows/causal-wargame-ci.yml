@@ -1,0 +1,29 @@
+name: causal-wargame-ci
+
+on:
+  pull_request:
+    paths:
+      - 'causal-wargame/**'
+      - '.github/workflows/causal-wargame-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: causal-wargame
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned direct dependencies
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Unit tests and both builds
+        run: npm run check
+      - name: Verify private scenario was not committed
+        run: test ! -f scenario-private.sql

@@ -1,0 +1,26 @@
+{
+  "name": "dos-futuros-causal-wargame",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "npm run dev:demo",
+    "generate:demo": "node scripts/generate_demo.mjs",
+    "dev:demo": "npm run generate:demo && vite --mode demo --host 0.0.0.0",
+    "dev:secure": "vite --mode secure --host 0.0.0.0",
+    "build": "npm run build:demo",
+    "build:demo": "npm run generate:demo && vite build --mode demo",
+    "build:secure": "vite build --mode secure && node scripts/assert_secure_bundle.mjs",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "npm run generate:demo && node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build:demo && npm run build:secure"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "6.1.1",
+    "vite": "8.2.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "lucide-react": "1.45.0"
+  }
+}

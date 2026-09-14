@@ -1,0 +1,2 @@
+import { body, json, options } from '../_shared/http.ts';import { rpc } from '../_shared/rpc.ts'
+Deno.serve(async req=>{const pre=options(req);if(pre)return pre;try{const b=await body(req);if(!b.game_code||!b.display_name)return json({error:'Código y nombre son obligatorios'},400);const data=await rpc('cw_join_game',{p_code:b.game_code,p_display_name:b.display_name});return json(data)}catch(e){return json({error:e.message},400)}})
