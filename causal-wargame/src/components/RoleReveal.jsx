@@ -1,42 +1,40 @@
-import React,{useEffect,useState}from'react'
+import React from'react'
 import{LockKeyhole,ShieldCheck,Sparkles,Zap}from'lucide-react'
-import{COMMON_POWER,ROLE_ARCHETYPES,powersForRole}from'../codex'
+import{COMMON_POWER,CORE_ROLE_CODES,ROLE_ARCHETYPES,powersForRole}from'../codex'
 import{ECONML_PROVENANCE}from'../causal-tools'
-import{functionsBaseUrl}from'../lib/api'
-
-const ROLE_ART={
-  business:functionsBaseUrl?`${functionsBaseUrl}/role-art?role=business`:''
-}
 
 export function RoleReveal({state,role:roleProp,round:roundProp,phase:phaseProp='lesson'}){
   const role=state?.player?.role_code||roleProp
   const round=state?.game?.round||roundProp||1
   const phase=state?.game?.phase||phaseProp
   const meta=ROLE_ARCHETYPES[role]
-  const art=ROLE_ART[role]||''
-  const[artFailed,setArtFailed]=useState(false)
-  const[visualMode,setVisualMode]=useState(art?'art':'emoji')
-  useEffect(()=>{setArtFailed(false);setVisualMode(art?'art':'emoji')},[role,art])
   if(!meta)return null
   const powers=powersForRole(role,round,phase)
-  const canShowArt=Boolean(art&&!artFailed)
-  function fallbackArt(){setArtFailed(true);setVisualMode('emoji')}
+  const coreRoles=CORE_ROLE_CODES.map(code=>ROLE_ARCHETYPES[code]).filter(Boolean)
+  const copilot=ROLE_ARCHETYPES.risk
   return <div className="quest-reveal power-enter" style={{'--active-accent':meta.accent}}>
     <div className="power-burst" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>
     <div className="role-focus-card">
       <div className="role-visual-column">
-        <div className={`role-portrait ${visualMode==='art'&&canShowArt?'has-art':'role-portrait-placeholder'}`} aria-label={`Identidad visual del rol ${meta.label}`}>
-          <span className="role-emoji-sigil" aria-hidden="true">{meta.emoji}</span>
-          {visualMode==='art'&&canShowArt?<img className="role-card-art" src={art} alt={`Ilustración del rol ${meta.label}`} width="180" height="240" loading="lazy" decoding="async" fetchPriority="low" onError={fallbackArt}/>:<div className="role-avatar-animated" aria-label={`Avatar animado ${meta.label}`}><span>{meta.emoji}</span><small>{meta.type}</small><i/></div>}
+        <div className="role-avatar-stage" aria-hidden="true">
+          <i className="role-orbit role-orbit-one"/><i className="role-orbit role-orbit-two"/>
+          <span className="role-avatar-glow"/><span className="role-avatar-emoji">{meta.emoji}</span>
+          <span className="role-spark role-spark-a">✦</span><span className="role-spark role-spark-b">✦</span><span className="role-spark role-spark-c">✦</span>
         </div>
-        {canShowArt&&<div className="role-visual-switch" role="group" aria-label="Cambiar representación visual del rol"><button type="button" className={visualMode==='art'?'active':''} onClick={()=>setVisualMode('art')}>Ilustración</button><button type="button" className={visualMode==='emoji'?'active':''} onClick={()=>setVisualMode('emoji')}>{meta.emoji} Avatar</button></div>}
+        <span className={`role-visual-caption ${meta.core?'core':'optional'}`}>{meta.core?'RESPONSABILIDAD NÚCLEO':'COPILOTO OPCIONAL'}</span>
       </div>
-      <div className="role-focus-copy"><div className="eyebrow">REVELACIÓN DE ROL · {meta.emoji}</div><div className="type-badge"><Zap size={13}/>{meta.type}</div><h2 className="role-title-glow"><span className="role-title-emoji" aria-hidden="true">{meta.emoji}</span>{meta.label}</h2><p>{meta.tagline}</p><div className="role-mission"><b>Misión permanente</b><span>{meta.mission}</span></div></div>
+      <div className="role-focus-copy">
+        <div className="eyebrow">REVELACIÓN DE ROL</div><div className="type-badge"><Zap size={13}/>{meta.type}</div>
+        <h2 className="role-title-glow"><span className="role-title-emoji" aria-hidden="true">{meta.emoji}</span>{meta.label}</h2>
+        <p className="role-tagline">{meta.tagline}</p>
+        <div className="role-meta-row"><span>{meta.family}</span><span>Herramienta · {meta.tool}</span></div>
+        <div className="role-mission"><b>Misión permanente</b><span>{meta.mission}</span></div>
+      </div>
     </div>
-    <div className="common-power-card"><Sparkles/><div><div className="eyebrow">PODER BASE · IGUAL PARA LOS 20 PARTICIPANTES</div><h3>{COMMON_POWER.name}</h3><p>{COMMON_POWER.why}</p></div></div>
+    <div className="common-power-card"><Sparkles/><div><div className="eyebrow">PODER BASE · IGUAL PARA TODOS LOS PARTICIPANTES</div><h3>{COMMON_POWER.name}</h3><p>{COMMON_POWER.why}</p></div></div>
     <div className="power-grid-simple">{powers.map(p=><div key={p.name} className={`power-box ${p.unlocked?'unlocked':'locked'} ${p.unlocking?'unlocking':''}`}><div className="power-box-icon">{p.unlocked?<Sparkles/>:<LockKeyhole/>}</div><div><div className="eyebrow">{p.unlocked?'HABILIDAD DISPONIBLE':p.unlocking?'SE ACTIVA DESPUÉS DE ESTA EXPLICACIÓN':`SE ACTIVA EN RONDA ${p.unlockRound}`}</div><h3>{p.name}</h3><p>{p.why}</p></div></div>)}</div>
     {role==='data'&&round>=4&&ECONML_PROVENANCE?.verified&&<div className="model-provenance-card"><span className="model-provenance-emoji" aria-hidden="true">🧪</span><div><b>Evidencia precomputada con EconML</b><span>{ECONML_PROVENANCE.econml_version?`EconML ${ECONML_PROVENANCE.econml_version} · `:''}T-Learner, DR-Learner y CausalForestDML.</span><small>Los modelos se ejecutaron fuera de la clase; el navegador sólo explora resultados estáticos. La concordancia entre estimadores no demuestra identificación causal.</small></div></div>}
     {meta.marketAuthority&&<div className="market-authority"><ShieldCheck size={16}/><div><b>Responsabilidad exclusiva del rol:</b><span> tú confirmas la cesta del mercado, pero la decisión de qué comprar se discute con todo el equipo.</span></div></div>}
-    <div className="team-role-strip"><span>Los cuatro equipos comienzan con exactamente los mismos cinco roles y el mismo poder base:</span>{Object.values(ROLE_ARCHETYPES).map(m=><i key={m.label} title={m.label} style={{'--role-accent':m.accent}}>{m.emoji}</i>)}</div>
+    <div className="team-role-strip"><div className="team-role-strip-copy"><b>Arquitectura del equipo</b><span>Cuatro responsabilidades núcleo. Si hay una quinta persona, entra como copiloto y no añade una especialidad obligatoria.</span></div><div className="team-role-icons" aria-label="Cuatro responsabilidades núcleo y copiloto opcional">{coreRoles.map(m=><i key={m.label} title={m.label} style={{'--role-accent':m.accent}}>{m.emoji}</i>)}<span className="team-role-plus">+</span><i className="optional" title={`${copilot.label} · opcional`} style={{'--role-accent':copilot.accent}}>{copilot.emoji}</i></div></div>
   </div>
 }
