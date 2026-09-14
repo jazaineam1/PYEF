@@ -5,6 +5,8 @@ import{readFile}from'node:fs/promises'
 const inspectorUrl=new URL('../src/components/RoleInspector.jsx',import.meta.url)
 const roleLabUrl=new URL('../src/components/RoleLab.jsx',import.meta.url)
 const facilitatorUrl=new URL('../src/pages/SecureFacilitatorLearning.jsx',import.meta.url)
+const standaloneUrl=new URL('../src/pages/FacilitatorRoleInspector.jsx',import.meta.url)
+const viteUrl=new URL('../vite.config.js',import.meta.url)
 
 test('facilitator inspector can switch through all roles and rounds without backend writes',async()=>{
   const source=await readFile(inspectorUrl,'utf8')
@@ -26,4 +28,13 @@ test('facilitator console exposes the role inspector after login',async()=>{
   const source=await readFile(facilitatorUrl,'utf8')
   assert.match(source,/RoleInspector/)
   assert.match(source,/Probar roles y herramientas/)
+})
+
+test('standalone inspector is facilitator-gated and included in secure build',async()=>{
+  const page=await readFile(standaloneUrl,'utf8')
+  const vite=await readFile(viteUrl,'utf8')
+  assert.match(page,/getFacilitatorToken/)
+  assert.match(page,/RoleInspector/)
+  assert.equal(page.includes("invoke("),false)
+  assert.match(vite,/roleInspector:'role-inspector\.html'/)
 })
