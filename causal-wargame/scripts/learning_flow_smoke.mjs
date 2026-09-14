@@ -20,13 +20,11 @@ for(let round=1;round<=4;round++){
     const expertSet=await call('expert-market',{action:'set',help_id:'expert_causal',slots:1},{'x-facilitator-token':ft});assert(expertSet.ok&&expertSet.data.experts.some(x=>x.help_id==='expert_causal'&&Number(x.slots)===1),'causal expert slot enabled')
     const hs=await call('help-state',{}, {'x-game-token':ptA});assert(hs.ok&&hs.data.investment_balance===60,'wallet starts at 60');assert(!hs.data.catalog.some(x=>x.id==='expert_game'),'game master is not for sale')
     const junior=hs.data.catalog.find(x=>x.id==='junior_analyst');assert(junior&&junior.stock===3&&junior.next_cost===6,'junior market starts 3 units at 6')
-    const a1=await call('buy-help',{help_id:'junior_analyst'},{'x-game-token':ptA});assert(a1.ok&&a1.data.cost===6&&a1.data.investment_balance===54,'first junior costs 6')
-    const b1=await call('buy-help',{help_id:'junior_analyst'},{'x-game-token':ptB});assert(b1.ok&&b1.data.cost===9,'second global junior costs 9')
-    const a2=await call('buy-help',{help_id:'junior_analyst'},{'x-game-token':ptA});assert(a2.ok&&a2.data.cost===13,'third global junior costs 13 and repeat purchase allowed')
+    const basket=await call('buy-help-batch',{items:[{help_id:'junior_analyst',qty:2},{help_id:'expert_causal',qty:1}]},{'x-game-token':ptA});assert(basket.ok&&basket.data.units===3&&basket.data.total_cost===37,'atomic basket costs junior 6+9 plus causal expert 22')
+    assert(basket.data.state.investment_balance===23&&basket.data.state.help_cost===37,'basket wallet accounting')
+    const b1=await call('buy-help',{help_id:'junior_analyst'},{'x-game-token':ptB});assert(b1.ok&&b1.data.cost===13,'third global junior costs 13')
     const sold=await call('buy-help',{help_id:'junior_analyst'},{'x-game-token':ptB});assert(!sold.ok,'fourth junior rejected: global stock exhausted')
-    const expert=await call('buy-help',{help_id:'expert_causal'},{'x-game-token':ptA});assert(expert.ok&&expert.data.cost===22&&expert.data.result.master==='Causal Master','available causal expert can be reserved')
     const expertSold=await call('buy-help',{help_id:'expert_causal'},{'x-game-token':ptB});assert(!expertSold.ok,'expert cannot oversell one real slot')
-    const after=await call('help-state',{}, {'x-game-token':ptA});assert(after.ok&&after.data.help_cost===41&&after.data.investment_balance===19,'team A investment accounting 6+13+22')
   }
   const submit=await call('submit-decision',{round,payload:payloads[round],idempotency_key:`learning-${round}-${Date.now()}`},{'x-game-token':ptA});assert(submit.ok,`round ${round}: human decision`)
   r=await call('facilitator-transition',{action:'close'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: close`)
@@ -36,5 +34,5 @@ for(let round=1;round<=4;round++){
   const check=await call('submit-check',{round,answer:answers[round]},{'x-game-token':ptA});assert(check.ok&&check.data.correct===true,`round ${round}: correct microcheck`)
   r=await call('facilitator-transition',{action:'next'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: next`)
 }
-const final=await call('leaderboard',{game_code:game});assert(final.ok&&final.data.game.phase==='finished','finished phase');assert(final.data.teams.length===4,'4 teams');assert(final.data.teams.some(t=>Number(t.help_cost)===41),'market investment survives to final leaderboard');console.log('CAUSAL_QUEST_V4_OK · dynamic junior prices 6→9→13 · stock exhausted · expert slot enforced · 4 rounds complete')
+const final=await call('leaderboard',{game_code:game});assert(final.ok&&final.data.game.phase==='finished','finished phase');assert(final.data.teams.length===4,'4 teams');assert(final.data.teams.some(t=>Number(t.help_cost)===37),'basket investment survives to final leaderboard');console.log('CAUSAL_QUEST_V41_OK · atomic basket 6+9+22=37 · junior 3rd=13 · stock/expert slots enforced · 4 rounds complete')
 login=await call('facilitator-login',{game_code:game,pin});if(login.ok){await call('facilitator-transition',{action:'reset'},{'x-facilitator-token':login.data.token});const clean=await call('leaderboard',{game_code:game});assert(clean.ok&&clean.data.teams.every(t=>Number(t.help_cost||0)===0),'reset clears investment costs')}
