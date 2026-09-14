@@ -69,8 +69,13 @@ export async function invoke(name, body = {}, kind = 'player', options = {}){
   const dedupeKey = DEDUPE_ENDPOINTS.has(name) ? `${kind}:${name}:${JSON.stringify(body)}` : null
   if(dedupeKey && inflight.has(dedupeKey)) return inflight.get(dedupeKey)
   const promise = fetchJson(`${base}/${name}`, { method:'POST', headers, body:JSON.stringify(body) }, options).catch(error=>{
-    if(kind==='player'&&name==='game-state'&&/sesión inválida|expirada/i.test(error?.message||'')){
+    const invalidSession=/sesión inválida|expirada/i.test(error?.message||'')
+    if(kind==='player'&&name==='game-state'&&invalidSession){
       clearPlayerSession()
+      setTimeout(()=>window.location.reload(),0)
+    }
+    if(kind==='facilitator'&&name==='leaderboard'&&invalidSession){
+      clearFacilitatorSession()
       setTimeout(()=>window.location.reload(),0)
     }
     throw error
