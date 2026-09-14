@@ -3,13 +3,14 @@ import{CheckCircle2,Coins,GraduationCap,Lightbulb,LockKeyhole,Minus,PackageCheck
 import{invoke}from'../lib/api'
 
 const META={hint:{label:'Pista',icon:Lightbulb},tool:{label:'Herramienta de la ronda',icon:Wrench},talent:{label:'Talento',icon:UserPlus},expert:{label:'Llamada al Capítulo',icon:GraduationCap}}
+const jitter=base=>Math.round(base*(.82+Math.random()*.36))
 function HelpResult({p}){const r=p.result||{};return <div className="help-result"><div className="eyebrow">{r.title||'RESULTADO'}</div>{r.metrics&&<div className="help-metrics">{r.metrics.map((m,i)=><div key={i}><span>{m[0]}</span><b>{m[1]}</b></div>)}</div>}{r.text&&<p>{r.text}</p>}{r.master&&<div className="expert-call"><GraduationCap size={18}/><b>{r.master}</b><span>{r.seconds||90}s</span></div>}</div>}
 function Supply({h}){if(h.stock===null||h.stock===undefined)return <span className="stock-pill open">según disponibilidad humana</span>;return <span className={`stock-pill ${h.remaining>0?'open':'sold'}`}>{h.remaining>0?`${h.remaining}/${h.stock} disponibles para tu equipo`:'AGOTADO PARA TU EQUIPO'}</span>}
 
 export function QuestMarket({state}){
   const[data,setData]=useState(null);const[busy,setBusy]=useState(false);const[err,setErr]=useState('');const[open,setOpen]=useState(false);const[cart,setCart]=useState({})
   async function refresh(){try{setData(await invoke('help-state'));setErr('')}catch(e){setErr(e.message)}}
-  useEffect(()=>{if(state.game.phase!=='round')return;setCart({});refresh();const i=setInterval(refresh,6000);return()=>clearInterval(i)},[state.game.phase,state.game.round])
+  useEffect(()=>{if(state.game.phase!=='round')return;setCart({});let stop=false,t;const loop=async()=>{await refresh();if(!stop)t=setTimeout(loop,jitter(open?7500:10000))};loop();return()=>{stop=true;clearTimeout(t)}},[state.game.phase,state.game.round,open])
   const purchasesById=useMemo(()=>{const m={};for(const p of(data?.purchases||[]))m[p.help_id]=(m[p.help_id]||0)+1;return m},[data])
   const groups=useMemo(()=>Object.fromEntries(Object.keys(META).map(k=>[k,(data?.catalog||[]).filter(x=>x.category===k)])),[data])
   const catalogById=useMemo(()=>Object.fromEntries((data?.catalog||[]).map(x=>[x.id,x])),[data])
