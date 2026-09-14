@@ -1,35 +1,13 @@
+import ECONML_PRECOMPUTED from'./data/econml-precomputed.json'
+
 export const ESTIMATORS={
   tlearner:{label:'T-Learner',short:'Dos modelos de resultado: uno por tratamiento.'},
   drlearner:{label:'DR-Learner',short:'Combina modelos de resultado y propensión para una señal doblemente robusta.'},
-  forest:{label:'Forest CATE',short:'Estimador heterogéneo tipo bosque para explorar variación del efecto.'}
+  forest:{label:'CausalForestDML',short:'Bosque causal para explorar heterogeneidad del efecto condicional.'}
 }
 
-export const UPLIFT_CLIENTS=[
-{id:'C01',name:'Cliente A',segment:'Premium',score:.91,tlearner:.010,drlearner:.006,forest:.004},
-{id:'C02',name:'Cliente B',segment:'Digital',score:.66,tlearner:.292,drlearner:.284,forest:.280},
-{id:'C03',name:'Cliente C',segment:'Mora alta',score:.72,tlearner:-.042,drlearner:-.018,forest:-.024},
-{id:'C04',name:'Cliente D',segment:'Tradicional',score:.84,tlearner:.070,drlearner:.058,forest:.082},
-{id:'C05',name:'Cliente E',segment:'Digital',score:.58,tlearner:.162,drlearner:.146,forest:.138},
-{id:'C06',name:'Cliente F',segment:'Joven',score:.49,tlearner:.208,drlearner:.224,forest:.214},
-{id:'C07',name:'Cliente G',segment:'Premium',score:.77,tlearner:.050,drlearner:.062,forest:.050},
-{id:'C08',name:'Cliente H',segment:'Digital',score:.63,tlearner:.202,drlearner:.178,forest:.196},
-{id:'C09',name:'Cliente I',segment:'Mora alta',score:.88,tlearner:-.032,drlearner:-.024,forest:-.008},
-{id:'C10',name:'Cliente J',segment:'Tradicional',score:.55,tlearner:.110,drlearner:.114,forest:.098},
-{id:'C11',name:'Cliente K',segment:'Joven',score:.69,tlearner:.182,drlearner:.182,forest:.164},
-{id:'C12',name:'Cliente L',segment:'Premium',score:.81,tlearner:.028,drlearner:.028,forest:.040},
-{id:'C13',name:'Cliente M',segment:'Digital',score:.44,tlearner:.240,drlearner:.236,forest:.246},
-{id:'C14',name:'Cliente N',segment:'Tradicional',score:.74,tlearner:.092,drlearner:.084,forest:.092},
-{id:'C15',name:'Cliente O',segment:'Joven',score:.60,tlearner:.128,drlearner:.152,forest:.128},
-{id:'C16',name:'Cliente P',segment:'Premium',score:.93,tlearner:.000,drlearner:-.012,forest:-.006},
-{id:'C17',name:'Cliente Q',segment:'Digital',score:.52,tlearner:.222,drlearner:.206,forest:.210},
-{id:'C18',name:'Cliente R',segment:'Mora alta',score:.79,tlearner:.048,drlearner:.064,forest:.066},
-{id:'C19',name:'Cliente S',segment:'Joven',score:.67,tlearner:.160,drlearner:.172,forest:.172},
-{id:'C20',name:'Cliente T',segment:'Tradicional',score:.47,tlearner:.262,drlearner:.238,forest:.238},
-{id:'C21',name:'Cliente U',segment:'Premium',score:.86,tlearner:.018,drlearner:.026,forest:.024},
-{id:'C22',name:'Cliente V',segment:'Digital',score:.57,tlearner:.130,drlearner:.134,forest:.130},
-{id:'C23',name:'Cliente W',segment:'Tradicional',score:.71,tlearner:.102,drlearner:.102,forest:.096},
-{id:'C24',name:'Cliente X',segment:'Joven',score:.64,tlearner:.168,drlearner:.168,forest:.192}
-]
+export const UPLIFT_CLIENTS=ECONML_PRECOMPUTED.clients
+export const ECONML_PROVENANCE=ECONML_PRECOMPUTED.provenance
 
 export const DAG_SCENARIOS={
 2:{title:'Confusión antes del tratamiento',nodes:['Mora previa','Llamada','Pago'],expected:[['Mora previa','Llamada'],['Mora previa','Pago'],['Llamada','Pago']],danger:'backdoor',adjust:'Mora previa',prompt:'Construye una hipótesis causal que explique por qué los llamados pueden pagar menos aun si la llamada ayuda.'},
