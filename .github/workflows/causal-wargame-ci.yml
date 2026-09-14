@@ -1,6 +1,11 @@
 name: causal-wargame-ci
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'causal-wargame/**'
+      - '.github/workflows/causal-wargame-ci.yml'
   pull_request:
     paths:
       - 'causal-wargame/**'
@@ -28,5 +33,5 @@ jobs:
       - name: Verify private scenario was not committed
         run: test ! -f scenario-private.sql
       - name: Live Supabase smoke — 20 players / 50 clients
-        if: github.head_ref == 'dos-futuros-production' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'push' || github.head_ref == 'dos-futuros-production' || github.event_name == 'workflow_dispatch'
         run: node scripts/live_smoke.mjs
