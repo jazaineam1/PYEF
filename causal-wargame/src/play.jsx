@@ -7,6 +7,7 @@ import './quest-v41.css'
 import './quest-v5.css'
 import './quest-v5-extra.css'
 import './quest-v5-visuals.css'
+import './role-art.css'
 import ModePlay from '#play'
 
 createRoot(document.getElementById('root')).render(<ModePlay/>)
