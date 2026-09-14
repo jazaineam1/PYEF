@@ -1,0 +1,59 @@
+name: causal-wargame-econml-precompute
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'causal-wargame/scripts/precompute_econml.py'
+      - '.github/workflows/causal-wargame-econml-precompute.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: causal-wargame-econml-precompute
+  cancel-in-progress: false
+
+jobs:
+  precompute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install causal stack
+        run: python -m pip install --disable-pip-version-check 'numpy<2' 'scikit-learn<1.6' 'econml==0.16.0'
+      - name: Generate deterministic EconML outputs
+        working-directory: causal-wargame
+        run: python scripts/precompute_econml.py
+      - name: Validate provenance and shape
+        working-directory: causal-wargame
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('src/data/econml-precomputed.json').read_text())
+          assert p['provenance']['verified'] is True
+          assert p['provenance']['engine']=='EconML'
+          assert len(p['clients'])==24
+          for row in p['clients']:
+              for k in ('score','tlearner','drlearner','forest'):
+                  assert isinstance(row[k], (int,float))
+          print('ECONML_PRECOMPUTE_OK · 24 profiles · provenance verified')
+          PY
+      - name: Commit generated outputs if changed
+        run: |
+          if git diff --quiet -- causal-wargame/src/data/econml-precomputed.json; then
+            echo 'No generated changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add causal-wargame/src/data/econml-precomputed.json
+          git commit -m 'data: refresh verified EconML causal outputs'
+          git push
