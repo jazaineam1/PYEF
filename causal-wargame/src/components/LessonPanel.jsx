@@ -1,6 +1,13 @@
 import React from 'react'
 import {LESSONS,ROLE_TASKS,ROLE_TOOLS} from '../learning'
+import {ROLE_ARCHETYPES} from '../codex'
 import {RoleReveal} from './RoleReveal'
+
+function UnlockSummary({round}){
+  const unlocks=Object.entries(ROLE_ARCHETYPES).flatMap(([role,meta])=>meta.powers.filter(p=>p.unlockRound===Number(round)).map(p=>({role,label:meta.label,emoji:meta.emoji,accent:meta.accent,power:p.name})))
+  if(!unlocks.length)return null
+  return <div className="card unlock-summary"><div className="eyebrow">AL TERMINAR ESTA MINI-CLASE SE DESBLOQUEA</div><div className="unlock-summary-grid">{unlocks.map(x=><div className="unlock-summary-item" key={`${x.role}-${x.power}`} style={{'--role-accent':x.accent}}><span>{x.emoji}</span><div><b>{x.power}</b><small>{x.label}</small></div></div>)}</div><p className="muted-copy">Los cuatro equipos reciben los mismos poderes. Nadie puede usar una herramienta antes de que el concepto haya sido explicado.</p></div>
+}
 
 export function LessonPanel({round,role,facilitator=false}){
   const l=LESSONS[round]; const tool=role?ROLE_TOOLS[role]:null
@@ -20,10 +27,11 @@ export function LessonPanel({round,role,facilitator=false}){
         {facilitator?<ol className="teacher-script">{l.teacher.map(x=><li key={x}>{x}</li>)}</ol>:<>
           <h3>{tool?.tool}</h3><p>{tool?.purpose}</p>
           <div className="notice">Tu misión en esta ronda: <b>{ROLE_TASKS[round]?.[role]}</b></div>
-          <p><b>Regla:</b> usa tu herramienta y comparte el hallazgo con los otros cuatro roles. Nadie tiene toda la evidencia.</p>
+          <p><b>Regla:</b> comparte al menos un hallazgo con los otros cuatro roles. Si un poder tiene candado, todavía no se usa.</p>
         </>}
       </div>
       {facilitator&&<><div className="card"><div className="eyebrow">DEMOSTRACIÓN</div><h3>Qué mostrar</h3><p>{l.demo}</p></div><div className="card"><div className="eyebrow">CHECK DE COMPRENSIÓN</div><h3>Pregunta al grupo</h3><p>{l.check}</p></div></>}
     </div>
+    {facilitator&&<UnlockSummary round={round}/>} 
   </>
 }
