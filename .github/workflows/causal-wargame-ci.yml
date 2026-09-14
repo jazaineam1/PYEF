@@ -32,6 +32,6 @@ jobs:
         run: npm run check
       - name: Verify private scenario was not committed
         run: test ! -f scenario-private.sql
-      - name: Live Supabase smoke — 20 players / 50 clients
-        if: github.event_name == 'push' || github.head_ref == 'dos-futuros-production' || github.event_name == 'workflow_dispatch'
-        run: node scripts/live_smoke.mjs
+      - name: Full learning-flow smoke — lessons, labs, reveals and checks
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: node scripts/learning_flow_smoke.mjs
