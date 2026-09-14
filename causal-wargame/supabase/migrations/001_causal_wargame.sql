@@ -42,3 +42,31 @@ alter table public.cg_ground_truth enable row level security;
 alter table public.cg_segment_truth enable row level security;
 alter table public.cg_events enable row level security;
 revoke all on public.cg_games,public.cg_teams,public.cg_players,public.cg_decisions,public.cg_checks,public.cg_scores,public.cg_role_cards,public.cg_ground_truth,public.cg_segment_truth,public.cg_events from anon,authenticated;
+
+create or replace function public.cg_claim_player_slot(p_game_id uuid, p_display_name text, p_token_hash text)
+returns table(player_id uuid, team_id uuid, role_code text)
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  n int;
+  team_ordinal int;
+  role_idx int;
+  picked_team uuid;
+  picked_role text;
+begin
+  perform pg_advisory_xact_lock(hashtext(p_game_id::text));
+  select count(*) into n from public.cg_players where game_id=p_game_id;
+  if n >= 20 then raise exception 'GAME_FULL'; end if;
+  team_ordinal := floor(n/5.0)::int;
+  role_idx := mod(n,5)+1;
+  select id into picked_team from public.cg_teams where game_id=p_game_id and ordinal=team_ordinal;
+  picked_role := (array['negocio','datos','contexto','riesgo','integrador'])[role_idx];
+  insert into public.cg_players(game_id,team_id,display_name,role_code,token_hash)
+  values(p_game_id,picked_team,left(p_display_name,50),picked_role,p_token_hash)
+  returning id, cg_players.team_id, cg_players.role_code into player_id, team_id, role_code;
+  return next;
+end $$;
+revoke all on function public.cg_claim_player_slot(uuid,text,text) from public,anon,authenticated;
+grant execute on function public.cg_claim_player_slot(uuid,text,text) to service_role;
