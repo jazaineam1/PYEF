@@ -31,18 +31,18 @@ export const LESSONS={
 }
 
 export const ROLE_TOOLS={
-business:{label:'Líder de Decisión',tool:'Mapa de Decisión',purpose:'Traducir el problema de negocio a una pregunta causal bien definida.',color:'var(--gold)'},
-data:{label:'Líder de Modelos',tool:'Explorador de Modelos',purpose:'Separar puntaje predictivo, asociación y efecto incremental.',color:'var(--blue)'},
-context:{label:'Analista Causal',tool:'Laboratorio de Grafo Causal',purpose:'Representar relaciones causales sólo después de que el concepto fue enseñado.',color:'var(--cyan)'},
-integrator:{label:'Líder de Experimentos',tool:'Laboratorio de Experimentos',purpose:'Diseñar una comparación e interpretar magnitud e incertidumbre.',color:'var(--violet)'},
-risk:{label:'Política y Riesgo',tool:'Simulador de Política',purpose:'Convertir efectos en valor, capacidad y riesgo para decidir dónde actuar.',color:'var(--green)'}
+business:{label:'Líder de Decisión',tool:'Causal Decision Canvas',purpose:'Traducir el problema de negocio a una pregunta causal, estimando y restricción bien definidos.',color:'var(--gold)'},
+data:{label:'Líder de Modelos',tool:'Uplift / CATE Explorer',purpose:'Separar puntaje predictivo, asociación y efecto incremental; comparar estimadores sin confundirlos con identificación.',color:'var(--blue)'},
+context:{label:'Analista Causal',tool:'DAG Lab',purpose:'Construir y diagnosticar hipótesis causales: confusores, mediadores y colliders.',color:'var(--cyan)'},
+integrator:{label:'Líder de Experimentos',tool:'Experiment Designer',purpose:'Diseñar una comparación e interpretar magnitud, balance e incertidumbre.',color:'var(--violet)'},
+risk:{label:'Política y Riesgo',tool:'Policy Simulator',purpose:'Convertir efectos en una política bajo valor, costo, capacidad, incertidumbre y riesgo.',color:'var(--green)'}
 }
 
 export const ROLE_TASKS={
 1:{business:'Define población, intervención, resultado y horizonte antes de escoger clientes.',data:'Interpreta el puntaje predictivo y explica qué sí predice y qué todavía no demuestra.',context:'Formula el contrafactual y pregunta qué tendría que ser comparable; aún no necesitas un DAG.',integrator:'Pregunta contra qué grupo compararías la intervención; la aleatorización se enseñará después.',risk:'Usa tu Escudo de Riesgo: detecta desperdicio, daño posible o una decisión demasiado agresiva.'},
-2:{business:'Decide qué evidencia necesitas antes de cancelar una estrategia.',data:'Usa el Radar de Propensión como señal de quién recibe tratamiento; no lo confundas con efecto causal.',context:'Usa Visión de Grafo Causal y Escáner de Confusión para encontrar una variable previa problemática.',integrator:'Ayuda a juzgar si la comparación observacional sería defendible; el experimento formal llega en la siguiente ronda.',risk:'Evita una decisión irreversible basada sólo en tasas crudas.'},
-3:{business:'Fija resultado e horizonte antes del experimento.',data:'Distingue desempeño predictivo de evidencia experimental.',context:'Comprueba que la asignación no dependa sistemáticamente de una causa previa del resultado.',integrator:'Activa Escudo de Aleatorización y Medidor de Efecto Promedio: diseña la comparación y lee incertidumbre.',risk:'Asegura un control comparable y un resultado relevante, no sólo un indicador cómodo.'},
-4:{business:'Convierte efectos en una política bajo una capacidad limitada.',data:'Activa Lente de Impacto Incremental y separa probabilidad base de cambio por intervención.',context:'Recuerda que heterogeneidad sólo es causal si el efecto está identificado.',integrator:'Resume efecto por segmento e incertidumbre para evitar sobrerreaccionar a una estimación.',risk:'Activa Forja de Valor y Escudo de Riesgo para combinar efecto, costo, capacidad y posible daño.'}
+2:{business:'Decide qué evidencia necesitas antes de cancelar una estrategia.',data:'Compara la asociación cruda con resultados ajustados; no confundas coincidencia entre métodos con identificación.',context:'Usa DAG Lab para encontrar una variable previa problemática y defender qué ajustar.',integrator:'Ayuda a juzgar si la comparación observacional sería defendible; el experimento formal llega en la siguiente ronda.',risk:'Evita una decisión irreversible basada sólo en tasas crudas.'},
+3:{business:'Fija resultado e horizonte antes del experimento.',data:'Distingue desempeño predictivo de evidencia experimental.',context:'Comprueba que la asignación no dependa sistemáticamente de una causa previa del resultado y razona sobre mediadores.',integrator:'Usa Experiment Designer: cambia asignación y N, interpreta ATE, balance e intervalo.',risk:'Asegura un control comparable y un resultado relevante, no sólo un indicador cómodo.'},
+4:{business:'Convierte efectos en una política bajo una capacidad limitada.',data:'Usa Uplift / CATE Explorer y separa probabilidad base de cambio por intervención.',context:'Usa DAG Lab para recordar que heterogeneidad sólo es causal si el efecto está identificado; evita colliders.',integrator:'Resume efecto por segmento e incertidumbre para evitar sobrerreaccionar a una estimación.',risk:'Usa Policy Simulator para combinar efecto, costo, capacidad, presupuesto y posible daño.'}
 }
 
 export const TOOL_PRACTICE={
