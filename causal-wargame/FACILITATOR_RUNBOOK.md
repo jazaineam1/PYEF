@@ -2,20 +2,19 @@
 
 ## 24 h antes
 
-1. Enviar a los 20 participantes el enlace `system-check.html`.
-2. Pedir que registren el resultado con su nombre y código de partida.
-3. Revisar en `facilitator.html` el panel **Preparación de participantes** hasta llegar idealmente a `20/20`.
-4. Contactar antes de la sesión a quien aparezca como **No apto**.
+1. Crear una **partida nueva con código aleatorio** desde `facilitator.html`. No reutilizar un código público permanente.
+2. Enviar a los 20 participantes el enlace de prueba previa generado por el panel **Preparación de participantes**; ese enlace ya lleva el código de la sesión.
+3. Pedir que registren el resultado con su nombre.
+4. Revisar el panel hasta llegar idealmente a `20/20` y contactar a quien aparezca como **No apto**.
 5. Probar `play.html`, `facilitator.html` y `wall.html` desde un equipo similar al corporativo.
-6. Confirmar acceso al frontend y Edge Functions.
-7. Guardar código/PIN fuera del chat general.
+6. Ejecutar el gate de carga sostenida de 20 usuarios durante 15 min.
+7. Guardar código/PIN fuera del chat general hasta el envío a participantes.
 8. Confirmar que `scenario-private.sql` NO está publicado.
+9. Congelar cambios de código 24–48 h antes del evento salvo corrección crítica.
 
 ### Mensaje para enviar un día antes
 
-> Hola. Mañana tendremos **Causal Quest**. Antes de la sesión realiza una prueba técnica de menos de 3 minutos en:  
-> `https://jazaineam1.github.io/PYEF/dos-futuros/system-check.html`  
-> Usa el mismo computador con el que participarás mañana, escribe tu nombre y registra el resultado. Recomendamos portátil o computador, no celular. En Windows usa Chrome o Edge actualizado; en macOS puedes usar Chrome, Edge o Safari actualizado. Si obtienes **No apto**, envía una captura hoy para poder ayudarte antes del chapter.
+> Hola. Mañana tendremos **Causal Quest**. Antes de la sesión realiza una prueba técnica de menos de 3 minutos usando el enlace que te enviamos. Usa el mismo computador con el que participarás mañana. Recomendamos portátil o computador, no celular. En Windows usa Chrome o Edge actualizado; en macOS puedes usar Chrome, Edge o Safari actualizado. Si obtienes **No apto**, envía una captura hoy para poder ayudarte antes del chapter.
 
 ## 15 min antes
 
@@ -24,57 +23,68 @@
 - Mantener `facilitator.html` en una ventana no compartida.
 - Confirmar 20/20 participantes o activar plan de ausencia.
 - Explicar que todos los equipos tienen la misma composición de 5 roles, el mismo poder universal inicial y la misma bolsa de recursos.
-- Explicar mercado en máximo 2 min: pista, herramienta de ronda, Junior, Senior y Llamada al Capítulo.
+- Explicar mercado en **máximo 60 segundos**: pista, herramienta de ronda, Junior, Senior y Llamada al Capítulo. Las ayudas no humanas son iguales por equipo; sólo la llamada humana tiene cupos globales.
 
 ## Regla pedagógica de los poderes
 
 Todos los participantes empiezan con el mismo poder universal: **Pregunta Crítica** — “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. El rol se conoce desde el inicio, pero una herramienta avanzada **no se usa antes de ser enseñada**.
 
-- R1: se activan **Canvas de Decisión**, **Administración de Recursos** y **Escudo de Riesgo**. Líder de Modelos interpreta el puntaje sin llamarlo causal; Analista Causal formula el contrafactual; Líder de Experimentos pregunta cuál sería la comparación justa.
-- R2: después de explicar confusión, grafo causal y propensión se activan **Radar de Propensión**, **Visión de Grafo Causal (DAG)** y **Escáner de Confusión**.
-- R3: después de explicar experimento y efecto promedio se activan **Escudo de Aleatorización (RCT)** y **Medidor de Efecto Promedio (ATE)**.
-- R4: después de explicar heterogeneidad se activan **Lente de Impacto Incremental** y **Forja de Valor (ROI)**.
+- R1: se activan **Mapa de Decisión**, **Administración de Recursos** y **Escudo de Riesgo**. Líder de Modelos interpreta el puntaje sin llamarlo causal; Analista Causal formula el contrafactual; Líder de Experimentos pregunta cuál sería la comparación justa.
+- R2: después de explicar confusión y grafo causal se activan **Radar de Propensión**, **Visión de Grafo Causal (DAG)** y **Escáner de Confusión**. Propensity/matching/IPW se mencionan sólo como panorama, no como tres objetivos de aprendizaje.
+- R3: después de explicar experimento y efecto promedio se activan **Escudo de Aleatorización (RCT)** y **Medidor de Efecto Promedio (ATE)**. Potencia/MDE quedan como extensión opcional.
+- R4: después de explicar heterogeneidad se activan **Lente de Impacto Incremental** y **Forja de Valor**. Bosques causales/meta-modelos son referencias opcionales, no contenido obligatorio.
 
-Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una **misión permanente en lenguaje no técnico**. Nadie queda sin tarea. La lógica es deliberada: primero se enseña el concepto, luego aparece el poder que lo representa.
+Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una **misión permanente en lenguaje no técnico**. Nadie queda sin tarea. Primero se enseña el concepto; después aparece el poder que lo representa.
 
-## Cronograma recomendado
+## Cronograma recomendado · 120 min reales
+
+El cierre conceptual final es **intocable**. Si una ronda se atrasa, reduce discusión del mercado o usa `+60 s` una sola vez; no elimines el debrief.
 
 | Min | Acción |
 |---:|---|
-| 0–10 | Apertura: misión, equipos, roles, mercado y regla de puntuación. |
-| 10–20 | Mini-clase R1: predicción, intervención y contrafactual. |
-| 20–32 | Laboratorio R1 en salas. |
-| 32–38 | Cierre, ranking observado, revelación causal y microcheck. |
-| 38–48 | Mini-clase R2: confusión, grafo causal, regresión ajustada y propensión. |
-| 48–60 | Laboratorio R2. |
-| 60–66 | Revelación, cierre docente y microcheck. |
-| 66–71 | Pausa. |
-| 71–81 | Mini-clase R3: aleatorización, efecto promedio, IC y potencia conceptual. |
-| 81–93 | Laboratorio R3. |
-| 93–99 | Revelación, cierre docente y microcheck. |
-| 99–108 | Mini-clase R4: efecto por perfil, impacto incremental, valor y riesgo. |
-| 108–116 | Laboratorio R4. |
-| 116–120 | Revelación final, ranking, aprendizajes y cierre. |
+| 0–6 | Apertura + medición inicial de 4 preguntas. Roles y mercado en 60 s. |
+| 6–15 | Mini-clase R1: predicción, intervención y contrafactual. |
+| 15–24 | Laboratorio R1 en salas. |
+| 24–30 | Reveal + debrief + microcheck R1. |
+| 30–39 | Mini-clase R2: confusión, DAG y comparabilidad. |
+| 39–48 | Laboratorio R2. |
+| 48–54 | Reveal + debrief + microcheck R2. |
+| 54–59 | Pausa. |
+| 59–68 | Mini-clase R3: aleatorización, ATE e incertidumbre. |
+| 68–77 | Laboratorio R3. |
+| 77–83 | Reveal + debrief + microcheck R3. |
+| 83–92 | Mini-clase R4: heterogeneidad, incertidumbre, costo, capacidad y riesgo. |
+| 92–101 | Laboratorio R4. |
+| 101–107 | Reveal + debrief R4. |
+| 107–112 | Evaluación final de transferencia: 4 casos nuevos. |
+| 112–120 | Síntesis, cambio pre→post, ranking final y 4 preguntas causales que deben llevarse. |
+
+### Las 4 preguntas de cierre que deben recordar
+
+1. **¿Qué intervención estoy evaluando y qué resultado quiero cambiar?**
+2. **¿Qué habría ocurrido sin intervenir y por qué mi comparación es creíble?**
+3. **¿La evidencia identifica un efecto o sólo una asociación/predicción?**
+4. **¿El efecto es suficientemente cierto, valioso y seguro para convertirlo en política?**
 
 ## Secuencia por ronda
 
-`PRESENTAR CONCEPTO → ABRIR LABORATORIO → COMPARTIR 5 HALLAZGOS → CERRAR → REVELAR → CIERRE DOCENTE → MICROCHECK → SIGUIENTE`
+`PRESENTAR CONCEPTO → ABRIR LABORATORIO → COMPARTIR HALLAZGOS → CERRAR → REVELAR → CIERRE DOCENTE → MICROCHECK → SIGUIENTE`
 
 No se puede abrir laboratorio desde briefing sin pasar por la mini-clase.
 
 ## Los 5 roles y cómo ayudan desde el inicio
 
-- **Líder de Decisión:** encuadra población, intervención, resultado y horizonte. Administra la bolsa y es el único que confirma compras.
-- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje y deja claro qué NO demuestra. Desde R2 usa propensión y, en R4, impacto incremental.
+- **Líder de Decisión:** encuadra población, intervención, resultado y horizonte. Administra la bolsa y es el único que confirma compras. En R3 el Mapa no precarga resultado/horizonte: el equipo debe decidirlos.
+- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje y deja claro qué NO demuestra. En R2 ayuda a diagnosticar selección/comparabilidad y en R4 separa probabilidad base de impacto incremental.
 - **Analista Causal:** en R1 formula el contrafactual y pregunta qué tendría que ser comparable. Desde R2 usa grafo causal y confusión porque ya fueron enseñados.
-- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa aleatorización y efecto promedio porque ya fueron enseñados.
-- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 suma valor económico y heterogeneidad.
+- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa aleatorización, efecto promedio e incertidumbre.
+- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 combina efecto, intervalo, valor, costo y capacidad.
 
-Cada participante debe llegar a la decisión del equipo con **un hallazgo estructurado de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado.
+Cada participante debe llegar a la decisión del equipo con **un hallazgo estructurado de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado. En la consola docente se muestra `Hallazgos x/5` por equipo para saber a qué sala entrar.
 
 ## Llamada al Capítulo
 
-El Game Master dirige y **no está a la venta**. Los otros tres facilitadores forman una **bolsa transversal de expertos**. No son “experto de DAG”, “experto de ML” o “experto de política” separados en el mercado: la llamada representa al equipo del chapter y debe ser atendida por la persona disponible que domine la duda planteada.
+El Game Master dirige y **no está a la venta**. Los otros tres facilitadores forman una **bolsa transversal de expertos**. Todos deben dominar una base común de los tres bloques: causalidad, experimentación y decisión. Luego cada uno puede tener una fortaleza distinta.
 
 En cada ronda el Game Master define de 0 a 3 atenciones disponibles según capacidad real. La llamada dura 90 s. El experto puede hacer:
 
@@ -82,7 +92,15 @@ En cada ronda el Game Master define de 0 a 3 atenciones disponibles según capac
 - una pregunta socrática;
 - una aclaración sobre **conceptos ya enseñados hasta esa ronda**.
 
-No puede explicar un tema futuro, decir cuál opción seleccionar ni revelar información privada del simulador. Por ejemplo, en R1 puede hablar de predicción, intervención y contrafactual, pero todavía no debe resolver la ronda usando DAG, IPW, RCT o CATE.
+No puede explicar un tema futuro, decir cuál opción seleccionar ni revelar información privada del simulador.
+
+## Mercado justo
+
+- Cada equipo tiene la misma bolsa, catálogo, precios base e inventario de ayudas no humanas.
+- Lo que compra Fisher **no** encarece ni agota lo que puede comprar Neyman, Rubin o Pearl.
+- Dentro de un equipo sí puede subir el precio de un segundo/tercer Junior para representar uso creciente de recursos.
+- Sólo **Llamada al Capítulo** tiene cupos globales porque consume tiempo de una persona real.
+- El mercado es opcional; seguir sin ayuda es una estrategia válida.
 
 ## Si falta una persona
 
