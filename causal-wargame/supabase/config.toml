@@ -26,3 +26,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.expert-market]
 verify_jwt = false
+[functions.readiness-check]
+verify_jwt = false
