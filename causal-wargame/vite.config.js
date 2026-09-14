@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => {
           index:'index.html',
           play:'play.html',
           facilitator:'facilitator.html',
+          roleInspector:'role-inspector.html',
           wall:'wall.html',
           systemCheck:'system-check.html'
         }
