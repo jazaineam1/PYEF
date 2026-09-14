@@ -12,6 +12,10 @@ on:
       - '.github/workflows/causal-wargame-ci.yml'
   workflow_dispatch:
 
+concurrency:
+  group: causal-wargame-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
