@@ -1,3 +1,5 @@
+export const COMMON_POWER={name:'Pregunta Crítica',why:'¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?'}
+
 export const ROLE_ARCHETYPES={
   business:{label:'Líder de Decisión',family:'Decisión',type:'DECISIÓN',emoji:'🦁',accent:'#f6c453',tagline:'Convierte evidencia en una decisión clara.',tool:'Canvas de Decisión',mission:'Mantén al equipo enfocado en población, intervención, resultado y horizonte.',marketAuthority:true,powers:[{name:'Canvas de Decisión',unlockRound:1,why:'Ordena la pregunta antes de analizar.'},{name:'Administración de Recursos',unlockRound:1,why:'Gestiona la bolsa común y confirma compras del equipo.'}]},
   data:{label:'Líder de Modelos',family:'Modelos',type:'SEÑAL',emoji:'🦉',accent:'#43b7ff',tagline:'Separa predicción de oportunidad de intervención.',tool:'Explorador de Modelos',mission:'Di siempre qué afirma el modelo y qué NO permite concluir.',powers:[{name:'Radar de Propensión',unlockRound:1,why:'Lee quién probablemente tendrá el resultado.'},{name:'Lente de Uplift',unlockRound:4,why:'Compara probabilidad base con cambio incremental.'}]},
