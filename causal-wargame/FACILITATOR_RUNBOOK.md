@@ -74,13 +74,34 @@ No se puede abrir laboratorio desde briefing sin pasar por la mini-clase.
 
 ## Los 5 roles y cómo ayudan desde el inicio
 
-- **Líder de Decisión:** encuadra población, intervención, resultado y horizonte. Administra la bolsa y es el único que confirma compras. En R3 el Mapa no precarga resultado/horizonte: el equipo debe decidirlos.
-- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje y deja claro qué NO demuestra. En R2 ayuda a diagnosticar selección/comparabilidad y en R4 separa probabilidad base de impacto incremental.
-- **Analista Causal:** en R1 formula el contrafactual y pregunta qué tendría que ser comparable. Desde R2 usa grafo causal y confusión porque ya fueron enseñados.
-- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa aleatorización, efecto promedio e incertidumbre.
-- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 combina efecto, intervalo, valor, costo y capacidad.
+- **Líder de Decisión:** usa **Causal Decision Canvas** para cerrar población, intervención, comparador, outcome, horizonte, estimando y restricción. Si declara capacidad, presupuesto o tolerancia de riesgo debe fijar también su valor operativo; esa cifra será contrastada después con la política del equipo.
+- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje y deja claro qué NO demuestra. En R2 ayuda a diagnosticar selección/comparabilidad y en R4 usa **Uplift / CATE Explorer** para separar probabilidad base de impacto incremental y comparar T-Learner, DR-Learner y CausalForestDML sin confundir acuerdo entre estimadores con identificación.
+- **Analista Causal:** en R1 formula el contrafactual y pregunta qué tendría que ser comparable. Desde R2 usa **DAG Lab**; debe pulsar **Diagnosticar estructura** antes de compartir una conclusión causal.
+- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa **Experiment Designer** para cambiar asignación y N; una asignación por modelo/asesor produce una diferencia observada, no se rotula como ATE causal. Outcome y horizonte deben coincidir con el contrato del Líder de Decisión.
+- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 usa **Policy Simulator** para asignar incluso una fracción de cada segmento y combinar efecto, intervalo, valor, costo, capacidad, presupuesto y riesgo.
 
 Cada participante debe llegar a la decisión del equipo con **un hallazgo estructurado de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado. En la consola docente se muestra `Hallazgos x/5` por equipo para saber a qué sala entrar.
+
+## Regla de coherencia del war room
+
+`5/5` hallazgos **no significa automáticamente que la decisión esté bien defendida**. La mesa de evidencia calcula además chequeos deterministas de coherencia entre las piezas compartidas.
+
+El panel puede marcar, entre otros casos:
+
+- **contrato causal incompleto**;
+- **DAG todavía no diagnosticado**;
+- **outcome u horizonte del experimento distintos de los acordados por Decisión**;
+- **asignación no aleatoria que requiere una defensa adicional**;
+- **política localmente inviable por capacidad, presupuesto o riesgo**;
+- **política que viola la restricción operativa fijada por el Líder de Decisión**, aunque el Líder de Riesgo haya escrito controles locales más permisivos.
+
+Un estado rojo es una **contradicción conceptual que el equipo debe discutir**, no una excusa para que el software tome la decisión. El facilitador debe preguntar primero: “¿qué dos piezas no están contando la misma historia?”. Si el tiempo es corto, corrige la incompatibilidad en el debrief en lugar de explicar más teoría.
+
+La prioridad de lectura es:
+
+`PREGUNTA → IDENTIFICACIÓN → ESTIMACIÓN → DISEÑO/INCERTIDUMBRE → POLÍTICA`
+
+El panel muestra primero el bloqueo principal y deja el resto de chequeos en un detalle desplegable para no convertir la interfaz en una lista de alertas.
 
 ## Llamada al Capítulo
 
