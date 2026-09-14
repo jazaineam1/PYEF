@@ -39,3 +39,6 @@ jobs:
       - name: Full learning-flow smoke — lessons, labs, reveals and checks
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: node scripts/learning_flow_smoke.mjs
+      - name: Specialist evidence round-trip smoke
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: node scripts/role_evidence_smoke.mjs
