@@ -2,7 +2,7 @@ import React,{useEffect,useState}from'react'
 import{Clock3,Eye,GraduationCap,LockKeyhole,Pause,Play,RotateCcw,SkipForward}from'lucide-react'
 import{Layout}from'../components/Layout'
 import{Leaderboard}from'../components/Leaderboard'
-import{invoke,saveFacilitatorToken,saveFacilitatorGameCode,getFacilitatorGameCode,getFacilitatorToken}from'../lib/api'
+import{bootstrapGame,invoke,saveFacilitatorToken,saveFacilitatorGameCode,getFacilitatorGameCode,getFacilitatorToken}from'../lib/api'
 import{ROUND_COPY}from'../content'
 
 function Login({onLogin}){
@@ -10,19 +10,34 @@ function Login({onLogin}){
   const[pin,setPin]=useState('')
   const[err,setErr]=useState('')
   const[busy,setBusy]=useState(false)
+  const[showCreate,setShowCreate]=useState(false)
+  const[master,setMaster]=useState('')
+  const[created,setCreated]=useState('')
   async function go(){
-    setBusy(true);setErr('')
+    setBusy(true);setErr('');setCreated('')
     try{
       const r=await invoke('facilitator-login',{game_code:code,pin},'facilitator')
       saveFacilitatorToken(r.token);saveFacilitatorGameCode(code);onLogin()
     }catch(e){setErr(e.message)}finally{setBusy(false)}
   }
-  return <Layout subtitle="Facilitador"><div className="card card-accent" style={{maxWidth:620}}>
-    <div className="eyebrow">CONTROL DOCENTE</div><h2>Entrar a una partida</h2>
-    <div className="form-row"><label>Código</label><input className="input" value={code} onChange={e=>setCode(e.target.value.toUpperCase())}/></div>
-    <div className="form-row"><label>PIN</label><input className="input" type="password" value={pin} onChange={e=>setPin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()}/></div>
-    {err&&<div className="notice notice-red">{err}</div>}
-    <button className="btn btn-primary" disabled={busy||code.length<4||pin.length<8} onClick={go}>{busy?'Entrando…':'Entrar'}</button>
+  async function create(){
+    setBusy(true);setErr('');setCreated('')
+    try{
+      await bootstrapGame({game_code:code,pin,bootstrap_secret:master})
+      saveFacilitatorGameCode(code)
+      setCreated(`Partida ${code.toUpperCase()} creada. Ya puedes entrar con el PIN definido.`)
+      setShowCreate(false);setMaster('')
+    }catch(e){setErr(e.message)}finally{setBusy(false)}
+  }
+  return <Layout subtitle="Facilitador"><div className="grid grid-2">
+    <div className="card card-accent">
+      <div className="eyebrow">CONTROL DOCENTE</div><h2>Entrar a una partida</h2>
+      <div className="form-row"><label>Código</label><input className="input" value={code} onChange={e=>setCode(e.target.value.toUpperCase())}/></div>
+      <div className="form-row"><label>PIN</label><input className="input" type="password" value={pin} onChange={e=>setPin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()}/></div>
+      {err&&<div className="notice notice-red">{err}</div>}{created&&<div className="notice notice-green">{created}</div>}
+      <button className="btn btn-primary" disabled={busy||code.length<4||pin.length<8} onClick={go}>{busy?'Procesando…':'Entrar'}</button>
+    </div>
+    <div className="card"><h3>Nueva partida</h3><p>Usa la clave maestra sólo para crear nuevas sesiones. La clave no se almacena en el navegador.</p><button className="btn" onClick={()=>setShowCreate(v=>!v)}>{showCreate?'Cancelar':'Crear partida nueva'}</button>{showCreate&&<div style={{marginTop:14}}><div className="form-row"><label>Clave maestra</label><input className="input" type="password" autoComplete="off" value={master} onChange={e=>setMaster(e.target.value)}/></div><button className="btn btn-primary" disabled={busy||code.length<4||pin.length<8||master.length<12} onClick={create}>Crear {code||'partida'}</button></div>}</div>
   </div></Layout>
 }
 
