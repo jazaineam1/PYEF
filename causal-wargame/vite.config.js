@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
     base:'./',
     resolve:{
       alias:{
-        '#play': page(secure ? 'SecurePlay.jsx' : 'DemoPlay.jsx'),
+        '#play': page(secure ? 'SecurePlayDeterministic.jsx' : 'DemoPlay.jsx'),
         '#facilitator': page(secure ? 'SecureFacilitator.jsx' : 'DemoFacilitator.jsx'),
         '#wall': page(secure ? 'SecureWall.jsx' : 'DemoWall.jsx'),
       }
