@@ -1,0 +1,3 @@
+import React from'react'
+import{GraduationCap,Timer}from'lucide-react'
+export function ExpertQueue({audit=[]}){const rows=audit.filter(x=>x.type==='expert_request').slice(0,8);if(!rows.length)return null;return <div style={{marginTop:16}}><div className="section-title"><h3>📞 Solicitudes a expertos</h3><p>El costo ya fue descontado al equipo.</p></div><div className="expert-queue">{rows.map((e,i)=>{const m=e.message||{};return <div className="expert-request" key={`${e.at}-${i}`}><div><b><GraduationCap size={15}/> {m.title||m.help_id}</b><small>Equipo {String(m.team_id||'').slice(0,8)} · rol {m.role_code||'—'} · ronda {m.round}</small></div><div className="quest-role-power"><Timer size={14}/>{m.seconds||90}s</div></div>})}</div></div>}
