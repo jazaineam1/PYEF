@@ -16,9 +16,11 @@ Backend project: `nedsrnqwvxtelddmtvtv` (Supabase, `sa-east-1`).
 - Polling works without WebSockets.
 - CI includes unit/build checks plus a live Supabase smoke test with 20 concurrent joins and a 50-client burst.
 
-## Public pages
+## Last production validation
 
-After the publish workflow completes:
+GitHub Actions run `34803056209` completed successfully on 2026-09-14. It verified unit tests, demo and secure builds, absence of private ground truth in the secure bundle, 20 concurrent participant joins, the 20-player cap, team/role allocation, round opening, decision locking/idempotency, reveal/leaderboard, reset cleanup, and a 50-client HTTP burst. The burst completed 50/50 successful requests with `p95 = 752 ms` from the GitHub-hosted runner.
+
+## Public pages
 
 - `dos-futuros/index.html`
 - `dos-futuros/play.html`
