@@ -1,48 +1,67 @@
 # Causal Quest · Runbook del facilitador · 120 min
 
+## Principio operativo
+
+El juego tiene **4 equipos** y **4 responsabilidades causales núcleo**. No necesita exactamente 20 personas para funcionar.
+
+1. 🦁 **Estrategia y Política** — abre la pregunta y cierra la política.
+2. 🦉 **Modelos** — separa predicción de efecto incremental.
+3. 🐈‍⬛ **Causalidad** — defiende identificación, ajuste y estructura.
+4. 🐢 **Experimentos** — diseña comparación e incertidumbre.
+
+Una quinta persona es 🦅 **Copiloto de Estrategia**: apoyo opcional, nunca quinta evidencia obligatoria.
+
+### Composición según asistencia
+
+| Personas en el equipo | Estrategia |
+|---:|---|
+| 3 | 🦁 Estrategia + 🦉 Modelos + 🐈‍⬛ Causalidad. **Modelos toma también el sombrero 🐢 Experimentos.** |
+| 4 | Configuración ideal: una persona por responsabilidad núcleo. |
+| 5 | Cuatro responsabilidades + 🦅 copiloto opcional. |
+
+La consola docente muestra **Cobertura 0–4**, no personas 0–5. En un equipo de 3 la responsabilidad de Experimentos sólo cuenta cuando Modelos realiza y comparte la evidencia experimental secundaria. No otorgues crédito por ausencia; otórgalo por trabajo realmente cubierto.
+
+Con 12 participantes pueden operar cuatro equipos de 3. Con 16, cuatro equipos de 4. Entre 17 y 20, los participantes adicionales entran como copilotos. No rearmes equipos sólo para igualar tamaños si ya existe una composición funcional.
+
 ## 24 h antes
 
 1. Crear una **partida nueva con código aleatorio** desde `facilitator.html`. No reutilizar un código público permanente.
-2. Enviar a los 20 participantes el enlace de prueba previa generado por el panel **Preparación de participantes**; ese enlace ya lleva el código de la sesión.
+2. Enviar el enlace de prueba previa a los participantes confirmados.
 3. Pedir que registren el resultado con su nombre.
-4. Revisar el panel hasta llegar idealmente a `20/20` y contactar a quien aparezca como **No apto**.
+4. Revisar el panel de preparación y contactar a quien aparezca como **No apto**.
 5. Probar `play.html`, `facilitator.html` y `wall.html` desde un equipo similar al corporativo.
-6. Ejecutar el gate de carga sostenida de 20 usuarios durante 15 min.
+6. Ejecutar el gate de carga sostenida previsto para el tamaño real de la sesión.
 7. Guardar código/PIN fuera del chat general hasta el envío a participantes.
 8. Confirmar que `scenario-private.sql` NO está publicado.
 9. Congelar cambios de código 24–48 h antes del evento salvo corrección crítica.
 
 ### Mensaje para enviar un día antes
 
-> Hola. Mañana tendremos **Causal Quest**. Antes de la sesión realiza una prueba técnica de menos de 3 minutos usando el enlace que te enviamos. Usa el mismo computador con el que participarás mañana. Recomendamos portátil o computador, no celular. En Windows usa Chrome o Edge actualizado; en macOS puedes usar Chrome, Edge o Safari actualizado. Si obtienes **No apto**, envía una captura hoy para poder ayudarte antes del chapter.
+> Hola. Mañana tendremos **Causal Quest**. Antes de la sesión realiza una prueba técnica de menos de 3 minutos usando el enlace enviado. Usa el mismo computador con el que participarás. Recomendamos portátil o computador, no celular. Si obtienes **No apto**, envía una captura hoy para poder ayudarte antes de la sesión.
 
 ## 15 min antes
 
-- Abrir videollamada y cuatro salas de trabajo: **Fisher, Neyman, Rubin y Pearl**.
-- Compartir **sólo `wall.html`** en sala principal.
+- Abrir videollamada y cuatro salas: **Fisher, Neyman, Rubin y Pearl**.
+- Compartir sólo `wall.html` en sala principal.
 - Mantener `facilitator.html` en una ventana no compartida.
-- Confirmar 20/20 participantes o activar plan de ausencia.
-- Explicar que todos los equipos tienen la misma composición de 5 roles, el mismo poder universal inicial y la misma bolsa de recursos.
-- Explicar mercado en **máximo 60 segundos**: pista, herramienta de ronda, Junior, Senior y Llamada al Capítulo. Las ayudas no humanas son iguales por equipo; sólo la llamada humana tiene cupos globales.
+- Mirar el número real de asistentes antes de explicar responsabilidades.
+- Explicar: “Tenemos cuatro responsabilidades. Si un equipo queda con tres personas, Modelos cubrirá también Experimentos; si tiene cinco, la quinta persona será copiloto”.
+- Explicar el mercado en máximo 60 segundos.
 
 ## Regla pedagógica de los poderes
 
-Todos los participantes empiezan con el mismo poder universal: **Pregunta Crítica** — “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. El rol se conoce desde el inicio, pero una herramienta avanzada **no se usa antes de ser enseñada**.
+Todos empiezan con **Pregunta Crítica**: “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. Una herramienta avanzada no se usa antes de ser enseñada.
 
-- R1: se activan **Mapa de Decisión**, **Administración de Recursos** y **Escudo de Riesgo**. Líder de Modelos interpreta el puntaje sin llamarlo causal; Analista Causal formula el contrafactual; Líder de Experimentos pregunta cuál sería la comparación justa.
-- R2: después de explicar confusión y grafo causal se activan **Radar de Propensión**, **Visión de Grafo Causal (DAG)** y **Escáner de Confusión**. Propensity/matching/IPW se mencionan sólo como panorama, no como tres objetivos de aprendizaje.
-- R3: después de explicar experimento y efecto promedio se activan **Escudo de Aleatorización (RCT)** y **Medidor de Efecto Promedio (ATE)**. Potencia/MDE quedan como extensión opcional.
-- R4: después de explicar heterogeneidad se activan **Lente de Impacto Incremental** y **Forja de Valor**. Bosques causales/meta-modelos son referencias opcionales, no contenido obligatorio.
+- **R1:** contrato de decisión, predicción vs intervención, contrafactual y revisión inicial de riesgo.
+- **R2:** confusión, DAG y comparabilidad.
+- **R3:** asignación, RCT, ATE e incertidumbre. En equipos de tres, aquí 🦉 Modelos activa su segundo sombrero 🐢 Experimentos.
+- **R4:** CATE/heterogeneidad y política bajo costo, capacidad y daño. 🦁 Estrategia utiliza también Policy Simulator.
 
-Los roles cuyos poderes avanzados aún están bloqueados siguen ayudando con una **misión permanente en lenguaje no técnico**. Nadie queda sin tarea. Primero se enseña el concepto; después aparece el poder que lo representa.
-
-## Cronograma recomendado · 120 min reales
-
-El cierre conceptual final es **intocable**. Si una ronda se atrasa, reduce discusión del mercado o usa `+60 s` una sola vez; no elimines el debrief.
+## Cronograma recomendado · 120 min
 
 | Min | Acción |
 |---:|---|
-| 0–6 | Apertura + medición inicial de 4 preguntas. Roles y mercado en 60 s. |
+| 0–6 | Apertura + medición inicial. Explica las 4 responsabilidades y la regla de equipos de 3/4/5. |
 | 6–15 | Mini-clase R1: predicción, intervención y contrafactual. |
 | 15–24 | Laboratorio R1 en salas. |
 | 24–30 | Reveal + debrief + microcheck R1. |
@@ -57,9 +76,11 @@ El cierre conceptual final es **intocable**. Si una ronda se atrasa, reduce disc
 | 92–101 | Laboratorio R4. |
 | 101–107 | Reveal + debrief R4. |
 | 107–112 | Evaluación final de transferencia: 4 casos nuevos. |
-| 112–120 | Síntesis, cambio pre→post, ranking final y 4 preguntas causales que deben llevarse. |
+| 112–120 | Síntesis, cambio pre→post, ranking final y preguntas de cierre. |
 
-### Las 4 preguntas de cierre que deben recordar
+El cierre conceptual final es intocable. Si una ronda se atrasa, reduce discusión del mercado o usa `+60 s`; no elimines el debrief.
+
+## Las cuatro preguntas que deben recordar
 
 1. **¿Qué intervención estoy evaluando y qué resultado quiero cambiar?**
 2. **¿Qué habría ocurrido sin intervenir y por qué mi comparación es creíble?**
@@ -68,67 +89,92 @@ El cierre conceptual final es **intocable**. Si una ronda se atrasa, reduce disc
 
 ## Secuencia por ronda
 
-`PRESENTAR CONCEPTO → ABRIR LABORATORIO → COMPARTIR HALLAZGOS → CERRAR → REVELAR → CIERRE DOCENTE → MICROCHECK → SIGUIENTE`
+`PRESENTAR CONCEPTO → ABRIR LABORATORIO → COMPARTIR EVIDENCIAS → CERRAR → REVELAR → CIERRE DOCENTE → MICROCHECK → SIGUIENTE`
 
 No se puede abrir laboratorio desde briefing sin pasar por la mini-clase.
 
-## Los 5 roles y cómo ayudan desde el inicio
+## Cómo dirigir cada responsabilidad
 
-- **Líder de Decisión:** usa **Causal Decision Canvas** para cerrar población, intervención, comparador, outcome, horizonte, estimando y restricción. Si declara capacidad, presupuesto o tolerancia de riesgo debe fijar también su valor operativo; esa cifra será contrastada después con la política del equipo.
-- **Líder de Modelos:** en R1 interpreta probabilidad/puntaje y deja claro qué NO demuestra. En R2 ayuda a diagnosticar selección/comparabilidad y en R4 usa **Uplift / CATE Explorer** para separar probabilidad base de impacto incremental y comparar T-Learner, DR-Learner y CausalForestDML sin confundir acuerdo entre estimadores con identificación.
-- **Analista Causal:** en R1 formula el contrafactual y pregunta qué tendría que ser comparable. Desde R2 usa **DAG Lab**; debe pulsar **Diagnosticar estructura** antes de compartir una conclusión causal.
-- **Líder de Experimentos:** en R1 y R2 pregunta “¿contra qué grupo estamos comparando?”. Desde R3 usa **Experiment Designer** para cambiar asignación y N; una asignación por modelo/asesor produce una diferencia observada, no se rotula como ATE causal. Outcome y horizonte deben coincidir con el contrato del Líder de Decisión.
-- **Política y Riesgo:** desde R1 busca desperdicio, daño o decisiones irreversibles. En R4 usa **Policy Simulator** para asignar incluso una fracción de cada segmento y combinar efecto, intervalo, valor, costo, capacidad, presupuesto y riesgo.
+### 🦁 Estrategia y Política
 
-Cada participante debe llegar a la decisión del equipo con **un hallazgo estructurado de una frase**. El rol aporta evidencia; no tiene poder de veto ni voto ponderado. En la consola docente se muestra `Hallazgos x/5` por equipo para saber a qué sala entrar.
+Al inicio fija población, intervención, comparador, outcome, horizonte, estimando y restricción. En R4 vuelve sobre ese contrato y usa Policy Simulator. Debe poder explicar por qué la política final respeta lo que el equipo dijo que era importante al comienzo.
+
+### 🦉 Modelos
+
+Distingue score de efecto. En R4 explora CATE. Si el equipo tiene tres personas, la plataforma le muestra además el módulo de Experimentos. Debe producir **dos piezas distinguibles**: qué estima Modelos y qué sostiene el diseño experimental.
+
+### 🐈‍⬛ Causalidad
+
+Formula contrafactual en R1 y usa DAG desde R2. Su función no es “dibujar bonito”: debe decir qué estructura hace defendible o engañosa la comparación y qué no conviene ajustar.
+
+### 🐢 Experimentos
+
+Pregunta por comparador desde el inicio y usa Experiment Designer desde R3. Si no existe una persona dedicada, la responsabilidad pasa a Modelos; no desaparece.
+
+### 🦅 Copiloto de Estrategia
+
+Sólo aparece cuando hay una quinta persona. Ayuda a desafiar costo, daño, capacidad y reversibilidad. **No tiene voto extra, poder de veto ni una quinta casilla necesaria para 4/4.**
 
 ## Regla de coherencia del war room
 
-`5/5` hallazgos **no significa automáticamente que la decisión esté bien defendida**. La mesa de evidencia calcula además chequeos deterministas de coherencia entre las piezas compartidas.
+`4/4` responsabilidades cubiertas **no significa automáticamente que la decisión esté bien defendida**. La mesa calcula además chequeos deterministas entre las piezas compartidas.
 
-El panel puede marcar, entre otros casos:
+Puede marcar, entre otros casos:
 
-- **contrato causal incompleto**;
-- **DAG todavía no diagnosticado**;
-- **outcome u horizonte del experimento distintos de los acordados por Decisión**;
-- **asignación no aleatoria que requiere una defensa adicional**;
-- **política localmente inviable por capacidad, presupuesto o riesgo**;
-- **política que viola la restricción operativa fijada por el Líder de Decisión**, aunque el Líder de Riesgo haya escrito controles locales más permisivos.
+- contrato causal incompleto;
+- DAG todavía no diagnosticado;
+- outcome u horizonte del experimento distintos de los acordados por Estrategia;
+- asignación no aleatoria que requiere una defensa adicional;
+- política localmente inviable por capacidad, presupuesto o riesgo;
+- política que viola la restricción operativa fijada por Estrategia.
 
-Un estado rojo es una **contradicción conceptual que el equipo debe discutir**, no una excusa para que el software tome la decisión. El facilitador debe preguntar primero: “¿qué dos piezas no están contando la misma historia?”. Si el tiempo es corto, corrige la incompatibilidad en el debrief en lugar de explicar más teoría.
-
-La prioridad de lectura es:
+Ante un estado rojo pregunta primero: **“¿qué dos piezas no están contando la misma historia?”**. La prioridad de lectura es:
 
 `PREGUNTA → IDENTIFICACIÓN → ESTIMACIÓN → DISEÑO/INCERTIDUMBRE → POLÍTICA`
 
-El panel muestra primero el bloqueo principal y deja el resto de chequeos en un detalle desplegable para no convertir la interfaz en una lista de alertas.
+## Cómo leer la consola docente
+
+- **Cobertura 4/4:** las cuatro responsabilidades produjeron evidencia. No significa automáticamente que la decisión sea correcta.
+- **Cobertura 3/4 en un equipo de tres:** normalmente Modelos aún no ha compartido la evidencia de Experimentos; entra a esa sala y pregunta por el doble sombrero.
+- **Bloqueo rojo en coherencia:** pide al equipo que encuentre la contradicción antes de explicar la respuesta.
+- **+ copiloto:** existe apoyo extra, pero no cambia el denominador.
+
+Nunca compares equipos por cantidad de integrantes o cantidad de texto.
 
 ## Llamada al Capítulo
 
-El Game Master dirige y **no está a la venta**. Los otros tres facilitadores forman una **bolsa transversal de expertos**. Todos deben dominar una base común de los tres bloques: causalidad, experimentación y decisión. Luego cada uno puede tener una fortaleza distinta.
+El Game Master dirige y **no está a la venta**. Los otros facilitadores forman una bolsa transversal de expertos. La llamada dura 90 s. El experto puede:
 
-En cada ronda el Game Master define de 0 a 3 atenciones disponibles según capacidad real. La llamada dura 90 s. El experto puede hacer:
-
-- una observación sobre el problema;
-- una pregunta socrática;
-- una aclaración sobre **conceptos ya enseñados hasta esa ronda**.
+- hacer una observación sobre el problema;
+- hacer una pregunta socrática;
+- aclarar conceptos ya enseñados.
 
 No puede explicar un tema futuro, decir cuál opción seleccionar ni revelar información privada del simulador.
 
 ## Mercado justo
 
-- Cada equipo tiene la misma bolsa, catálogo, precios base e inventario de ayudas no humanas.
-- Lo que compra Fisher **no** encarece ni agota lo que puede comprar Neyman, Rubin o Pearl.
-- Dentro de un equipo sí puede subir el precio de un segundo/tercer Junior para representar uso creciente de recursos.
-- Sólo **Llamada al Capítulo** tiene cupos globales porque consume tiempo de una persona real.
+- Cada equipo tiene la misma bolsa, catálogo y precios base.
+- Lo que compra Fisher no encarece ni agota lo que puede comprar Neyman, Rubin o Pearl.
+- Sólo **Llamada al Capítulo** tiene cupos globales porque consume tiempo real de una persona.
 - El mercado es opcional; seguir sin ayuda es una estrategia válida.
 
-## Si falta una persona
+## Si alguien falta o se desconecta
 
-El equipo puede funcionar con 4. El Game Master entrega oralmente la misión permanente del rol faltante; no desbloquea automáticamente sus herramientas.
+### Antes de iniciar
+
+No inventes un sustituto humano. Deja que la asignación automática produzca equipos de 3/4/5. Explica la regla de doble sombrero.
+
+### Durante una ronda
+
+Si desaparece 🐢 Experimentos y el equipo queda con tres responsabilidades humanas, indica a 🦉 Modelos que cubra el módulo experimental disponible. Si desaparece otro rol, el facilitador puede usar el fallback oral temporal, pero evita cambiar roles a mitad de una decisión salvo que la ausencia sea definitiva.
+
+### Si quedan sólo 2 personas en un equipo
+
+Eso ya no es la configuración objetivo. Redistribuye apoyo humano antes de continuar la siguiente ronda; no pretendas que una persona cubra tres instrumentos simultáneamente.
 
 ## Si falla backend
 
 - Pausar si la consola responde.
-- Si no responde en 2–3 min, pasar al fallback docente: proyectar resultados/tablas preparados y recoger decisiones por chat o Forms.
+- Si no responde, usar el fallback docente: proyectar resultados/tablas preparados y recoger decisiones por chat o Forms.
+- Mantener las cuatro responsabilidades conceptuales aunque la interfaz falle.
 - No inventar resultados en vivo.

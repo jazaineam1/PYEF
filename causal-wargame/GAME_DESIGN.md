@@ -12,26 +12,38 @@ Al salir, el participante debe poder preguntar espontáneamente:
 
 La terminología formal se introduce **después** de vivir cada concepto.
 
-## Equipos y roles
+## Equipos y responsabilidades
 
-4 equipos de 5. Roles:
+El juego usa **4 equipos** y **4 responsabilidades causales núcleo**:
 
-- **Negocio** — objetivo, presupuesto y decisión.
-- **Datos** — probabilidades, tasas y números.
-- **Contexto** — por qué alguien acabó tratado/no tratado.
-- **Riesgo** — daño, restricciones y segmentos adversos.
-- **Integrador** — consolida la decisión del equipo.
+- 🦁 **Estrategia y Política** — define la pregunta causal y cierra la política bajo costo, capacidad y riesgo.
+- 🦉 **Modelos** — separa predicción de efecto incremental y explora heterogeneidad.
+- 🐈‍⬛ **Causalidad** — razona sobre contrafactual, confusión, mediadores, colliders e identificación.
+- 🐢 **Experimentos** — diseña comparación, asignación, outcome, horizonte e incertidumbre.
+
+Una quinta persona no crea una quinta especialidad: entra como 🦅 **Copiloto de Estrategia**, apoyo opcional para auditar costo, daño, capacidad y reversibilidad.
+
+### Asistencia variable: equipos de 3, 4 o 5
+
+La unidad de diseño es la **responsabilidad**, no el número de personas.
+
+- **3 personas:** 🦁 Estrategia y Política + 🦉 Modelos + 🐈‍⬛ Causalidad. Modelos toma automáticamente un segundo sombrero y cubre 🐢 Experimentos. Debe completar un módulo experimental real; no recibe crédito automático.
+- **4 personas:** configuración ideal, una persona por cada responsabilidad núcleo.
+- **5 personas:** cuatro responsabilidades núcleo + 🦅 copiloto opcional. El copiloto puede aconsejar, pero no añade una quinta evidencia obligatoria, un voto extra ni poder de veto.
+
+Con 12 participantes pueden funcionar cuatro equipos de 3. Con 16, cuatro equipos de 4. De 17 a 20, los participantes adicionales actúan como copilotos. Ningún equipo pierde puntos por tener menos personas; la plataforma observa cobertura **0–4** de responsabilidades.
 
 ### Qué son los roles y qué NO son
 
 Los roles usan **información asimétrica cooperativa**. Todos los integrantes quieren exactamente lo mismo: que su equipo tome la mejor decisión causal. No hay traidor, mentiroso ni rol con objetivo secreto contrario.
 
-Por eso no funciona como *Hombre Lobo*: comparte con ese tipo de juego que cada persona conoce información diferente, pero aquí no hay engaño social. Se parece más a un equipo de crisis o escape room cooperativo: cada rol tiene una pieza del rompecabezas y la decisión correcta exige compartirlas.
+Por eso no funciona como *Hombre Lobo*: comparte con ese tipo de juego que cada persona conoce información diferente, pero aquí no hay engaño social. Se parece más a un equipo de crisis o escape room cooperativo: cada responsabilidad aporta una pieza distinta y la decisión correcta exige reconciliarlas.
 
 - R1 es deliberadamente común: todos caen primero en la trampa predictiva.
-- R2, R3 y R4 entregan una pista privada distinta a cada rol.
+- R2, R3 y R4 entregan información especializada.
 - La decisión final siempre es una respuesta estructurada del equipo.
 - Las pistas privadas no se puntúan por texto: sólo ayudan a llegar a la decisión objetiva correcta.
+- `4/4` responsabilidades cubiertas no garantiza una buena decisión: pregunta, identificación, estimación, experimento y política además deben ser coherentes.
 
 ## Rondas
 
@@ -57,13 +69,13 @@ Aprendizaje: comparación injusta y confusión.
 
 ### R3 · Una prueba mejor
 
-20.000 elegibles; escoger asesor, modelo o asignación aleatoria. Outcome y horizonte también se puntúan de forma cerrada.
+20.000 elegibles; escoger asesor, modelo o asignación aleatoria. Outcome y horizonte también se puntúan de forma cerrada. Si el equipo tiene tres personas, Modelos abre además el Experiment Designer y entrega esa segunda pieza de evidencia.
 
-Aprendizaje: randomización, tratamiento/control y ATE.
+Aprendizaje: randomización, tratamiento/control, ATE e incertidumbre.
 
 ### R4 · El promedio miente
 
-ATE positivo, pero efectos por segmento heterogéneos y un segmento con daño esperado. Cada uno de los cinco segmentos debe clasificarse exactamente una vez en intervenir / no intervenir / más evidencia.
+ATE positivo, pero efectos por segmento heterogéneos y un segmento con daño esperado. Estrategia y Política recibe la responsabilidad de convertir esa evidencia en una política factible bajo la restricción acordada.
 
 Aprendizaje: heterogeneidad, CATE y política de intervención.
 
@@ -79,7 +91,7 @@ El profesor nunca asigna puntos competitivos manuales.
 
 Máximo exacto: **100 puntos**.
 
-Los microchecks individuales son diagnósticos de aprendizaje y **no modifican el leaderboard**.
+La composición del equipo, número de personas, doble sombrero o presencia de copiloto **no modifica el puntaje**. Los microchecks individuales son diagnósticos de aprendizaje y **no modifican el leaderboard**.
 
 ### Empates
 
@@ -110,7 +122,7 @@ Permitido. Regla visible: **“IA puede asesorar; IA no es evidencia.”**
 
 La resistencia a delegación proviene de:
 
-- información fragmentada por rol;
+- información fragmentada por responsabilidad;
 - eventos liberados en vivo;
 - decisiones irreversibles;
 - ground truth server-side;
@@ -125,4 +137,5 @@ No usar como aprendizaje ni como desempate:
 - velocidad de respuesta;
 - cantidad de texto;
 - número de recargas;
-- apreciación subjetiva del profesor.
+- apreciación subjetiva del profesor;
+- cantidad de integrantes del equipo.
