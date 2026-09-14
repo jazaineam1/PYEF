@@ -18,3 +18,9 @@ verify_jwt = false
 verify_jwt = false
 [functions.leaderboard]
 verify_jwt = false
+[functions.help-state]
+verify_jwt = false
+[functions.buy-help]
+verify_jwt = false
+[functions.expert-market]
+verify_jwt = false
