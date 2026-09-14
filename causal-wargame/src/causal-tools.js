@@ -28,9 +28,9 @@ export const DECISION_OPTIONS={
 export const EXPERIMENT_BASE={treatmentRate:31.2,controlRate:25.4,eligible:20000}
 
 export const TOOL_GUIDE={
- business:{question:'¿Qué decisión causal está realmente definida?',assumption:'La población, intervención, comparador, outcome y horizonte deben referirse al mismo problema.',decision:'Entrega al equipo una pregunta cerrada, el estimando y la restricción que gobiernan la decisión.'},
- data:{question:'¿Quién probablemente tendrá Y y quién cambia por T?',assumption:'Un estimador de CATE sólo es causal bajo una estrategia de identificación defendible.',decision:'Entrega perfiles con mayor cambio incremental, no sólo mayor score.'},
+ business:{question:'¿Qué decisión causal está definida y qué política es factible?',assumption:'Pregunta, estimando, incertidumbre y restricción deben referirse al mismo problema.',decision:'Abre con un contrato causal y cierra con una política que respete capacidad, presupuesto y riesgo.'},
+ data:{question:'¿Quién probablemente tendrá Y y quién cambia por T?',assumption:'Un estimador de CATE sólo es causal bajo una estrategia de identificación defendible.',decision:'Entrega perfiles con mayor cambio incremental, no sólo mayor score; si falta Experimentos, cubre también diseño e incertidumbre.'},
  context:{question:'¿Qué estructura causal hace válida o sesgada la comparación?',assumption:'Temporalidad y estructura importan; ajustar por todo puede introducir sesgo.',decision:'Entrega un conjunto de ajuste defendible y una advertencia sobre variables que no deben controlarse.'},
  integrator:{question:'¿Qué diseño permite identificar y medir el efecto con precisión útil?',assumption:'La asignación y el análisis deben definirse antes de mirar el resultado.',decision:'Entrega diseño, efecto estimado e incertidumbre.'},
- risk:{question:'¿Dónde conviene actuar dadas capacidad, costo, daño e incertidumbre?',assumption:'Máximo efecto no equivale a mejor política si existen restricciones o daño.',decision:'Entrega una política priorizada, no sólo una tabla de efectos.'}
+ risk:{question:'¿Qué podría volver mala una política aparentemente rentable?',assumption:'Este es un rol de apoyo: no crea una quinta pieza causal obligatoria.',decision:'Ayuda a Estrategia y Política a revisar costo, capacidad, daño y reversibilidad.'}
 }
