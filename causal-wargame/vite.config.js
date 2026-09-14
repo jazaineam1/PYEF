@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
     resolve:{
       alias:{
         '#play': page(secure ? 'SecurePlayLearning.jsx' : 'DemoPlay.jsx'),
-        '#facilitator': page(secure ? 'SecureFacilitator.jsx' : 'DemoFacilitator.jsx'),
-        '#wall': page(secure ? 'SecureWall.jsx' : 'DemoWall.jsx'),
+        '#facilitator': page(secure ? 'SecureFacilitatorLearning.jsx' : 'DemoFacilitator.jsx'),
+        '#wall': page(secure ? 'SecureWallLearning.jsx' : 'DemoWall.jsx'),
       }
     },
     build:{
