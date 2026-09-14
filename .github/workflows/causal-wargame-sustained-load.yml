@@ -1,0 +1,40 @@
+name: causal-wargame-sustained-load
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration_seconds:
+        description: 'Duración del gate sostenido en segundos (900 recomendado antes del evento)'
+        required: false
+        default: '900'
+      users:
+        description: 'Usuarios simulados (máximo funcional actual: 20)'
+        required: false
+        default: '20'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/causal-wargame-sustained-load.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: causal-wargame-sustained-load
+  cancel-in-progress: false
+
+jobs:
+  classroom-load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Sustained 20-user classroom simulation
+        working-directory: causal-wargame
+        env:
+          CW_USERS: ${{ github.event_name == 'workflow_dispatch' && inputs.users || '20' }}
+          CW_DURATION_SECONDS: ${{ github.event_name == 'workflow_dispatch' && inputs.duration_seconds || '120' }}
+        run: node scripts/sustained_load.mjs
