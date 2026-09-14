@@ -13,17 +13,21 @@ const RETRYABLE = new Set([408, 425, 429, 500, 502, 503, 504])
 function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)) }
 function jitter(baseMs){ return Math.round(baseMs * (0.75 + Math.random() * 0.5)) }
 
-function migrateLegacySession(){
-  const old = sessionStorage.getItem(PLAYER_TOKEN)
-  if(old && !localStorage.getItem(PLAYER_TOKEN)) localStorage.setItem(PLAYER_TOKEN, old)
-  const oldCode = sessionStorage.getItem(PLAYER_GAME_CODE)
-  if(oldCode && !localStorage.getItem(PLAYER_GAME_CODE)) localStorage.setItem(PLAYER_GAME_CODE, oldCode)
+function reconcilePlayerStorage(){
+  const sessionToken = sessionStorage.getItem(PLAYER_TOKEN)
+  const localToken = localStorage.getItem(PLAYER_TOKEN)
+  if(sessionToken && !localToken) localStorage.setItem(PLAYER_TOKEN, sessionToken)
+  if(localToken && !sessionToken) sessionStorage.setItem(PLAYER_TOKEN, localToken)
+  const sessionCode = sessionStorage.getItem(PLAYER_GAME_CODE)
+  const localCode = localStorage.getItem(PLAYER_GAME_CODE)
+  if(sessionCode && !localCode) localStorage.setItem(PLAYER_GAME_CODE, sessionCode)
+  if(localCode && !sessionCode) sessionStorage.setItem(PLAYER_GAME_CODE, localCode)
 }
-migrateLegacySession()
+reconcilePlayerStorage()
 
-export function getPlayerToken(){ return localStorage.getItem(PLAYER_TOKEN) || '' }
+export function getPlayerToken(){ return localStorage.getItem(PLAYER_TOKEN) || sessionStorage.getItem(PLAYER_TOKEN) || '' }
 export function getFacilitatorToken(){ return sessionStorage.getItem(FACILITATOR_TOKEN) || '' }
-export function getPlayerGameCode(){ return localStorage.getItem(PLAYER_GAME_CODE) || '' }
+export function getPlayerGameCode(){ return localStorage.getItem(PLAYER_GAME_CODE) || sessionStorage.getItem(PLAYER_GAME_CODE) || '' }
 export function getFacilitatorGameCode(){ return sessionStorage.getItem(FACILITATOR_GAME_CODE) || '' }
 
 function token(kind){ return kind === 'facilitator' ? getFacilitatorToken() : getPlayerToken() }
@@ -34,7 +38,7 @@ async function fetchJson(url, init = {}, { attempts = 3, timeoutMs = 9000 } = {}
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), timeoutMs)
     try{
-      const response = await fetch(url, { ...init, signal: controller.signal, cache: 'no-store' })
+      const response = await fetch(url, { ...init, signal:controller.signal, cache:'no-store' })
       const data = await response.json().catch(() => ({}))
       if(response.ok) return data
       const error = new Error(data.error || `HTTP ${response.status}`)
@@ -56,24 +60,22 @@ async function fetchJson(url, init = {}, { attempts = 3, timeoutMs = 9000 } = {}
 }
 
 export async function invoke(name, body = {}, kind = 'player', options = {}) {
-  if (!base) throw new Error('VITE_FUNCTIONS_BASE_URL no está configurada')
+  if(!base) throw new Error('VITE_FUNCTIONS_BASE_URL no está configurada')
   const headers = { 'content-type':'application/json', ...(options.headers || {}) }
   const t = token(kind)
-  if (t) headers[kind === 'facilitator' ? 'x-facilitator-token' : 'x-game-token'] = t
+  if(t) headers[kind === 'facilitator' ? 'x-facilitator-token' : 'x-game-token'] = t
   return fetchJson(`${base}/${name}`, { method:'POST', headers, body:JSON.stringify(body) }, options)
 }
 
 export async function bootstrapGame({game_code, pin, bootstrap_secret}){
   if(!bootstrap_secret) throw new Error('Se requiere la clave de creación de partidas')
   return invoke('create-game', { game_code, pin }, 'facilitator', {
-    headers:{ 'x-bootstrap-secret': bootstrap_secret },
-    attempts:2,
-    timeoutMs:10000
+    headers:{ 'x-bootstrap-secret': bootstrap_secret }, attempts:2, timeoutMs:10000
   })
 }
 
-export async function health() {
-  if (!base) return { ok:true, mode:'demo', latency_ms:0 }
+export async function health(){
+  if(!base) return { ok:true, mode:'demo', latency_ms:0 }
   const t0 = performance.now()
   try{
     const data = await fetchJson(`${base}/health`, {}, { attempts:2, timeoutMs:5000 })
@@ -83,24 +85,13 @@ export async function health() {
   }
 }
 
-export function savePlayerToken(v){
-  localStorage.setItem(PLAYER_TOKEN, v)
-  sessionStorage.removeItem(PLAYER_TOKEN)
-}
-export function savePlayerGameCode(v){
-  localStorage.setItem(PLAYER_GAME_CODE, String(v || '').toUpperCase())
-  sessionStorage.removeItem(PLAYER_GAME_CODE)
-}
-export function saveFacilitatorToken(v){ sessionStorage.setItem(FACILITATOR_TOKEN, v) }
-export function saveFacilitatorGameCode(v){ sessionStorage.setItem(FACILITATOR_GAME_CODE, String(v || '').toUpperCase()) }
+export function savePlayerToken(v){ localStorage.setItem(PLAYER_TOKEN,v); sessionStorage.setItem(PLAYER_TOKEN,v) }
+export function savePlayerGameCode(v){ const code=String(v||'').toUpperCase(); localStorage.setItem(PLAYER_GAME_CODE,code); sessionStorage.setItem(PLAYER_GAME_CODE,code) }
+export function saveFacilitatorToken(v){ sessionStorage.setItem(FACILITATOR_TOKEN,v) }
+export function saveFacilitatorGameCode(v){ sessionStorage.setItem(FACILITATOR_GAME_CODE,String(v||'').toUpperCase()) }
 export function clearPlayerSession(){
-  localStorage.removeItem(PLAYER_TOKEN)
-  localStorage.removeItem(PLAYER_GAME_CODE)
-  sessionStorage.removeItem(PLAYER_TOKEN)
-  sessionStorage.removeItem(PLAYER_GAME_CODE)
+  localStorage.removeItem(PLAYER_TOKEN); localStorage.removeItem(PLAYER_GAME_CODE)
+  sessionStorage.removeItem(PLAYER_TOKEN); sessionStorage.removeItem(PLAYER_GAME_CODE)
 }
-export function clearFacilitatorSession(){
-  sessionStorage.removeItem(FACILITATOR_TOKEN)
-  sessionStorage.removeItem(FACILITATOR_GAME_CODE)
-}
+export function clearFacilitatorSession(){ sessionStorage.removeItem(FACILITATOR_TOKEN); sessionStorage.removeItem(FACILITATOR_GAME_CODE) }
 export function clearTokens(){ clearPlayerSession(); clearFacilitatorSession() }
