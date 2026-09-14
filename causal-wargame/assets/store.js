@@ -12,9 +12,11 @@ class DemoStore{
   write(st){st.updatedAt=now();localStorage.setItem(LS,JSON.stringify(st));this.bc.postMessage({type:'state'});return st}
   async health(){return {ok:true,mode:'demo'}}
   async reset(){const st=defaultState(this.s);this.write(st);localStorage.removeItem(SESSION);return st}
-  async join({name}){const st=this.read();let sess=JSON.parse(localStorage.getItem(SESSION)||'null');if(sess){const p=st.players.find(x=>x.id===sess.playerId);if(p)return {token:sess.token,player:p,state:await this.state(sess.token)}}
+  async join({name,gameCode='FUTUROS'}){const st=this.read();let sess=JSON.parse(localStorage.getItem(SESSION)||'null');if(sess){const p=st.players.find(x=>x.id===sess.playerId);if(p)return {token:sess.token,player:p,state:await this.state(sess.token)}}
     const idx=st.players.length;const team=this.s.teams[Math.floor(idx/5)%this.s.teams.length];const role=this.s.roles[idx%5].code;const p={id:uid(),name:name||`Jugador ${idx+1}`,team,role,joinedAt:now()};st.players.push(p);const token=uid();localStorage.setItem(SESSION,JSON.stringify({token,playerId:p.id}));this.write(st);return {token,player:p,state:await this.state(token)}}
   player(){const sess=JSON.parse(localStorage.getItem(SESSION)||'null');const st=this.read();return sess?st.players.find(p=>p.id===sess.playerId):null}
+  async publicState(){return this.state()}
+  async adminState(){return this.state()}
   async state(){const st=this.read();const p=this.player();let roleCard=null,reveal=null;const priv=await fetch('scenario/nexo-v1/demo-private.json',{cache:'no-store'}).then(r=>r.json());if(p&&st.game.round===2)roleCard=priv.roleCards?.['2']?.[p.role]||null;if(st.game.phase==='reveal')reveal=this.revealFor(st,priv);return {...st,player:p,roleCard,reveal,leaderboard:this.board(st)}}
   revealFor(st,priv){const r=st.game.round;if(r===1){const rows={};for(const t of this.s.teams){const ids=st.decisions[`1:${t}`]?.payload?.customers||[];const observed=ids.length?ids.reduce((a,id)=>a+(this.s.customers.find(c=>c.id===id)?.pred||0),0)/ids.length:0;const effect=ids.reduce((a,id)=>a+(priv.effects[id]||0),0);rows[t]={observed,effect}}return {type:'futures',rows}}
     if(r===2)return {type:'confounding',naive:priv.round2.naive,adjusted:priv.round2.adjusted};if(r===3)return {type:'experiment',...priv.round3};if(r===4)return {type:'heterogeneity',effects:priv.round4.effects};return null}
@@ -35,7 +37,9 @@ class ApiStore{
   async req(action,payload={},adminKey=''){const h={'content-type':'application/json'};if(this.token)h['x-player-token']=this.token;if(adminKey)h['x-facilitator-key']=adminKey;const r=await fetch(this.base,{method:'POST',headers:h,body:JSON.stringify({action,...payload})});const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error||`HTTP ${r.status}`);return j}
   async health(){return this.req('health')}
   async join({name,gameCode}){const j=await this.req('join',{name,gameCode});this.token=j.token;localStorage.setItem(SESSION,j.token);return j}
-  async state(){return this.req('state')}
+  async state(){return this.token?this.req('state'):this.publicState()}
+  async publicState(){return this.req('publicState',{gameCode:CFG.gameCode||'FUTUROS'})}
+  async adminState(key=''){return this.req('adminState',{gameCode:CFG.gameCode||'FUTUROS'},key)}
   async submitDecision(payload){return this.req('submitDecision',{payload})}
   async submitCheck(answer){return this.req('submitCheck',{answer})}
   async admin(action,data={},key=''){return this.req('admin',{command:action,data},key)}
