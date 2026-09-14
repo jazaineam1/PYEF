@@ -1,3 +1,5 @@
+import './learning.css'
+
 export const LESSONS={
 1:{minutes:10,title:'De predecir a intervenir',objective:'Distinguir probabilidad de resultado de efecto causal.',formula:'E[Y(1) − Y(0)]',methods:['Modelo predictivo P(Y|X)','Potential outcomes Y(1), Y(0)','Contrafactual'],teacher:[
 'Empieza con una pregunta: “Si sé quién va a pagar, ¿ya sé a quién debo llamar?”',
