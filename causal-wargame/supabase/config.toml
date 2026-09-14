@@ -14,6 +14,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.submit-check]
 verify_jwt = false
+[functions.transfer-check]
+verify_jwt = false
 [functions.facilitator-transition]
 verify_jwt = false
 [functions.leaderboard]
