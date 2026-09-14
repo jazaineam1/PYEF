@@ -2,6 +2,8 @@ project_id = "dos-futuros"
 
 [functions.health]
 verify_jwt = false
+[functions.create-game]
+verify_jwt = false
 [functions.join-game]
 verify_jwt = false
 [functions.facilitator-login]
