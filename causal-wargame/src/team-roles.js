@@ -1,4 +1,4 @@
-import{CORE_ROLE_CODES,ROLE_ARCHETYPES}from'./codex'
+import{CORE_ROLE_CODES,ROLE_ARCHETYPES}from'./codex.js'
 
 export function rosterRoles(roster=[]){return new Set((roster||[]).map(x=>x?.role_code).filter(Boolean))}
 export function hasTeamRole(roster=[],role){return rosterRoles(roster).has(role)}
