@@ -51,7 +51,7 @@
     {"id":"pages-ui","from":"pages","to":"ui","variant":"default"},
     {"id":"ui-role","from":"ui","to":"role_engine","label":"rol + ronda","variant":"emphasis","labelAt":[745,268]},
     {"id":"role-war","from":"role_engine","to":"war_room","variant":"emphasis"},
-    {"id":"war-api","from":"war_room","to":"edge_api","label":"comparte / decide","variant":"emphasis","labelAt":[1015,440]},
+    {"id":"war-api","from":"war_room","to":"edge_api","label":"comparte / decide","variant":"emphasis","labelAt":[1015,505]},
     {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC + estado","variant":"security","labelAt":[1295,392]},
     {"id":"assets-api","from":"causal_assets","to":"edge_api","label":"escenario sintético","variant":"dashed","labelAt":[1160,464]},
     {"id":"actions-build","from":"github_actions","to":"secure_build","variant":"dashed"},
