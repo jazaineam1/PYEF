@@ -5,14 +5,14 @@ import{readFile}from'node:fs/promises'
 const revealUrl=new URL('../src/components/RoleReveal.jsx',import.meta.url)
 const playUrl=new URL('../src/play.jsx',import.meta.url)
 
-test('role reveal stays lightweight and presents five core specialties',async()=>{
+test('role reveal stays lightweight and presents four core specialties',async()=>{
   const source=await readFile(revealUrl,'utf8')
   assert.equal(source.includes('role-art'),false)
   assert.equal(source.includes('<img'),false)
   assert.equal(source.includes('functionsBaseUrl'),false)
   assert.match(source,/role-avatar-emoji/)
-  assert.match(source,/Cinco especialistas, cinco instrumentos y una sola decisión/)
-  assert.match(source,/Cinco especialidades núcleo/)
+  assert.match(source,/Cuatro especialistas, cuatro instrumentos y una sola decisión/)
+  assert.match(source,/Cuatro especialidades núcleo/)
 })
 
 test('participant entrypoint loads canonical role visual stylesheet',async()=>{

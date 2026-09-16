@@ -3,24 +3,53 @@ const base=(process.env.CW_BASE_URL||'https://nedsrnqwvxtelddmtvtv.supabase.co/f
 const game='FLOWTEST26';const pin=[...game].reverse().join('')+'-NEXO'
 async function call(path,body={},headers={}){const r=await fetch(`${base}/${path}`,{method:'POST',headers:{'content-type':'application/json',...headers},body:JSON.stringify(body)});const data=await r.json().catch(()=>({}));return{ok:r.ok,status:r.status,data}}
 const assert=(c,m)=>{if(!c)throw new Error(m)}
+
 let login=await call('facilitator-login',{game_code:game,pin});assert(login.ok,'facilitator login');const ft=login.data.token
 let r=await call('facilitator-transition',{action:'reset'},{'x-facilitator-token':ft});assert(r.ok,'initial reset')
-// The first four joins are the four teams' Decision Leads, so each can operate its own portfolio.
-const joinA=await call('join-game',{game_code:game,display_name:'Market Buyer A'});assert(joinA.ok&&joinA.data.player.role_code==='business','buyer A join as Decision Lead');const ptA=joinA.data.token
-const joinB=await call('join-game',{game_code:game,display_name:'Market Buyer B'});assert(joinB.ok&&joinB.data.player.role_code==='business','buyer B join as Decision Lead');const ptB=joinB.data.token
-const joinC=await call('join-game',{game_code:game,display_name:'Market Buyer C'});assert(joinC.ok&&joinC.data.player.role_code==='business','buyer C join as Decision Lead');const ptC=joinC.data.token
-const joinD=await call('join-game',{game_code:game,display_name:'Market Buyer D'});assert(joinD.ok&&joinD.data.player.role_code==='business','buyer D join as Decision Lead');const ptD=joinD.data.token
-r=await call('facilitator-transition',{action:'seed_bots'},{'x-facilitator-token':ft});assert(r.ok&&r.data.players===20,'seed to 20')
-// Transfer check is diagnostic and does not affect leaderboard.
+
+// Rehearsal protection: a bot-only roster is invalid because the learning flow requires a human.
+const botOnly=await call('facilitator-transition',{action:'seed_bots'},{'x-facilitator-token':ft});assert(!botOnly.ok,'bot-only rehearsal must be rejected')
+const botProbe=await call('join-game',{game_code:game,display_name:'Rehearsal Human',participant_key:'flow-rehearsal-human'});assert(botProbe.ok,'rehearsal human joins')
+r=await call('facilitator-transition',{action:'seed_bots'},{'x-facilitator-token':ft});assert(r.ok&&r.data.players===20&&r.data.bots===19&&r.data.roster_locked===true,'one human + 19 bots rehearsal locks five-team matrix')
+r=await call('facilitator-transition',{action:'reset'},{'x-facilitator-token':ft});assert(r.ok,'reset after bot rehearsal')
+
+// Full human classroom. Seats are provisional while people arrive; after 20 joins the first five
+// identities occupy Decision+Policy, one per team, regardless of their provisional join response.
+const joins=[]
+for(let i=1;i<=20;i++){
+  const j=await call('join-game',{game_code:game,display_name:`Flow Human ${String(i).padStart(2,'0')}`,participant_key:`flow-human-${i}`})
+  assert(j.ok,`human ${i} join`);joins.push(j)
+}
+const business=[]
+for(let i=0;i<5;i++){
+  const s=await call('game-state',{}, {'x-game-token':joins[i].data.token})
+  assert(s.ok&&s.data.player.role_code==='business',`human ${i+1} final role is Decision+Policy`)
+  business.push({token:joins[i].data.token,state:s.data})
+}
+assert(new Set(business.map(x=>x.state.player.team_id)).size===5,'five Decision+Policy players occupy five distinct teams')
+let ptA=business[0].token,ptB=business[1].token,ptC=business[2].token,ptD=business[3].token,ptE=business[4].token
+
+const rejoinA=await call('join-game',{game_code:game,display_name:'Flow Human 01',participant_key:'flow-human-1'});assert(rejoinA.ok&&rejoinA.data.resumed===true&&rejoinA.data.player.id===joins[0].data.player.id,'same identity resumes exact player');ptA=rejoinA.data.token
+const duplicateA=await call('join-game',{game_code:game,display_name:'Flow Human 01',participant_key:'flow-human-1-other-device'});assert(!duplicateA.ok,'same visible person on another identity must not create duplicate')
+const lobby=await call('leaderboard',{}, {'x-facilitator-token':ft});assert(lobby.ok&&Number(lobby.data.game.team_target)===5&&lobby.data.teams.length===5,'20 humans => five active teams');assert(lobby.data.teams.every(t=>Number(t.humans)===4),'20 humans => 4-4-4-4-4')
+
 const pre=await call('transfer-check',{stage:'pre',answers:{q1:'b',q2:'c',q3:'b',q4:'c'}},{'x-game-token':ptA});assert(pre.ok&&pre.data.score===4,'pre transfer check')
 const payloads={1:{selected:['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10']},2:{recommendation:'redesign',confounder:'mora_previa',reason_code:'baseline_difference'},3:{assignment:'random',outcome:'pago_30d',horizon:30},4:{treat:['digital','middle'],avoid:['arrears'],observe:['traditional','wealth']}}
 const answers={1:'B',2:'Los grupos no son comparables desde antes',3:'6 puntos porcentuales',4:'Priorizar segmentos con efecto positivo y evitar el segmento negativo'}
+const buyers=[ptA,ptB,ptC,ptD,ptE]
+
 for(let round=1;round<=4;round++){
   const premature=await call('facilitator-transition',{action:'open'},{'x-facilitator-token':ft});assert(!premature.ok,`round ${round}: open must fail before lesson`)
   r=await call('facilitator-transition',{action:'lesson'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: lesson`)
   const lessonState=await call('game-state',{}, {'x-game-token':ptA});assert(lessonState.ok&&lessonState.data.game.phase==='lesson',`round ${round}: participant lesson state`)
+  if(round===1){
+    assert(lessonState.data.game.roster_locked===true,'first lesson freezes roster')
+    const late=await call('join-game',{game_code:game,display_name:'Late Human',participant_key:'flow-late-human'});assert(!late.ok,'unseen participant rejected after roster freeze')
+    const known=await call('join-game',{game_code:game,display_name:'Flow Human 02',participant_key:'flow-human-2'});assert(known.ok&&known.data.resumed===true,'known participant can rejoin after freeze');ptB=known.data.token;buyers[1]=ptB
+  }
   r=await call('facilitator-transition',{action:'open'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: open lab`)
   const gs=await call('game-state',{}, {'x-game-token':ptA});assert(gs.ok&&gs.data.role_card,`round ${round}: role card exists`)
+
   if(round===1){
     const expertSet=await call('expert-market',{action:'set',help_id:'expert_trainer',slots:3},{'x-facilitator-token':ft});assert(expertSet.ok&&expertSet.data.experts.some(x=>x.help_id==='expert_trainer'&&Number(x.slots)===3),'three chapter expert slots enabled')
     const hsA=await call('help-state',{}, {'x-game-token':ptA});const hsB=await call('help-state',{}, {'x-game-token':ptB});assert(hsA.ok&&hsB.ok&&hsA.data.investment_balance===60&&hsB.data.investment_balance===60,'wallet starts at 60 per team')
@@ -37,9 +66,15 @@ for(let round=1;round<=4;round++){
     const expertC=await call('buy-help',{help_id:'expert_trainer'},{'x-game-token':ptC});assert(expertC.ok&&expertC.data.cost===34,'third chapter call costs 34')
     const expertSold=await call('buy-help',{help_id:'expert_trainer'},{'x-game-token':ptD});assert(!expertSold.ok,'fourth chapter call rejected: three human slots exhausted')
   }
-  if(round===4){assert(Number(gs.data.policy?.capacity)===15000,'round 4 exposes capacity');assert(gs.data.segments?.some(s=>Number(s.ci_low)<0&&Number(s.ci_high)>0),'round 4 exposes uncertainty')}
-  const submit=await call('submit-decision',{round,payload:payloads[round],idempotency_key:`learning-${round}-${Date.now()}`},{'x-game-token':ptA});assert(submit.ok,`round ${round}: human decision`)
-  if(round===4){const over=await call('submit-decision',{round,payload:{treat:['digital','middle','traditional'],avoid:['arrears'],observe:['wealth']},idempotency_key:`over-${Date.now()}`},{'x-game-token':ptB});assert(!over.ok,'round 4 over-capacity policy rejected')}
+
+  if(round===4){
+    assert(Number(gs.data.policy?.capacity)===15000,'round 4 exposes capacity');assert(gs.data.segments?.some(s=>Number(s.ci_low)<0&&Number(s.ci_high)>0),'round 4 exposes uncertainty')
+    const over=await call('submit-decision',{round,payload:{treat:['digital','middle','traditional'],avoid:['arrears'],observe:['wealth']},idempotency_key:`over-${Date.now()}`},{'x-game-token':ptB});assert(!over.ok,'round 4 over-capacity policy rejected')
+  }
+
+  for(let t=0;t<buyers.length;t++){
+    const submit=await call('submit-decision',{round,payload:payloads[round],idempotency_key:`learning-${round}-${t}-${Date.now()}`},{'x-game-token':buyers[t]});assert(submit.ok,`round ${round}: team ${t+1} decision`)
+  }
   r=await call('facilitator-transition',{action:'close'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: close`)
   r=await call('facilitator-transition',{action:'reveal'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: reveal`)
   r=await call('facilitator-transition',{action:'teach'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: debrief`)
@@ -47,7 +82,8 @@ for(let round=1;round<=4;round++){
   const check=await call('submit-check',{round,answer:answers[round]},{'x-game-token':ptA});assert(check.ok&&check.data.correct===true,`round ${round}: correct microcheck`)
   r=await call('facilitator-transition',{action:'next'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: next`)
 }
+
 const post=await call('transfer-check',{stage:'post',answers:{q1:'b',q2:'c',q3:'b',q4:'c'}},{'x-game-token':ptA});assert(post.ok&&post.data.score===4,'post transfer check')
-const final=await call('leaderboard',{game_code:game});assert(final.ok&&final.data.game.phase==='finished','finished phase');assert(final.data.teams.length===4,'4 teams');assert(final.data.teams.some(t=>Number(t.help_cost)===35),'team A investment survives to final leaderboard');assert(final.data.transfer?.pre_completed>=1&&final.data.transfer?.post_completed>=1,'wall exposes transfer metrics')
-console.log('CAUSAL_QUEST_V7_OK · 5-role architecture · fair team resources · expert demand 20→26→34 · 3 human slots · R4 uncertainty/capacity · transfer pre/post · 4 rounds complete')
+const final=await call('leaderboard',{game_code:game});assert(final.ok&&final.data.game.phase==='finished','finished phase');assert(final.data.teams.length===5,'five active teams');assert(final.data.teams.every(t=>t.locked),'all five teams submitted final decision');assert(final.data.teams.some(t=>Number(t.help_cost)===35),'team A investment survives to final leaderboard');assert(final.data.transfer?.pre_completed>=1&&final.data.transfer?.post_completed>=1,'wall exposes transfer metrics')
+console.log('CAUSAL_QUEST_ADAPTIVE_OK · bot gate · 20 humans => 5×4 · stable rejoin/freeze · fair market · R4 capacity · transfer pre/post · 4 rounds complete')
 login=await call('facilitator-login',{game_code:game,pin});if(login.ok){await call('facilitator-transition',{action:'reset'},{'x-facilitator-token':login.data.token});const clean=await call('leaderboard',{game_code:game});assert(clean.ok&&clean.data.teams.every(t=>Number(t.help_cost||0)===0),'reset clears investment costs')}

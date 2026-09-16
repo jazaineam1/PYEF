@@ -20,7 +20,7 @@ export function RoleReveal({state,role:roleProp,round:roundProp,phase:phaseProp=
           <span className="role-avatar-glow"/><span className="role-avatar-emoji">{meta.emoji}</span>
           <span className="role-spark role-spark-a">✦</span><span className="role-spark role-spark-b">✦</span><span className="role-spark role-spark-c">✦</span>
         </div>
-        <span className="role-visual-caption core">ESPECIALIDAD NÚCLEO</span>
+        <span className="role-visual-caption core">{meta.core?'ESPECIALIDAD NÚCLEO':'COMPATIBILIDAD LEGADO'}</span>
       </div>
       <div className="role-focus-copy">
         <div className="eyebrow">REVELACIÓN DE ROL</div><div className="type-badge"><Zap size={13}/>{meta.type}</div>
@@ -34,6 +34,6 @@ export function RoleReveal({state,role:roleProp,round:roundProp,phase:phaseProp=
     <div className="power-grid-simple">{powers.map(p=><div key={p.name} className={`power-box ${p.unlocked?'unlocked':'locked'} ${p.unlocking?'unlocking':''}`}><div className="power-box-icon">{p.unlocked?<Sparkles/>:<LockKeyhole/>}</div><div><div className="eyebrow">{p.unlocked?'HABILIDAD DISPONIBLE':p.unlocking?'SE ACTIVA DESPUÉS DE ESTA EXPLICACIÓN':`SE ACTIVA EN RONDA ${p.unlockRound}`}</div><h3>{p.name}</h3><p>{p.why}</p></div></div>)}</div>
     {role==='data'&&round>=4&&ECONML_PROVENANCE?.verified&&<div className="model-provenance-card"><span className="model-provenance-emoji" aria-hidden="true">🧪</span><div><b>Evidencia precomputada con EconML</b><span>{ECONML_PROVENANCE.econml_version?`EconML ${ECONML_PROVENANCE.econml_version} · `:''}T-Learner, DR-Learner y CausalForestDML.</span><small>Los modelos se ejecutaron fuera de la clase; el navegador sólo explora resultados estáticos. La concordancia entre estimadores no demuestra identificación causal.</small></div></div>}
     {meta.marketAuthority&&<div className="market-authority"><ShieldCheck size={16}/><div><b>Responsabilidad exclusiva del rol:</b><span> tú confirmas la cesta del mercado, pero la decisión de qué comprar se discute con todo el equipo.</span></div></div>}
-    <div className="team-role-strip"><div className="team-role-strip-copy"><b>Arquitectura del equipo</b><span>Cinco especialistas, cinco instrumentos y una sola decisión. Cada pieza responde una pregunta distinta y necesita información de las demás.</span></div><div className="team-role-icons" aria-label="Cinco especialidades núcleo">{coreRoles.map(m=><i key={m.label} title={m.label} style={{'--role-accent':m.accent}}>{m.emoji}</i>)}</div></div>
+    <div className="team-role-strip"><div className="team-role-strip-copy"><b>Arquitectura del equipo</b><span>Cuatro especialistas, cuatro instrumentos y una sola decisión. 🦁 integra también Política y Riesgo; cada pieza necesita información de las demás.</span></div><div className="team-role-icons" aria-label="Cuatro especialidades núcleo">{coreRoles.map(m=><i key={m.label} title={m.label} style={{'--role-accent':m.accent}}>{m.emoji}</i>)}</div></div>
   </div>
 }

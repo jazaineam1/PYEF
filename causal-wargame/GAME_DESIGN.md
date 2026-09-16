@@ -7,119 +7,155 @@ Al salir, el participante debe poder preguntar espontáneamente:
 1. ¿Qué estamos cambiando?
 2. ¿Qué resultado queremos cambiar?
 3. ¿Qué habría pasado sin intervenir?
-4. ¿Por qué la comparación es defendible y dónde tenemos soporte para hacerla?
-5. ¿Qué tan precisa es la evidencia para la decisión que necesitamos tomar?
-6. ¿Qué observación o stress test me haría perder confianza en la conclusión?
-7. ¿Funciona igual para todos y dónde conviene actuar?
+4. ¿Por qué la comparación es defendible y dónde existe soporte?
+5. ¿Qué tan precisa es la evidencia?
+6. ¿Qué observación o stress test me haría perder confianza?
+7. ¿Funciona igual para todos y dónde conviene actuar bajo costo, capacidad y riesgo?
 
-La terminología formal se introduce **después** de vivir cada concepto. La meta no es aprender software: es saber **qué pregunta responde cada instrumento, qué supuesto necesita, qué podría refutar la conclusión y qué permite decidir**.
+La terminología formal se introduce **después** de vivir cada concepto. La meta no es aprender software: es saber **qué pregunta responde cada instrumento, qué supuesto necesita y qué permite concluir**.
 
-## Equipos y cinco especialidades
+## Cuatro especialidades; número de equipos adaptativo
 
-El juego usa **4 equipos** y **5 especialidades analíticas núcleo** por equipo:
+La unidad conceptual del juego es el **equipo de cuatro responsabilidades**, no una cantidad fija de equipos:
 
-- 🦁 **Líder de Decisión** — usa el **Constructor de Pregunta Causal** para fijar población, intervención, comparador, resultado, horizonte, estimando y restricción.
-- 🦉 **Líder de Modelos** — usa el **Explorador de Uplift y CATE** para separar predicción de efecto incremental, revisar soporte, explorar heterogeneidad y desafiar estimaciones.
-- 🐈‍⬛ **Analista Causal** — usa el **Laboratorio de Grafo Causal** para razonar sobre confusión, mediadores, colliders e identificación.
-- 🐢 **Líder de Experimentos** — usa el **Diseñador de Experimentos** para definir comparación, asignación, outcome, horizonte, efecto, incertidumbre y precisión útil.
-- 🦅 **Política y Riesgo** — usa el **Simulador de Política** para convertir efecto, incertidumbre, costo, capacidad y riesgo en una regla de acción.
+- 🦁 **Líder de Decisión y Política** — fija población, intervención, comparador, resultado, horizonte, estimando y restricción; administra recursos y en R4 convierte la evidencia en una política factible bajo costo, capacidad y riesgo.
+- 🦉 **Líder de Modelos** — separa predicción de efecto incremental, revisa overlap y explora heterogeneidad con Uplift/CATE.
+- 🐈‍⬛ **Analista Causal** — usa el DAG para razonar sobre confusión, mediadores, colliders e identificación.
+- 🐢 **Líder de Experimentos** — diseña la comparación, asignación, outcome, horizonte, incertidumbre y precisión útil.
 
-Los cinco comienzan con el mismo poder base: **Pregunta Crítica**. Las herramientas avanzadas sólo se habilitan cuando el concepto correspondiente ya fue explicado.
+**Política y Riesgo no es un quinto rol.** Esa responsabilidad está fusionada con Decisión para evitar que una experiencia de dos horas se fragmente en cinco minijuegos. El código conserva el identificador histórico `risk` únicamente para leer sesiones antiguas sin romperlas; no se asigna a participantes nuevos.
+
+Los cuatro comienzan con el mismo poder base: **Pregunta Crítica**.
 
 ### Dependencia entre herramientas
 
-No son cinco minijuegos independientes. El flujo esperado es:
+No son cuatro minijuegos independientes. El flujo esperado es:
 
-`🦁 pregunta → 🐈‍⬛ identificación → 🦉 soporte/estimación → 🐢 contraste/incertidumbre → 🦉 refutación → 🦅 política → 🦁 integración final`
+`🦁 define → 🐈‍⬛ identifica → 🦉 estima → 🐢 contrasta → 🦁 diseña política e integra`
 
-Cada instrumento produce una pieza de evidencia con cuatro campos visibles:
+Cada instrumento produce:
 
 1. **Pregunta** — qué intenta responder.
 2. **Evidencia** — qué produjo la herramienta.
 3. **Supuesto** — qué debe ser cierto para interpretarla.
 4. **Decisión** — qué permite concluir y qué no.
 
-La mesa de evidencia muestra cobertura **0–5** y, además, chequea contradicciones entre las piezas. `5/5` significa cobertura, no verdad: una estimación puede existir y aun no ser causal si la identificación es débil. En la capa avanzada también se revisan **soporte/overlap, precisión útil y stress tests** antes de convertir una estimación en política.
+La Mesa de Evidencia muestra cobertura **0–4**. `4/4` significa cobertura, no verdad: el motor de coherencia puede bloquear el cierre aunque estén las cuatro piezas.
 
-### Asistencia variable
+## Topología de asistencia
 
-La configuración objetivo para 20 participantes es **4 equipos × 5 especialistas**.
+El sistema intenta mantener equipos de **3–4 personas**. El número de equipos es:
 
-La sesión no se bloquea si hay ausencias:
+`ceil(asistentes / 4)`
 
-- Con **4 personas**, queda visible cuál especialidad no tiene dueño; el equipo puede continuar, pero debe reconocer la evidencia faltante.
-- Con **3 personas**, Modelos puede cubrir temporalmente Experimentos mediante un segundo módulo real. Esto no inventa una persona: genera una segunda pieza de evidencia explícita.
-- Política y Riesgo es una especialidad núcleo y su evidencia cuenta dentro de la cobertura 5/5.
+con un máximo soportado de **7 equipos / 28 humanos**.
 
-La composición del equipo no cambia el puntaje competitivo. El objetivo es evitar que una ausencia técnica detenga la clase sin fingir que la evidencia faltante existe.
+| Asistentes | Equipos | Distribución |
+|---:|---:|---|
+| 15 | 4 | 4–4–4–3 |
+| 16 | 4 | 4–4–4–4 |
+| **17** | **5** | **4–4–3–3–3** |
+| 18 | 5 | 4–4–4–3–3 |
+| 19 | 5 | 4–4–4–4–3 |
+| 20 | 5 | 4–4–4–4–4 |
+| 21 | 6 | 4–4–4–3–3–3 |
+| 24 | 6 | 4–4–4–4–4–4 |
+| 25 | 7 | 4–4–4–4–3–3–3 |
+| **28** | **7** | **4–4–4–4–4–4–4** |
+
+Los nombres canónicos disponibles son **Fisher, Neyman, Rubin, Pearl, Robins, Imbens y Rosenbaum**. Sólo los primeros `team_target` aparecen en participante, consola y wall.
+
+### Asignación por olas de rol
+
+Mientras la lista está abierta, los humanos se reordenan determinísticamente por llegada y se asignan por olas:
+
+1. 🦁 Decisión y Política a todos los equipos activos;
+2. 🦉 Modelos;
+3. 🐈‍⬛ Causalidad;
+4. 🐢 Experimentos.
+
+Esto produce una propiedad pedagógica útil: un equipo de tres siempre conserva 🦁+🦉+🐈‍⬛ y sólo carece de 🐢. En ese caso 🦉 Modelos activa un **módulo separado de doble sombrero** para producir evidencia experimental explícita. No se inventa un participante ni se marca evidencia automáticamente.
+
+La topología es **provisional durante lobby/briefing**. En la primera acción `lesson`, el servidor hace un último rebalanceo y pone `roster_locked=true`. Después de ese punto no se redistribuyen personas en caliente.
+
+Con menos de tres integrantes en algún equipo, la app advierte al facilitador. Los bots son sólo para ensayo técnico y no deben usarse para fingir colaboración humana.
+
+## Seguridad de ingreso y reingreso
+
+La identidad del participante y el token de sesión son conceptos distintos:
+
+- el navegador conserva una clave aleatoria de participante;
+- el token puede expirar o borrarse sin perder esa identidad;
+- mientras el roster está abierto, la misma identidad recupera el mismo `player_id`, aunque equipo/rol puedan haber cambiado por el rebalanceo global;
+- una vez congelada la lista, la misma identidad recupera exactamente `player_id`, `team_id` y `role_code`;
+- introducir el mismo nombre desde otra identidad se rechaza para evitar duplicados accidentales;
+- se recomienda usar nombre y apellido si dos personas tienen nombres iguales;
+- después de congelar la lista sólo reingresan identidades ya registradas;
+- máximo: **28 humanos**.
+
+El logout borra el token de sesión, **no** la clave local de identidad.
+
+### Ausencias antes de iniciar
+
+La consola puede retirar participantes que lleven un umbral de tiempo sin `last_seen_at` reciente y volver a ejecutar el balance. Esta acción sólo existe antes del cierre de lista. El facilitador debe confirmarla porque una pestaña suspendida puede parecer temporalmente offline.
+
+### Ausencias durante la partida
+
+No se reestructura el equipo automáticamente después del freeze. La ausencia se hace visible y se espera reingreso. Si falta Experimentos en un equipo de tres, Modelos puede cubrir su módulo explícito; otras ausencias no generan evidencia automática.
 
 ## Información asimétrica cooperativa
 
-Todos los integrantes quieren exactamente lo mismo: que su equipo tome la mejor decisión causal. No hay traidor ni objetivo secreto contrario.
+Todos buscan la misma decisión. No hay traidor ni objetivo secreto. Cada especialidad tiene información o controles diferentes y ninguna pieza es suficiente por sí sola.
 
-Cada especialidad ve información o controles diferentes. Individualmente ninguna pieza es suficiente. Por ejemplo, en una ronda el Líder de Modelos puede ver una diferencia ajustada y el soporte disponible, el Analista Causal la estructura que hace defendible o no ese ajuste, Experimentos el balance/incertidumbre/precisión, Política y Riesgo el costo de actuar y Decisión la restricción de negocio.
+La mecánica es:
 
-La mecánica correcta es:
-
-`enseño → exploras → produces evidencia → la compartes → integran → desafían → deciden → reveal/debrief`
+`enseño → exploras → produces evidencia → compartes → integran → deciden → reveal/debrief`
 
 ## Rondas
 
 ### R1 · ORÁCULO
 
-Elige 10 de 24 clientes utilizando score predictivo. Primero se observa quién parece más probable que convierta. Luego el simulador sintético permite revelar impacto incremental.
+Elige 10 de 24 clientes usando score predictivo; después se revela impacto incremental.
 
 Aprendizaje: predicción ≠ efecto causal; contrafactual; `Y(1)-Y(0)`.
 
 ### R2 · La comparación engañosa
 
-Llamados pagan 20%, no llamados 35%. La información distribuida revela que los llamados tenían mayor mora desde antes.
+Llamados pagan 20%, no llamados 35%; los llamados tenían mayor mora desde antes. El DAG diagnostica backdoor y Modelos contrasta asociación cruda, ajuste y overlap.
 
-El DAG Lab permite formular una hipótesis causal y diagnosticar un backdoor. Modelos ve asociación cruda y una comparación ajustada; el mensaje pedagógico es que **el método no reemplaza la identificación**.
-
-Además, Modelos inspecciona **overlap/positividad**: un segmento con 97% tratados y 3% no tratados obliga a reconocer que un estimador puede devolver un número aun cuando casi no existen comparaciones observadas que sostengan esa inferencia.
-
-Aprendizaje: confusión, DAG sencillo, comparabilidad y soporte. Propensity, matching e IPW son panorama/extensión, no objetivos obligatorios. El stress test de soporte exige decidir si restringir la población objetivo o pedir más evidencia.
+Aprendizaje: confusión, identificación, soporte/positividad. Que dos estimadores ajustados coincidan no demuestra causalidad.
 
 ### R3 · Una prueba mejor
 
-El equipo debe definir asignación, outcome y horizonte. El Diseñador de Experimentos permite cambiar regla de asignación y N, observar tratamiento/control, efecto/diferencia, IC95%, balance y un **MDE aproximado** frente a un efecto mínimo útil para el negocio.
+El equipo define asignación, outcome y horizonte. El Diseñador modifica N y muestra efecto, IC95%, balance y MDE aproximado frente a un efecto mínimo útil.
 
-Aprendizaje: randomización, tratamiento/control, ATE, incertidumbre y precisión útil. Más N puede estrechar el intervalo y reducir el MDE, pero **no corrige una asignación sesgada**. Interferencia entre unidades se introduce como supuesto operativo mediante un ejemplo de contagio entre clientes/hogares, sin convertir la ronda en una clase formal de SUTVA.
+Aprendizaje: randomización, ATE, incertidumbre, potencia útil y `más N ≠ menos sesgo`.
 
 ### R4 · Del efecto a la política
 
-El Líder de Modelos explora 24 perfiles con resultados **precomputados offline con EconML** (T-Learner, DR-Learner y CausalForestDML). El navegador no entrena modelos en vivo. La coincidencia entre estimadores no se presenta como prueba de identificación causal.
+Modelos explora T-Learner, DR-Learner y CausalForestDML precomputados con EconML y ejecuta un stress test placebo. 🦁 integra CATE, intervalos, valor, costo, capacidad y riesgo en el Simulador de Política.
 
-Antes de convertir CATE en política, Modelos enfrenta un **stress test placebo**: si un outcome anterior a la intervención también parece tener “efecto”, la conclusión debe perder confianza y revisarse. La Mesa de Evidencia bloquea la coherencia final si este stress test no se interpreta correctamente.
+Aprendizaje: heterogeneidad, refutación, incertidumbre y policy learning. Un placebo incompatible bloquea la coherencia aunque los modelos coincidan.
 
-Política y Riesgo recibe CATE, intervalos, tamaño de segmento, valor, costo y riesgo; modifica capacidad, presupuesto, tolerancia y asignación. La herramienta calcula factibilidad y valor esperado, pero no decide por el jugador.
+## Mercado
 
-Aprendizaje: heterogeneidad, CATE, incertidumbre, refutación y política de intervención.
-
-### Brújula final de identificación
-
-El cierre muestra un mapa de transferencia, no una quinta ronda: RCT cuando se puede asignar, backdoor/ajuste para ciertos problemas observacionales, RDD ante umbrales, DiD ante cambios con grupo de comparación, IV ante fuentes exógenas defendibles y **“no prometer causalidad”** cuando ninguna estrategia está justificada.
-
-El propósito no es enseñar todos esos métodos en dos horas. Es que el participante sepa que **elegir un estimador viene después de justificar de dónde sale la comparación**.
+Las ayudas no humanas son **inventario por equipo**. Por eso pasar de 4 a 7 equipos no reduce el stock ni encarece Junior/Senior para los demás. La única escasez global es la **Llamada al Capítulo**, porque representa capacidad humana real del equipo facilitador.
 
 ## Scoring de equipo · determinista
 
 El profesor no asigna puntos competitivos manuales.
 
-- **Impacto causal: 35** — valor incremental esperado de los clientes seleccionados en R1 contra ground truth sintético.
-- **Evidencia: 25** — decisión estructurada de R2.
-- **Diseño: 20** — calidad del diseño seleccionado en R3.
-- **Riesgo: 10** — evitar una política dañina en R4.
-- **Adaptación: 10** — priorización segmentada en R4.
+- **Impacto causal: 35**.
+- **Evidencia: 25**.
+- **Diseño: 20**.
+- **Riesgo: 10**.
+- **Adaptación: 10**.
 
-Máximo exacto: **100 puntos**, antes del costo de ayudas cuando aplique.
+Máximo: **100 puntos**, antes del costo de ayudas cuando aplique. Las dimensiones de scoring no equivalen al número de roles; Política/Riesgo sigue siendo una dimensión de calidad aunque esté dentro del rol 🦁.
 
-La cobertura de especialidades, el número de personas y los microchecks **no añaden puntos automáticamente**. Las herramientas producen evidencia para decidir; no son una mecánica de “hacer clic para sumar”. Los gates de soporte, precisión y robustez sirven para exigir coherencia causal, no para regalar puntos adicionales.
+La cobertura, número de personas y microchecks no añaden puntos automáticamente. El tamaño del equipo tampoco se usa como bonificación o penalización competitiva.
 
 ### Empates
-
-Si dos equipos terminan con el mismo total, se comparan en este orden:
 
 1. Impacto causal.
 2. Evidencia.
@@ -127,34 +163,22 @@ Si dos equipos terminan con el mismo total, se comparan en este orden:
 4. Riesgo.
 5. Adaptación.
 
-Si siguen idénticos, se declara empate técnico. No se usa velocidad de respuesta como desempate.
+Si continúan idénticos, empate técnico; no se usa velocidad.
 
 ## Evaluación individual
 
-La evaluación de aprendizaje se mantiene separada del ganador:
-
 - medición inicial de transferencia;
-- cuatro microchecks individuales con distractores técnicamente plausibles;
-- resultado del equipo;
-- medición final con contexto diferente;
+- cuatro microchecks;
+- resultado de equipo;
+- medición final con contexto distinto;
 - debrief oral no competitivo.
 
-Esto permite estimar cambio pre/post sin convertir la evaluación individual en puntos del leaderboard.
+El pretest está ligado al `player_id`, no al asiento, por lo que un rebalanceo previo al freeze no borra la medición individual.
 
 ## Uso de IA
 
-Regla visible: **“IA puede asesorar; IA no es evidencia.”**
-
-Si se habilita el experto IA en una versión futura, sólo podrá recibir contexto permitido de la ronda/conceptos desbloqueados. No tendrá acceso al repositorio, Supabase, secretos, navegación ni ground truth oculto, y deberá orientar con preguntas/supuestos sin entregar la respuesta final.
+Regla: **“IA puede asesorar; IA no es evidencia.”** El experto IA continúa siendo opcional y no es necesario para el núcleo pedagógico.
 
 ## Qué NO puntuar
 
-No usar como aprendizaje ni como desempate:
-
-- clics;
-- tiempo de pestaña;
-- velocidad de respuesta;
-- cantidad de texto;
-- número de recargas;
-- apreciación subjetiva del profesor;
-- cantidad de integrantes del equipo.
+No puntuar clics, tiempo de pestaña, velocidad, cantidad de texto, recargas, composición del equipo ni apreciación subjetiva del profesor.

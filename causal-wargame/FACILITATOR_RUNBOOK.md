@@ -2,191 +2,165 @@
 
 ## Principio operativo
 
-El juego tiene **4 equipos** y **5 especialidades analíticas núcleo**. La configuración objetivo es 20 participantes: cinco personas por equipo.
+El juego usa **4 especialidades núcleo por equipo** y adapta el **número de equipos** a la asistencia. El objetivo no es sostener una cantidad fija de salas: es mantener equipos de **3–4 personas** sin inventar un quinto rol.
 
-1. 🦁 **Líder de Decisión** — define la pregunta causal que el equipo debe responder.
-2. 🦉 **Líder de Modelos** — separa predicción de efecto incremental.
-3. 🐈‍⬛ **Analista Causal** — defiende identificación, ajuste y estructura.
-4. 🐢 **Líder de Experimentos** — diseña comparación e incertidumbre.
-5. 🦅 **Política y Riesgo** — convierte evidencia en una política bajo costo, capacidad y riesgo.
+1. 🦁 **Líder de Decisión y Política** — define el contrato causal, administra recursos y en R4 integra evidencia, costo, capacidad y riesgo en una política.
+2. 🦉 **Líder de Modelos** — separa predicción de efecto incremental, revisa soporte y explora CATE/uplift.
+3. 🐈‍⬛ **Analista Causal** — defiende identificación, ajuste y estructura causal.
+4. 🐢 **Líder de Experimentos** — diseña comparación, incertidumbre y precisión útil.
 
-Todos empiezan con el mismo poder base, **Pregunta Crítica**. Ningún equipo recibe mejores poderes iniciales que otro.
+Política/Riesgo **no es un quinto rol**. Está fusionado con 🦁. El identificador histórico `risk` sólo existe para compatibilidad con sesiones antiguas.
 
-### Composición según asistencia
+## Asistencia adaptativa
 
-| Personas en el equipo | Funcionamiento |
-|---:|---|
-| 3 | Puede continuar como contingencia. 🦉 Modelos cubre también 🐢 Experimentos; otras especialidades ausentes quedan visibles como evidencia faltante. |
-| 4 | Una especialidad puede quedar sin dueño. La sesión no se bloquea, pero la mesa muestra la pieza ausente. |
-| 5 | Configuración objetivo: una persona por cada especialidad. |
+Mientras la lista está abierta, equipo y rol son **provisionales**. Cada nueva llegada puede provocar un rebalanceo. Al iniciar la primera mini-clase el servidor realiza un último rebalanceo y **congela la lista**; desde ese momento sólo se permiten reingresos conocidos.
 
-La consola docente muestra **Cobertura 0–5**. No otorgues crédito automático por una ausencia. La plataforma distingue entre una persona y una responsabilidad realmente cubierta.
+La regla es `equipos = ceil(humanos / 4)`, con un máximo operativo de 7 equipos / 28 humanos. En el rango habitual:
+
+| Humanos | Equipos | Distribución final |
+|---:|---:|---|
+| 15 | 4 | 4–4–4–3 |
+| **16** | **4** | **4–4–4–4** |
+| **17** | **5** | **4–4–3–3–3** |
+| 18 | 5 | 4–4–4–3–3 |
+| 19 | 5 | 4–4–4–4–3 |
+| 20 | 5 | 4–4–4–4–4 |
+| 21 | 6 | 4–4–4–3–3–3 |
+| 24 | 6 | 4–4–4–4–4–4 |
+| 25 | 7 | 4–4–4–4–3–3–3 |
+| **28** | **7** | **4–4–4–4–4–4–4** |
+
+La asignación se hace por **olas de rol**. Primero se distribuye 🦁 a todos los equipos activos, luego 🦉, después 🐈‍⬛ y por último 🐢. Por eso, cuando un grupo queda con tres personas, la única especialidad ausente es Experimentos.
+
+Con tres personas, 🦉 Modelos cubre temporalmente 🐢 Experimentos mediante un módulo separado que produce evidencia propia. La Mesa puede llegar a 4/4 sin fingir una persona adicional.
+
+Con menos de tres integrantes en algún equipo, la consola lo advierte. No uses bots para “rellenar” aprendizaje humano; reestructura la dinámica o fusiona grupos antes de comenzar.
+
+### Qué hacer justo antes de congelar la lista
+
+1. Comprueba `humanos` y `online` en la consola.
+2. Si alguien entró y se fue, puedes usar **Retirar ausentes >3 min** antes de iniciar.
+3. Usa **Recalcular equipos ahora** si quieres ver explícitamente la distribución actual.
+4. Informa al grupo que equipo/rol todavía puede cambiar mientras la lista está abierta.
+5. Pulsa **Presentar concepto y poderes** sólo cuando la asistencia esté razonablemente estabilizada. Ese paso congela composición y roles.
+
+## Seguridad de ingreso
+
+- El navegador conserva una clave aleatoria de identidad independiente del token de sesión.
+- Mientras la lista está abierta, volver desde el mismo navegador recupera el mismo `player_id`; el equipo/rol puede haber cambiado si el sistema rebalanceó la clase.
+- Después de congelar la lista, cerrar/reabrir o volver a entrar desde ese navegador recupera **exactamente el mismo jugador, equipo y rol**.
+- El logout borra el token, no la identidad local.
+- El mismo nombre desde otro dispositivo se rechaza para impedir un segundo asiento accidental. Si hay homónimos, usa nombre y apellido.
+- Una vez congelada la lista, no entran jugadores nuevos: sólo reingresan participantes ya registrados.
+- Máximo soportado: **28 humanos**.
+- Un bot de ensayo nunca debe desplazar a un humano real.
 
 ## 24 h antes
 
-1. Crear una **partida nueva con código aleatorio** desde `facilitator.html`; no reutilizar un código público permanente.
-2. Enviar la prueba técnica a los participantes confirmados.
-3. Pedir que registren el resultado con su nombre y el mismo equipo que usarán en la sesión.
-4. Revisar Windows/macOS, navegador y cualquier resultado **No apto**.
-5. Probar `play.html`, `facilitator.html` y `wall.html` desde un equipo similar al corporativo.
-6. Ejecutar el gate de carga sostenida previsto para 20 usuarios; antes del evento usar la variante de 15 minutos.
-7. Guardar código/PIN fuera del chat general hasta el envío a participantes.
-8. Confirmar que la verdad privada del simulador no está publicada.
-9. Congelar cambios de código 24–48 h antes del evento salvo corrección crítica.
-
-### Mensaje para enviar un día antes
-
-> Hola. Mañana tendremos **Causal Quest**. Antes de la sesión realiza una prueba técnica de menos de 3 minutos usando el enlace enviado. Usa el mismo computador con el que participarás. Recomendamos portátil o computador, no celular. Si obtienes **No apto**, envía una captura hoy para poder ayudarte antes de la sesión.
+1. Crear una partida nueva con código aleatorio.
+2. Enviar la prueba técnica.
+3. Pedir que cada persona use el mismo computador de la sesión.
+4. Revisar resultados **No apto**.
+5. Probar `play.html`, `facilitator.html` y `wall.html`.
+6. Ejecutar el gate de carga sostenida. Para capacidad máxima usa `CW_USERS=28`.
+7. No publicar el PIN ni la verdad privada del simulador.
+8. Congelar cambios no críticos 24–48 h antes.
 
 ## 15 min antes
 
-- Abrir videollamada y cuatro salas: **Fisher, Neyman, Rubin y Pearl**.
-- Compartir sólo `wall.html` en sala principal.
-- Mantener `facilitator.html` en una ventana no compartida.
-- Confirmar la distribución de los cinco especialistas por equipo.
-- Explicar en una frase: “Cada herramienta produce una pieza que los otros necesitan; 5/5 evidencias no significa automáticamente causalidad correcta”.
-- Explicar el mercado en máximo 60 segundos.
+- No abras un número fijo de salas hasta conocer la asistencia. La consola indica cuántos equipos activos necesita la sesión.
+- Nombres disponibles hasta 7 salas: **Fisher, Neyman, Rubin, Pearl, Robins, Imbens y Rosenbaum**.
+- Compartir sólo `wall.html`.
+- Mantener `facilitator.html` privado.
+- Revisar el plan automático de asistencia en la consola.
+- Explicar: “son cuatro instrumentos; 4/4 evidencia no garantiza causalidad correcta”.
+- Explicar el mercado en máximo 60 s.
 
-## Regla pedagógica de los poderes
-
-Una herramienta técnica no se usa antes de que su concepto haya sido presentado.
-
-- **R1:** pregunta causal, predicción vs intervención, contrafactual y revisión inicial de riesgo.
-- **R2:** confusión, grafo causal y comparabilidad. Puntaje de propensión/IPW sólo como extensión o panorama.
-- **R3:** asignación, tratamiento/control, ATE e incertidumbre. Potencia/MDE sólo si hay tiempo.
-- **R4:** CATE/heterogeneidad y política bajo incertidumbre, costo, capacidad y daño.
-
-## Cronograma recomendado · 120 min
+## Cronograma · 120 min
 
 | Min | Acción |
 |---:|---|
-| 0–6 | Apertura + medición inicial. Explica los 5 especialistas y la regla “una pieza no basta”. |
-| 6–15 | Mini-clase R1: predicción, intervención y contrafactual. |
-| 15–24 | Laboratorio R1 en salas. |
-| 24–30 | Revelación + discusión + microcheck R1. |
-| 30–39 | Mini-clase R2: confusión, grafo causal y comparabilidad. |
+| 0–6 | Apertura + pretest + explicar 4 especialidades. |
+| 6–15 | Mini-clase R1. |
+| 15–24 | Laboratorio R1. |
+| 24–30 | Reveal + discusión + microcheck. |
+| 30–39 | Mini-clase R2. |
 | 39–48 | Laboratorio R2. |
-| 48–54 | Revelación + discusión + microcheck R2. |
+| 48–54 | Reveal + discusión + microcheck. |
 | 54–59 | Pausa. |
-| 59–68 | Mini-clase R3: aleatorización, efecto e incertidumbre. |
+| 59–68 | Mini-clase R3. |
 | 68–77 | Laboratorio R3. |
-| 77–83 | Revelación + discusión + microcheck R3. |
-| 83–92 | Mini-clase R4: heterogeneidad, incertidumbre, costo, capacidad y riesgo. |
+| 77–83 | Reveal + discusión + microcheck. |
+| 83–92 | Mini-clase R4. |
 | 92–101 | Laboratorio R4. |
-| 101–107 | Revelación + discusión R4. |
-| 107–112 | Evaluación final de transferencia: 4 casos nuevos. |
-| 112–120 | Síntesis, cambio pre→post, ranking final y preguntas de cierre. |
+| 101–107 | Reveal + discusión. |
+| 107–112 | Post transferencia. |
+| 112–120 | Síntesis + ranking + cierre. |
 
-El cierre conceptual final es intocable. Si una ronda se atrasa, recorta mercado, discusión secundaria o extensiones técnicas; **no elimines la discusión posterior a la revelación**.
+Si falta tiempo, recorta mercado o extensiones. No elimines reveal/debrief ni transferencia final.
 
-## Las cinco preguntas que deben recordar
+## Cómo dirigir cada rol
 
-1. **¿Qué intervención, comparador, población y resultado estamos evaluando?**
-2. **¿Qué habría ocurrido sin intervenir y por qué la comparación es defendible?**
-3. **¿Estamos viendo predicción/asociación o un efecto identificado?**
-4. **¿Qué tan precisa es la evidencia y qué diseño la sostiene?**
-5. **¿Dónde conviene intervenir una vez incluidos costo, capacidad, incertidumbre y riesgo?**
+### 🦁 Decisión y Política
 
-## Secuencia por ronda
+R1–R3 fija población, tratamiento, comparador, outcome, horizonte, estimando y restricción. En R4 conserva ese contrato y abre el Simulador de Política para integrar CATE, IC, valor, costo, capacidad y riesgo.
 
-`PRESENTAR CONCEPTO → EXPLORAR HERRAMIENTA → PRODUCIR EVIDENCIA → COMPARTIR → INTEGRAR → BLOQUEAR → REVELAR → DISCUTIR`
+Pregunta: **“¿La política sigue respondiendo exactamente la pregunta que definiste al principio?”**
 
-No abras laboratorio desde briefing sin pasar por la mini-clase.
+### 🦉 Modelos
 
-## Cómo dirigir cada especialidad
+Separa score de uplift, revisa overlap y en R4 compara T-Learner, DR-Learner y CausalForestDML. Debe ejecutar el stress test placebo.
 
-### 🦁 Líder de Decisión · Constructor de Pregunta Causal
+Pregunta: **“Si tres estimadores coinciden, ¿qué supuesto causal sigue sin estar demostrado?”**
 
-Debe cerrar población, intervención, comparador, resultado, horizonte, estimando y restricción. **No opera el Simulador de Política.** En R4 recibe la propuesta de 🦅 Política y Riesgo y verifica que realmente responda el contrato inicial.
+### 🐈‍⬛ Causalidad
 
-Pregunta docente útil: “¿Qué parte de la pregunta cambiaría si cambia la política recomendada?”.
+Formula contrafactual y desde R2 usa DAG para confusores, mediadores y colliders.
 
-### 🦉 Líder de Modelos · Explorador de Impacto (Uplift/CATE)
+Pregunta: **“¿Esa variable ocurre antes o después del tratamiento y qué ruta abre o cierra?”**
 
-R1 separa puntaje predictivo de cambio incremental. R2 compara una asociación cruda con evidencia ajustada sin vender IPW/regresión como magia. R4 explora 24 perfiles con resultados precomputados fuera de la clase de **T-Learner, DR-Learner y bosque causal (CausalForestDML)**.
+### 🐢 Experimentos
 
-Pregunta docente útil: “Si tres estimadores coinciden, ¿qué supuesto causal sigue sin estar probado?”.
+Desde R3 manipula asignación, N, outcome y horizonte; interpreta efecto, IC, balance y MDE.
 
-### 🐈‍⬛ Analista Causal · Laboratorio de Grafo Causal
+Pregunta: **“¿Qué mejora con más N y qué sesgo no desaparece?”**
 
-R1 formula contrafactual. Desde R2 construye y diagnostica grafos causales. Debe identificar rutas de puerta trasera, mediadores y colisionadores y defender qué ajustar y qué no.
+## Mesa de Evidencia
 
-Pregunta docente útil: “¿Esa variable ocurre antes o después del tratamiento y qué camino abre o cierra?”.
+La lectura es:
 
-### 🐢 Líder de Experimentos · Diseñador de Experimentos
+`🦁 pregunta → 🐈‍⬛ identificación → 🦉 estimación → 🐢 contraste → 🦁 política e integración`
 
-Desde R3 manipula asignación, N, resultado y horizonte; observa tratamiento/control, efecto o diferencia observada, IC95% y balance. Debe descubrir que más N estrecha incertidumbre, pero **no arregla sesgo de selección**.
+Cobertura **4/4** no garantiza coherencia. El motor puede bloquear por contrato incompleto, DAG no diagnosticado, resultado/horizonte inconsistentes, asignación sesgada, precisión insuficiente, placebo fallido o política incompatible con la restricción.
 
-Pregunta docente útil: “¿Qué cambia si duplicamos N y qué no cambia?”.
+## Mercado
 
-### 🦅 Política y Riesgo · Simulador de Política
+- Todos los equipos reciben la misma bolsa y catálogo, independientemente de si hay 4, 5, 6 o 7 equipos.
+- Pistas/Junior/Senior son inventario **por equipo**: otro equipo no los encarece ni los agota.
+- Sólo Llamada al Capítulo depende de disponibilidad humana global.
+- 🦁 confirma la compra; todo el equipo puede recomendar.
 
-En R1–R3 audita desperdicio, daño y reversibilidad. En R4 manipula capacidad, presupuesto, tolerancia de riesgo y asignación por segmento usando efecto por perfil (CATE) e IC95%. La herramienta calcula factibilidad y valor esperado, pero no decide automáticamente.
+## Si alguien se desconecta
 
-Pregunta docente útil: “¿La política de mayor valor esperado sigue siendo la política correcta bajo la restricción acordada?”.
+No crees otro participante. Pídele volver con el **mismo navegador/dispositivo** y el mismo código.
 
-## Regla de coherencia de la mesa de decisión
+- Antes del cierre de lista: recupera su identidad, pero el equipo/rol mostrado puede cambiar por rebalanceo.
+- Después del cierre de lista: recupera exactamente equipo y rol.
+- Si intenta duplicarse desde otro dispositivo con el mismo nombre, el servidor rechaza el segundo asiento.
 
-`5/5` especialidades cubiertas **no significa que la decisión esté bien defendida**. La mesa ejecuta chequeos deterministas entre las piezas.
+Si una persona no regresa **antes de iniciar**, retírala desde la consola y rebalancea. Si se desconecta **durante la partida**, no cambies la topología en caliente; espera el reingreso o trabaja con la ausencia explícita. Si un equipo queda de tres y falta Experimentos, usa el doble sombrero Modelos→Experimentos. Si quedan dos, intervén pedagógicamente; no finjas evidencia automática.
 
-Puede marcar:
+## Ensayo con bots
 
-- contrato causal incompleto;
-- grafo causal todavía no diagnosticado;
-- estimador heterogéneo sin identificación defendible;
-- resultado/horizonte del experimento distintos de los acordados por Decisión;
-- asignación no aleatoria que exige defensa adicional;
-- política inviable por capacidad, presupuesto o tolerancia de riesgo;
-- política que viola la restricción fijada por Líder de Decisión.
+`Completar ensayo con bots` es sólo un modo técnico. Al activarlo:
 
-Ante un estado rojo pregunta: **“¿qué dos piezas no están contando la misma historia?”**.
+- completa la matriz de la sesión;
+- congela la lista de ensayo;
+- impide que una llegada humana tardía reescriba silenciosamente los puestos;
+- permite probar flujo, wall, mercado y decisiones automáticas.
 
-Orden de lectura:
-
-`PREGUNTA → IDENTIFICACIÓN → ESTIMACIÓN → DISEÑO/INCERTIDUMBRE → POLÍTICA → DECISIÓN`
-
-## Cómo leer la consola docente
-
-- **Cobertura 5/5:** las cinco especialidades produjeron evidencia; aún debes revisar coherencia.
-- **Cobertura 4/5:** hay una pieza ausente; entra a la sala y pregunta qué no puede afirmarse sin ella.
-- **Doble sombrero Modelos→Experimentos:** sólo cuenta Experimentos cuando se completa su módulo separado.
-- **Bloqueo rojo:** existe una contradicción conceptual u operativa que conviene resolver antes de explicar la respuesta.
-
-Nunca compares equipos por cantidad de texto ni por velocidad.
-
-## Llamada al Capítulo
-
-El Game Master dirige y **no está a la venta**. Los otros facilitadores forman una bolsa transversal de expertos que conocen causalidad, experimentación y decisión. La llamada dura 90 s.
-
-El experto puede:
-
-- hacer una observación;
-- hacer una pregunta socrática;
-- aclarar conceptos ya enseñados.
-
-No puede explicar un tema futuro, decir cuál opción seleccionar ni revelar información privada del simulador.
-
-La disponibilidad se configura por ronda. Con tres cupos habilitados, el precio global por demanda es **20 → 26 → 34** créditos para la primera, segunda y tercera llamada de esa ronda. La cuarta solicitud se rechaza porque ya no queda atención humana disponible.
-
-## Mercado justo
-
-- Cada equipo tiene la misma bolsa, catálogo y precios base.
-- Pistas, herramientas, Junior y Senior se contabilizan **por equipo**: lo que compra Fisher no los encarece ni los agota para Neyman, Rubin o Pearl.
-- Sólo **Llamada al Capítulo** tiene cupos y precio por demanda globales porque consume disponibilidad humana real.
-- 🦁 Líder de Decisión es quien confirma la compra, pero la elección del recurso se discute con el equipo.
-- El mercado es opcional; seguir sin ayuda es una estrategia válida.
-
-## Si alguien falta o se desconecta
-
-No bloquees la sesión esperando 5/5. Mantén visible la evidencia faltante.
-
-- Si falta 🐢 Experimentos, 🦉 Modelos puede cubrir su módulo separado cuando corresponda.
-- Si falta otra especialidad, el equipo continúa con la limitación explícita; el facilitador puede hacer una pregunta de respaldo, pero no inventa evidencia ni reasigna puntos.
-- Si quedan sólo 2 personas, redistribuye apoyo humano antes de la siguiente ronda; no pretendas que una persona opere tres instrumentos simultáneamente.
+Para volver a una clase humana real, usa **Reset** y permite que los humanos entren de nuevo.
 
 ## Si falla backend
 
-- Pausar si la consola responde.
-- Si no responde, usar el respaldo docente: proyectar resultados/tablas preparados y recoger decisiones por chat o Forms.
-- Mantener las cinco preguntas conceptuales aunque la interfaz falle.
-- No inventar resultados en vivo.
+Pausa. Si no recupera, usa resultados/tablas de respaldo y recoge decisiones por chat/Forms. Mantén la secuencia conceptual y no inventes resultados en vivo.

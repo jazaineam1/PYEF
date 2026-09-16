@@ -1,16 +1,20 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFile} from 'node:fs/promises'
-import {MICROCHECKS,ROLES} from '../src/content.js'
+import {MICROCHECKS,ROLES,TEAM_NAMES} from '../src/content.js'
 
 const learningSource=await readFile(new URL('../src/learning.js',import.meta.url),'utf8')
 const roleLabSource=await readFile(new URL('../src/components/RoleLab.jsx',import.meta.url),'utf8')
+const inspectorSource=await readFile(new URL('../src/components/RoleInspector.jsx',import.meta.url),'utf8')
 
-test('the classroom architecture exposes exactly five core specialties',()=>{
-  assert.equal(ROLES.length,5)
+test('classroom architecture keeps four core specialties and up to seven team slots',()=>{
+  assert.equal(TEAM_NAMES.length,7)
+  assert.deepEqual(TEAM_NAMES,['Fisher','Neyman','Rubin','Pearl','Robins','Imbens','Rosenbaum'])
+  assert.equal(ROLES.length,4)
   assert.ok(ROLES.every(r=>r.core===true))
-  assert.equal(ROLES.find(r=>r.code==='risk')?.label,'Política y Riesgo')
-  assert.equal(ROLES.find(r=>r.code==='business')?.label,'Líder de Decisión')
+  assert.equal(ROLES.find(r=>r.code==='business')?.label,'Líder de Decisión y Política')
+  assert.equal(ROLES.some(r=>r.code==='risk'),false)
+  assert.match(inspectorSource,/CORE_ROLE_CODES/)
 })
 
 test('harder microchecks preserve backend-compatible correct answer values',()=>{
@@ -42,9 +46,10 @@ test('identification compass includes experimental, quasi-experimental and hones
   assert.match(learningSource,/No prometer causalidad/)
 })
 
-test('active role lab renders overlap, stress testing and MDE controls',()=>{
+test('active role lab renders overlap, MDE and fused decision-policy tool',()=>{
   assert.match(roleLabSource,/OVERLAP \/ POSITIVIDAD/)
   assert.match(roleLabSource,/ROBUSTNESS_CARDS/)
   assert.match(roleLabSource,/MDE aprox\./)
-  assert.match(roleLabSource,/Efecto mínimo útil/)
+  assert.match(roleLabSource,/DecisionPolicyLab/)
+  assert.match(roleLabSource,/POLÍTICA Y RIESGO/)
 })
