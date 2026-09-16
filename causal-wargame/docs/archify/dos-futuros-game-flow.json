@@ -15,7 +15,7 @@
     {"id":"command","label":"Facilitador / mando"},
     {"id":"team","label":"Equipos Fisher · Neyman · Rubin · Pearl"},
     {"id":"roles","label":"4 especialistas"},
-    {"id":"integration","label":"War Room y coherencia"}
+    {"id":"integration","label":"Integración · decisión · aprendizaje"}
   ],
   "nodes": [
     {"id":"open_round","lane":"command","col":0,"type":"external","label":"Abrir ronda","sublabel":"tiempo · fase · consigna","width":145},
@@ -27,8 +27,8 @@
     {"id":"experiments","lane":"roles","col":3,"type":"frontend","label":"🐢 Comprueba","sublabel":"N · IC · stress test","tag":"Experiment Designer","width":155},
     {"id":"war_room","lane":"integration","col":3,"type":"messagebus","label":"War Room","sublabel":"4 aportes · una historia","tag":"evidencia","width":155},
     {"id":"coherence","lane":"integration","col":2,"type":"security","label":"Coherencia","sublabel":"corregir contradicciones","tag":"antes de decidir","width":155},
-    {"id":"team_decision","lane":"team","col":2,"type":"backend","label":"Decisión del equipo","sublabel":"acción bajo evidencia","width":155},
-    {"id":"learning_close","lane":"command","col":3,"type":"cloud","label":"Reveal + debrief","sublabel":"microcheck · transferencia","tag":"cierre docente","width":155}
+    {"id":"team_decision","lane":"integration","col":1,"type":"backend","label":"Decisión del equipo","sublabel":"acción bajo evidencia","width":155},
+    {"id":"learning_close","lane":"integration","col":0,"type":"cloud","label":"Reveal + debrief","sublabel":"microcheck · transferencia","tag":"cierre docente","width":155}
   ],
   "edges": [
     {"id":"open-brief","from":"open_round","to":"brief","label":"activa","variant":"default","role":"main"},
