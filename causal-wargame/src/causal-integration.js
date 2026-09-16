@@ -1,4 +1,4 @@
-const CORE_ROLE_ORDER=['business','data','context','integrator','risk']
+const CORE_ROLE_ORDER=['business','data','context','integrator']
 
 const clean=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase()
 
@@ -37,14 +37,15 @@ export const evidenceByRole=effectiveEvidenceByRole
 
 function check(id,label,status,message,roles=[]){return{id,label,status,message,roles}}
 const riskTolerance=value=>{const s=clean(value);return s.includes('baja')?1:s.includes('alta')?3:2}
-const legacyBusinessPolicy=business=>business?.evidence?.details?.policy?.details||business?.evidence?.details?.policy||null
-const policyDetails=(risk,business)=>risk?.evidence?.details||legacyBusinessPolicy(business)||{}
+const businessPolicy=business=>business?.evidence?.details?.policy?.details||business?.evidence?.details?.policy||null
+const policyDetails=(legacyRisk,business)=>legacyRisk?.evidence?.details||businessPolicy(business)||{}
 
 export function assessWarRoom(rows=[],round=1){
   const by=effectiveEvidenceByRole(rows)
+  const legacyRisk=rows.find(row=>row?.role_code==='risk')||null
   const checks=[]
   const missing=CORE_ROLE_ORDER.filter(role=>!by[role])
-  checks.push(check('coverage','Cobertura de especialidades',missing.length?'pending':'ready',missing.length?`Faltan ${missing.length} de las 5 especialidades por compartir evidencia.`:'Las cinco especialidades aportaron evidencia.',missing))
+  checks.push(check('coverage','Cobertura de especialidades',missing.length?'pending':'ready',missing.length?`Faltan ${missing.length} de las 4 especialidades por compartir evidencia.`:'Las cuatro especialidades aportaron evidencia.',missing))
 
   const decision=by.business?.evidence?.details||{}
   const contractFields=['population','treatment','comparator','outcome','horizon','estimand']
@@ -55,7 +56,7 @@ export function assessWarRoom(rows=[],round=1){
     if(round>=4){
       const constraintReady=Boolean(decision.constraint)&&(!constraintNeedsValue||decision.constraintValue!=='')
       const suffix=constraintNeedsValue&&decision.constraintValue!==''?` = ${decision.constraintValue}`:''
-      checks.push(check('constraint','Restricción de decisión',constraintReady?'ready':'warn',constraintReady?`Restricción declarada: ${decision.constraint}${suffix}.`:'La política final debe declarar la restricción y su valor operativo.',['business','risk']))
+      checks.push(check('constraint','Restricción de decisión',constraintReady?'ready':'warn',constraintReady?`Restricción declarada: ${decision.constraint}${suffix}.`:'La política final debe declarar la restricción y su valor operativo.',['business']))
     }
   }
 
@@ -94,16 +95,16 @@ export function assessWarRoom(rows=[],round=1){
     const model=by.data.evidence?.details||{}
     checks.push(check('effect','Estimación heterogénea',model.estimator?'ready':'warn',model.estimator?`Modelos compartió evidencia con ${model.estimator}.`:'Modelos todavía no fijó qué estimador respalda la priorización.',['data']))
     const robustness=model.robustness
-    checks.push(check('robustness','Stress test causal',robustness?.passed?'ready':'block',robustness?.passed?'La estimación fue desafiada con un placebo y Modelos redujo la confianza ante una señal incompatible con la historia causal.':robustness?.answered?'El stress test fue interpretado incorrectamente; una señal placebo exige revisar identificación o pipeline.':'Falta ejecutar el stress test antes de convertir CATE en política.',['data','context','risk']))
+    checks.push(check('robustness','Stress test causal',robustness?.passed?'ready':'block',robustness?.passed?'La estimación fue desafiada con un placebo y Modelos redujo la confianza ante una señal incompatible con la historia causal.':robustness?.answered?'El stress test fue interpretado incorrectamente; una señal placebo exige revisar identificación o pipeline.':'Falta ejecutar el stress test antes de convertir CATE en política.',['data','context','business']))
   }
 
   if(round>=4){
-    const policy=policyDetails(by.risk,by.business)
+    const policy=policyDetails(legacyRisk,by.business)
     const selected=Array.isArray(policy.selected)?policy.selected:[]
-    const hasPolicy=Boolean(by.risk)||Boolean(legacyBusinessPolicy(by.business))
+    const hasPolicy=Boolean(legacyRisk)||Boolean(businessPolicy(by.business))
     if(hasPolicy){
       const feasible=policy.feasible??((policy.used??0)<=(policy.capacity??Infinity)&&(policy.spend??0)<=(policy.budget??Infinity)&&!policy.riskViolation)
-      checks.push(check('policy','Política factible',!selected.length?'warn':feasible?'ready':'block',!selected.length?'Política y Riesgo todavía no ha propuesto una política segmentada.':feasible?'La política propuesta respeta capacidad, presupuesto y tolerancia de riesgo.':'La política propuesta viola capacidad, presupuesto o tolerancia de riesgo.',['risk','business']))
+      checks.push(check('policy','Política factible',!selected.length?'warn':feasible?'ready':'block',!selected.length?'Decisión y Política todavía no ha propuesto una política segmentada.':feasible?'La política propuesta respeta capacidad, presupuesto y tolerancia de riesgo.':'La política propuesta viola capacidad, presupuesto o tolerancia de riesgo.',['business']))
 
       if(by.business&&decision.constraint&&decision.constraint!=='Sin restricción explícita'&&decision.constraintValue!==''){
         const limit=Number(decision.constraintValue)
@@ -112,7 +113,7 @@ export function assessWarRoom(rows=[],round=1){
         if(c.includes('capacidad')){ok=Number(policy.used||0)<=limit;message=ok?`Uso ${Number(policy.used||0).toLocaleString()} ≤ capacidad acordada ${limit.toLocaleString()}.`:`La política propone ${Number(policy.used||0).toLocaleString()} personas, por encima de la capacidad acordada ${limit.toLocaleString()}.`}
         else if(c.includes('presupuesto')){ok=Number(policy.spend||0)<=limit;message=ok?`Gasto ${Math.round(Number(policy.spend||0)).toLocaleString()} ≤ presupuesto acordado ${Math.round(limit).toLocaleString()}.`:`La política propone gastar ${Math.round(Number(policy.spend||0)).toLocaleString()}, por encima del presupuesto acordado ${Math.round(limit).toLocaleString()}.`}
         else if(c.includes('riesgo')){const allowed=riskTolerance(decision.constraintValue);ok=Number(policy.tolerance||2)<=allowed;message=ok?`La tolerancia aplicada no excede el nivel acordado (${decision.constraintValue}).`:`La política opera con una tolerancia mayor que la acordada (${decision.constraintValue}).`}
-        checks.push(check('policy-contract','Política ↔ restricción',ok?'ready':'block',message,['business','risk']))
+        checks.push(check('policy-contract','Política ↔ restricción',ok?'ready':'block',message,['business']))
       }
     }
   }
