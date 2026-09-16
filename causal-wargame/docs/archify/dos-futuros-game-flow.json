@@ -6,55 +6,31 @@
     "animation": "trace",
     "quality_profile": "showcase",
     "views": [
-      {
-        "id": "full-round",
-        "label": "Una ronda completa",
-        "focus": ["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","reveal","microcheck"],
-        "note": "Recorre una ronda desde el mando docente hasta la transferencia individual."
-      },
-      {
-        "id": "four-roles",
-        "label": "Los 4 roles",
-        "focus": ["strategy","causal","models","experiments","war_room"],
-        "note": "La flecha representa dependencia lógica del razonamiento; los cuatro especialistas pueden explorar en paralelo durante la clase."
-      },
-      {
-        "id": "command",
-        "label": "Mando docente",
-        "focus": ["open_round","brief","problem","reveal","microcheck"],
-        "note": "El facilitador controla ritmo, explicación y debrief, pero la evidencia y la decisión pertenecen al equipo."
-      }
+      {"id":"full-round","label":"Una ronda completa","focus":["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","reveal","microcheck"],"note":"Sigue el ciclo de una ronda: mando docente, exploración especializada, integración, decisión y transferencia."},
+      {"id":"four-roles","label":"Los 4 roles","focus":["strategy","causal","models","experiments","war_room"],"note":"La secuencia muestra dependencia lógica del razonamiento; en el aula los especialistas pueden explorar en paralelo."},
+      {"id":"command","label":"Mando docente","focus":["open_round","brief","problem","reveal","microcheck"],"note":"El facilitador controla ritmo, explicación y debrief; la evidencia y la decisión pertenecen al equipo."}
     ]
   },
   "lanes": [
     {"id":"command","label":"Facilitador / mando"},
     {"id":"team","label":"Equipos Fisher · Neyman · Rubin · Pearl"},
     {"id":"roles","label":"Cadena de 4 especialistas"},
-    {"id":"integration","label":"Integración y aprendizaje"}
-  ],
-  "phases": [
-    {"id":"prepare","label":"Plantear y enseñar","fromCol":0,"toCol":1},
-    {"id":"specialists","label":"Especialistas causales","fromCol":2,"toCol":5,"variant":"emphasis"},
-    {"id":"close","label":"Integrar, decidir y transferir","fromCol":6,"toCol":9,"variant":"dashed"}
-  ],
-  "groups": [
-    {"id":"specialist_work","label":"Cuatro herramientas · cuatro aportes","lane":"roles","fromCol":2,"toCol":5,"variant":"emphasis"},
-    {"id":"learning_close","label":"Cierre pedagógico","lane":"integration","fromCol":6,"toCol":9,"variant":"dashed"}
+    {"id":"integration","label":"War Room · decisión · aprendizaje"}
   ],
   "mainPath": ["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","reveal","microcheck"],
   "nodes": [
     {"id":"open_round","lane":"command","col":0,"type":"external","label":"Facilitador abre ronda","sublabel":"tiempo · fase · consigna","width":150},
     {"id":"brief","lane":"command","col":1,"type":"frontend","label":"Mini-clase guiada","sublabel":"intuición antes del término","tag":"4–6 min","width":150},
-    {"id":"problem","lane":"team","col":1,"type":"frontend","label":"Problema + voto inicial","sublabel":"el equipo fija una primera respuesta","width":165},
-    {"id":"strategy","lane":"roles","col":2,"type":"frontend","label":"🦁 Define","sublabel":"pregunta · outcome · restricción","tag":"Decision Studio","width":155},
-    {"id":"causal","lane":"roles","col":3,"type":"frontend","label":"🐈‍⬛ Identifica","sublabel":"DAG · confusión · qué ajustar","tag":"DAG Lab","width":155},
-    {"id":"models","lane":"roles","col":4,"type":"frontend","label":"🦉 Estima","sublabel":"score · uplift · CATE","tag":"Model Explorer","width":155},
+    {"id":"problem","lane":"team","col":1,"type":"frontend","label":"Problema + voto inicial","sublabel":"primera respuesta del equipo","width":160},
+    {"id":"strategy","lane":"roles","col":2,"type":"frontend","label":"🦁 Define","sublabel":"pregunta · outcome · restricción","tag":"Decision Studio","width":150},
+    {"id":"causal","lane":"roles","col":3,"type":"frontend","label":"🐈‍⬛ Identifica","sublabel":"DAG · confusión · qué ajustar","tag":"DAG Lab","width":150},
+    {"id":"models","lane":"roles","col":4,"type":"frontend","label":"🦉 Estima","sublabel":"score · uplift · CATE","tag":"Model Explorer","width":150},
     {"id":"experiments","lane":"roles","col":5,"type":"frontend","label":"🐢 Comprueba","sublabel":"asignación · N · IC · stress test","tag":"Experiment Designer","width":170},
     {"id":"war_room","lane":"integration","col":5,"type":"messagebus","label":"War Room","sublabel":"4 aportes · una historia causal","tag":"evidencia compartida","width":165},
-    {"id":"coherence","lane":"integration","col":6,"type":"security","label":"Puerta de coherencia","sublabel":"si contradice: corregir evidencia","tag":"antes de decidir","width":170},
-    {"id":"team_decision","lane":"integration","col":7,"type":"backend","label":"Decisión del equipo","sublabel":"política o acción bajo evidencia","width":165},
-    {"id":"reveal","lane":"integration","col":8,"type":"cloud","label":"Reveal + debrief","sublabel":"el docente explica qué cambió y por qué","tag":"generalización","width":165},
-    {"id":"microcheck","lane":"integration","col":9,"type":"database","label":"Microcheck individual","sublabel":"caso nuevo · transferencia","tag":"fuera del ranking","width":165}
+    {"id":"coherence","lane":"integration","col":4,"type":"security","label":"Puerta de coherencia","sublabel":"si contradice: corregir evidencia","tag":"antes de decidir","width":170},
+    {"id":"team_decision","lane":"integration","col":3,"type":"backend","label":"Decisión del equipo","sublabel":"acción o política bajo evidencia","width":165},
+    {"id":"reveal","lane":"integration","col":2,"type":"cloud","label":"Reveal + debrief","sublabel":"qué cambió y por qué","tag":"docente generaliza","width":165},
+    {"id":"microcheck","lane":"integration","col":1,"type":"database","label":"Microcheck individual","sublabel":"caso nuevo · transferencia","tag":"fuera del ranking","width":165}
   ],
   "edges": [
     {"id":"open-brief","from":"open_round","to":"brief","label":"activa","variant":"default","role":"main"},
@@ -72,7 +48,7 @@
   "cards": [
     {"dot":"amber","title":"Mando","items":["El facilitador abre/cierra fases, enseña lo mínimo y conduce el debrief","La pantalla pública acompaña tiempo, progreso y resultados; no toma decisiones"]},
     {"dot":"violet","title":"Cuatro roles visibles","items":["🦁 define · 🐈‍⬛ identifica · 🦉 estima · 🐢 comprueba y hace stress test","El copiloto de estrategia queda integrado como función secundaria de 🐢; no aparece un quinto rol"]},
-    {"dot":"cyan","title":"Dependencia lógica","items":["La cadena no obliga a esperar turnos: los especialistas pueden explorar en paralelo","Antes de cerrar, el War Room exige que pregunta, identificación, estimación y diseño cuenten la misma historia"]},
+    {"dot":"cyan","title":"Dependencia lógica","items":["La cadena no obliga a esperar turnos: los especialistas pueden explorar en paralelo","El War Room exige coherencia entre pregunta, identificación, estimación y diseño antes de cerrar"]},
     {"dot":"emerald","title":"Aprender jugando","items":["Predice → manipula → observa → recibe feedback → nombra el concepto → aplica","El microcheck usa un caso nuevo para comprobar transferencia y no sólo memoria del escenario"]}
   ]
 }
