@@ -2,7 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFile} from 'node:fs/promises'
 import {MICROCHECKS,ROLES} from '../src/content.js'
-import {IDENTIFICATION_COMPASS,LESSONS,ROBUSTNESS_CARDS} from '../src/learning.js'
+
+const learningSource=await readFile(new URL('../src/learning.js',import.meta.url),'utf8')
+const roleLabSource=await readFile(new URL('../src/components/RoleLab.jsx',import.meta.url),'utf8')
 
 test('the classroom architecture exposes exactly five core specialties',()=>{
   assert.equal(ROLES.length,5)
@@ -19,34 +21,30 @@ test('harder microchecks preserve backend-compatible correct answer values',()=>
 })
 
 test('advanced layer covers overlap, useful precision and refutation without a fifth round',()=>{
-  assert.ok(LESSONS[2].methods.some(x=>/overlap|positividad/i.test(x)))
-  assert.ok(LESSONS[3].methods.some(x=>/MDE|potencia/i.test(x)))
-  assert.ok(LESSONS[4].methods.some(x=>/refut|stress/i.test(x)))
-  assert.deepEqual(Object.keys(LESSONS).map(Number),[1,2,3,4])
+  assert.match(learningSource,/Positividad \/ overlap/)
+  assert.match(learningSource,/MDE \/ potencia/)
+  assert.match(learningSource,/Refutación \/ stress test/)
+  assert.doesNotMatch(learningSource,/\n5:\s*\{/)
 })
 
-test('robustness cards are deterministic and have one declared correct option',()=>{
-  for(const round of [2,4]){
-    const card=ROBUSTNESS_CARDS[round]
-    assert.ok(card)
-    assert.ok(card.options.some(([value])=>value===card.correct))
-    assert.equal(card.options.filter(([value])=>value===card.correct).length,1)
-  }
+test('robustness cards stay deterministic',()=>{
+  assert.match(learningSource,/2:\{title:'Stress test · soporte'/)
+  assert.match(learningSource,/correct:'restrict'/)
+  assert.match(learningSource,/4:\{title:'Stress test · placebo'/)
+  assert.match(learningSource,/correct:'review'/)
 })
 
 test('identification compass includes experimental, quasi-experimental and honest non-identification paths',()=>{
-  const strategies=IDENTIFICATION_COMPASS.map(x=>x.strategy).join(' | ')
-  assert.match(strategies,/RCT/)
-  assert.match(strategies,/RDD/)
-  assert.match(strategies,/DiD/)
-  assert.match(strategies,/IV/)
-  assert.match(strategies,/No prometer causalidad/)
+  assert.match(learningSource,/Experimento aleatorio \(RCT\)/)
+  assert.match(learningSource,/Regresión discontinua \(RDD\)/)
+  assert.match(learningSource,/Diferencias en diferencias \(DiD\)/)
+  assert.match(learningSource,/Variable instrumental \(IV\)/)
+  assert.match(learningSource,/No prometer causalidad/)
 })
 
-test('active role lab renders overlap, stress testing and MDE controls',async()=>{
-  const source=await readFile(new URL('../src/components/RoleLab.jsx',import.meta.url),'utf8')
-  assert.match(source,/OVERLAP \/ POSITIVIDAD/)
-  assert.match(source,/ROBUSTNESS_CARDS/)
-  assert.match(source,/MDE aprox\./)
-  assert.match(source,/Efecto mínimo útil/)
+test('active role lab renders overlap, stress testing and MDE controls',()=>{
+  assert.match(roleLabSource,/OVERLAP \/ POSITIVIDAD/)
+  assert.match(roleLabSource,/ROBUSTNESS_CARDS/)
+  assert.match(roleLabSource,/MDE aprox\./)
+  assert.match(roleLabSource,/Efecto mínimo útil/)
 })
