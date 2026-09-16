@@ -27,9 +27,9 @@ export function RoleInspector(){
     <div className="notice notice-green"><b>Sandbox docente.</b> Cambia de rol y de ronda libremente. Esta vista usa las mismas herramientas del participante, pero desactiva compartir evidencia, mercado y cualquier escritura al backend.</div>
     <div className="card" style={{marginTop:12}}>
       <div className="eyebrow">ELIGE QUÉ QUIERES PROBAR</div>
-      <div className="fac-toolbar" style={{marginTop:10}}>{ROLES.map(code=>{const m=ROLE_ARCHETYPES[code];return <button type="button" key={code} className={`btn ${role===code?'btn-primary':''}`} onClick={()=>setRole(code)}>{m.emoji} {m.label}{m.core?'':' · opcional'}</button>})}</div>
+      <div className="fac-toolbar" style={{marginTop:10}}>{ROLES.map(code=>{const m=ROLE_ARCHETYPES[code];return <button type="button" key={code} className={`btn ${role===code?'btn-primary':''}`} onClick={()=>setRole(code)}>{m.emoji} {m.label}</button>})}</div>
       <div className="fac-toolbar" style={{marginTop:12}}>{[1,2,3,4].map(r=><button type="button" key={r} className={`btn ${round===r?'btn-primary':''}`} onClick={()=>setRound(r)}>Ronda {r}</button>)}</div>
-      <p style={{marginTop:12,marginBottom:0}}>Estás inspeccionando <b>{ROLE_ARCHETYPES[role].emoji} {ROLE_ARCHETYPES[role].label}</b> en <b>Ronda {round}</b>. El copiloto se incluye para que puedas verificar también la experiencia cuando exista una quinta persona.</p>
+      <p style={{marginTop:12,marginBottom:0}}>Estás inspeccionando <b>{ROLE_ARCHETYPES[role].emoji} {ROLE_ARCHETYPES[role].label}</b> en <b>Ronda {round}</b>. Los cinco roles son especialidades núcleo y producen piezas de evidencia diferentes.</p>
     </div>
     <div style={{marginTop:14}}><RoleLab key={`${role}-${round}`} state={state} preview/></div>
   </div>
