@@ -14,22 +14,16 @@ Al salir, el participante debe poder preguntar espontáneamente:
 
 La terminología formal se introduce **después** de vivir cada concepto. La meta no es aprender software: es saber **qué pregunta responde cada instrumento, qué supuesto necesita y qué permite concluir**.
 
-## Cinco equipos y cuatro especialidades núcleo
+## Cuatro especialidades; número de equipos adaptativo
 
-La configuración objetivo es:
-
-`5 equipos × 4 especialistas = 20 participantes`
-
-Equipos: **Fisher, Neyman, Rubin, Pearl y Robins**.
-
-Las cuatro especialidades son:
+La unidad conceptual del juego es el **equipo de cuatro responsabilidades**, no una cantidad fija de equipos:
 
 - 🦁 **Líder de Decisión y Política** — fija población, intervención, comparador, resultado, horizonte, estimando y restricción; administra recursos y en R4 convierte la evidencia en una política factible bajo costo, capacidad y riesgo.
 - 🦉 **Líder de Modelos** — separa predicción de efecto incremental, revisa overlap y explora heterogeneidad con Uplift/CATE.
 - 🐈‍⬛ **Analista Causal** — usa el DAG para razonar sobre confusión, mediadores, colliders e identificación.
 - 🐢 **Líder de Experimentos** — diseña la comparación, asignación, outcome, horizonte, incertidumbre y precisión útil.
 
-**Política y Riesgo ya no es un quinto rol.** Esa responsabilidad está fusionada con Decisión para evitar que una experiencia de dos horas se fragmente en cinco minijuegos. El código conserva el identificador histórico `risk` únicamente para poder leer sesiones antiguas sin romperlas; no se asigna a participantes nuevos.
+**Política y Riesgo no es un quinto rol.** Esa responsabilidad está fusionada con Decisión para evitar que una experiencia de dos horas se fragmente en cinco minijuegos. El código conserva el identificador histórico `risk` únicamente para leer sesiones antiguas sin romperlas; no se asigna a participantes nuevos.
 
 Los cuatro comienzan con el mismo poder base: **Pregunta Crítica**.
 
@@ -48,44 +42,66 @@ Cada instrumento produce:
 
 La Mesa de Evidencia muestra cobertura **0–4**. `4/4` significa cobertura, no verdad: el motor de coherencia puede bloquear el cierre aunque estén las cuatro piezas.
 
-## Asistencia variable
+## Topología de asistencia
 
-La asignación humana es determinista por olas de rol, no por llegada a un equipo completo:
+El sistema intenta mantener equipos de **3–4 personas**. El número de equipos es:
 
-1. llegadas 1–5 → 🦁, una por equipo;
-2. 6–10 → 🦉;
-3. 11–15 → 🐈‍⬛;
-4. 16–20 → 🐢.
+`ceil(asistentes / 4)`
 
-Esto balancea automáticamente el tamaño de grupos:
+con un máximo soportado de **7 equipos / 28 humanos**.
 
-| Asistentes | Tamaños de los cinco equipos | Operación |
-|---:|---|---|
-| 20 | 4–4–4–4–4 | Ideal, 4 roles dedicados |
-| 19 | 4–4–4–4–3 | 1 equipo usa doble sombrero |
-| 18 | 4–4–4–3–3 | 2 equipos usan doble sombrero |
-| **17** | **4–4–3–3–3** | **3 equipos usan doble sombrero** |
-| 16 | 4–3–3–3–3 | 4 equipos usan doble sombrero |
-| 15 | 3–3–3–3–3 | todos usan doble sombrero |
+| Asistentes | Equipos | Distribución |
+|---:|---:|---|
+| 15 | 4 | 4–4–4–3 |
+| 16 | 4 | 4–4–4–4 |
+| **17** | **5** | **4–4–3–3–3** |
+| 18 | 5 | 4–4–4–3–3 |
+| 19 | 5 | 4–4–4–4–3 |
+| 20 | 5 | 4–4–4–4–4 |
+| 21 | 6 | 4–4–4–3–3–3 |
+| 24 | 6 | 4–4–4–4–4–4 |
+| 25 | 7 | 4–4–4–4–3–3–3 |
+| **28** | **7** | **4–4–4–4–4–4–4** |
 
-En un equipo de tres, 🦉 Modelos cubre temporalmente 🐢 Experimentos mediante un **módulo separado** que produce evidencia experimental explícita. No se inventa un participante ni se marca evidencia automáticamente.
+Los nombres canónicos disponibles son **Fisher, Neyman, Rubin, Pearl, Robins, Imbens y Rosenbaum**. Sólo los primeros `team_target` aparecen en participante, consola y wall.
 
-Por debajo de 15 personas, al menos un equipo tendría menos de tres integrantes. La app lo advierte al facilitador y **no inventa evidencia**. Para una clase real se recomienda reconfigurar la dinámica antes de iniciar; los bots son sólo para ensayo técnico.
+### Asignación por olas de rol
+
+Mientras la lista está abierta, los humanos se reordenan determinísticamente por llegada y se asignan por olas:
+
+1. 🦁 Decisión y Política a todos los equipos activos;
+2. 🦉 Modelos;
+3. 🐈‍⬛ Causalidad;
+4. 🐢 Experimentos.
+
+Esto produce una propiedad pedagógica útil: un equipo de tres siempre conserva 🦁+🦉+🐈‍⬛ y sólo carece de 🐢. En ese caso 🦉 Modelos activa un **módulo separado de doble sombrero** para producir evidencia experimental explícita. No se inventa un participante ni se marca evidencia automáticamente.
+
+La topología es **provisional durante lobby/briefing**. En la primera acción `lesson`, el servidor hace un último rebalanceo y pone `roster_locked=true`. Después de ese punto no se redistribuyen personas en caliente.
+
+Con menos de tres integrantes en algún equipo, la app advierte al facilitador. Los bots son sólo para ensayo técnico y no deben usarse para fingir colaboración humana.
 
 ## Seguridad de ingreso y reingreso
 
 La identidad del participante y el token de sesión son conceptos distintos:
 
 - el navegador conserva una clave aleatoria de participante;
-- cerrar la pestaña, cerrar el navegador o perder/renovar el token no cambia equipo ni rol;
-- volver a entrar desde la misma identidad recupera exactamente el mismo `player_id`, `team_id` y `role_code`;
+- el token puede expirar o borrarse sin perder esa identidad;
+- mientras el roster está abierto, la misma identidad recupera el mismo `player_id`, aunque equipo/rol puedan haber cambiado por el rebalanceo global;
+- una vez congelada la lista, la misma identidad recupera exactamente `player_id`, `team_id` y `role_code`;
 - introducir el mismo nombre desde otra identidad se rechaza para evitar duplicados accidentales;
 - se recomienda usar nombre y apellido si dos personas tienen nombres iguales;
-- una vez iniciada la partida, la composición se congela: sólo pueden reingresar identidades ya registradas;
-- máximo: 20 humanos;
-- los bots de ensayo nunca reservan un cupo humano y se eliminan del slot si llega una persona real antes de iniciar.
+- después de congelar la lista sólo reingresan identidades ya registradas;
+- máximo: **28 humanos**.
 
-El logout borra el token de sesión, **no** la clave local de identidad; por eso un participante puede volver sin crear un segundo asiento.
+El logout borra el token de sesión, **no** la clave local de identidad.
+
+### Ausencias antes de iniciar
+
+La consola puede retirar participantes que lleven un umbral de tiempo sin `last_seen_at` reciente y volver a ejecutar el balance. Esta acción sólo existe antes del cierre de lista. El facilitador debe confirmarla porque una pestaña suspendida puede parecer temporalmente offline.
+
+### Ausencias durante la partida
+
+No se reestructura el equipo automáticamente después del freeze. La ausencia se hace visible y se espera reingreso. Si falta Experimentos en un equipo de tres, Modelos puede cubrir su módulo explícito; otras ausencias no generan evidencia automática.
 
 ## Información asimétrica cooperativa
 
@@ -121,6 +137,10 @@ Modelos explora T-Learner, DR-Learner y CausalForestDML precomputados con EconML
 
 Aprendizaje: heterogeneidad, refutación, incertidumbre y policy learning. Un placebo incompatible bloquea la coherencia aunque los modelos coincidan.
 
+## Mercado
+
+Las ayudas no humanas son **inventario por equipo**. Por eso pasar de 4 a 7 equipos no reduce el stock ni encarece Junior/Senior para los demás. La única escasez global es la **Llamada al Capítulo**, porque representa capacidad humana real del equipo facilitador.
+
 ## Scoring de equipo · determinista
 
 El profesor no asigna puntos competitivos manuales.
@@ -133,7 +153,7 @@ El profesor no asigna puntos competitivos manuales.
 
 Máximo: **100 puntos**, antes del costo de ayudas cuando aplique. Las dimensiones de scoring no equivalen al número de roles; Política/Riesgo sigue siendo una dimensión de calidad aunque esté dentro del rol 🦁.
 
-La cobertura, número de personas y microchecks no añaden puntos automáticamente.
+La cobertura, número de personas y microchecks no añaden puntos automáticamente. El tamaño del equipo tampoco se usa como bonificación o penalización competitiva.
 
 ### Empates
 
@@ -152,6 +172,8 @@ Si continúan idénticos, empate técnico; no se usa velocidad.
 - resultado de equipo;
 - medición final con contexto distinto;
 - debrief oral no competitivo.
+
+El pretest está ligado al `player_id`, no al asiento, por lo que un rebalanceo previo al freeze no borra la medición individual.
 
 ## Uso de IA
 
