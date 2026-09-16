@@ -6,36 +6,21 @@
     "quality_profile": "showcase",
     "viewBox": [1080, 650],
     "views": [
-      {
-        "id": "runtime",
-        "label": "Ruta de juego",
-        "focus": ["classroom", "pages", "ui", "role_engine", "war_room", "edge_api", "postgres"],
-        "note": "Sigue una interacción desde las superficies de aula hasta el estado persistido en Supabase."
-      },
-      {
-        "id": "pedagogy",
-        "label": "Motor pedagógico",
-        "focus": ["ui", "role_engine", "war_room", "causal_assets"],
-        "note": "Aísla las herramientas por rol, la evidencia compartida y los escenarios causales."
-      },
-      {
-        "id": "delivery",
-        "label": "Build y publicación",
-        "focus": ["delivery", "pages"],
-        "note": "Muestra la ruta de pruebas, build seguro y publicación estática."
-      }
+      {"id":"runtime","label":"Ruta de juego","focus":["classroom","pages","ui","role_engine","war_room","edge_api","postgres"],"note":"Sigue una interacción desde las superficies de aula hasta el estado persistido en Supabase."},
+      {"id":"pedagogy","label":"Motor pedagógico","focus":["ui","role_engine","war_room","causal_assets"],"note":"Aísla las herramientas por rol, la evidencia compartida y los escenarios causales."},
+      {"id":"delivery","label":"Build y publicación","focus":["delivery","pages"],"note":"Muestra la ruta de pruebas, build seguro y publicación estática."}
     ]
   },
   "components": [
     {"id":"classroom","type":"external","label":"Aula","sublabel":"jugadores · facilitador · pantalla","pos":[25,285],"size":[135,70]},
     {"id":"pages","type":"cloud","label":"GitHub Pages","sublabel":"dos-futuros/","pos":[200,285],"size":[135,70],"tag":"estático"},
-    {"id":"delivery","type":"cloud","label":"GitHub Actions + build","sublabel":"tests · secure build · publish","pos":[200,70],"size":[150,72]},
+    {"id":"delivery","type":"cloud","label":"GitHub Actions + build","sublabel":"tests · secure build · publish","pos":[192.5,70],"size":[150,72]},
     {"id":"ui","type":"frontend","label":"React + Vite","sublabel":"play · facilitator · wall · inspector","pos":[375,285],"size":[145,72]},
     {"id":"role_engine","type":"frontend","label":"RoleLab","sublabel":"herramientas especializadas","pos":[560,170],"size":[150,76]},
     {"id":"war_room","type":"backend","label":"War Room","sublabel":"evidencia · coherencia · bloqueos","pos":[560,395],"size":[150,76]},
     {"id":"edge_api","type":"backend","label":"Edge Functions","sublabel":"join · state · contribute · decide","pos":[755,285],"size":[150,76],"tag":"HTTPS"},
     {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"sintéticos · EconML precomputado","pos":[755,480],"size":[150,76]},
-    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · equipos · decisiones","pos":[935,285],"size":[125,76]}
+    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · equipos · decisiones","pos":[900,285],"size":[125,76]}
   ],
   "boundaries": [
     {"kind":"region","label":"Experiencia de aula","wraps":["classroom","pages","ui","role_engine","war_room"],"pad":24},
@@ -47,9 +32,9 @@
     {"id":"ui-role","from":"ui","to":"role_engine","variant":"emphasis"},
     {"id":"role-war","from":"role_engine","to":"war_room","variant":"emphasis"},
     {"id":"war-api","from":"war_room","to":"edge_api","variant":"emphasis"},
-    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC","variant":"security","labelAt":[920,378]},
+    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC","variant":"security","labelAt":[887,378]},
     {"id":"assets-api","from":"causal_assets","to":"edge_api","variant":"dashed"},
-    {"id":"delivery-pages","from":"delivery","to":"pages","variant":"dashed"}
+    {"id":"delivery-pages","from":"delivery","to":"pages","variant":"dashed","fromSide":"bottom","toSide":"top","route":"straight"}
   ],
   "cards": [
     {"dot":"cyan","title":"Ruta principal","items":["Aula → GitHub Pages → React → RoleLab → War Room → Edge Functions → PostgreSQL","El frontend es estático; Supabase conserva el estado mutable de la sesión"]},
