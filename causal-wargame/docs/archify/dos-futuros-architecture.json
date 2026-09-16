@@ -12,15 +12,15 @@
     ]
   },
   "components": [
-    {"id":"classroom","type":"external","label":"Aula","sublabel":"jugadores · facilitador · pantalla","pos":[25,285],"size":[135,70]},
+    {"id":"classroom","type":"external","label":"Aula","sublabel":"jugadores · docente · pantalla","pos":[25,285],"size":[135,70]},
     {"id":"pages","type":"cloud","label":"GitHub Pages","sublabel":"dos-futuros/","pos":[200,285],"size":[135,70],"tag":"estático"},
-    {"id":"delivery","type":"cloud","label":"GitHub Actions + build","sublabel":"tests · secure build · publish","pos":[192.5,70],"size":[150,72]},
-    {"id":"ui","type":"frontend","label":"React + Vite","sublabel":"play · facilitator · wall · inspector","pos":[375,285],"size":[145,72]},
-    {"id":"role_engine","type":"frontend","label":"RoleLab","sublabel":"herramientas especializadas","pos":[560,170],"size":[150,76]},
-    {"id":"war_room","type":"backend","label":"War Room","sublabel":"evidencia · coherencia · bloqueos","pos":[560,395],"size":[150,76]},
-    {"id":"edge_api","type":"backend","label":"Edge Functions","sublabel":"join · state · contribute · decide","pos":[755,285],"size":[150,76],"tag":"HTTPS"},
-    {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"sintéticos · EconML precomputado","pos":[755,480],"size":[150,76]},
-    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · equipos · decisiones","pos":[930,285],"size":[125,76]}
+    {"id":"delivery","type":"cloud","label":"GitHub Actions + build","sublabel":"tests · build · publish","pos":[192.5,70],"size":[150,72]},
+    {"id":"ui","type":"frontend","label":"React + Vite","sublabel":"4 superficies web","pos":[375,285],"size":[145,72]},
+    {"id":"role_engine","type":"frontend","label":"RoleLab","sublabel":"herramientas por rol","pos":[560,170],"size":[150,76]},
+    {"id":"war_room","type":"backend","label":"War Room","sublabel":"evidencia · coherencia","pos":[560,395],"size":[150,76]},
+    {"id":"edge_api","type":"backend","label":"Edge Functions","sublabel":"join · state · decide","pos":[755,285],"size":[150,76],"tag":"HTTPS"},
+    {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"sintéticos · EconML","pos":[755,480],"size":[150,76]},
+    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · decisiones","pos":[930,285],"size":[125,76]}
   ],
   "boundaries": [
     {"kind":"region","label":"Experiencia de aula","wraps":["classroom","pages","ui","role_engine","war_room"],"pad":24},
