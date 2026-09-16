@@ -8,12 +8,22 @@ const PLAYER_TOKEN = 'df_game_token'
 const FACILITATOR_TOKEN = 'df_facilitator_token'
 const PLAYER_GAME_CODE = 'df_game_code'
 const FACILITATOR_GAME_CODE = 'df_facilitator_game_code'
+const PARTICIPANT_KEY = 'df_participant_key'
 const RETRYABLE = new Set([408, 425, 429, 500, 502, 503, 504])
 const DEDUPE_ENDPOINTS = new Set(['game-state','leaderboard','wall-state'])
 const inflight = new Map()
 
 function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)) }
 function jitter(baseMs){ return Math.round(baseMs * (0.75 + Math.random() * 0.5)) }
+
+export function getParticipantKey(){
+  let value = localStorage.getItem(PARTICIPANT_KEY)
+  if(!value){
+    value = globalThis.crypto?.randomUUID?.() || `p-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    localStorage.setItem(PARTICIPANT_KEY,value)
+  }
+  return value
+}
 
 function reconcilePlayerStorage(){
   const sessionToken = sessionStorage.getItem(PLAYER_TOKEN)
@@ -24,6 +34,7 @@ function reconcilePlayerStorage(){
   const localCode = localStorage.getItem(PLAYER_GAME_CODE)
   if(sessionCode && !localCode) localStorage.setItem(PLAYER_GAME_CODE, sessionCode)
   if(localCode && !sessionCode) sessionStorage.setItem(PLAYER_GAME_CODE, localCode)
+  getParticipantKey()
 }
 reconcilePlayerStorage()
 
@@ -66,9 +77,12 @@ export async function invoke(name, body = {}, kind = 'player', options = {}){
   const headers = { 'content-type':'application/json', ...(options.headers || {}) }
   const t = token(kind)
   if(t) headers[kind === 'facilitator' ? 'x-facilitator-token' : 'x-game-token'] = t
-  const dedupeKey = DEDUPE_ENDPOINTS.has(name) ? `${kind}:${name}:${JSON.stringify(body)}` : null
+  const requestBody = kind==='player' && name==='join-game'
+    ? {...body, participant_key:body.participant_key||getParticipantKey()}
+    : body
+  const dedupeKey = DEDUPE_ENDPOINTS.has(name) ? `${kind}:${name}:${JSON.stringify(requestBody)}` : null
   if(dedupeKey && inflight.has(dedupeKey)) return inflight.get(dedupeKey)
-  const promise = fetchJson(`${base}/${name}`, { method:'POST', headers, body:JSON.stringify(body) }, options).catch(error=>{
+  const promise = fetchJson(`${base}/${name}`, { method:'POST', headers, body:JSON.stringify(requestBody) }, options).catch(error=>{
     const invalidSession=/sesión inválida|expirada/i.test(error?.message||'')
     if(kind==='player'&&name==='game-state'&&invalidSession){
       clearPlayerSession()
@@ -112,6 +126,7 @@ export function saveFacilitatorGameCode(v){ sessionStorage.setItem(FACILITATOR_G
 export function clearPlayerSession(){
   localStorage.removeItem(PLAYER_TOKEN); localStorage.removeItem(PLAYER_GAME_CODE)
   sessionStorage.removeItem(PLAYER_TOKEN); sessionStorage.removeItem(PLAYER_GAME_CODE)
+  // Deliberadamente NO borramos PARTICIPANT_KEY: permite recuperar el mismo equipo/rol tras salir o cerrar el navegador.
 }
 export function clearFacilitatorSession(){ sessionStorage.removeItem(FACILITATOR_TOKEN); sessionStorage.removeItem(FACILITATOR_GAME_CODE) }
 export function clearTokens(){ clearPlayerSession(); clearFacilitatorSession() }
