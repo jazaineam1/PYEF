@@ -12,4 +12,4 @@ import'./quest-v6.css'
 import{Layout}from'./components/Layout'
 import{RoleInspector}from'./components/RoleInspector'
 
-createRoot(document.getElementById('root')).render(<Layout subtitle="Inspector docente · cinco especialistas"><RoleInspector/></Layout>)
+createRoot(document.getElementById('root')).render(<Layout subtitle="Simulador docente · equipo completo"><RoleInspector/></Layout>)
