@@ -4,6 +4,7 @@ import{assessWarRoom,effectiveEvidenceByRole,normalizeHorizon,normalizeOutcome}f
 
 const row=(role,evidence)=>({role_code:role,evidence,player_id:`p-${role}`,name:role})
 const contract=(extra={})=>({population:'Clientes elegibles',treatment:'Llamada',comparator:'No llamada',outcome:'Pago completo',horizon:'30 días',estimand:'CATE',constraint:'Capacidad máxima',constraintValue:'4000',...extra})
+const policy=(extra={})=>({selected:['A'],used:2000,capacity:4000,spend:10000,budget:40000,tolerance:2,riskViolation:false,feasible:true,...extra})
 
 test('normaliza outcomes y horizontes equivalentes',()=>{
   assert.equal(normalizeOutcome('Pago completo'),'pago')
@@ -17,19 +18,21 @@ test('bloquea inconsistencias entre contrato y experimento',()=>{
     row('business',{details:contract()}),
     row('context',{summary:'Camino bloqueado',details:{diagnosed:true}}),
     row('integrator',{details:{assignment:'random',outcome:'clic',horizon:'1 día'}}),
-    row('data',{details:{}})
+    row('data',{details:{}}),
+    row('risk',{details:policy()})
   ]
   const result=assessWarRoom(rows,3)
   assert.equal(result.status,'blocked')
   assert.equal(result.checks.find(x=>x.id==='experiment-contract').status,'block')
 })
 
-test('cuatro responsabilidades bastan: copiloto no es obligatorio',()=>{
+test('cinco especialidades coherentes producen un war room completo',()=>{
   const rows=[
-    row('business',{details:contract({policy:{details:{selected:['A'],used:2000,capacity:4000,spend:10000,budget:40000,tolerance:2,riskViolation:false,feasible:true}}})}),
+    row('business',{details:contract()}),
     row('data',{details:{estimator:'drlearner'}}),
     row('context',{summary:'Camino bloqueado',details:{diagnosed:true}}),
-    row('integrator',{details:{assignment:'random',outcome:'Pago completo',horizon:'30 días'}})
+    row('integrator',{details:{assignment:'random',outcome:'Pago completo',horizon:'30 días'}}),
+    row('risk',{details:policy()})
   ]
   const result=assessWarRoom(rows,4)
   assert.equal(result.status,'coherent')
@@ -37,7 +40,7 @@ test('cuatro responsabilidades bastan: copiloto no es obligatorio',()=>{
   assert.deepEqual(result.missingRoles,[])
 })
 
-test('equipo de tres cubre Experimentos mediante doble sombrero de Modelos',()=>{
+test('equipo de tres cubre Experimentos mediante doble sombrero pero no inventa Política y Riesgo',()=>{
   const rows=[
     row('business',{details:contract()}),
     row('context',{summary:'Camino bloqueado',details:{diagnosed:true}}),
@@ -46,17 +49,18 @@ test('equipo de tres cubre Experimentos mediante doble sombrero de Modelos',()=>
   const by=effectiveEvidenceByRole(rows)
   assert.equal(by.integrator.covered_by,'data')
   const result=assessWarRoom(rows,3)
-  assert.equal(result.status,'coherent')
-  assert.deepEqual(result.missingRoles,[])
+  assert.equal(result.status,'incomplete')
+  assert.deepEqual(result.missingRoles,['risk'])
   assert.match(result.checks.find(x=>x.id==='experiment-contract').message,/doble sombrero/i)
 })
 
-test('bloquea política que viola la capacidad acordada por Estrategia',()=>{
+test('bloquea política de Riesgo que viola la capacidad acordada por Decisión',()=>{
   const rows=[
-    row('business',{details:contract({policy:{details:{selected:['A'],used:5000,capacity:6000,spend:10000,budget:40000,tolerance:2,riskViolation:false,feasible:true}}})}),
+    row('business',{details:contract()}),
     row('data',{details:{estimator:'forest'}}),
     row('context',{summary:'Camino bloqueado',details:{diagnosed:true}}),
-    row('integrator',{details:{assignment:'random',outcome:'Pago completo',horizon:'30 días'}})
+    row('integrator',{details:{assignment:'random',outcome:'Pago completo',horizon:'30 días'}}),
+    row('risk',{details:policy({used:5000,capacity:6000})})
   ]
   const result=assessWarRoom(rows,4)
   assert.equal(result.status,'blocked')
