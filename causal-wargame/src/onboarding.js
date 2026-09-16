@@ -3,8 +3,8 @@ export const GAME_MISSION={
   future1:'Futuro 1 · Intervenimos: ¿qué pasa con el cliente si actuamos?',
   future0:'Futuro 2 · No intervenimos: ¿qué habría pasado con ese mismo cliente sin actuar?',
   objective:'Sólo observamos uno de esos futuros por persona. El reto es combinar cuatro piezas de evidencia para decidir qué intervención causa valor, para quién y bajo qué límites.',
-  teamwork:'Sí: tienes que hablar con tus compañeros. Cada rol recibe información y una herramienta distinta; ninguna persona puede cerrar la decisión sola.',
-  loop:['Escucha el concepto común','Lee tu información privada','Usa sólo tu herramienta','Comparte tu evidencia con el equipo','Contrasta lo que dicen los otros roles','🦁 bloquea una única decisión cuando estén las 4 piezas']
+  teamwork:'Sí: debes hablar con tus compañeros. Cada rol recibe información y una herramienta distinta; ninguna persona puede cerrar la decisión sola.',
+  loop:['Escucha el concepto común','Lee tu información privada','Usa sólo tu herramienta','Comparte un hallazgo y tu evidencia con el equipo','Contrasta lo que dicen los otros roles','🦁 bloquea una única decisión cuando estén las 4 piezas']
 }
 
 export const ROLE_ACTIONS={
