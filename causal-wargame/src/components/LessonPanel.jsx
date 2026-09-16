@@ -6,7 +6,7 @@ import {RoleReveal} from './RoleReveal'
 function UnlockSummary({round}){
   const unlocks=Object.entries(ROLE_ARCHETYPES).filter(([,meta])=>meta.core).flatMap(([role,meta])=>meta.powers.filter(p=>p.unlockRound===Number(round)).map(p=>({role,label:meta.label,emoji:meta.emoji,accent:meta.accent,power:p.name})))
   if(!unlocks.length)return null
-  return <div className="card unlock-summary"><div className="eyebrow">AL TERMINAR ESTA MINI-CLASE SE DESBLOQUEA</div><div className="unlock-summary-grid">{unlocks.map(x=><div className="unlock-summary-item" key={`${x.role}-${x.power}`} style={{'--role-accent':x.accent}}><span>{x.emoji}</span><div><b>{x.power}</b><small>{x.label}</small></div></div>)}</div><p className="muted-copy">Los cinco equipos reciben los mismos poderes. Nadie puede usar una herramienta antes de que el concepto haya sido explicado.</p></div>
+  return <div className="card unlock-summary"><div className="eyebrow">AL TERMINAR ESTA MINI-CLASE SE DESBLOQUEA</div><div className="unlock-summary-grid">{unlocks.map(x=><div className="unlock-summary-item" key={`${x.role}-${x.power}`} style={{'--role-accent':x.accent}}><span>{x.emoji}</span><div><b>{x.power}</b><small>{x.label}</small></div></div>)}</div><p className="muted-copy">Todos los equipos reciben los mismos poderes. Nadie puede usar una herramienta antes de que el concepto haya sido explicado.</p></div>
 }
 
 function IdentificationCompass({facilitator}){
