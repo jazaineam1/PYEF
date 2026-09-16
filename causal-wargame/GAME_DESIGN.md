@@ -1,4 +1,4 @@
-# Game Design · DOS FUTUROS
+# Game Design · CAUSAL QUEST
 
 ## Resultado de aprendizaje
 
@@ -7,49 +7,65 @@ Al salir, el participante debe poder preguntar espontáneamente:
 1. ¿Qué estamos cambiando?
 2. ¿Qué resultado queremos cambiar?
 3. ¿Qué habría pasado sin intervenir?
-4. ¿Por qué la comparación es justa?
-5. ¿Funciona igual para todos?
+4. ¿Por qué la comparación es defendible?
+5. ¿Funciona igual para todos y dónde conviene actuar?
 
-La terminología formal se introduce **después** de vivir cada concepto.
+La terminología formal se introduce **después** de vivir cada concepto. La meta no es aprender software: es saber **qué pregunta responde cada instrumento, qué supuesto necesita y qué permite concluir**.
 
-## Equipos y responsabilidades
+## Equipos y cinco especialidades
 
-El juego usa **4 equipos** y **4 responsabilidades causales núcleo**:
+El juego usa **4 equipos** y **5 especialidades analíticas núcleo** por equipo:
 
-- 🦁 **Estrategia y Política** — define la pregunta causal y cierra la política bajo costo, capacidad y riesgo.
-- 🦉 **Modelos** — separa predicción de efecto incremental y explora heterogeneidad.
-- 🐈‍⬛ **Causalidad** — razona sobre contrafactual, confusión, mediadores, colliders e identificación.
-- 🐢 **Experimentos** — diseña comparación, asignación, outcome, horizonte e incertidumbre.
+- 🦁 **Líder de Decisión** — usa el **Constructor de Pregunta Causal** para fijar población, intervención, comparador, resultado, horizonte, estimando y restricción.
+- 🦉 **Líder de Modelos** — usa el **Explorador de Uplift y CATE** para separar predicción de efecto incremental y explorar heterogeneidad.
+- 🐈‍⬛ **Analista Causal** — usa el **Laboratorio de Grafo Causal** para razonar sobre confusión, mediadores, colliders e identificación.
+- 🐢 **Líder de Experimentos** — usa el **Diseñador de Experimentos** para definir comparación, asignación, outcome, horizonte, efecto e incertidumbre.
+- 🦅 **Política y Riesgo** — usa el **Simulador de Política** para convertir efecto, incertidumbre, costo, capacidad y riesgo en una regla de acción.
 
-Una quinta persona no crea una quinta especialidad: entra como 🦅 **Copiloto de Estrategia**, apoyo opcional para auditar costo, daño, capacidad y reversibilidad.
+Los cinco comienzan con el mismo poder base: **Pregunta Crítica**. Las herramientas avanzadas sólo se habilitan cuando el concepto correspondiente ya fue explicado.
 
-### Asistencia variable: equipos de 3, 4 o 5
+### Dependencia entre herramientas
 
-La unidad de diseño es la **responsabilidad**, no el número de personas.
+No son cinco minijuegos independientes. El flujo esperado es:
 
-- **3 personas:** 🦁 Estrategia y Política + 🦉 Modelos + 🐈‍⬛ Causalidad. Modelos toma automáticamente un segundo sombrero y cubre 🐢 Experimentos. Debe completar un módulo experimental real; no recibe crédito automático.
-- **4 personas:** configuración ideal, una persona por cada responsabilidad núcleo.
-- **5 personas:** cuatro responsabilidades núcleo + 🦅 copiloto opcional. El copiloto puede aconsejar, pero no añade una quinta evidencia obligatoria, un voto extra ni poder de veto.
+`🦁 pregunta → 🐈‍⬛ identificación → 🦉 estimación → 🐢 contraste/incertidumbre → 🦅 política → 🦁 integración final`
 
-Con 12 participantes pueden funcionar cuatro equipos de 3. Con 16, cuatro equipos de 4. De 17 a 20, los participantes adicionales actúan como copilotos. Ningún equipo pierde puntos por tener menos personas; la plataforma observa cobertura **0–4** de responsabilidades.
+Cada instrumento produce una pieza de evidencia con cuatro campos visibles:
 
-### Qué son los roles y qué NO son
+1. **Pregunta** — qué intenta responder.
+2. **Evidencia** — qué produjo la herramienta.
+3. **Supuesto** — qué debe ser cierto para interpretarla.
+4. **Decisión** — qué permite concluir y qué no.
 
-Los roles usan **información asimétrica cooperativa**. Todos los integrantes quieren exactamente lo mismo: que su equipo tome la mejor decisión causal. No hay traidor, mentiroso ni rol con objetivo secreto contrario.
+La mesa de evidencia muestra cobertura **0–5** y, además, chequea contradicciones entre las piezas. `5/5` significa cobertura, no verdad: una estimación puede existir y aun no ser causal si la identificación es débil.
 
-Por eso no funciona como *Hombre Lobo*: comparte con ese tipo de juego que cada persona conoce información diferente, pero aquí no hay engaño social. Se parece más a un equipo de crisis o escape room cooperativo: cada responsabilidad aporta una pieza distinta y la decisión correcta exige reconciliarlas.
+### Asistencia variable
 
-- R1 es deliberadamente común: todos caen primero en la trampa predictiva.
-- R2, R3 y R4 entregan información especializada.
-- La decisión final siempre es una respuesta estructurada del equipo.
-- Las pistas privadas no se puntúan por texto: sólo ayudan a llegar a la decisión objetiva correcta.
-- `4/4` responsabilidades cubiertas no garantiza una buena decisión: pregunta, identificación, estimación, experimento y política además deben ser coherentes.
+La configuración objetivo para 20 participantes es **4 equipos × 5 especialistas**.
+
+La sesión no se bloquea si hay ausencias:
+
+- Con **4 personas**, queda visible cuál especialidad no tiene dueño; el equipo puede continuar, pero debe reconocer la evidencia faltante.
+- Con **3 personas**, Modelos puede cubrir temporalmente Experimentos mediante un segundo módulo real. Esto no inventa una persona: genera una segunda pieza de evidencia explícita.
+- Política y Riesgo ya no es un copiloto decorativo: es una especialidad núcleo y su evidencia cuenta dentro de la cobertura 5/5.
+
+La composición del equipo no cambia el puntaje competitivo. El objetivo es evitar que una ausencia técnica detenga la clase sin fingir que la evidencia faltante existe.
+
+## Información asimétrica cooperativa
+
+Todos los integrantes quieren exactamente lo mismo: que su equipo tome la mejor decisión causal. No hay traidor ni objetivo secreto contrario.
+
+Cada especialidad ve información o controles diferentes. Individualmente ninguna pieza es suficiente. Por ejemplo, en una ronda el Líder de Modelos puede ver una diferencia ajustada, el Analista Causal la estructura que hace defendible o no ese ajuste, Experimentos el balance/incertidumbre, Política y Riesgo el costo de actuar y Decisión la restricción de negocio.
+
+La mecánica correcta es:
+
+`enseño → exploras → produces evidencia → la compartes → integran → deciden → reveal/debrief`
 
 ## Rondas
 
 ### R1 · ORÁCULO
 
-Elige 10 de 24 clientes utilizando score predictivo. Primero se muestra el **ranking observado**. Luego se abre “VER EL OTRO FUTURO” y se recalcula por impacto incremental.
+Elige 10 de 24 clientes utilizando score predictivo. Primero se observa quién parece más probable que convierta. Luego el simulador sintético permite revelar impacto incremental.
 
 Aprendizaje: predicción ≠ efecto causal; contrafactual; `Y(1)-Y(0)`.
 
@@ -57,41 +73,37 @@ Aprendizaje: predicción ≠ efecto causal; contrafactual; `Y(1)-Y(0)`.
 
 Llamados pagan 20%, no llamados 35%. La información distribuida revela que los llamados tenían mayor mora desde antes.
 
-La respuesta del equipo es completamente estructurada:
+El DAG Lab permite formular una hipótesis causal y diagnosticar un backdoor. Modelos ve asociación cruda y una comparación ajustada; el mensaje pedagógico es que **el método no reemplaza la identificación**.
 
-1. cancelar / mantener / rediseñar;
-2. seleccionar la variable problemática;
-3. seleccionar por qué la comparación engaña.
-
-No hay texto libre competitivo.
-
-Aprendizaje: comparación injusta y confusión.
+Aprendizaje: confusión, DAG sencillo y comparabilidad. Propensity, matching e IPW son panorama/extensión, no objetivos obligatorios.
 
 ### R3 · Una prueba mejor
 
-20.000 elegibles; escoger asesor, modelo o asignación aleatoria. Outcome y horizonte también se puntúan de forma cerrada. Si el equipo tiene tres personas, Modelos abre además el Experiment Designer y entrega esa segunda pieza de evidencia.
+El equipo debe definir asignación, outcome y horizonte. El Diseñador de Experimentos permite cambiar regla de asignación y N, observar tratamiento/control, efecto/diferencia, IC95% y balance.
 
-Aprendizaje: randomización, tratamiento/control, ATE e incertidumbre.
+Aprendizaje: randomización, tratamiento/control, ATE e incertidumbre. Potencia/MDE quedan como extensión opcional.
 
-### R4 · El promedio miente
+### R4 · Del efecto a la política
 
-ATE positivo, pero efectos por segmento heterogéneos y un segmento con daño esperado. Estrategia y Política recibe la responsabilidad de convertir esa evidencia en una política factible bajo la restricción acordada.
+El Líder de Modelos explora 24 perfiles con resultados **precomputados offline con EconML** (T-Learner, DR-Learner y CausalForestDML). El navegador no entrena modelos en vivo. La coincidencia entre estimadores no se presenta como prueba de identificación causal.
 
-Aprendizaje: heterogeneidad, CATE y política de intervención.
+Política y Riesgo recibe CATE, intervalos, tamaño de segmento, valor, costo y riesgo; modifica capacidad, presupuesto, tolerancia y asignación. La herramienta calcula factibilidad y valor esperado, pero no decide por el jugador.
 
-## Scoring de equipo · 100% determinista
+Aprendizaje: heterogeneidad, CATE, incertidumbre y política de intervención.
 
-El profesor nunca asigna puntos competitivos manuales.
+## Scoring de equipo · determinista
 
-- **Impacto causal: 35** — valor incremental esperado de los 10 clientes seleccionados en R1, calculado contra el ground truth sintético.
-- **Evidencia: 25** — R2: 8 puntos por rediseñar, 8 por identificar mora previa, 9 por reconocer que los grupos ya eran distintos antes.
-- **Diseño: 20** — R3: 12 por asignación aleatoria, 4 por outcome de pago a 30 días, 4 por horizonte ≥30 días.
-- **Riesgo: 10** — R4: 10 por no intervenir el segmento de mora alta.
-- **Adaptación: 10** — R4: 3 por priorizar jóvenes digitales, 3 por ingreso medio, 1 por dejar tradicional en más evidencia, 1 por dejar patrimonio alto en más evidencia y 2 por evitar mora alta.
+El profesor no asigna puntos competitivos manuales.
 
-Máximo exacto: **100 puntos**.
+- **Impacto causal: 35** — valor incremental esperado de los clientes seleccionados en R1 contra ground truth sintético.
+- **Evidencia: 25** — decisión estructurada de R2.
+- **Diseño: 20** — calidad del diseño seleccionado en R3.
+- **Riesgo: 10** — evitar una política dañina en R4.
+- **Adaptación: 10** — priorización segmentada en R4.
 
-La composición del equipo, número de personas, doble sombrero o presencia de copiloto **no modifica el puntaje**. Los microchecks individuales son diagnósticos de aprendizaje y **no modifican el leaderboard**.
+Máximo exacto: **100 puntos**, antes del costo de ayudas cuando aplique.
+
+La cobertura de especialidades, el número de personas y los microchecks **no añaden puntos automáticamente**. Las herramientas producen evidencia para decidir; no son una mecánica de “hacer clic para sumar”.
 
 ### Empates
 
@@ -107,26 +119,21 @@ Si siguen idénticos, se declara empate técnico. No se usa velocidad de respues
 
 ## Evaluación individual
 
-El MVP registra un microcheck individual por ronda. Para evaluación formal se recomienda separarla del ganador del juego:
+La evaluación de aprendizaje se mantiene separada del ganador:
 
-- resultado del equipo;
+- medición inicial de transferencia;
 - cuatro microchecks individuales;
-- debrief oral no competitivo;
-- exit ticket diagnóstico.
+- resultado del equipo;
+- medición final con contexto diferente;
+- debrief oral no competitivo.
 
-La defensa oral y el exit ticket **no deciden quién gana**.
+Esto permite estimar cambio pre/post sin convertir la evaluación individual en puntos del leaderboard.
 
 ## Uso de IA
 
-Permitido. Regla visible: **“IA puede asesorar; IA no es evidencia.”**
+Regla visible: **“IA puede asesorar; IA no es evidencia.”**
 
-La resistencia a delegación proviene de:
-
-- información fragmentada por responsabilidad;
-- eventos liberados en vivo;
-- decisiones irreversibles;
-- ground truth server-side;
-- microchecks individuales.
+Si se habilita el experto IA en una versión futura, sólo podrá recibir contexto permitido de la ronda/conceptos desbloqueados. No tendrá acceso al repositorio, Supabase, secretos, navegación ni ground truth oculto, y deberá orientar con preguntas/supuestos sin entregar la respuesta final.
 
 ## Qué NO puntuar
 
