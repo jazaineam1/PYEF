@@ -42,7 +42,7 @@ test('expert call is paused in backend and invisible in participant market',()=>
   assert.match(migration,/category='expert'/)
   assert.doesNotMatch(market,/Llamada al Capítulo/)
   assert.doesNotMatch(market,/GraduationCap/)
-  assert.match(market,/category!='expert'/)
+  assert.match(market,/category!==\'expert\'/)
 })
 
 test('full-team simulator exposes all phases and reuses actual role tools',()=>{
