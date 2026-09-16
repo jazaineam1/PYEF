@@ -2,7 +2,7 @@
 
 ## Principio operativo
 
-El juego usa **5 equipos** y **4 especialidades núcleo**. Configuración ideal: 20 participantes, cuatro por equipo.
+El juego usa **4 especialidades núcleo por equipo** y adapta el **número de equipos** a la asistencia. El objetivo no es sostener una cantidad fija de salas: es mantener equipos de **3–4 personas** sin inventar un quinto rol.
 
 1. 🦁 **Líder de Decisión y Política** — define el contrato causal, administra recursos y en R4 integra evidencia, costo, capacidad y riesgo en una política.
 2. 🦉 **Líder de Modelos** — separa predicción de efecto incremental, revisa soporte y explora CATE/uplift.
@@ -11,32 +11,49 @@ El juego usa **5 equipos** y **4 especialidades núcleo**. Configuración ideal:
 
 Política/Riesgo **no es un quinto rol**. Está fusionado con 🦁. El identificador histórico `risk` sólo existe para compatibilidad con sesiones antiguas.
 
-### Asistencia
+## Asistencia adaptativa
 
-La asignación por llegada ocurre por olas de rol a través de los cinco equipos:
+Mientras la lista está abierta, equipo y rol son **provisionales**. Cada nueva llegada puede provocar un rebalanceo. Al iniciar la primera mini-clase el servidor realiza un último rebalanceo y **congela la lista**; desde ese momento sólo se permiten reingresos conocidos.
 
-| Humanos | Plan |
-|---:|---|
-| 20 | 4–4–4–4–4 |
-| 19 | 4–4–4–4–3 |
-| 18 | 4–4–4–3–3 |
-| **17** | **4–4–3–3–3** |
-| 16 | 4–3–3–3–3 |
-| 15 | 3–3–3–3–3 |
+La regla es `equipos = ceil(humanos / 4)`, con un máximo operativo de 7 equipos / 28 humanos. En el rango habitual:
+
+| Humanos | Equipos | Distribución final |
+|---:|---:|---|
+| 15 | 4 | 4–4–4–3 |
+| **16** | **4** | **4–4–4–4** |
+| **17** | **5** | **4–4–3–3–3** |
+| 18 | 5 | 4–4–4–3–3 |
+| 19 | 5 | 4–4–4–4–3 |
+| 20 | 5 | 4–4–4–4–4 |
+| 21 | 6 | 4–4–4–3–3–3 |
+| 24 | 6 | 4–4–4–4–4–4 |
+| 25 | 7 | 4–4–4–4–3–3–3 |
+| **28** | **7** | **4–4–4–4–4–4–4** |
+
+La asignación se hace por **olas de rol**. Primero se distribuye 🦁 a todos los equipos activos, luego 🦉, después 🐈‍⬛ y por último 🐢. Por eso, cuando un grupo queda con tres personas, la única especialidad ausente es Experimentos.
 
 Con tres personas, 🦉 Modelos cubre temporalmente 🐢 Experimentos mediante un módulo separado que produce evidencia propia. La Mesa puede llegar a 4/4 sin fingir una persona adicional.
 
-Por debajo de 15 humanos algún equipo tendría menos de tres integrantes. La consola lo advierte; para una clase real reconfigura la dinámica antes de iniciar. Los bots son para ensayo técnico, no para rellenar aprendizaje humano.
+Con menos de tres integrantes en algún equipo, la consola lo advierte. No uses bots para “rellenar” aprendizaje humano; reestructura la dinámica o fusiona grupos antes de comenzar.
+
+### Qué hacer justo antes de congelar la lista
+
+1. Comprueba `humanos` y `online` en la consola.
+2. Si alguien entró y se fue, puedes usar **Retirar ausentes >3 min** antes de iniciar.
+3. Usa **Recalcular equipos ahora** si quieres ver explícitamente la distribución actual.
+4. Informa al grupo que equipo/rol todavía puede cambiar mientras la lista está abierta.
+5. Pulsa **Presentar concepto y poderes** sólo cuando la asistencia esté razonablemente estabilizada. Ese paso congela composición y roles.
 
 ## Seguridad de ingreso
 
 - El navegador conserva una clave aleatoria de identidad independiente del token de sesión.
-- Cerrar/reabrir o volver a entrar desde el mismo navegador recupera **el mismo jugador, equipo y rol**.
-- El logout borra el token, no la identidad local; volver a ingresar recupera el asiento original.
+- Mientras la lista está abierta, volver desde el mismo navegador recupera el mismo `player_id`; el equipo/rol puede haber cambiado si el sistema rebalanceó la clase.
+- Después de congelar la lista, cerrar/reabrir o volver a entrar desde ese navegador recupera **exactamente el mismo jugador, equipo y rol**.
+- El logout borra el token, no la identidad local.
 - El mismo nombre desde otro dispositivo se rechaza para impedir un segundo asiento accidental. Si hay homónimos, usa nombre y apellido.
-- Una vez iniciada la partida, no entran jugadores nuevos: sólo reingresan participantes ya registrados.
-- Máximo 20 humanos.
-- Un bot de ensayo nunca tiene prioridad sobre un humano antes de iniciar.
+- Una vez congelada la lista, no entran jugadores nuevos: sólo reingresan participantes ya registrados.
+- Máximo soportado: **28 humanos**.
+- Un bot de ensayo nunca debe desplazar a un humano real.
 
 ## 24 h antes
 
@@ -45,13 +62,14 @@ Por debajo de 15 humanos algún equipo tendría menos de tres integrantes. La co
 3. Pedir que cada persona use el mismo computador de la sesión.
 4. Revisar resultados **No apto**.
 5. Probar `play.html`, `facilitator.html` y `wall.html`.
-6. Ejecutar el gate de carga sostenida.
+6. Ejecutar el gate de carga sostenida. Para capacidad máxima usa `CW_USERS=28`.
 7. No publicar el PIN ni la verdad privada del simulador.
 8. Congelar cambios no críticos 24–48 h antes.
 
 ## 15 min antes
 
-- Abrir videollamada y cinco salas: **Fisher, Neyman, Rubin, Pearl y Robins**.
+- No abras un número fijo de salas hasta conocer la asistencia. La consola indica cuántos equipos activos necesita la sesión.
+- Nombres disponibles hasta 7 salas: **Fisher, Neyman, Rubin, Pearl, Robins, Imbens y Rosenbaum**.
 - Compartir sólo `wall.html`.
 - Mantener `facilitator.html` privado.
 - Revisar el plan automático de asistencia en la consola.
@@ -117,16 +135,31 @@ Cobertura **4/4** no garantiza coherencia. El motor puede bloquear por contrato 
 
 ## Mercado
 
-- Cinco equipos, misma bolsa y catálogo.
-- Pistas/Junior/Senior son inventario por equipo.
+- Todos los equipos reciben la misma bolsa y catálogo, independientemente de si hay 4, 5, 6 o 7 equipos.
+- Pistas/Junior/Senior son inventario **por equipo**: otro equipo no los encarece ni los agota.
 - Sólo Llamada al Capítulo depende de disponibilidad humana global.
 - 🦁 confirma la compra; todo el equipo puede recomendar.
 
 ## Si alguien se desconecta
 
-No crees otro participante. Pídele volver con el **mismo navegador/dispositivo** y el mismo código: recuperará equipo y rol. Si intenta usar otro equipo por volver a escribir su nombre desde otro dispositivo, el servidor debe rechazarlo.
+No crees otro participante. Pídele volver con el **mismo navegador/dispositivo** y el mismo código.
 
-Si una persona no regresa y el equipo queda con tres, usa el doble sombrero Modelos→Experimentos si esa es la responsabilidad ausente. Si quedan dos, redistribuye apoyo humano antes de la siguiente ronda; no finjas evidencia automática.
+- Antes del cierre de lista: recupera su identidad, pero el equipo/rol mostrado puede cambiar por rebalanceo.
+- Después del cierre de lista: recupera exactamente equipo y rol.
+- Si intenta duplicarse desde otro dispositivo con el mismo nombre, el servidor rechaza el segundo asiento.
+
+Si una persona no regresa **antes de iniciar**, retírala desde la consola y rebalancea. Si se desconecta **durante la partida**, no cambies la topología en caliente; espera el reingreso o trabaja con la ausencia explícita. Si un equipo queda de tres y falta Experimentos, usa el doble sombrero Modelos→Experimentos. Si quedan dos, intervén pedagógicamente; no finjas evidencia automática.
+
+## Ensayo con bots
+
+`Completar ensayo con bots` es sólo un modo técnico. Al activarlo:
+
+- completa la matriz de la sesión;
+- congela la lista de ensayo;
+- impide que una llegada humana tardía reescriba silenciosamente los puestos;
+- permite probar flujo, wall, mercado y decisiones automáticas.
+
+Para volver a una clase humana real, usa **Reset** y permite que los humanos entren de nuevo.
 
 ## Si falla backend
 
