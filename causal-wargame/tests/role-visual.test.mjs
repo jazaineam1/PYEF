@@ -15,7 +15,8 @@ test('role reveal is action-first and keeps only four core specialties',async()=
   assert.match(source,/PUEDES/)
   assert.match(source,/NO PUEDES CONCLUIR SOLO/)
   assert.match(source,/ENTREGAS AL EQUIPO/)
-  assert.match(source,/No juegas solo/)
+  assert.match(source,/Interdependencia obligatoria/)
+  assert.match(source,/Pregunta que debes llevar al equipo/)
   assert.match(source,/CORE_ROLE_CODES/)
 })
 
@@ -25,9 +26,8 @@ test('simulation mission explains two futures and collaboration before diagnosti
   assert.match(source,/Futuro 2 · No intervenimos/)
   assert.match(source,/debes hablar con tus compañeros/i)
   assert.match(source,/Comparte un hallazgo/)
-  for(const role of ['business','data','context','integrator']){
-    assert.match(source,new RegExp(`${role}:\\{can:`))
-  }
+  assert.match(source,/ninguna persona puede cerrar la decisión sola/i)
+  for(const role of ['business','data','context','integrator'])assert.match(source,new RegExp(`${role}:\\{can:`))
 })
 
 test('participant entrypoint loads canonical role visual stylesheet',async()=>{
