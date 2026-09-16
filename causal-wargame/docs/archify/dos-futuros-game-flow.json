@@ -6,24 +6,9 @@
     "animation": "trace",
     "quality_profile": "showcase",
     "views": [
-      {
-        "id": "full-round",
-        "label": "Una ronda completa",
-        "focus": ["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","reveal","microcheck"],
-        "note": "Recorre una ronda desde el mando docente hasta el debrief y la comprobación individual."
-      },
-      {
-        "id": "four-roles",
-        "label": "Los 4 roles",
-        "focus": ["strategy","causal","models","experiments","war_room"],
-        "note": "Cuatro herramientas especializadas producen cuatro piezas que el equipo debe integrar."
-      },
-      {
-        "id": "command",
-        "label": "Mando docente",
-        "focus": ["open_round","brief","problem","reveal","microcheck"],
-        "note": "El facilitador controla ritmo y debrief; no resuelve la decisión por el equipo."
-      }
+      {"id":"full-round","label":"Una ronda completa","focus":["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","reveal","microcheck"],"note":"Recorre una ronda desde el mando docente hasta el debrief y la comprobación individual."},
+      {"id":"four-roles","label":"Los 4 roles","focus":["strategy","causal","models","experiments","war_room"],"note":"Cuatro herramientas especializadas producen cuatro piezas que el equipo debe integrar."},
+      {"id":"command","label":"Mando docente","focus":["open_round","brief","problem","reveal","microcheck"],"note":"El facilitador controla ritmo y debrief; no resuelve la decisión por el equipo."}
     ]
   },
   "lanes": [
@@ -47,9 +32,9 @@
     {"id":"brief","lane":"command","col":1,"type":"frontend","label":"Mini-clase guiada","sublabel":"intuición antes del término","tag":"4–6 min","width":150},
     {"id":"problem","lane":"team","col":1,"type":"frontend","label":"Problema + voto inicial","sublabel":"el equipo se compromete con una respuesta","width":160},
     {"id":"strategy","lane":"roles","col":2,"type":"frontend","label":"🦁 Decisión","sublabel":"define pregunta, outcome y restricción","tag":"Constructor causal","width":165},
-    {"id":"causal","lane":"roles","col":2,"type":"frontend","label":"🐈‍⬛ Causalidad","sublabel":"DAG · confusión · mediador · collider","tag":"DAG Lab","width":165,"yOffset":72},
+    {"id":"causal","lane":"roles","col":2,"type":"frontend","label":"🐈‍⬛ Causalidad","sublabel":"DAG · confusión · mediador · collider","tag":"DAG Lab","width":165,"yOffset":84},
     {"id":"models","lane":"roles","col":3,"type":"frontend","label":"🦉 Modelos","sublabel":"score · ajuste · uplift · CATE","tag":"Model Explorer","width":165},
-    {"id":"experiments","lane":"roles","col":3,"type":"frontend","label":"🐢 Experimentos + copiloto","sublabel":"asignación · N · IC · stress test","tag":"Experiment Designer","width":180,"yOffset":72},
+    {"id":"experiments","lane":"roles","col":3,"type":"frontend","label":"🐢 Experimentos + copiloto","sublabel":"asignación · N · IC · stress test","tag":"Experiment Designer","width":180,"yOffset":84},
     {"id":"war_room","lane":"integration","col":3,"type":"messagebus","label":"War Room","sublabel":"4 aportes · una historia causal","tag":"compartir evidencia","width":165},
     {"id":"coherence","lane":"integration","col":4,"type":"security","label":"Puerta de coherencia","sublabel":"¿las piezas son compatibles?","tag":"bloquea contradicciones","width":170},
     {"id":"team_decision","lane":"team","col":4,"type":"backend","label":"Decisión del equipo","sublabel":"cerrar sólo con evidencia suficiente","width":165},
