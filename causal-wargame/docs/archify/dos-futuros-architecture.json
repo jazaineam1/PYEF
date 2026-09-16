@@ -32,7 +32,7 @@
     {"id":"ui-role","from":"ui","to":"role_engine","variant":"emphasis"},
     {"id":"role-war","from":"role_engine","to":"war_room","variant":"emphasis"},
     {"id":"war-api","from":"war_room","to":"edge_api","variant":"emphasis"},
-    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC","variant":"security"},
+    {"id":"api-db","from":"edge_api","to":"postgres","variant":"security"},
     {"id":"assets-api","from":"causal_assets","to":"edge_api","variant":"dashed"},
     {"id":"delivery-pages","from":"delivery","to":"pages","variant":"dashed","fromSide":"bottom","toSide":"top","route":"straight"}
   ],
