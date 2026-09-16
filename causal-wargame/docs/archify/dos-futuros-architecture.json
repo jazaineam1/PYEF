@@ -20,7 +20,7 @@
     {"id":"war_room","type":"backend","label":"War Room","sublabel":"evidencia · coherencia · bloqueos","pos":[560,395],"size":[150,76]},
     {"id":"edge_api","type":"backend","label":"Edge Functions","sublabel":"join · state · contribute · decide","pos":[755,285],"size":[150,76],"tag":"HTTPS"},
     {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"sintéticos · EconML precomputado","pos":[755,480],"size":[150,76]},
-    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · equipos · decisiones","pos":[900,285],"size":[125,76]}
+    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · equipos · decisiones","pos":[930,285],"size":[125,76]}
   ],
   "boundaries": [
     {"kind":"region","label":"Experiencia de aula","wraps":["classroom","pages","ui","role_engine","war_room"],"pad":24},
@@ -32,7 +32,7 @@
     {"id":"ui-role","from":"ui","to":"role_engine","variant":"emphasis"},
     {"id":"role-war","from":"role_engine","to":"war_room","variant":"emphasis"},
     {"id":"war-api","from":"war_room","to":"edge_api","variant":"emphasis"},
-    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC","variant":"security","labelAt":[887,378]},
+    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC","variant":"security"},
     {"id":"assets-api","from":"causal_assets","to":"edge_api","variant":"dashed"},
     {"id":"delivery-pages","from":"delivery","to":"pages","variant":"dashed","fromSide":"bottom","toSide":"top","route":"straight"}
   ],
