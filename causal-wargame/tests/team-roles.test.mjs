@@ -4,27 +4,37 @@ import{coreResponsibilityStatus,dataCoversExperiments,teamMode}from'../src/team-
 
 const roster=roles=>roles.map((role_code,i)=>({id:String(i+1),display_name:`P${i+1}`,role_code}))
 
-test('equipo de tres activa doble sombrero Modelos + Experimentos',()=>{
+test('equipo de tres activa doble sombrero Modelos + Experimentos sin inventar las otras especialidades',()=>{
   const r=roster(['business','data','context'])
   assert.equal(dataCoversExperiments(r),true)
   assert.equal(teamMode(r).kind,'three')
   assert.equal(teamMode(r).fallbackExperiment,true)
-  const experiment=coreResponsibilityStatus(r).find(x=>x.code==='integrator')
+  assert.equal(teamMode(r).coreTarget,5)
+  const status=coreResponsibilityStatus(r)
+  const experiment=status.find(x=>x.code==='integrator')
+  const policy=status.find(x=>x.code==='risk')
   assert.equal(experiment.covered,true)
   assert.equal(experiment.coveredBy,'data')
+  assert.equal(policy.covered,false)
 })
 
-test('equipo de cuatro tiene un dueño por responsabilidad',()=>{
+test('equipo de cuatro conserva cinco responsabilidades y reconoce la especialidad ausente',()=>{
   const r=roster(['business','data','context','integrator'])
-  assert.equal(teamMode(r).kind,'four')
-  assert.equal(teamMode(r).fallbackExperiment,false)
-  assert.equal(coreResponsibilityStatus(r).every(x=>x.covered),true)
+  const mode=teamMode(r)
+  const status=coreResponsibilityStatus(r)
+  assert.equal(mode.kind,'four')
+  assert.equal(mode.coreTarget,5)
+  assert.equal(mode.fallbackExperiment,false)
+  assert.equal(status.length,5)
+  assert.equal(status.find(x=>x.code==='risk').covered,false)
 })
 
-test('quinta persona es copiloto opcional y no cambia el objetivo 4/4',()=>{
+test('equipo de cinco tiene una persona por cada especialidad núcleo',()=>{
   const r=roster(['business','data','context','integrator','risk'])
   const mode=teamMode(r)
+  const status=coreResponsibilityStatus(r)
   assert.equal(mode.kind,'five')
-  assert.equal(mode.coreTarget,4)
-  assert.equal(coreResponsibilityStatus(r).length,4)
+  assert.equal(mode.coreTarget,5)
+  assert.equal(status.length,5)
+  assert.equal(status.every(x=>x.covered),true)
 })
