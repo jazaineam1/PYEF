@@ -12,10 +12,12 @@ test('participant sees simulation mission before the pre diagnostic',()=>{
   assert.match(play,/if\(stage==='pre'&&!started\)return <MissionBriefing/)
 })
 
-test('team collaboration is explicit during play',()=>{
-  assert.match(play,/Hablen primero/)
-  assert.match(play,/cada integrante debe compartir al menos un hallazgo/i)
+test('team collaboration is explicit and required during play',()=>{
+  assert.match(play,/habla con tu equipo/i)
+  assert.match(play,/4 evidencias → 1 decisión/)
+  assert.match(play,/Tu evidencia es obligatoria/)
   assert.match(play,/Bloquear decisión del equipo/)
+  assert.match(play,/isDecisionOwner=state\.player\.role_code==='business'/)
 })
 
 test('wall no longer advertises the obsolete five-role classroom topology',()=>{
