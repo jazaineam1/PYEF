@@ -1,5 +1,5 @@
 import React from 'react'
-import {IDENTIFICATION_COMPASS,LESSONS,ROLE_TASKS,ROLE_TOOLS} from '../learning'
+import {IDENTIFICATION_COMPASS,LESSONS,ROLE_TASKS} from '../learning'
 import {ROLE_ARCHETYPES} from '../codex'
 import {RoleReveal} from './RoleReveal'
 
@@ -14,7 +14,7 @@ function IdentificationCompass({facilitator}){
 }
 
 export function LessonPanel({round,role,facilitator=false}){
-  const l=LESSONS[round]; const tool=role?ROLE_TOOLS[role]:null
+  const l=LESSONS[round]
   if(!l)return null
   return <>
     {!facilitator&&role&&<RoleReveal role={role} round={round} phase="lesson"/>}
@@ -27,11 +27,11 @@ export function LessonPanel({round,role,facilitator=false}){
         <div className="method-chips">{l.methods.map(m=><span key={m}>{m}</span>)}</div>
       </div>
       <div className="card">
-        <div className="eyebrow">{facilitator?'GUION DEL CAPACITADOR':'ANTES DE ENTRAR A LA SALA'}</div>
+        <div className="eyebrow">{facilitator?'GUION DEL CAPACITADOR':'CUANDO ENTRES A LA SALA'}</div>
         {facilitator?<ol className="teacher-script">{l.teacher.map(x=><li key={x}>{x}</li>)}</ol>:<>
-          <h3>{tool?.tool}</h3><p>{tool?.purpose}</p>
-          <div className="notice">Tu misión en esta ronda: <b>{ROLE_TASKS[round]?.[role]}</b></div>
-          <p><b>Regla:</b> comparte al menos un hallazgo con las otras tres especialidades. Si un poder tiene candado, todavía no se usa.</p>
+          <h3>Haz esto en tu rol</h3>
+          <div className="notice"><b>{ROLE_TASKS[round]?.[role]}</b></div>
+          <p><b>Después:</b> cuéntale a tu equipo un hallazgo concreto de tu herramienta. No bloqueen la decisión hasta escuchar las otras evidencias.</p>
         </>}
       </div>
       {facilitator&&<><div className="card"><div className="eyebrow">DEMOSTRACIÓN</div><h3>Qué mostrar</h3><p>{l.demo}</p></div><div className="card"><div className="eyebrow">CHECK DE COMPRENSIÓN</div><h3>Pregunta al grupo</h3><p>{l.check}</p></div></>}
