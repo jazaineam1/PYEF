@@ -17,7 +17,6 @@
     {"id":"roles","label":"Cadena de 4 especialistas"},
     {"id":"integration","label":"War Room · decisión · aprendizaje"}
   ],
-  "mainPath": ["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","reveal","microcheck"],
   "nodes": [
     {"id":"open_round","lane":"command","col":0,"type":"external","label":"Facilitador abre ronda","sublabel":"tiempo · fase · consigna","width":150},
     {"id":"brief","lane":"command","col":1,"type":"frontend","label":"Mini-clase guiada","sublabel":"intuición antes del término","tag":"4–6 min","width":150},
