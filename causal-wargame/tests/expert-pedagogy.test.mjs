@@ -14,7 +14,7 @@ test('classroom architecture keeps four core specialties and up to seven team sl
   assert.ok(ROLES.every(r=>r.core===true))
   assert.equal(ROLES.find(r=>r.code==='business')?.label,'Líder de Decisión y Política')
   assert.equal(ROLES.some(r=>r.code==='risk'),false)
-  assert.match(inspectorSource,/CORE_ROLE_CODES/)
+  assert.match(inspectorSource,/TeamSimulator/)
 })
 
 test('harder microchecks preserve backend-compatible correct answer values',()=>{
