@@ -7,9 +7,9 @@ const learningSource=await readFile(new URL('../src/learning.js',import.meta.url
 const roleLabSource=await readFile(new URL('../src/components/RoleLab.jsx',import.meta.url),'utf8')
 const inspectorSource=await readFile(new URL('../src/components/RoleInspector.jsx',import.meta.url),'utf8')
 
-test('classroom architecture is five teams by four core specialties',()=>{
-  assert.equal(TEAM_NAMES.length,5)
-  assert.deepEqual(TEAM_NAMES,['Fisher','Neyman','Rubin','Pearl','Robins'])
+test('classroom architecture keeps four core specialties and up to seven team slots',()=>{
+  assert.equal(TEAM_NAMES.length,7)
+  assert.deepEqual(TEAM_NAMES,['Fisher','Neyman','Rubin','Pearl','Robins','Imbens','Rosenbaum'])
   assert.equal(ROLES.length,4)
   assert.ok(ROLES.every(r=>r.core===true))
   assert.equal(ROLES.find(r=>r.code==='business')?.label,'Líder de Decisión y Política')
