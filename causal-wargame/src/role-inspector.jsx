@@ -9,6 +9,7 @@ import'./quest-v5-extra.css'
 import'./quest-v5-visuals.css'
 import'./role-visual.css'
 import'./quest-v6.css'
-import FacilitatorRoleInspector from'./pages/FacilitatorRoleInspector'
+import{Layout}from'./components/Layout'
+import{RoleInspector}from'./components/RoleInspector'
 
-createRoot(document.getElementById('root')).render(<FacilitatorRoleInspector/>)
+createRoot(document.getElementById('root')).render(<Layout subtitle="Inspector docente · cinco especialistas"><RoleInspector/></Layout>)
