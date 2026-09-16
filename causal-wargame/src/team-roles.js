@@ -7,11 +7,11 @@ export function dataCoversExperiments(roster=[]){const roles=rosterRoles(roster)
 export function teamMode(roster=[]){
   const n=(roster||[]).length
   const fallback=dataCoversExperiments(roster)
-  if(n<=0)return{size:0,kind:'unknown',label:'Composición pendiente',fallbackExperiment:false,coreTarget:4}
-  if(n===3&&fallback)return{size:n,kind:'three',label:'Equipo de 3 · Modelos cubre también Experimentos',fallbackExperiment:true,coreTarget:4}
-  if(n===4)return{size:n,kind:'four',label:'Equipo de 4 · una persona por responsabilidad',fallbackExperiment:fallback,coreTarget:4}
-  if(n>=5)return{size:n,kind:'five',label:'Equipo de 5 · cuatro responsabilidades + copiloto opcional',fallbackExperiment:fallback,coreTarget:4}
-  return{size:n,kind:'partial',label:`Equipo de ${n} · composición incompleta`,fallbackExperiment:fallback,coreTarget:4}
+  if(n<=0)return{size:0,kind:'unknown',label:'Composición pendiente',fallbackExperiment:false,coreTarget:5}
+  if(n===3&&fallback)return{size:n,kind:'three',label:'Equipo de 3 · Modelos cubre también Experimentos; faltan responsabilidades por cubrir',fallbackExperiment:true,coreTarget:5}
+  if(n===4)return{size:n,kind:'four',label:'Equipo de 4 · una responsabilidad puede quedar sin dueño; no bloquea la sesión',fallbackExperiment:fallback,coreTarget:5}
+  if(n>=5)return{size:n,kind:'five',label:'Equipo de 5 · una persona por especialidad analítica',fallbackExperiment:fallback,coreTarget:5}
+  return{size:n,kind:'partial',label:`Equipo de ${n} · composición incompleta`,fallbackExperiment:fallback,coreTarget:5}
 }
 
 export function coreResponsibilityStatus(roster=[]){
