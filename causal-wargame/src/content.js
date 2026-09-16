@@ -1,4 +1,4 @@
-export const TEAM_NAMES = ['Fisher', 'Neyman', 'Rubin', 'Pearl', 'Robins']
+export const TEAM_NAMES = ['Fisher', 'Neyman', 'Rubin', 'Pearl', 'Robins', 'Imbens', 'Rosenbaum']
 export const ROLES = [
   { code: 'business', label: 'Líder de Decisión y Política', question: '¿Qué decisión necesitamos tomar, bajo qué restricción y con qué política?', core:true },
   { code: 'data', label: 'Líder de Modelos', question: '¿Qué dice el modelo y qué NO dice?', core:true },
