@@ -4,62 +4,56 @@
   "meta": {
     "title": "DOS FUTUROS · Arquitectura técnica",
     "quality_profile": "showcase",
-    "viewBox": [1560, 720],
+    "viewBox": [1080, 650],
     "views": [
       {
         "id": "runtime",
         "label": "Ruta de juego",
-        "focus": ["players", "pages", "ui", "role_engine", "war_room", "edge_api", "postgres"],
-        "note": "Sigue la interacción del participante desde GitHub Pages hasta el estado persistido en Supabase."
+        "focus": ["classroom", "pages", "ui", "role_engine", "war_room", "edge_api", "postgres"],
+        "note": "Sigue una interacción desde las superficies de aula hasta el estado persistido en Supabase."
       },
       {
-        "id": "teaching",
-        "label": "Experiencia docente",
-        "focus": ["facilitator", "wall", "pages", "ui", "war_room", "edge_api"],
-        "note": "Aísla las superficies que usa el facilitador para conducir, observar e integrar la sesión."
+        "id": "pedagogy",
+        "label": "Motor pedagógico",
+        "focus": ["ui", "role_engine", "war_room", "causal_assets"],
+        "note": "Aísla las herramientas por rol, la evidencia compartida y los escenarios causales."
       },
       {
         "id": "delivery",
         "label": "Build y publicación",
-        "focus": ["github_actions", "secure_build", "pages"],
-        "note": "Muestra cómo CI genera y publica el frontend estático seguro."
+        "focus": ["delivery", "pages"],
+        "note": "Muestra la ruta de pruebas, build seguro y publicación estática."
       }
     ]
   },
   "components": [
-    {"id":"facilitator","type":"external","label":"Facilitador","sublabel":"facilitator.html","pos":[40,145],"size":[150,68]},
-    {"id":"players","type":"external","label":"Participantes","sublabel":"play.html · móvil / navegador","pos":[40,300],"size":[150,68]},
-    {"id":"wall","type":"external","label":"Pantalla de aula","sublabel":"wall.html","pos":[40,455],"size":[150,68]},
-    {"id":"secure_build","type":"cloud","label":"Build dos-futuros","sublabel":"HTML + JS + CSS generados","pos":[270,65],"size":[170,72]},
-    {"id":"pages","type":"cloud","label":"GitHub Pages","sublabel":"/PYEF/dos-futuros/","pos":[270,300],"size":[170,68],"tag":"frontend estático"},
-    {"id":"github_actions","type":"cloud","label":"GitHub Actions","sublabel":"tests · secure build · smoke","pos":[520,65],"size":[170,72]},
-    {"id":"ui","type":"frontend","label":"React + Vite UI","sublabel":"play · facilitator · wall · inspector","pos":[520,300],"size":[180,72]},
-    {"id":"role_engine","type":"frontend","label":"RoleLab + herramientas","sublabel":"Decisión · DAG · Modelos · Experimentos","pos":[790,185],"size":[190,76]},
-    {"id":"war_room","type":"backend","label":"War Room + coherencia","sublabel":"evidencia · cobertura · bloqueos","pos":[790,415],"size":[190,76]},
-    {"id":"edge_api","type":"backend","label":"Supabase Edge Functions","sublabel":"join · state · contribution · decision","pos":[1060,300],"size":[200,76],"tag":"HTTPS"},
-    {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"clientes · segmentos · EconML precomputado","pos":[1060,500],"size":[200,76]},
-    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"partidas · equipos · jugadores · decisiones","pos":[1330,300],"size":[190,76]}
+    {"id":"classroom","type":"external","label":"Aula","sublabel":"jugadores · facilitador · pantalla","pos":[25,285],"size":[135,70]},
+    {"id":"pages","type":"cloud","label":"GitHub Pages","sublabel":"dos-futuros/","pos":[200,285],"size":[135,70],"tag":"estático"},
+    {"id":"delivery","type":"cloud","label":"GitHub Actions + build","sublabel":"tests · secure build · publish","pos":[200,70],"size":[150,72]},
+    {"id":"ui","type":"frontend","label":"React + Vite","sublabel":"play · facilitator · wall · inspector","pos":[375,285],"size":[145,72]},
+    {"id":"role_engine","type":"frontend","label":"RoleLab","sublabel":"herramientas especializadas","pos":[560,170],"size":[150,76]},
+    {"id":"war_room","type":"backend","label":"War Room","sublabel":"evidencia · coherencia · bloqueos","pos":[560,395],"size":[150,76]},
+    {"id":"edge_api","type":"backend","label":"Edge Functions","sublabel":"join · state · contribute · decide","pos":[755,285],"size":[150,76],"tag":"HTTPS"},
+    {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"sintéticos · EconML precomputado","pos":[755,480],"size":[150,76]},
+    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · equipos · decisiones","pos":[935,285],"size":[125,76]}
   ],
   "boundaries": [
-    {"kind":"region","label":"Experiencia en navegador / aula","wraps":["facilitator","players","wall","pages","ui","role_engine","war_room"],"pad":26},
-    {"kind":"region","label":"Supabase · estado de sesión","wraps":["edge_api","causal_assets","postgres"],"pad":26}
+    {"kind":"region","label":"Experiencia de aula","wraps":["classroom","pages","ui","role_engine","war_room"],"pad":24},
+    {"kind":"region","label":"Supabase","wraps":["edge_api","causal_assets","postgres"],"pad":24}
   ],
   "connections": [
-    {"id":"facilitator-pages","from":"facilitator","to":"pages","variant":"emphasis"},
-    {"id":"players-pages","from":"players","to":"pages","variant":"emphasis"},
-    {"id":"wall-pages","from":"wall","to":"pages","variant":"default"},
+    {"id":"classroom-pages","from":"classroom","to":"pages","variant":"emphasis"},
     {"id":"pages-ui","from":"pages","to":"ui","variant":"default"},
-    {"id":"ui-role","from":"ui","to":"role_engine","label":"rol + ronda","variant":"emphasis","labelAt":[745,268]},
+    {"id":"ui-role","from":"ui","to":"role_engine","variant":"emphasis"},
     {"id":"role-war","from":"role_engine","to":"war_room","variant":"emphasis"},
-    {"id":"war-api","from":"war_room","to":"edge_api","label":"comparte / decide","variant":"emphasis","labelAt":[1015,505]},
-    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC + estado","variant":"security","labelAt":[1295,392]},
-    {"id":"assets-api","from":"causal_assets","to":"edge_api","label":"escenario sintético","variant":"dashed","labelAt":[1160,464]},
-    {"id":"actions-build","from":"github_actions","to":"secure_build","variant":"dashed"},
-    {"id":"build-pages","from":"secure_build","to":"pages","variant":"dashed"}
+    {"id":"war-api","from":"war_room","to":"edge_api","variant":"emphasis"},
+    {"id":"api-db","from":"edge_api","to":"postgres","label":"RPC","variant":"security","labelAt":[920,378]},
+    {"id":"assets-api","from":"causal_assets","to":"edge_api","variant":"dashed"},
+    {"id":"delivery-pages","from":"delivery","to":"pages","variant":"dashed"}
   ],
   "cards": [
-    {"dot":"cyan","title":"Ruta principal","items":["Participante → GitHub Pages → React → RoleLab → War Room → Edge Functions → PostgreSQL","El navegador explora herramientas; Supabase conserva estado, tokens, evidencias y decisiones"]},
-    {"dot":"violet","title":"Capas pedagógicas","items":["Herramientas especializadas convierten acciones en evidencia causal","War Room integra las piezas y muestra incoherencias antes de cerrar una decisión"]},
-    {"dot":"emerald","title":"Despliegue","items":["GitHub Actions prueba y genera el build seguro","GitHub Pages entrega una aplicación estática; Supabase concentra el estado mutable"]}
+    {"dot":"cyan","title":"Ruta principal","items":["Aula → GitHub Pages → React → RoleLab → War Room → Edge Functions → PostgreSQL","El frontend es estático; Supabase conserva el estado mutable de la sesión"]},
+    {"dot":"violet","title":"Motor pedagógico","items":["RoleLab presenta la herramienta especializada de cada rol y ronda","War Room integra evidencia y muestra incoherencias antes de cerrar una decisión"]},
+    {"dot":"emerald","title":"Operación","items":["GitHub Actions prueba, construye y publica el build seguro","Los escenarios son sintéticos y los resultados de modelos causales pueden estar precomputados"]}
   ]
 }
