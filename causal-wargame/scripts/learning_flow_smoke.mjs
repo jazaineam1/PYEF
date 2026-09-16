@@ -5,13 +5,14 @@ async function call(path,body={},headers={}){const r=await fetch(`${base}/${path
 const assert=(c,m)=>{if(!c)throw new Error(m)}
 let login=await call('facilitator-login',{game_code:game,pin});assert(login.ok,'facilitator login');const ft=login.data.token
 let r=await call('facilitator-transition',{action:'reset'},{'x-facilitator-token':ft});assert(r.ok,'initial reset')
-// The first four joins are the four teams' Decision Leads, so each can operate its own portfolio.
-const joinA=await call('join-game',{game_code:game,display_name:'Market Buyer A'});assert(joinA.ok&&joinA.data.player.role_code==='business','buyer A join as Decision Lead');const ptA=joinA.data.token
-const joinB=await call('join-game',{game_code:game,display_name:'Market Buyer B'});assert(joinB.ok&&joinB.data.player.role_code==='business','buyer B join as Decision Lead');const ptB=joinB.data.token
-const joinC=await call('join-game',{game_code:game,display_name:'Market Buyer C'});assert(joinC.ok&&joinC.data.player.role_code==='business','buyer C join as Decision Lead');const ptC=joinC.data.token
-const joinD=await call('join-game',{game_code:game,display_name:'Market Buyer D'});assert(joinD.ok&&joinD.data.player.role_code==='business','buyer D join as Decision Lead');const ptD=joinD.data.token
+// The first five human slots are Decision+Policy, one per team. We open four buyers for market tests.
+const joinA=await call('join-game',{game_code:game,display_name:'Market Buyer A',participant_key:'flow-buyer-a'});assert(joinA.ok&&joinA.data.player.role_code==='business','buyer A join as Decision+Policy');let ptA=joinA.data.token
+const rejoinA=await call('join-game',{game_code:game,display_name:'Market Buyer A',participant_key:'flow-buyer-a'});assert(rejoinA.ok&&rejoinA.data.resumed===true&&rejoinA.data.player.id===joinA.data.player.id,'same identity must resume exact seat');ptA=rejoinA.data.token
+const duplicateA=await call('join-game',{game_code:game,display_name:'Market Buyer A',participant_key:'flow-buyer-a-other-device'});assert(!duplicateA.ok,'same visible person on another identity must not create duplicate')
+const joinB=await call('join-game',{game_code:game,display_name:'Market Buyer B',participant_key:'flow-buyer-b'});assert(joinB.ok&&joinB.data.player.role_code==='business','buyer B join as Decision+Policy');const ptB=joinB.data.token
+const joinC=await call('join-game',{game_code:game,display_name:'Market Buyer C',participant_key:'flow-buyer-c'});assert(joinC.ok&&joinC.data.player.role_code==='business','buyer C join as Decision+Policy');const ptC=joinC.data.token
+const joinD=await call('join-game',{game_code:game,display_name:'Market Buyer D',participant_key:'flow-buyer-d'});assert(joinD.ok&&joinD.data.player.role_code==='business','buyer D join as Decision+Policy');const ptD=joinD.data.token
 r=await call('facilitator-transition',{action:'seed_bots'},{'x-facilitator-token':ft});assert(r.ok&&r.data.players===20,'seed to 20')
-// Transfer check is diagnostic and does not affect leaderboard.
 const pre=await call('transfer-check',{stage:'pre',answers:{q1:'b',q2:'c',q3:'b',q4:'c'}},{'x-game-token':ptA});assert(pre.ok&&pre.data.score===4,'pre transfer check')
 const payloads={1:{selected:['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10']},2:{recommendation:'redesign',confounder:'mora_previa',reason_code:'baseline_difference'},3:{assignment:'random',outcome:'pago_30d',horizon:30},4:{treat:['digital','middle'],avoid:['arrears'],observe:['traditional','wealth']}}
 const answers={1:'B',2:'Los grupos no son comparables desde antes',3:'6 puntos porcentuales',4:'Priorizar segmentos con efecto positivo y evitar el segmento negativo'}
@@ -48,6 +49,6 @@ for(let round=1;round<=4;round++){
   r=await call('facilitator-transition',{action:'next'},{'x-facilitator-token':ft});assert(r.ok,`round ${round}: next`)
 }
 const post=await call('transfer-check',{stage:'post',answers:{q1:'b',q2:'c',q3:'b',q4:'c'}},{'x-game-token':ptA});assert(post.ok&&post.data.score===4,'post transfer check')
-const final=await call('leaderboard',{game_code:game});assert(final.ok&&final.data.game.phase==='finished','finished phase');assert(final.data.teams.length===4,'4 teams');assert(final.data.teams.some(t=>Number(t.help_cost)===35),'team A investment survives to final leaderboard');assert(final.data.transfer?.pre_completed>=1&&final.data.transfer?.post_completed>=1,'wall exposes transfer metrics')
-console.log('CAUSAL_QUEST_V7_OK · 5-role architecture · fair team resources · expert demand 20→26→34 · 3 human slots · R4 uncertainty/capacity · transfer pre/post · 4 rounds complete')
+const final=await call('leaderboard',{game_code:game});assert(final.ok&&final.data.game.phase==='finished','finished phase');assert(final.data.teams.length===5,'5 teams');assert(final.data.teams.some(t=>Number(t.help_cost)===35),'team A investment survives to final leaderboard');assert(final.data.transfer?.pre_completed>=1&&final.data.transfer?.post_completed>=1,'wall exposes transfer metrics')
+console.log('CAUSAL_QUEST_V8_OK · 5 teams × 4 roles · stable rejoin · duplicate guard · fair team resources · R4 uncertainty/capacity · transfer pre/post · 4 rounds complete')
 login=await call('facilitator-login',{game_code:game,pin});if(login.ok){await call('facilitator-transition',{action:'reset'},{'x-facilitator-token':login.data.token});const clean=await call('leaderboard',{game_code:game});assert(clean.ok&&clean.data.teams.every(t=>Number(t.help_cost||0)===0),'reset clears investment costs')}
