@@ -23,12 +23,16 @@ test('role lab preview hides side effects and fuses policy into Decision in R4',
   assert.match(source,/if\(role==='business'\)return round>=4\?DecisionPolicyLab:DecisionCanvas/)
 })
 
-test('facilitator console plans five-team attendance while preserving legacy targets',async()=>{
+test('facilitator console plans adaptive attendance and preserves legacy sessions',async()=>{
   const source=await readFile(facilitatorUrl,'utf8')
   assert.match(source,/RoleInspector/)
   assert.match(source,/Probar roles y herramientas/)
+  assert.match(source,/attendancePlan\(hc\)/)
   assert.match(source,/coreTarget=Number\(g\.core_target\|\|4\)/)
-  assert.match(source,/teamTarget=Number\(g\.team_target\|\|5\)/)
-  assert.match(source,/4–4–3–3–3/)
+  assert.match(source,/teamTarget=Number\(g\.team_target\|\|plan\.teams\)/)
+  assert.match(source,/15 → 4 equipos: 4–4–4–3/)
+  assert.match(source,/17 → 5 equipos: 4–4–3–3–3/)
+  assert.match(source,/28 → 7 equipos completos: 4–4–4–4–4–4–4/)
+  assert.match(source,/roster_locked/)
   assert.match(source,/Sesión heredada detectada/)
 })
