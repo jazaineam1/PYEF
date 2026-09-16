@@ -21,16 +21,16 @@ export const DECISION_OPTIONS={
   comparator:['No llamada','Otra intervención','Sin comparador'],
   outcome:['Pago completo','Pago parcial','Clic inmediato'],
   horizon:['1 día','30 días','90 días'],
-  estimand:['ATE','ATT','CATE','Policy value'],
+  estimand:['ATE','ATT','CATE','Valor de política'],
   constraint:['Capacidad máxima','Presupuesto máximo','Riesgo de daño','Sin restricción explícita']
 }
 
 export const EXPERIMENT_BASE={treatmentRate:31.2,controlRate:25.4,eligible:20000}
 
 export const TOOL_GUIDE={
- business:{question:'¿Qué decisión causal está definida y qué política es factible?',assumption:'Pregunta, estimando, incertidumbre y restricción deben referirse al mismo problema.',decision:'Abre con un contrato causal y cierra con una política que respete capacidad, presupuesto y riesgo.'},
+ business:{question:'¿Qué pregunta causal exacta debe responder el equipo?',assumption:'Población, intervención, comparador, resultado, horizonte, estimando y restricción deben referirse al mismo problema.',decision:'Entrega el contrato causal y, al final, verifica que la recomendación de Política y Riesgo responda ese contrato.'},
  data:{question:'¿Quién probablemente tendrá Y y quién cambia por T?',assumption:'Un estimador de CATE sólo es causal bajo una estrategia de identificación defendible.',decision:'Entrega perfiles con mayor cambio incremental, no sólo mayor score; si falta Experimentos, cubre también diseño e incertidumbre.'},
  context:{question:'¿Qué estructura causal hace válida o sesgada la comparación?',assumption:'Temporalidad y estructura importan; ajustar por todo puede introducir sesgo.',decision:'Entrega un conjunto de ajuste defendible y una advertencia sobre variables que no deben controlarse.'},
  integrator:{question:'¿Qué diseño permite identificar y medir el efecto con precisión útil?',assumption:'La asignación y el análisis deben definirse antes de mirar el resultado.',decision:'Entrega diseño, efecto estimado e incertidumbre.'},
- risk:{question:'¿Qué podría volver mala una política aparentemente rentable?',assumption:'Este es un rol de apoyo: no crea una quinta pieza causal obligatoria.',decision:'Ayuda a Estrategia y Política a revisar costo, capacidad, daño y reversibilidad.'}
+ risk:{question:'¿Dónde conviene intervenir una vez considerado efecto, incertidumbre, costo, capacidad y riesgo?',assumption:'La política sólo es defendible si la estimación causal previa también lo es y respeta las restricciones acordadas.',decision:'Entrega una política segmentada factible: intervenir, no intervenir o pedir más evidencia.'}
 }
