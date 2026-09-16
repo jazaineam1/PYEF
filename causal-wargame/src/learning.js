@@ -7,42 +7,59 @@ export const LESSONS={
 'Introduce Y(1) como resultado con intervención y Y(0) como resultado sin intervención.',
 'Recalca: en datos reales no vemos los dos futuros de la misma persona; el juego puede mostrarlos porque es sintético.'
 ],demo:'Compara probabilidad y cambio incremental en dos clientes de práctica.',check:'¿Una AUC alta demuestra que intervenir causa más conversiones? No.'},
-2:{minutes:9,title:'Asociación no es comparación causal',objective:'Reconocer confusión y entender la idea de comparar personas comparables.',formula:'T ← X → Y',methods:['Grafo causal (DAG)','Confusor','Ajuste por variables previas'],teacher:[
+2:{minutes:9,title:'Asociación no es comparación causal',objective:'Reconocer confusión, solapamiento y la lógica de una comparación defendible.',formula:'T ← X → Y',methods:['Grafo causal (DAG)','Confusor','Positividad / overlap','Ajuste por variables previas'],teacher:[
 'Parte del dato incómodo: llamados 20%, no llamados 35%. Pregunta si cancelarían.',
 'Dibuja Mora previa → Llamada y Mora previa → Pago. La mora existe antes del tratamiento y abre una comparación injusta.',
 'Explica ajuste como comparar grupos similares en características previas relevantes; no derives fórmulas.',
+'Introduce overlap con una pregunta operativa: “si casi todos los de mora extrema fueron llamados, ¿de dónde aprenderíamos qué habría pasado sin llamar?”',
 'Advierte: ajustar por todo no es causalidad. Una variable posterior al tratamiento puede distorsionar el efecto.',
 'Sólo como panorama: puntaje de propensión, emparejamiento e IPW son herramientas para buscar comparabilidad; no son el objetivo de esta ronda.'
-],demo:'Muestra comparación cruda −12 pp y una comparación ajustada cercana a +4 pp. La pregunta es por qué cambia, no memorizar el método.',check:'¿Qué hace a una variable un confusor razonable? Existe antes y se relaciona con tratamiento y resultado.'},
-3:{minutes:9,title:'Diseñar evidencia antes de mirar el resultado',objective:'Entender por qué asignar al azar crea una comparación creíble y cómo leer un efecto promedio.',formula:'ATE = Ȳtratamiento − Ȳcontrol',methods:['Asignación aleatoria (RCT)','Efecto promedio (ATE)','Intervalo de confianza'],teacher:[
+],demo:'Muestra comparación cruda −12 pp, ajuste cercano a +4 pp y un segmento con soporte casi inexistente. La pregunta es qué población queda respaldada por los datos.',check:'¿Qué necesitas además de ajustar confusores observados? Comparaciones con soporte suficiente en la población donde quieres inferir.'},
+3:{minutes:9,title:'Diseñar evidencia antes de mirar el resultado',objective:'Entender aleatorización, precisión útil y por qué más N no corrige sesgo.',formula:'ATE = Ȳtratamiento − Ȳcontrol',methods:['Asignación aleatoria (RCT)','ATE','IC95%','MDE / potencia'],teacher:[
 'Pregunta quién debe decidir el tratamiento: asesor, modelo o azar.',
 'Explica que el azar rompe sistemáticamente el vínculo entre características previas y asignación.',
 'Define resultado y horizonte antes de ejecutar. Un clic a 1 día no sustituye pago a 30 días.',
 'Calcula una diferencia de medias y usa el intervalo de confianza para hablar de incertidumbre.',
-'Potencia y efecto mínimo detectable (MDE) quedan como extensión opcional si alguien pregunta por tamaño de muestra.'
-],demo:'Ejemplo de práctica: 28% vs 23% → +5 pp; interpreta magnitud e incertidumbre.',check:'¿Por qué ayuda la asignación aleatoria? Porque, en expectativa, hace comparables los grupos antes del tratamiento.'},
-4:{minutes:9,title:'Del efecto promedio a la política',objective:'Tomar una decisión segmentada usando efecto, incertidumbre, costo, capacidad y riesgo.',formula:'CATE(x)=E[Y(1)−Y(0) | X=x]',methods:['Efecto por perfil (CATE)','Impacto incremental','Valor + costo + capacidad + riesgo'],teacher:[
+'Conecta tamaño de muestra con negocio: si menos de +2 pp no paga la campaña, el diseño debe tener precisión suficiente para detectar algo de ese orden.',
+'Menciona una condición adicional sin formalismo: la intervención de una persona no debería cambiar el outcome de otra de forma ignorada; si hay contagio entre clientes/equipos, el diseño debe adaptarse.'
+],demo:'Compara N=200, 2.000 y 20.000: observa IC y MDE aproximado. Después cambia la asignación a sesgada para mostrar que N enorme no arregla selección.',check:'¿Qué cambia con más N? La precisión. ¿Qué no arregla? Una comparación sesgada.'},
+4:{minutes:9,title:'Del efecto promedio a la política',objective:'Tomar una decisión segmentada y someter la conclusión a un stress test causal.',formula:'CATE(x)=E[Y(1)−Y(0) | X=x]',methods:['CATE','Impacto incremental','Valor + costo + capacidad + riesgo','Refutación / stress test'],teacher:[
 'Muestra que un ATE +6 pp puede esconder efectos muy distintos por segmento.',
 'Distingue probabilidad base de impacto incremental: convertir mucho no implica cambiar mucho por intervenir.',
 'Introduce la incertidumbre: un intervalo que cruza 0 no da la misma evidencia que uno completamente positivo.',
 'Conecta efecto con costo, capacidad y posible daño. La salida final es una política, no un estimador.',
-'Bosques causales y meta-modelos se mencionan sólo como ejemplos modernos para estimar heterogeneidad.'
-],demo:'Compara segmentos con efecto positivo claro, incierto y negativo bajo una capacidad limitada.',check:'¿Un efecto promedio positivo justifica tratar a todos? No.'}
+'Antes de cerrar, desafía la conclusión: ¿qué pasaría si un outcome placebo también “respondiera”, si aparece confusión no medida o si no hay overlap en el segmento prioritario?',
+'Bosques causales y meta-modelos son ejemplos modernos para estimar heterogeneidad; no sustituyen identificación ni robustez.'
+],demo:'Compara segmentos positivos, inciertos y negativos; aplica un stress test y decide si desplegar, limitar población o pedir más evidencia.',check:'¿Tres estimadores que coinciden prueban causalidad? No: pueden compartir la misma falla de identificación.'}
 }
 
 export const ROLE_TOOLS={
 business:{label:'Líder de Decisión',tool:'Constructor de Pregunta Causal',purpose:'Definir población, intervención, comparador, resultado, horizonte, estimando y restricción antes de integrar la evidencia del equipo.',color:'var(--gold)'},
-data:{label:'Líder de Modelos',tool:'Explorador de Impacto (Uplift/CATE)',purpose:'Separar puntaje predictivo, asociación y efecto incremental; en equipos incompletos puede cubrir temporalmente Experimentos.',color:'var(--blue)'},
-context:{label:'Analista Causal',tool:'Laboratorio de Grafo Causal',purpose:'Construir y diagnosticar hipótesis causales: confusores, mediadores y colisionadores.',color:'var(--cyan)'},
-integrator:{label:'Líder de Experimentos',tool:'Diseñador de Experimentos',purpose:'Diseñar una comparación e interpretar magnitud, balance e incertidumbre.',color:'var(--violet)'},
+data:{label:'Líder de Modelos',tool:'Explorador de Impacto (Uplift/CATE)',purpose:'Separar puntaje predictivo, asociación y efecto incremental; revisar soporte y desafiar estimaciones antes de convertirlas en política.',color:'var(--blue)'},
+context:{label:'Analista Causal',tool:'Laboratorio de Grafo Causal',purpose:'Construir y diagnosticar hipótesis causales: confusores, mediadores, colisionadores y condiciones de identificación.',color:'var(--cyan)'},
+integrator:{label:'Líder de Experimentos',tool:'Diseñador de Experimentos',purpose:'Diseñar una comparación e interpretar magnitud, balance, incertidumbre y precisión útil.',color:'var(--violet)'},
 risk:{label:'Política y Riesgo',tool:'Simulador de Política',purpose:'Convertir efecto e incertidumbre en una política bajo costo, capacidad, daño y tolerancia de riesgo.',color:'var(--green)'}
 }
 
 export const ROLE_TASKS={
 1:{business:'Define población, intervención, comparador, resultado y horizonte. Tu salida es la pregunta que los otros cuatro especialistas deben poder responder.',data:'Interpreta el puntaje predictivo y explica qué sí predice y qué todavía no demuestra.',context:'Formula el contrafactual y pregunta qué tendría que ser comparable; aún no necesitas un grafo causal.',integrator:'Pregunta contra qué grupo compararías la intervención; la aleatorización se enseñará después.',risk:'Evalúa desperdicio, posible daño y reversibilidad. Tu evidencia debe decir qué riesgo de decisión existe aun antes de estimar efectos.'},
-2:{business:'Mantén fijo el contrato causal y decide qué evidencia necesitas antes de cancelar o mantener la estrategia.',data:'Compara la asociación cruda con resultados ajustados; no confundas coincidencia entre métodos con identificación.',context:'Usa el Laboratorio de Grafo Causal para encontrar una variable previa problemática y defender qué ajustar.',integrator:'Juzga si la comparación observacional sería defendible y qué diseño mejoraría la evidencia; el experimento formal llega en la siguiente ronda.',risk:'Cuantifica el costo de equivocarse al cancelar o continuar y favorece acciones reversibles cuando la evidencia es débil.'},
-3:{business:'Fija resultado, horizonte y restricción antes del experimento; no aceptes un resultado sustituto sólo porque sea rápido.',data:'Distingue desempeño predictivo de evidencia experimental. Si falta Experimentos, cubre esa responsabilidad con el módulo de doble sombrero.',context:'Comprueba que la asignación no dependa sistemáticamente de una causa previa del resultado y razona sobre mediadores.',integrator:'Usa el Diseñador de Experimentos: cambia asignación y N, interpreta efecto, balance e intervalo.',risk:'Evalúa si el resultado, el horizonte y la regla de despliegue podrían causar daño o desperdicio aunque el experimento sea válido.'},
-4:{business:'Integra las cinco piezas y confirma que la política propuesta responde exactamente a la pregunta y respeta la restricción acordada.',data:'Usa el Explorador de Impacto: separa probabilidad base de cambio por intervención y compara estimadores sin tratarlos como magia.',context:'Usa el grafo causal para recordar que la heterogeneidad sólo es causal si el efecto está identificado; evita mediadores y colisionadores problemáticos.',integrator:'Resume efecto e incertidumbre para que el equipo no sobrerreaccione a una estimación puntual.',risk:'Usa el Simulador de Política: asigna capacidad y presupuesto, controla riesgo y decide dónde intervenir, dónde no y dónde pedir más evidencia.'}
+2:{business:'Mantén fijo el contrato causal y decide qué evidencia necesitas antes de cancelar o mantener la estrategia.',data:'Compara asociación cruda y resultados ajustados; revisa si existe overlap suficiente y no confundas coincidencia entre métodos con identificación.',context:'Usa el Laboratorio de Grafo Causal para encontrar una variable previa problemática y defender qué ajustar y qué no.',integrator:'Juzga si la comparación observacional sería defendible y qué diseño mejoraría la evidencia; el experimento formal llega en la siguiente ronda.',risk:'Cuantifica el costo de equivocarse al cancelar o continuar y favorece acciones reversibles cuando la evidencia es débil.'},
+3:{business:'Fija resultado, horizonte y restricción antes del experimento; no aceptes un resultado sustituto sólo porque sea rápido.',data:'Distingue desempeño predictivo de evidencia experimental. Si falta Experimentos, cubre esa responsabilidad con el módulo de doble sombrero.',context:'Comprueba que la asignación no dependa sistemáticamente de una causa previa del resultado y pregunta si existe interferencia entre unidades.',integrator:'Usa el Diseñador de Experimentos: cambia asignación y N; interpreta efecto, balance, IC y MDE frente a un efecto mínimo útil.',risk:'Evalúa si el resultado, el horizonte y la regla de despliegue podrían causar daño o desperdicio aunque el experimento sea válido.'},
+4:{business:'Integra las cinco piezas y confirma que la política propuesta responde exactamente a la pregunta y respeta la restricción acordada.',data:'Compara estimadores y ejecuta el stress test: una señal placebo o falta de soporte debe reducir la confianza aunque los modelos coincidan.',context:'Usa el grafo para recordar que la heterogeneidad sólo es causal si el efecto está identificado; evita mediadores y colisionadores problemáticos.',integrator:'Resume efecto, incertidumbre y precisión para que el equipo no sobrerreaccione a una estimación puntual.',risk:'Usa el Simulador de Política: asigna capacidad y presupuesto, controla riesgo y decide dónde intervenir, dónde no y dónde pedir más evidencia.'}
+}
+
+export const IDENTIFICATION_COMPASS=[
+{signal:'Puedes asignar la intervención',strategy:'Experimento aleatorio (RCT)',question:'¿Cómo preservas comparabilidad, outcome y horizonte antes de mirar resultados?'},
+{signal:'Observacional con confusores medidos defendibles',strategy:'Backdoor / ajuste',question:'¿Qué variables previas bloquean las rutas de confusión y dónde hay overlap?'},
+{signal:'Existe una regla con umbral',strategy:'Regresión discontinua (RDD)',question:'¿Las unidades alrededor del corte son comparables y el umbral no se manipula?'},
+{signal:'Hay cambio de política y grupo de comparación',strategy:'Diferencias en diferencias (DiD)',question:'¿Es defendible la tendencia paralela antes del cambio?'},
+{signal:'Existe una fuente exógena de asignación',strategy:'Variable instrumental (IV)',question:'¿El instrumento afecta el outcome sólo mediante el tratamiento y mueve realmente el tratamiento?'},
+{signal:'No hay estrategia defendible',strategy:'No prometer causalidad',question:'¿Qué experimento, dato o supuesto adicional necesitarías?'}
+]
+
+export const ROBUSTNESS_CARDS={
+2:{title:'Stress test · soporte',prompt:'En mora alta, 97% de los clientes observados recibieron llamada y sólo 3% no. ¿Qué cambia?',options:[['claim','El ajuste valida el efecto para todo mora alta.'],['restrict','La inferencia en ese segmento queda débil: restringir población o pedir más evidencia.'],['ignore','Nada: IPW siempre corrige falta de soporte.']],correct:'restrict'},
+4:{title:'Stress test · placebo',prompt:'Un outcome registrado antes de la campaña muestra un “efecto” de +4.7 pp con el mismo pipeline. La campaña no puede causarlo. ¿Qué haces?',options:[['deploy','Desplegar: tres estimadores modernos coinciden.'],['review','Reducir confianza y revisar identificación/pipeline antes de política.'],['average','Ignorar el placebo si el ATE principal sigue positivo.']],correct:'review'}
 }
 
 export const TOOL_PRACTICE={
