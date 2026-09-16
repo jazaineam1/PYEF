@@ -35,6 +35,7 @@ jobs:
       - name: Sustained 20-user classroom simulation
         working-directory: causal-wargame
         env:
+          # Push = smoke sostenido de 120 s. La corrida manual previa al evento usa 900 s.
           CW_USERS: ${{ github.event_name == 'workflow_dispatch' && inputs.users || '20' }}
           CW_DURATION_SECONDS: ${{ github.event_name == 'workflow_dispatch' && inputs.duration_seconds || '120' }}
         run: node scripts/sustained_load.mjs
