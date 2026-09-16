@@ -54,7 +54,7 @@
     {"id":"experiments-war","from":"experiments","to":"war_room","label":"diseño + incertidumbre","variant":"default","role":"branch"},
     {"id":"war-coherence","from":"war_room","to":"coherence","label":"integra","variant":"emphasis","role":"main"},
     {"id":"coherence-decision","from":"coherence","to":"team_decision","label":"coherente","variant":"emphasis","role":"main"},
-    {"id":"coherence-back","from":"coherence","to":"war_room","label":"contradicción: conversar y corregir","variant":"security","role":"error","route":"return-left"},
+    {"id":"coherence-back","from":"coherence","to":"war_room","label":"contradicción: conversar y corregir","variant":"security","role":"error"},
     {"id":"decision-reveal","from":"team_decision","to":"reveal","label":"bloquea decisión","variant":"emphasis","role":"main"},
     {"id":"reveal-check","from":"reveal","to":"microcheck","label":"transfiere lo aprendido","variant":"dashed","role":"main"}
   ],
