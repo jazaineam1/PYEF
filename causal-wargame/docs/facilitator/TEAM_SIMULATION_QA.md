@@ -1,24 +1,41 @@
-# Simulación QA · un equipo completo
+# Simulación QA · equipo de cuatro roles
 
 > Este documento usa ejemplos de práctica para ensayar al facilitador. No contiene el ground truth privado de una partida viva.
 
 ## Equipo Fisher QA
 
-Cinco personas, un objetivo compartido y cinco especialidades. Los cuatro equipos reales —Fisher, Neyman, Rubin y Pearl— reciben exactamente la misma estructura.
+La unidad pedagógica es un equipo con **cuatro responsabilidades**, no cinco personas obligatorias.
 
-1. **Líder de Decisión · Canvas de Decisión** — define población, intervención, resultado, horizonte y administra la bolsa de recursos.
-2. **Líder de Modelos · Explorador de Modelos** — interpreta puntajes predictivos y, cuando corresponda, propensión e impacto incremental.
-3. **Analista Causal · Laboratorio de Grafo Causal** — formula el contrafactual desde R1 y usa DAG/confusión sólo después de la explicación de R2.
-4. **Líder de Experimentos · Laboratorio de Experimentos** — pregunta por la comparación desde R1 y usa aleatorización/ATE sólo después de la explicación de R3.
-5. **Política y Riesgo · Simulador de Política** — vigila daño/desperdicio desde R1 y usa valor económico desde R4.
+1. **Líder de Decisión y Política · Constructor de Pregunta + Política** — define población, intervención, comparador, resultado, horizonte, estimando y restricción; administra recursos y cierra la política en R4.
+2. **Líder de Modelos · Explorador de Uplift/CATE** — separa predicción, asociación y efecto incremental; revisa soporte y robustez.
+3. **Analista Causal · Laboratorio de Grafo Causal** — formula el contrafactual y usa DAG/confusión después de la explicación correspondiente.
+4. **Líder de Experimentos · Diseñador de Experimentos** — construye la comparación, interpreta ATE, IC y precisión útil.
 
-Todos empiezan además con el mismo poder universal: **Pregunta Crítica** — “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. Nadie miente ni compite dentro del equipo; la información es complementaria.
+Todos empiezan con **Pregunta Crítica** — “¿Qué tendría que ser cierto para que esta evidencia justifique la decisión?”. Nadie miente ni compite dentro del equipo; la información es complementaria.
+
+### Si llegan tres personas al equipo
+
+La distribución adaptativa garantiza que la especialidad ausente sea 🐢 Experimentos. 🦉 Modelos recibe entonces un módulo separado de **doble sombrero**. Debe producir la evidencia experimental explícitamente; el sistema no la regala.
+
+### Topologías a ensayar
+
+| Humanos | Distribución |
+|---:|---|
+| 15 | 4–4–4–3 |
+| 16 | 4–4–4–4 |
+| 17 | 4–4–3–3–3 |
+| 18 | 4–4–4–3–3 |
+| 19 | 4–4–4–4–3 |
+| 20 | 4–4–4–4–4 |
+| 28 | 4–4–4–4–4–4–4 |
+
+Antes de iniciar, equipo/rol son provisionales. La primera mini-clase congela la lista.
 
 ---
 
 ## 0–20 min · Apertura y mini-clase 1
 
-El Game Master presenta misión, reglas, mercado y la obligación de compartir un hallazgo por rol. Después el facilitador docente explica:
+El Game Master presenta misión, reglas, mercado y la obligación de compartir una pieza de evidencia por responsabilidad. Después el facilitador explica:
 
 - Predicción: `P(Y|X)`.
 - Resultados potenciales: `Y(1)` y `Y(0)`.
@@ -32,7 +49,7 @@ Demostración de práctica:
 
 Pregunta de control: “Si sólo puedo intervenir uno, ¿cuál cambia más?”
 
-Durante la mini-clase los poderes avanzados futuros aparecen con candado. Al pulsar **Abrir laboratorio**, sólo quedan disponibles las capacidades ya enseñadas.
+Durante la mini-clase los poderes futuros aparecen con candado. Al abrir laboratorio sólo quedan disponibles los conceptos ya enseñados.
 
 ---
 
@@ -40,17 +57,15 @@ Durante la mini-clase los poderes avanzados futuros aparecen con candado. Al pul
 
 ### Trabajo en sala
 
-**Líder de Decisión** usa el Canvas y concluye: “La pregunta no es sólo quién convierte; debemos fijar qué cambio queremos causar y en qué horizonte”.
+**Decisión y Política** usa el Constructor y concluye: “La pregunta no es sólo quién convierte; debemos fijar qué cambio queremos causar y en qué horizonte”. También vigila desperdicio y reversibilidad como parte de su responsabilidad integrada.
 
-**Líder de Modelos** interpreta el puntaje predictivo y advierte que un valor alto todavía no es un efecto causal. Su Radar de Propensión sigue bloqueado porque propensión se explica en R2.
+**Modelos** interpreta el puntaje predictivo y advierte que un valor alto todavía no es un efecto causal.
 
-**Analista Causal** no usa DAG todavía. Su aporte es formular: “¿Qué habría pasado con estos mismos clientes si no interviniéramos?”.
+**Causalidad** no usa DAG todavía. Formula: “¿Qué habría pasado con estos mismos clientes si no interviniéramos?”.
 
-**Líder de Experimentos** no usa RCT/ATE todavía. Pregunta: “¿Contra qué grupo o condición podríamos comparar la intervención?”.
+**Experimentos** no usa RCT/ATE todavía. Pregunta: “¿Contra qué grupo o condición podríamos comparar la intervención?”.
 
-**Política y Riesgo** usa Escudo de Riesgo: “Podemos gastar capacidad en personas que convertirían de todas formas”.
-
-Cada participante registra una opción cerrada como **hallazgo de su rol**. La meta es llegar a 5/5 antes de bloquear la decisión.
+Cada responsabilidad registra una opción cerrada como hallazgo. La meta es llegar a **4/4**, pero 4/4 no implica que las piezas sean coherentes.
 
 ### Decisión del equipo
 
@@ -87,25 +102,22 @@ Se dibuja:
 Se explica:
 
 - confusión;
-- grafo causal (DAG);
+- DAG;
 - regresión ajustada;
 - puntaje de propensión `e(X)=P(T=1|X)`;
-- emparejamiento/IPW como ideas para reconstruir comparabilidad con confusores observados;
-- por qué una variable posterior al tratamiento puede ser problemática.
-
-Al terminar la explicación se desbloquean **Radar de Propensión**, **Visión de Grafo Causal (DAG)** y **Escáner de Confusión**.
+- matching/IPW como panorama para confusores observados;
+- overlap/positividad;
+- por qué ajustar por mediadores o colliders puede ser problemático.
 
 ### Herramientas por rol
 
-**Líder de Decisión:** exige decidir qué evidencia falta antes de cancelar.
+**Decisión y Política:** exige decidir qué evidencia falta antes de cancelar o escalar.
 
-**Líder de Modelos:** ve gráficamente crudo −12 pp, regresión +3,9 pp e IPW +4,2 pp.
+**Modelos:** contrasta asociación cruda y estimaciones ajustadas; además inspecciona overlap. Coincidencia entre métodos no se presenta como prueba de identificación.
 
-**Analista Causal:** usa el grafo y detecta la variable previa que afecta tratamiento y resultado.
+**Causalidad:** construye el grafo y detecta una causa previa de tratamiento y resultado.
 
-**Líder de Experimentos:** todavía no usa RCT. Evalúa si la comparación observacional es defendible y qué supuestos necesita.
-
-**Política y Riesgo:** cuestiona cancelar una estrategia por una comparación cruda posiblemente sesgada.
+**Experimentos:** todavía no usa un RCT como herramienta principal; evalúa si la comparación observacional es defendible y qué diseño la mejoraría.
 
 ### Decisión
 
@@ -121,13 +133,13 @@ La puntuación es automática y determinista.
 
 ## 66–71 min · Pausa
 
-El facilitador muestra la caja acumulada:
+El facilitador resume:
 
 1. Predicción vs causalidad.
 2. Contrafactual.
-3. Grafo causal.
-4. Regresión ajustada.
-5. Propensión/IPW.
+3. DAG/confusión.
+4. Ajuste no reemplaza identificación.
+5. Soporte/overlap.
 
 ---
 
@@ -141,23 +153,21 @@ Se explica:
 
 Ejemplo de práctica: 28% vs 23% = +5 pp.
 
-Se introduce intervalo de confianza y el sentido de potencia/efecto mínimo detectable sin derivación extensa. Después se desbloquean **Escudo de Aleatorización (RCT)** y **Medidor de Efecto Promedio (ATE)**.
+Se introduce intervalo de confianza, potencia y MDE sin derivación extensa.
 
 ### Herramientas
 
-**Líder de Decisión:** fija pago a 30 días como resultado de negocio.
+**Decisión y Política:** fija outcome, horizonte y restricción antes del experimento.
 
-**Líder de Modelos:** recuerda que AUC o puntaje predictivo no crean un grupo control.
+**Modelos:** recuerda que AUC o score no crean un grupo control. Si el equipo es de tres, abre además el módulo explícito de Experimentos.
 
-**Analista Causal:** comprueba que la asignación no dependa sistemáticamente de una causa previa del resultado.
+**Causalidad:** comprueba que la asignación no dependa sistemáticamente de una causa previa del resultado y plantea interferencia como supuesto operativo.
 
-**Líder de Experimentos:** modifica N/tasas y observa barras Tratamiento/Control, ATE e intervalo aproximado.
-
-**Política y Riesgo:** exige resultado y horizonte relevantes para no optimizar un indicador cómodo.
+**Experimentos:** modifica asignación y N; observa tratamiento/control, efecto, IC, balance y MDE.
 
 ### Decisión
 
-El equipo elige entre asesor/modelo/azar, resultado y horizonte. Una sola combinación se considera plenamente defendible para este escenario.
+El equipo elige asignación, resultado y horizonte. Más N puede mejorar precisión, pero **no arregla una asignación sesgada**.
 
 ---
 
@@ -169,38 +179,55 @@ El equipo elige entre asesor/modelo/azar, resultado y horizonte. Una sola combin
 
 Se conectan:
 
-- efecto por perfil (CATE);
-- impacto incremental (uplift);
-- bosques causales;
-- meta-modelos;
+- CATE;
+- uplift;
+- causal forests;
+- meta-learners;
+- incertidumbre;
+- stress test placebo;
 - valor de política.
 
-Se aclara que modelos modernos estiman heterogeneidad; no eliminan la necesidad de identificación causal. Después se desbloquean **Lente de Impacto Incremental** y **Forja de Valor (ROI)**.
+Se aclara que modelos modernos estiman heterogeneidad; no eliminan la necesidad de identificación causal.
 
 ### Herramientas
 
-**Líder de Decisión:** define qué segmentos priorizar bajo capacidad limitada.
+**Decisión y Política:** conserva el contrato causal y, en la misma responsabilidad, abre el Simulador de Política para asignar capacidad/presupuesto sin exceder riesgo.
 
-**Líder de Modelos:** compara gráficamente probabilidad base con impacto incremental.
+**Modelos:** compara T-Learner, DR-Learner y CausalForestDML precomputados con EconML y ejecuta el stress test placebo.
 
-**Analista Causal:** recuerda qué supuestos permiten interpretar el efecto por segmento como causal.
+**Causalidad:** recuerda qué estructura permite interpretar heterogeneidad como causal y qué variables no deben condicionarse.
 
-**Líder de Experimentos:** resume efecto promedio, efecto por segmento e incertidumbre.
-
-**Política y Riesgo:** modifica efecto/costo/volumen y observa valor bruto, costo y valor neto.
+**Experimentos:** resume efecto e incertidumbre para impedir que el equipo sobrerreaccione a una estimación puntual.
 
 ### Decisión
 
-Cada segmento se clasifica exactamente una vez como:
+Cada segmento se clasifica como:
 
 - Intervenir.
 - No intervenir.
 - Más evidencia.
 
+La política debe respetar la restricción que 🦁 declaró; el motor de coherencia puede bloquear una propuesta aunque existan 4/4 evidencias.
+
 ### Cierre
 
-El Wall muestra ranking final, costo de ayudas y los cinco roles. Mensaje final:
+El Wall muestra ranking final, costo de ayudas y métricas de transferencia. Mensaje final:
 
 > Un modelo predice el mundo que observa. La inferencia causal intenta estimar qué cambia cuando intervenimos.
 
 El profesor revisa microchecks, pero no modifica manualmente el leaderboard.
+
+---
+
+## QA específico de asistencia y reconexión
+
+Antes de usar la sesión con participantes reales, ensaya al menos:
+
+1. **16 usuarios:** cuatro equipos completos.
+2. **17 usuarios:** cinco equipos `4–4–3–3–3`; los tres equipos incompletos deben activar Modelos→Experimentos.
+3. **19 usuarios:** `4–4–4–4–3`.
+4. **28 usuarios:** siete equipos completos y wall/leaderboard sin filas fantasma.
+5. Salir y volver desde el mismo navegador: mismo `player_id`; después del freeze, mismo equipo/rol.
+6. Mismo nombre desde otra identidad: rechazo explícito.
+7. Antes del freeze, retirar un usuario offline y rebalancear.
+8. Después del freeze, intentar un usuario nuevo: rechazo; un usuario conocido sí puede reingresar.
