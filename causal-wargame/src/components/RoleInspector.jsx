@@ -1,8 +1,8 @@
 import React,{useMemo,useState}from'react'
-import{ROLE_ARCHETYPES}from'../codex'
+import{CORE_ROLE_CODES,ROLE_ARCHETYPES}from'../codex'
 import{RoleLab}from'./RoleLab'
 
-const ROLES=['business','data','context','integrator','risk']
+const ROLES=CORE_ROLE_CODES
 const SEGMENTS=[
   {id:'s1',name:'Alta oportunidad',audience:5200,effect:9.4,ci_low:5.1,ci_high:13.7,value_per_result:85,unit_cost:2,risk:'Bajo'},
   {id:'s2',name:'Reactivables',audience:4100,effect:6.2,ci_low:2.0,ci_high:10.4,value_per_result:78,unit_cost:2,risk:'Medio'},
@@ -18,6 +18,7 @@ export function RoleInspector(){
     player:{id:'facilitator-preview',team_id:'preview',role_code:role,display_name:'Vista docente'},
     game:{round,status:'round',phase:'round'},
     teams:[],
+    team_roster:ROLES.map((code,i)=>({id:`preview-${i}`,display_name:ROLE_ARCHETYPES[code].label,role_code:code})),
     segments:SEGMENTS,
     policy:{capacity:9000},
     role_card:null,
@@ -29,7 +30,7 @@ export function RoleInspector(){
       <div className="eyebrow">ELIGE QUÉ QUIERES PROBAR</div>
       <div className="fac-toolbar" style={{marginTop:10}}>{ROLES.map(code=>{const m=ROLE_ARCHETYPES[code];return <button type="button" key={code} className={`btn ${role===code?'btn-primary':''}`} onClick={()=>setRole(code)}>{m.emoji} {m.label}</button>})}</div>
       <div className="fac-toolbar" style={{marginTop:12}}>{[1,2,3,4].map(r=><button type="button" key={r} className={`btn ${round===r?'btn-primary':''}`} onClick={()=>setRound(r)}>Ronda {r}</button>)}</div>
-      <p style={{marginTop:12,marginBottom:0}}>Estás inspeccionando <b>{ROLE_ARCHETYPES[role].emoji} {ROLE_ARCHETYPES[role].label}</b> en <b>Ronda {round}</b>. Los cinco roles son especialidades núcleo y producen piezas de evidencia diferentes.</p>
+      <p style={{marginTop:12,marginBottom:0}}>Estás inspeccionando <b>{ROLE_ARCHETYPES[role].emoji} {ROLE_ARCHETYPES[role].label}</b> en <b>Ronda {round}</b>. El juego usa cuatro especialidades núcleo; Decisión y Política están fusionadas en 🦁.</p>
     </div>
     <div style={{marginTop:14}}><RoleLab key={`${role}-${round}`} state={state} preview/></div>
   </div>
