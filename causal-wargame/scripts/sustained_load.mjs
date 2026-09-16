@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Sustained classroom load test. Manual/pre-event gate, not a per-commit smoke test.
-// Defaults: 20 simulated participants for 120s. For the real pre-event gate use CW_DURATION_SECONDS=900.
+// Defaults: 20 simulated participants for 120s. Use CW_USERS=28 for the maximum supported classroom.
+// For the real pre-event gate use CW_DURATION_SECONDS=900.
 const base=(process.env.CW_BASE_URL||'https://nedsrnqwvxtelddmtvtv.supabase.co/functions/v1').replace(/\/$/,'')
 const game=process.env.CW_LOAD_GAME||'FLOWTEST26'
 const pin=process.env.CW_LOAD_PIN||([...game].reverse().join('')+'-NEXO')
-const users=Math.max(1,Math.min(20,Number(process.env.CW_USERS||20)))
+const users=Math.max(1,Math.min(28,Number(process.env.CW_USERS||20)))
 const durationMs=Math.max(30000,Number(process.env.CW_DURATION_SECONDS||120)*1000)
 
 const sleep=ms=>new Promise(r=>setTimeout(r,ms))
@@ -24,11 +25,17 @@ console.log(`CAUSAL QUEST sustained load: ${users} users · ${(durationMs/1000).
 let login=await call('facilitator-login',{game_code:game,pin});assert(login.ok,`facilitator login failed ${login.status}`)
 const ft=login.data.token
 let r=await call('facilitator-transition',{action:'reset',seconds:900},{'x-facilitator-token':ft});assert(r.ok,'reset failed')
-const joins=await Promise.all(Array.from({length:users},(_,i)=>call('join-game',{game_code:game,display_name:`Sustained ${String(i+1).padStart(2,'0')}`})))
-assert(joins.every(x=>x.ok),`join failures: ${joins.filter(x=>!x.ok).length}`)
-r=await call('facilitator-transition',{action:'lesson',seconds:900},{'x-facilitator-token':ft});
-if(!r.ok){r=await call('facilitator-transition',{action:'teach',seconds:900},{'x-facilitator-token':ft})}
-// The V2+ state machine requires lesson before open.
+// Join sequentially: the real endpoint serializes roster changes and intentionally rebalances after each arrival.
+const joins=[]
+for(let i=0;i<users;i++){
+  const j=await call('join-game',{game_code:game,display_name:`Sustained ${String(i+1).padStart(2,'0')}`,participant_key:`sustained-${i+1}-${Date.now()}`})
+  joins.push(j)
+  assert(j.ok,`join ${i+1} failed: ${JSON.stringify(j.data)}`)
+}
+const lobby=await call('leaderboard',{}, {'x-facilitator-token':ft});assert(lobby.ok,'lobby state failed')
+const expectedTeams=Math.ceil(users/4)
+assert(Number(lobby.data.game?.team_target)===expectedTeams,`expected ${expectedTeams} teams, got ${lobby.data.game?.team_target}`)
+r=await call('facilitator-transition',{action:'lesson',seconds:900},{'x-facilitator-token':ft});assert(r.ok,`lesson failed: ${JSON.stringify(r.data)}`)
 r=await call('facilitator-transition',{action:'open',seconds:900},{'x-facilitator-token':ft});assert(r.ok,`open failed: ${JSON.stringify(r.data)}`)
 
 const tokens=joins.map(x=>x.data.token)
@@ -61,10 +68,10 @@ console.log(`overall p50=${pct(ms,.50).toFixed(0)}ms p95=${pct(ms,.95).toFixed(0
 for(const [path,s] of Object.entries(byPath))console.log(`${path}: ${s.ok}/${s.total} p95=${pct(s.times,.95).toFixed(0)}ms`)
 if(bad.length)console.log('sample failures:',bad.slice(0,8).map(x=>`${x.path}:${x.status}:${x.data?.error||''}`).join(' | '))
 
-// Classroom acceptance gate: no functional errors; p95 <= 1500ms for 20-user sustained load.
+// Classroom acceptance gate: no functional errors; p95 <= 1500ms at the requested classroom size.
 assert(bad.length===0,`${bad.length} sustained request failures`)
 assert(pct(ms,.95)<=1500,`sustained p95 too high: ${pct(ms,.95).toFixed(0)}ms`)
 
 login=await call('facilitator-login',{game_code:game,pin});
 if(login.ok) await call('facilitator-transition',{action:'reset',seconds:60},{'x-facilitator-token':login.data.token})
-console.log('SUSTAINED_LOAD_OK')
+console.log(`SUSTAINED_LOAD_OK · ${users} users · ${expectedTeams} teams`)
