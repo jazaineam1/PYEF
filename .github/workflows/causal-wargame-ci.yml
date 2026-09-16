@@ -34,6 +34,8 @@ jobs:
         run: npm install --no-audit --no-fund --ignore-scripts
       - name: Unit tests and both builds
         run: npm run check
+      - name: Validate live smoke syntax
+        run: node --check scripts/learning_flow_interdependent_smoke.mjs
       - name: Verify private scenario was not committed
         run: test ! -f scenario-private.sql
       - name: Full learning-flow smoke — interdependent roles, reveals and checks
