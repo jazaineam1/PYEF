@@ -65,6 +65,17 @@ export function assessWarRoom(rows=[],round=1){
     checks.push(check('identification','Identificación causal',diagnosed?'ready':'block',diagnosed?'El DAG produjo un diagnóstico explícito de identificación.':'El DAG todavía no ha sido diagnosticado; no interpretes un estimador como causal.',['context','data']))
   }
 
+  if(round===2&&by.data){
+    const model=by.data.evidence?.details||{}
+    const overlap=model.overlap
+    const robustness=model.robustness
+    if(overlap){
+      const weakControl=Number(overlap?.high?.control??100)<=5
+      const passed=robustness?.passed===true
+      checks.push(check('support','Soporte / overlap',passed?'ready':weakControl?'warn':'ready',passed?'Modelos reconoció que el segmento con soporte débil exige restringir alcance o pedir más evidencia.':weakControl?'Mora alta tiene casi nulo soporte no tratado; no generalices automáticamente el efecto ajustado.':'Hay soporte razonable en los perfiles revisados.',['data','context']))
+    }
+  }
+
   if(round>=3&&by.integrator&&by.business){
     const experiment=by.integrator.evidence?.details||{}
     const sameOutcome=!experiment.outcome||!decision.outcome||normalizeOutcome(experiment.outcome)===normalizeOutcome(decision.outcome)
@@ -73,11 +84,17 @@ export function assessWarRoom(rows=[],round=1){
     const owner=by.integrator.covered_by==='data'?'Modelos cubrió el doble sombrero de Experimentos. ':''
     checks.push(check('experiment-contract','Experimento ↔ contrato',!complete?'warn':sameOutcome&&sameHorizon?'ready':'block',!complete?`${owner}El diseño experimental aún no fija outcome y horizonte.`:sameOutcome&&sameHorizon?`${owner}El experimento mide el mismo outcome y horizonte definidos por Decisión.`:`Inconsistencia: Decisión pide ${decision.outcome} a ${decision.horizon}, pero Experimentos mide ${experiment.outcome} a ${experiment.horizon}.`,['business','integrator']))
     if(experiment.assignment&&experiment.assignment!=='random')checks.push(check('assignment','Regla de asignación','warn','La asignación no es aleatoria; la comparabilidad necesita una defensa adicional.',['integrator','context']))
+    if(experiment.assignment==='random'&&Number.isFinite(Number(experiment.mde))&&Number.isFinite(Number(experiment.targetEffect))){
+      const enough=Number(experiment.mde)<=Number(experiment.targetEffect)
+      checks.push(check('precision','Precisión útil',enough?'ready':'warn',enough?`MDE aproximado ${Number(experiment.mde).toFixed(1)} pp ≤ efecto mínimo útil ${Number(experiment.targetEffect).toFixed(1)} pp.`:`El diseño está bien asignado, pero MDE≈${Number(experiment.mde).toFixed(1)} pp supera el efecto mínimo útil ${Number(experiment.targetEffect).toFixed(1)} pp.`,['integrator','business']))
+    }
   }
 
   if(round>=4&&by.data){
     const model=by.data.evidence?.details||{}
     checks.push(check('effect','Estimación heterogénea',model.estimator?'ready':'warn',model.estimator?`Modelos compartió evidencia con ${model.estimator}.`:'Modelos todavía no fijó qué estimador respalda la priorización.',['data']))
+    const robustness=model.robustness
+    checks.push(check('robustness','Stress test causal',robustness?.passed?'ready':'block',robustness?.passed?'La estimación fue desafiada con un placebo y Modelos redujo la confianza ante una señal incompatible con la historia causal.':robustness?.answered?'El stress test fue interpretado incorrectamente; una señal placebo exige revisar identificación o pipeline.':'Falta ejecutar el stress test antes de convertir CATE en política.',['data','context','risk']))
   }
 
   if(round>=4){
