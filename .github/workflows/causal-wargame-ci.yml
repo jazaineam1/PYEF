@@ -35,7 +35,9 @@ jobs:
       - name: Unit tests and both builds
         run: npm run check
       - name: Validate live smoke syntax
-        run: node --check scripts/learning_flow_interdependent_smoke.mjs
+        run: |
+          node --check scripts/learning_flow_interdependent_smoke.mjs
+          node --check scripts/v2_simple_flow_smoke.mjs
       - name: Verify private scenario was not committed
         run: test ! -f scenario-private.sql
       - name: Full learning-flow smoke — interdependent roles, reveals and checks
@@ -46,3 +48,8 @@ jobs:
       - name: Specialist evidence round-trip smoke
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: node scripts/role_evidence_smoke.mjs
+      - name: V2 simplified team smoke — distributed information and equal power
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.head_ref == 'v2/simple-team-game'
+        env:
+          CW_BASE_URL: https://nedsrnqwvxtelddmtvtv.supabase.co/functions/v1
+        run: node scripts/v2_simple_flow_smoke.mjs
