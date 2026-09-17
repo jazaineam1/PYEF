@@ -24,7 +24,11 @@ export default defineConfig(({ mode }) => {
           facilitator:'facilitator.html',
           roleInspector:'role-inspector.html',
           wall:'wall.html',
-          systemCheck:'system-check.html'
+          systemCheck:'system-check.html',
+          v2Play:'v2-play.html',
+          v2Facilitator:'v2-facilitator.html',
+          v2Wall:'v2-wall.html',
+          v2Simulator:'v2-simulator.html'
         }
       }
     }
