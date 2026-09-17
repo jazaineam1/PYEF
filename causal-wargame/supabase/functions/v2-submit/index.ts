@@ -11,7 +11,8 @@ Deno.serve(async req=>{
       return json(await rpc('cw_v2_submit_individual',{p_token:token,p_round:Number(b.round),p_payload:b.payload||{}}))
     }
     if(b?.action==='team'){
-      return json(await rpc('cw_v2_submit_team_decision',{p_token:token,p_round:Number(b.round),p_payload:b.payload||{}}))
+      const out:any=await rpc('cw_v2_submit_team_decision',{p_token:token,p_round:Number(b.round),p_payload:b.payload||{}})
+      return json({ok:true,decision_id:out?.decision_id||null})
     }
     return json({error:'Acción V2 inválida'},400)
   }catch(e){return json({error:e.message},400)}
