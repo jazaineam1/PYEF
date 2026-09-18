@@ -1,15 +1,16 @@
 import React,{useEffect,useRef,useState}from'react'
 import{CheckCircle2,Trophy,Sparkles}from'lucide-react'
 import{invoke}from'../lib/api'
-import{V2_ROUNDS,RECOMMENDATIONS,statusCopy}from'./content'
+import{V2_ROUNDS,V2_CHALLENGE_COUNT,RECOMMENDATIONS,statusCopy}from'./content'
 
 const jitter=n=>Math.round(n*(.9+Math.random()*.2))
 const copShort=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',notation:'compact',maximumFractionDigits:1}).format(Number(n||0))
 
 function decisionText(round,payload={}){
-  if(round===1)return 'Intervenir: '+(payload.selected||[]).join(', ')
-  if(round===2)return RECOMMENDATIONS.find(x=>x[0]===payload.recommendation)?.[1]||'—'
-  return 'Tratar: '+((payload.treat||[]).join(', ')||'ninguno')+' · Evitar: '+((payload.avoid||[]).join(', ')||'ninguno')
+  const template=V2_ROUNDS[round]?.template
+  if(template==='cohort-selection')return 'Ofrecer bono: '+(payload.selected||[]).join(', ')
+  if(template==='recommendation')return RECOMMENDATIONS.find(x=>x[0]===payload.recommendation)?.[1]||'—'
+  return 'Ofrecer bono: '+((payload.treat||[]).join(', ')||'ninguno')+' · No ofrecer: '+((payload.avoid||[]).join(', ')||'ninguno')
 }
 
 function WallValue({teams=[]}){
@@ -57,7 +58,7 @@ export default function V2Wall(){
 
     {lobby?<div className="v2-wall-lobby"><div className="v2-wall-count"><strong>{data.humans}</strong><span>participantes conectados</span></div><div className="v2-wall-teams compact">{data.teams.map(t=>{const members=data.players.filter(p=>p.team_id===t.id);const full=t.humans>=3;return <section className={'v2-wall-team '+(full?'ready':'')} key={t.id}><div className="v2-team-head"><h2>{t.name}</h2>{full&&<CheckCircle2 size={20}/>}</div><div className="v2-wall-member-row">{members.map(p=><span className={(p.online?'':'offline ') + (newIds.has(p.id)?'new':'')} key={p.id}>{p.name}</span>)}{!members.length&&<span className="offline">Esperando…</span>}</div><div className="v2-wall-progress"><i style={{width:Math.min(100,(t.humans/4)*100)+'%'}}/></div><small>{t.humans}/4 {full?'· LISTO':'· entrando'}</small></section>})}</div></div>:
     <div className="v2-wall-stage">
-      <div className="v2-wall-phase compact"><div><div className="v2-kicker">MISIÓN {g.round} DE 3</div><h1>{r?.title}</h1></div><p>{r?.case}</p></div>
+      <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><p>{r?.case}</p></div>
       <div className="v2-wall-main-grid">
         <section className="v2-wall-team-progress"><div className="v2-wall-section-title"><b>{reveal?'CIERRE DE MISIÓN':'PROGRESO EN VIVO'}</b><span>{reveal?'Ya se pueden comparar decisiones y valor.':'Sin revelar respuestas ni valor económico.'}</span></div><div className="v2-wall-teams compact">{activeTeams.map(t=>{const submitted=t.humans?Math.round((t.submitted/t.humans)*100):0;const revised=t.humans?Math.round((t.revised/t.humans)*100):0;const pctDone=t.decision?100:t.revised?Math.max(55,revised):Math.min(50,submitted/2);return <section className={'v2-wall-team '+(t.decision?'ready':'')} key={t.id}><div className="v2-team-head"><h2>{t.name}</h2>{t.decision&&<CheckCircle2 size={20}/>}</div><div className="v2-wall-team-number">{t.decision?'✓':t.revised>0?`${t.revised}/${t.humans}`:`${t.submitted}/${t.humans}`}</div><small>{t.decision?'POLÍTICA LISTA':t.revised>0?'decisiones revisadas':'decisiones iniciales'}</small><div className="v2-wall-progress"><i style={{width:pctDone+'%'}}/></div></section>})}</div></section>
         <WallValue teams={data.teams}/>

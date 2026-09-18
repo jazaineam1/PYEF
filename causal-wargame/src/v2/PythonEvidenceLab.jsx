@@ -19,7 +19,7 @@ export function PythonEvidenceLab({round,state,analysis}){
 
   useEffect(()=>{
     const initial={}
-    for(const s of lab?.steps||[])initial[s.id]=s.code
+    for(const s of lab?.steps||[]){initial[`guided:${s.id}`]=s.guidedCode||s.code||'';initial[`advanced:${s.id}`]=s.advancedCode||s.guidedCode||s.code||''}
     setCodes(initial)
     setResults({})
     setStepIndex(0)
@@ -80,10 +80,12 @@ export function PythonEvidenceLab({round,state,analysis}){
 
   function run(step){
     const worker=ensureWorker()
-    const code=codes[step.id]??step.code
+    const codeKey=`${mode}:${step.id}`
+    const baseCode=mode==='advanced'?(step.advancedCode||step.guidedCode||step.code):(step.guidedCode||step.code)
+    const code=codes[codeKey]??baseCode
     setStatus('running')
     setError('')
-    pendingRef.current={stepId:step.id,started:performance.now(),codeChanged:code!==step.code}
+    pendingRef.current={stepId:step.id,started:performance.now(),codeChanged:code!==baseCode}
     worker.postMessage({type:'run',requestId:step.id,code,context:lab?.context||{}})
     clearTimeout(timerRef.current)
     timerRef.current=setTimeout(()=>{
@@ -111,8 +113,8 @@ export function PythonEvidenceLab({round,state,analysis}){
 
     <div className="v2-python-modes">
       <button type="button" className={mode==='guided'?'active':''} onClick={()=>setMode('guided')}><Route size={14}/> Guiado</button>
-      <button type="button" className={mode==='free'?'active':''} onClick={()=>setMode('free')}><Code2 size={14}/> Libre</button>
-      <span>{mode==='guided'?'Sigue la pregunta y modifica lo necesario.':'Edita completamente el código; los datos desbloqueados son los mismos.'}</span>
+      <button type="button" className={mode==='advanced'?'active':''} onClick={()=>setMode('advanced')}><Code2 size={14}/> Profundizar</button>
+      <span>{mode==='guided'?'Código corto para entender la idea.':'Opcional: aquí aparecen técnicas y términos más avanzados.'}</span>
     </div>
 
     <div className="v2-python-step-tabs">
@@ -125,14 +127,14 @@ export function PythonEvidenceLab({round,state,analysis}){
     </div>
 
     <div className="v2-python-editor">
-      <div className="v2-python-editorbar"><span>{step.id}.py</span><button type="button" onClick={()=>setCodes(v=>({...v,[step.id]:step.code}))}><RotateCcw size={14}/> Restaurar</button></div>
-      <textarea aria-label="Código Python editable" value={codes[step.id]??step.code} onChange={e=>setCodes(v=>({...v,[step.id]:e.target.value}))} spellCheck="false"/>
+      <div className="v2-python-editorbar"><span>{mode==='guided'?'guiado':'avanzado'} · {step.id}.py</span><button type="button" onClick={()=>{const key=`${mode}:${step.id}`;const base=mode==='advanced'?(step.advancedCode||step.guidedCode||step.code):(step.guidedCode||step.code);setCodes(v=>({...v,[key]:base}))}}><RotateCcw size={14}/> Restaurar</button></div>
+      <textarea aria-label="Código Python editable" value={codes[`${mode}:${step.id}`]??(mode==='advanced'?(step.advancedCode||step.guidedCode||step.code):(step.guidedCode||step.code))} onChange={e=>{const key=`${mode}:${step.id}`;setCodes(v=>({...v,[key]:e.target.value}))}} spellCheck="false"/>
     </div>
 
     <div className="v2-python-actions">
       {!ready&&<button type="button" className="v2-primary" disabled={busy} onClick={init}>{busy?<LoaderCircle className="spin" size={17}/>:<Terminal size={17}/>} {busy?'Cargando motor…':'Iniciar Python'}</button>}
       {ready&&<button type="button" className="v2-primary" disabled={busy} onClick={()=>run(step)}>{busy?<LoaderCircle className="spin" size={17}/>:<Play size={17}/>} {busy?'Ejecutando…':'Ejecutar este paso'}</button>}
-      <small>NumPy, pandas, SciPy, scikit-learn y Matplotlib corren localmente con WebAssembly. El ground truth permanece fuera del payload hasta el reveal.</small>
+      <small>Python corre dentro del navegador. El modo guiado usa sólo lo necesario; “Profundizar” muestra técnicas opcionales. La respuesta oculta del reto no llega antes del reveal.</small>
     </div>
 
     {error&&<div className="v2-alert error">{error}</div>}
