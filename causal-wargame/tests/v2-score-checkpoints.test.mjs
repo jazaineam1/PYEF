@@ -25,7 +25,7 @@ test('revision requires lab and check, and team points remain hidden until revea
   assert.match(submit,/cw_v2_assert_ready_for_revision/)
   assert.match(sql,/Primero termina el laboratorio/)
   assert.match(sql,/Primero responde la pregunta de cierre/)
-  assert.match(sql,/checkpoint,'team',awarded,cfg\.team_points,false/)
+  assert.match(sql,/['\"]team['\"],awarded,cfg\.team_points,false/)
   assert.match(facilitator,/cw_v2_reveal_team_points/)
 })
 
