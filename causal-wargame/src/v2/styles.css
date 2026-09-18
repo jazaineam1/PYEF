@@ -264,3 +264,5 @@
   .v2-phase-line{grid-template-columns:repeat(3,1fr);row-gap:8px}
   .v2-podium{grid-template-columns:1fr}.v2-podium .rank-1{order:-1}
 }
+
+.v2-wall-top3.waiting{display:grid;align-content:start}.v2-top3-wait{display:grid;place-items:center;min-height:150px;border:1px dashed #334968;border-radius:13px;color:#7f92ae;font-size:12px;text-align:center;padding:18px}
