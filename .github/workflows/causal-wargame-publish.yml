@@ -50,6 +50,10 @@ jobs:
             'https://jazaineam1.github.io/PYEF/dos-futuros/facilitator.html'
             'https://jazaineam1.github.io/PYEF/dos-futuros/wall.html'
             'https://jazaineam1.github.io/PYEF/dos-futuros/system-check.html'
+            'https://jazaineam1.github.io/PYEF/dos-futuros/v2-play.html'
+            'https://jazaineam1.github.io/PYEF/dos-futuros/v2-facilitator.html'
+            'https://jazaineam1.github.io/PYEF/dos-futuros/v2-wall.html'
+            'https://jazaineam1.github.io/PYEF/dos-futuros/v2-simulator.html'
           )
           for url in "${pages[@]}"; do
             echo "Checking $url"
