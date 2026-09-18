@@ -74,6 +74,21 @@ try{
   assert(analysis.data.reveal_tools===null,'V2 counterfactual truth remains hidden before reveal')
   assert(!JSON.stringify(analysis.data.team_tools).includes('"p0"')&&!JSON.stringify(analysis.data.team_tools).includes('"p1"'),'V2 Python payload does not leak counterfactuals')
 
+  const prematureRevision=await gt(team[0].token,'v2-submit',{action:'revision',round:1,payload:{selected:team[0].state.packet.slice(-2).map(c=>c.id)}})
+  assert(!prematureRevision.ok&&/laboratorio/i.test(String(prematureRevision.data?.error||'')),'V2 revision must wait for lab completion')
+
+  for(let i=0;i<4;i++){
+    const lab=await gt(team[i].token,'v2-submit',{action:'lab_complete',round:1})
+    assert(lab.ok&&lab.data.points===20,`V2 lab closes for 20 points ${i+1}`)
+    const check=await gt(team[i].token,'v2-submit',{action:'check',round:1,answer:'b'})
+    assert(check.ok&&check.data.points===30&&check.data.correct===true,`V2 checkpoint question scores 30 points ${i+1}`)
+  }
+
+  let scored=await gt(team[0].token,'v2-state')
+  assert(scored.ok&&scored.data.progress?.my?.round_points===50,'V2 player sees 50/100 after lab + question')
+  assert(scored.data.progress?.phase==='revision','V2 state advances to one revision page after scored check')
+  assert(Array.isArray(scored.data.progress?.top3)&&scored.data.progress.top3.length===3,'V2 player receives individual top 3')
+
   const premature=await gt(team[1].token,'v2-submit',{action:'team',round:1,payload:{selected:['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10']}})
   assert(!premature.ok&&/revis/i.test(String(premature.data?.error||'')),'V2 team lock must wait for post-evidence revisions')
 
@@ -111,8 +126,12 @@ try{
     assert(os.ok&&os.data.team.all_submitted,'V2 other team reaches full initial participation')
 
     for(const member of other){
+      let x=await gt(member.token,'v2-submit',{action:'lab_complete',round:1})
+      assert(x.ok&&x.data.points===20,'V2 all teams close lab')
+      x=await gt(member.token,'v2-submit',{action:'check',round:1,answer:'b'})
+      assert(x.ok&&x.data.points===30,'V2 all teams answer scored check')
       const revised=member.state.packet.slice(-2).map(c=>c.id)
-      let x=await gt(member.token,'v2-submit',{action:'revision',round:1,payload:{selected:revised}})
+      x=await gt(member.token,'v2-submit',{action:'revision',round:1,payload:{selected:revised}})
       assert(x.ok,'V2 all teams submit revised decisions')
     }
     os=await gt(other[0].token,'v2-state')
@@ -128,6 +147,9 @@ try{
   assert(wallTeam?.submitted===4&&wallTeam?.revised===4&&wallTeam?.decision===true,'V2 wall shows initial/revised/final progress')
   assert(wall.data.teams.every(t=>t.humans===0||t.round_value_cop===null),'V2 wall hides current mission COP while open')
   assert(Array.isArray(wall.data.decisions)&&wall.data.decisions.length===0,'V2 wall hides team policies until close/reveal')
+  assert(wall.data.checkpoint?.lab===16&&wall.data.checkpoint?.check===16&&wall.data.checkpoint?.revision===16,'V2 wall tracks scored checkpoints for all 16 humans')
+  assert(Array.isArray(wall.data.top3)&&wall.data.top3.length===3,'V2 wall exposes a principal individual top 3')
+  assert(wall.data.top3.every(x=>x.points===70),'V2 top 3 reflects lab + correct check + revision before reveal')
 
   r=await call('v2-facilitator',{action:'reveal'},{'x-facilitator-token':ft})
   assert(r.ok,'V2 reveal action')
@@ -152,8 +174,10 @@ try{
   const playerBoard=await gt(team[0].token,'v2-state')
   assert(playerBoard.ok&&playerBoard.data.all_team_decisions.length===activeTeams.length,'V2 players compare all team policies after reveal')
   assert(playerBoard.data.scoreboard.some(t=>Number(t.total_value_cop)!==0),'V2 players receive cumulative COP value board')
+  assert(playerBoard.data.progress?.my?.round_points>70,'V2 reveal exposes team bonus after facilitator closes the reto')
+  assert(wallAfter.data.top3.every(x=>x.points>70),'V2 wall top 3 updates with revealed team points')
 
-  console.log('DOS_FUTUROS_V2_OK · 16 humans · 3 missions · predictive Python unlocked · initial→revision→team gate · COP hidden until reveal · counterfactuals protected')
+  console.log('DOS_FUTUROS_V2_OK · 16 humans · one-page scored phases · lab 20 + check 30 + revision 20 + team bonus · top3 live · COP and counterfactuals protected')
 }finally{
   login=await call('facilitator-login',{game_code:game,pin})
   if(login.ok){ft=login.data.token;await call('v2-facilitator',{action:'reset'},{'x-facilitator-token':ft})}
