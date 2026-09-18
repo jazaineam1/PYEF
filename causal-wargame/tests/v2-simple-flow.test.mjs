@@ -36,12 +36,12 @@ test('challenge template makes a new reto declarative and validates required fie
   assert.ok(candidate.labKey)
 })
 
-test('V2 primary game result remains economic value, not points',async()=>{
+test('V2 separates learning points from economic reveal value',async()=>{
   const fs=await import('node:fs')
   const play=fs.readFileSync(new URL('../src/v2/V2Play.jsx',import.meta.url),'utf8')
-  assert.match(play,/VALOR/)
+  assert.match(play,/TU PUNTAJE/)
+  assert.match(play,/round_points/)
   assert.match(play,/incremental_value_cop/)
   assert.match(play,/currency:'COP'/)
   assert.doesNotMatch(play,/>SCORE</)
-  assert.doesNotMatch(play,/ pts/)
 })
