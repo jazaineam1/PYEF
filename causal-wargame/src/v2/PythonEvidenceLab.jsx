@@ -5,7 +5,7 @@ import{buildPythonLab}from'./python-lab'
 
 const TIMEOUT_MS=20000
 
-export function PythonEvidenceLab({round,state,analysis,labKey,onComplete,simulation=false}){
+export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onComplete,simulation=false}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis,labKey),[round,state,analysis,labKey])
   const[codes,setCodes]=useState({})
   const[results,setResults]=useState({})
@@ -151,7 +151,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,onComplete,simula
     </div>
 
     {error&&<div className="v2-alert error">{error}</div>}
-    <button type="button" className="v2-primary wide" disabled={!allDone||closing||localComplete} onClick={completeLab}>{localComplete?'Laboratorio completado · +20 puntos':closing?'Cerrando laboratorio…':allDone?'Terminar laboratorio · +20 puntos':'Ejecuta todos los bloques para terminar'}</button>
+    <button type="button" className="v2-primary wide" disabled={!allDone||closing||localComplete} onClick={completeLab}>{localComplete?'Laboratorio completado · +{labPoints} puntos':closing?'Cerrando laboratorio…':allDone?'Terminar laboratorio · +{labPoints} puntos':'Ejecuta todos los bloques para terminar'}</button>
     <small className="v2-python-footnote">Las técnicas avanzadas quedan fuera de la ruta principal. El objetivo aquí es entender la idea, no memorizar nombres.</small>
   </section>
 }
