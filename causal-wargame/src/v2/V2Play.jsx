@@ -1,7 +1,7 @@
 import React,{useEffect,useMemo,useState}from'react'
 import{Check,ChevronRight,Lightbulb,LogOut,Trophy,Sparkles,RefreshCw}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
-import{V2_MISSION,V2_ROUNDS,RECOMMENDATIONS,POLICY_ACTIONS,statusCopy}from'./content'
+import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,RECOMMENDATIONS,POLICY_ACTIONS,statusCopy}from'./content'
 import{EvidenceLab,MiniShapBars,PolicyMeter,RevealVisuals}from'./VisualTools'
 
 const jitter=n=>Math.round(n*(.85+Math.random()*.3))
@@ -35,12 +35,12 @@ function useV2Analysis(state){
 function Header({state,onExit}){
   const r=V2_ROUNDS[state.game.round]
   const mine=(state.scoreboard||[]).find(t=>t.id===state.player.team_id)
-  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>V2</span></div><strong>{state.player.team}</strong></div><div className="v2-header-center"><span>M{state.game.round}/3 {mine?.rounds_scored?` · ${copShort(mine.total_value_cop)}`:''}</span><b>{r?.title}</b></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
+  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>V2</span></div><strong>{state.player.team}</strong></div><div className="v2-header-center"><span>M{state.game.round}/{V2_CHALLENGE_COUNT} {mine?.rounds_scored?` · ${copShort(mine.total_value_cop)}`:''}</span><b>{r?.title}</b></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
 }
 
 function MissionStrip({round,state}){
   const r=V2_ROUNDS[round]
-  return <section className="v2-mission compact"><div><div className="v2-kicker">{r.kicker}</div><h1>{r.title}</h1></div><div><p>{r.case}</p>{state?.economy&&round===1&&<small className="v2-economy-line">Renovación: <b>{cop(state.economy.renewal_value_cop)}</b> · intervención: <b>{cop(state.economy.intervention_cost_cop)}</b> por cliente</small>}{state?.economy&&round===3&&<small className="v2-economy-line">Capacidad: <b>{Number(state.economy.capacity).toLocaleString()}</b> clientes · valor de renovación: <b>{cop(state.economy.renewal_value_cop)}</b></small>}</div></section>
+  return <section className="v2-mission compact"><div><div className="v2-kicker">{r.kicker}</div><h1>{r.title}</h1></div><div><p>{r.case}</p>{state?.economy&&r?.template==='cohort-selection'&&<small className="v2-economy-line">Renovación: <b>{cop(state.economy.renewal_value_cop)}</b> · bono: <b>{cop(state.economy.intervention_cost_cop)}</b> por cliente</small>}{state?.economy&&r?.template==='segment-policy'&&<small className="v2-economy-line">Capacidad: <b>{Number(state.economy.capacity).toLocaleString()}</b> clientes · valor de renovación: <b>{cop(state.economy.renewal_value_cop)}</b></small>}</div></section>
 }
 
 function Lobby({state}){
@@ -62,19 +62,19 @@ function Hint({text,round}){
   return open?<div className="v2-alert hint"><Lightbulb size={18}/><span>{text}</span></div>:<button className="v2-secondary" onClick={show}><Lightbulb size={16}/> Necesito una pista</button>
 }
 
-function IndividualR1({state,onSend,busy,revision=false}){
+function IndividualCohorts({state,onSend,busy,revision=false,round}){
   const[sel,setSel]=useState([])
   const rows=revision?(state.team_pool||[]):state.packet
   const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):v.length<3?[...v,id]:v)
-  return <><div className="v2-step"><b>{revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[1].revise:V2_ROUNDS[1].individual}</span></div><div className="v2-grid customers">{rows.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/3 cohortes</span><button className="v2-primary" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{revision?'Guardar decisión revisada':'Enviar decisión inicial'}</button></div></>
+  return <><div className="v2-step"><b>{revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-grid customers">{rows.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/3 cohortes</span><button className="v2-primary" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{revision?'Guardar decisión revisada':'Enviar decisión inicial'}</button></div></>
 }
 
-function Recommendation({onSend,busy,revision=false}){
+function Recommendation({onSend,busy,revision=false,round}){
   const[rec,setRec]=useState('')
-  return <><div className="v2-step"><b>{revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[2].revise:V2_ROUNDS[2].individual}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>{revision?'Guardar recomendación revisada':'Enviar recomendación inicial'}</button></>
+  return <><div className="v2-step"><b>{revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>{revision?'Guardar recomendación revisada':'Enviar recomendación inicial'}</button></>
 }
 
-function PolicyChoice({state,onSend,busy,revision=false,team=false}){
+function PolicyChoice({state,onSend,busy,revision=false,team=false,round}){
   const segs=revision||team?(state.team_pool||[]):state.packet
   const[choices,setChoices]=useState(Object.fromEntries(segs.map(s=>[s.id,'observe'])))
   const used=segs.filter(s=>choices[s.id]==='treat').reduce((a,s)=>a+Number(s.audience),0)
@@ -87,7 +87,7 @@ function PolicyChoice({state,onSend,busy,revision=false,team=false}){
     }
     return{choices}
   }
-  return <><div className="v2-step"><b>{team?'PASO 4 · DECIDAN JUNTOS':revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · PROPÓN TÚ'}</b><span>{team?V2_ROUNDS[3].team:revision?V2_ROUNDS[3].revise:V2_ROUNDS[3].individual}</span></div>{(revision||team)&&<PolicyMeter segments={segs} choices={choices} capacity={capacity}/>}<div className="v2-segments">{segs.map(s=><SegmentCard key={s.id} s={s} value={choices[s.id]} onChange={v=>setChoices({...choices,[s.id]:v})}/>)}</div><button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{team?(used>capacity?'Superan capacidad':'Bloquear política del equipo'):revision?'Guardar política revisada':'Enviar propuesta inicial'}</button></>
+  return <><div className="v2-step"><b>{team?'PASO 4 · DECIDAN JUNTOS':revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · PROPÓN TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>{(revision||team)&&<PolicyMeter segments={segs} choices={choices} capacity={capacity}/>}<div className="v2-segments">{segs.map(s=><SegmentCard key={s.id} s={s} value={choices[s.id]} onChange={v=>setChoices({...choices,[s.id]:v})}/>)}</div><button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{team?(used>capacity?'Superan capacidad':'Bloquear política del equipo'):revision?'Guardar política revisada':'Enviar propuesta inicial'}</button></>
 }
 
 function TeamProgress({state,phase='initial'}){
@@ -96,12 +96,13 @@ function TeamProgress({state,phase='initial'}){
 }
 
 function proposalText(round,payload={}){
-  if(round===1)return (payload.selected||[]).join(', ')||'—'
-  if(round===2)return RECOMMENDATIONS.find(x=>x[0]===payload.recommendation)?.[1]||'—'
+  const template=V2_ROUNDS[round]?.template
+  if(template==='cohort-selection')return (payload.selected||[]).join(', ')||'—'
+  if(template==='recommendation')return RECOMMENDATIONS.find(x=>x[0]===payload.recommendation)?.[1]||'—'
   const entries=Object.entries(payload.choices||{})
   if(entries.length)return entries.map(([k,v])=>`${k}: ${POLICY_ACTIONS.find(x=>x[0]===v)?.[1]||v}`).join(' · ')
   const treat=(payload.treat||[]).join(', ')||'ninguno'
-  return 'Tratar: '+treat
+  return 'Ofrecer bono: '+treat
 }
 
 function DecisionSummary({state,revised=false}){
@@ -128,38 +129,39 @@ function WowCard({round}){
   return <section className="v2-wow"><div className="v2-wow-badge"><Sparkles size={16}/> GIRO WOW</div><strong>{r.wow}</strong><p>{r.reality}</p></section>
 }
 
-function TeamR1({state,onSend,busy}){
+function TeamCohorts({state,onSend,busy,round}){
   const initial=useMemo(()=>[...new Set((state.team_revisions||[]).flatMap(s=>s.payload.selected||[]))].slice(0,10),[state.game.round,state.team_revisions?.length])
   const[sel,setSel]=useState(initial)
   const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):v.length<10?[...v,id]:v)
-  return <><div className="v2-step"><b>PASO 4 · DECIDAN JUNTOS</b><span>{V2_ROUNDS[1].team}</span></div><div className="v2-grid customers compact">{state.team_pool.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/10 cohortes</span><button className="v2-primary" disabled={busy||sel.length!==10} onClick={()=>onSend({selected:sel})}>Bloquear política del equipo</button></div></>
+  return <><div className="v2-step"><b>PASO 4 · DECIDAN JUNTOS</b><span>{V2_ROUNDS[round].team}</span></div><div className="v2-grid customers compact">{state.team_pool.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/10 cohortes</span><button className="v2-primary" disabled={busy||sel.length!==10} onClick={()=>onSend({selected:sel})}>Bloquear política del equipo</button></div></>
 }
 
-function TeamR2({onSend,busy}){
+function TeamRecommendation({onSend,busy,round}){
   const[rec,setRec]=useState('')
-  return <><div className="v2-step"><b>PASO 4 · DECIDAN JUNTOS</b><span>{V2_ROUNDS[2].team}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>Bloquear recomendación del equipo</button></>
+  return <><div className="v2-step"><b>PASO 4 · DECIDAN JUNTOS</b><span>{V2_ROUNDS[round].team}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>Bloquear recomendación del equipo</button></>
 }
 
 function Reveal({state,analysis}){
-  const r=V2_ROUNDS[state.game.round],x=state.reveal||{},result=state.team_decision?.result||{}
+  const r=V2_ROUNDS[state.game.round],template=r?.template,x=state.reveal||{},result=state.team_decision?.result||{}
   return <div className="v2-main v2-player-compact"><MissionStrip round={state.game.round} state={state}/><ValueBoard teams={state.scoreboard||[]} currentTeamId={state.player.team_id}/><AllTeamDecisions state={state}/><section className="v2-reveal compact"><div className="v2-kicker">REVEAL · LO QUE ESTABA OCULTO</div><h1>{x.title||r.takeaway}</h1><div className="v2-concept">{x.concept||r.concept}</div>
-    {state.game.round===1&&<><div className="v2-result money"><b>Valor incremental del equipo</b><strong>{cop(result.incremental_value_cop)}</strong><span>Mejor valor posible con 10 cohortes: {cop(result.best_possible_value_cop)} · brecha {cop(result.value_gap_cop)}</span></div><div className="v2-reveal-table">{(x.customers||[]).filter(c=>state.team_decision?.payload?.selected?.includes(c.id)).map(c=><div key={c.id}><b>{c.id}</b><span>predicción {pct(c.score)}</span><span>sin intervención {pct(c.p0)}</span><span>con intervención {pct(c.p1)}</span><strong>{cop(c.incremental_value_cop)}</strong></div>)}</div></>}
-    {state.game.round===2&&<div className="v2-metrics"><div><span>Efecto verdadero del mundo sintético</span><strong>+{x.true_effect_pp} pp</strong></div><div><span>Valor potencial de la campaña</span><strong>{cop(x.campaign_potential_value_cop)}</strong></div><p><b>DAG:</b> {x.dag}</p><p>{x.lesson}</p><div className="v2-alert">Esta misión no suma dinero al ranking: identificar causalidad no se convierte honestamente en COP hasta definir una política.</div></div>}
-    {state.game.round===3&&<><div className="v2-result money"><b>Valor incremental de la política</b><strong>{cop(result.incremental_value_cop)}</strong><span>{Number(result.treated_audience||0).toLocaleString()} clientes tratados de {Number(result.capacity||state.economy?.capacity||0).toLocaleString()} de capacidad</span></div><div className="v2-metrics"><div><span>Tratamiento</span><strong>{x.treatment_rate}%</strong></div><div><span>Control</span><strong>{x.control_rate}%</strong></div><div><span>ATE observado</span><strong>+{x.ate_pp} pp</strong></div></div><div className="v2-segments reveal">{(x.segments||[]).map(s=><article key={s.id}><b>{s.name}</b><span>{Number(s.effect_pp)>0?'+':''}{s.effect_pp} pp</span><small>{cop(s.incremental_value_cop)} · IC [{s.ci_low}, {s.ci_high}]</small></article>)}</div></>}
+    {template==='cohort-selection'&&<><div className="v2-result money"><b>Valor incremental del equipo</b><strong>{cop(result.incremental_value_cop)}</strong><span>Mejor valor posible con 10 cohortes: {cop(result.best_possible_value_cop)} · brecha {cop(result.value_gap_cop)}</span></div><div className="v2-reveal-table">{(x.customers||[]).filter(c=>state.team_decision?.payload?.selected?.includes(c.id)).map(c=><div key={c.id}><b>{c.id}</b><span>predicción {pct(c.score)}</span><span>sin intervención {pct(c.p0)}</span><span>con intervención {pct(c.p1)}</span><strong>{cop(c.incremental_value_cop)}</strong></div>)}</div></>}
+    {template==='recommendation'&&<div className="v2-metrics"><div><span>Cambio real del mundo simulado</span><strong>+{x.true_effect_pp} pp</strong></div><div><span>Valor potencial de la campaña</span><strong>{cop(x.campaign_potential_value_cop)}</strong></div><p><b>DAG:</b> {x.dag}</p><p>{x.lesson}</p><div className="v2-alert">Esta misión no suma dinero al ranking: identificar causalidad no se convierte honestamente en COP hasta definir una política.</div></div>}
+    {template==='segment-policy'&&<><div className="v2-result money"><b>Valor incremental de la política</b><strong>{cop(result.incremental_value_cop)}</strong><span>{Number(result.treated_audience||0).toLocaleString()} clientes tratados de {Number(result.capacity||state.economy?.capacity||0).toLocaleString()} de capacidad</span></div><div className="v2-metrics"><div><span>Con bono</span><strong>{x.treatment_rate}%</strong></div><div><span>Sin bono</span><strong>{x.control_rate}%</strong></div><div><span>Cambio promedio observado</span><strong>+{x.ate_pp} pp</strong></div></div><div className="v2-segments reveal">{(x.segments||[]).map(s=><article key={s.id}><b>{s.name}</b><span>{Number(s.effect_pp)>0?'+':''}{s.effect_pp} pp</span><small>{cop(s.incremental_value_cop)} · IC [{s.ci_low}, {s.ci_high}]</small></article>)}</div></>}
     <WowCard round={state.game.round}/><RevealVisuals round={state.game.round} state={state} analysis={analysis}/><div className="v2-teach"><div className="v2-kicker">CONCEPTO FORMAL</div><h2>{r.concept}</h2><p>{r.takeaway}</p></div>{state.game.status==='finished'?<div className="v2-finished">Fin. La pregunta dejó de ser “¿qué predice el modelo?” y pasó a ser “¿qué cambia si intervengo y cuánto valor genera?”.</div>:<p className="v2-wait-note">Espera al facilitador para continuar.</p>}</section></div>
 }
 
 function RoundPlay({state,refresh,analysis}){
   const[busy,setBusy]=useState(false),[err,setErr]=useState('')
   const round=state.game.round
+  const template=V2_ROUNDS[round]?.template
   async function send(action,payload){setBusy(true);setErr('');try{await invoke('v2-submit',{action,round,payload});await refresh()}catch(e){setErr(e.message)}finally{setBusy(false)}}
 
   return <div className="v2-main v2-player-compact"><MissionStrip round={round} state={state}/><Hint text={state.hint} round={round}/>{err&&<div className="v2-alert error">{err}</div>}
 
     {!state.my_submission&&<>
-      {round===1&&<IndividualR1 state={state} onSend={p=>send('individual',p)} busy={busy}/>}
-      {round===2&&<Recommendation onSend={p=>send('individual',p)} busy={busy}/>}
-      {round===3&&<PolicyChoice state={state} onSend={p=>send('individual',p)} busy={busy}/>}
+      {template==='cohort-selection'&&<IndividualCohorts state={state} round={round} onSend={p=>send('individual',p)} busy={busy}/>}
+      {template==='recommendation'&&<Recommendation round={round} onSend={p=>send('individual',p)} busy={busy}/>}
+      {template==='segment-policy'&&<PolicyChoice state={state} round={round} onSend={p=>send('individual',p)} busy={busy}/>}
     </>}
 
     {state.my_submission&&!state.team.all_submitted&&<TeamProgress state={state}/>}
@@ -167,9 +169,9 @@ function RoundPlay({state,refresh,analysis}){
     {state.team.all_submitted&&!state.my_revision&&<>
       <DecisionSummary state={state}/>
       <EvidenceLab round={round} state={state} analysis={analysis}/>
-      {round===1&&<IndividualR1 state={state} revision onSend={p=>send('revision',p)} busy={busy}/>}
-      {round===2&&<Recommendation revision onSend={p=>send('revision',p)} busy={busy}/>}
-      {round===3&&<PolicyChoice state={state} revision onSend={p=>send('revision',p)} busy={busy}/>}
+      {template==='cohort-selection'&&<IndividualCohorts state={state} round={round} revision onSend={p=>send('revision',p)} busy={busy}/>}
+      {template==='recommendation'&&<Recommendation round={round} revision onSend={p=>send('revision',p)} busy={busy}/>}
+      {template==='segment-policy'&&<PolicyChoice state={state} round={round} revision onSend={p=>send('revision',p)} busy={busy}/>}
     </>}
 
     {state.my_revision&&!state.team.all_revised&&!state.team_decision&&<>
@@ -181,9 +183,9 @@ function RoundPlay({state,refresh,analysis}){
       <DecisionSummary state={state}/>
       <DecisionSummary state={state} revised/>
       <EvidenceLab round={round} state={state} analysis={analysis}/>
-      {round===1&&<TeamR1 state={state} onSend={p=>send('team',p)} busy={busy}/>}
-      {round===2&&<TeamR2 onSend={p=>send('team',p)} busy={busy}/>}
-      {round===3&&<PolicyChoice state={state} team onSend={p=>send('team',p)} busy={busy}/>}
+      {template==='cohort-selection'&&<TeamCohorts state={state} round={round} onSend={p=>send('team',p)} busy={busy}/>}
+      {template==='recommendation'&&<TeamRecommendation round={round} onSend={p=>send('team',p)} busy={busy}/>}
+      {template==='segment-policy'&&<PolicyChoice state={state} round={round} team onSend={p=>send('team',p)} busy={busy}/>}
     </>}
 
     {state.team_decision&&<section className="v2-big-wait small"><Check size={44}/><h2>Política del equipo registrada</h2><p>El resultado económico permanece oculto hasta el reveal.</p></section>}
