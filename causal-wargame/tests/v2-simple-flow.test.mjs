@@ -10,7 +10,7 @@ test('V2 teaches a simple three-retos causal arc from one registry',()=>{
   assert.deepEqual(validateChallengeRegistry(),[])
   assert.match(V2_MISSION.rules.join(' · '),/Prueba tu idea con datos/)
   assert.match(V2_MISSION.rules.join(' · '),/Revisa tu decisión/)
-  assert.match(V2_ROUNDS[1].plainConcept,/Predecir/)
+  assert.match(V2_ROUNDS[1].plainConcept,/probablemente renovará/)
   assert.match(V2_ROUNDS[2].plainConcept,/grupos/)
   assert.match(V2_ROUNDS[3].plainConcept,/promedio/)
 })
