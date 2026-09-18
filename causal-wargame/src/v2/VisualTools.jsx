@@ -1,4 +1,5 @@
 import React,{useState}from'react'
+import{PythonEvidenceLab}from'./PythonEvidenceLab'
 
 const num=x=>Number(x||0)
 const pp=x=>`${num(x)>0?'+':''}${num(x).toFixed(Math.abs(num(x))<10?1:0)} pp`
@@ -111,7 +112,7 @@ export function EvidenceLab({round,state,analysis}){
   if(!tools)return null
   const pool=state?.team_pool||[]
   const scoreDistribution=<ToolFrame title="Distribución de scores" question="¿La confianza del modelo es lo mismo que impacto?"><div className="v2-score-rug">{[...pool].sort((a,b)=>num(a.score)-num(b.score)).map(c=><i key={c.id} style={{left:`${num(c.score)*100}%`}} title={`${c.id} · ${pct(c.score)}`}/>)}</div><div className="v2-score-rug-axis"><span>0%</span><span>Score predictivo</span><span>100%</span></div><p className="v2-tool-footer">Todavía no conoces Y(0) y Y(1). No conviertas esta gráfica en una afirmación causal.</p></ToolFrame>
-  const items=round===1?[
+  const visualItems=round===1?[
     {label:'SHAP',node:<PopulationShapChart summary={tools.feature_summary||[]}/>},
     {label:'Scores',node:scoreDistribution}
   ]:round===2?[
@@ -126,7 +127,9 @@ export function EvidenceLab({round,state,analysis}){
     {label:'EconML',node:<EconMLCompare rows={tools.econml||[]}/>},
     {label:'Placebo',node:<PlaceboPanel placebo={tools.placebo}/>}
   ]
-  return <section className="v2-evidence-lab"><div className="v2-step compact"><b>PASO 2.5 · EVIDENCIA NUEVA</b><span>Una herramienta a la vez. Úsenla para desafiar su primera intuición.</span></div><EvidenceTabs items={items}/></section>
+  const pythonItem={label:'Python',node:<PythonEvidenceLab round={round} state={state} analysis={analysis}/>}
+  const items=[...visualItems.slice(0,1),pythonItem,...visualItems.slice(1)]
+  return <section className="v2-evidence-lab"><div className="v2-step compact"><b>PASO 2.5 · INVESTIGUEN</b><span>Una herramienta a la vez. Pueden mirar la evidencia o ejecutar Python antes de cambiar su decisión.</span></div><EvidenceTabs items={items}/></section>
 }
 
 function Round1RevealTools({state,reveal}){
