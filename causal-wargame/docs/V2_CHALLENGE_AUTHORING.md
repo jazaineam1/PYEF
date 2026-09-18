@@ -39,7 +39,7 @@ El simulador docente consume este mismo contrato y permite recorrer a cada estud
 
 ## Puntaje estándar
 
-Cada reto suma 100 puntos:
+Por defecto cada reto suma 100 puntos, pero los pesos son configurables en el manifest y en runtime:
 
 - laboratorio terminado: **20**
 - pregunta de comprensión: **30**
@@ -48,7 +48,7 @@ Cada reto suma 100 puntos:
 
 La primera decisión es diagnóstica y no da puntos. El puntaje del equipo permanece oculto hasta el reveal.
 
-El Wall muestra el **Top 3 individual** y el progreso de cada checkpoint. El valor económico del equipo es un resultado secundario que aparece después del reveal.
+El estudiante ve sus puntos apenas completa una actividad. El ranking público se actualiza sólo cuando ese checkpoint se cierra para toda la clase, para que quien responde primero no tenga una ventaja visual. El Wall muestra el **Top 3 individual** desde el cierre del primer laboratorio; si todos están empatados, lo indica explícitamente. El valor económico del equipo es un resultado secundario que aparece después del reveal.
 
 Las respuestas correctas no se incluyen en el bundle del navegador. Se configuran en `cw_v2_challenge_runtime`.
 
@@ -105,12 +105,13 @@ Puedes pedirlo así:
 > Tipo: cohort-selection / recommendation / segment-policy.
 > Perfil backend: 1 / 2 / 3.
 > Laboratorio: prediction / comparison / experiment.
+> Puntaje: lab / pregunta / revisión / equipo.
 > Tiempo: [minutos].
 
 La implementación debe:
 
 1. agregar el manifest a `V2_CHALLENGES`, incluyendo `profileRound`;
-2. registrar el mismo reto en `cw_v2_challenge_runtime` con `round_number`, `challenge_key`, `profile_round`, `template`, `lab_key`, respuesta correcta y puntajes;
+2. registrar el mismo reto en `cw_v2_challenge_runtime` con `round_number`, `challenge_key`, `profile_round`, `template`, `lab_key`, respuesta correcta y los mismos pesos de puntaje;
 3. añadir datos o ground truth si el reto los necesita;
 4. reutilizar un template existente cuando sea posible;
 5. añadir un adapter sólo si la interacción es nueva;
