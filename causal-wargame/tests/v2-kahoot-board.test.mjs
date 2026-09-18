@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import{readFileSync}from'node:fs'
+import{enabledChallenges}from'../src/v2/challenge-registry.js'
 
 const read=p=>readFileSync(p,'utf8')
 
@@ -38,12 +39,11 @@ test('current mission money and decisions remain server-gated until close or rev
   assert.match(sql,/'scoreboard',coalesce\(public_board->'teams'/)
 })
 
-test('three missions have causal WOWs tied to real reasoning errors',()=>{
-  const content=read('src/v2/challenge-registry.js')
-  const wow=(content.match(/wow:'/g)||[]).length
-  const reality=(content.match(/takeaway:'/g)||[]).length
-  assert.equal(wow,3)
-  assert.equal(reality,3)
+test('enabled retos have causal WOWs tied to real reasoning errors',()=>{
+  const retos=enabledChallenges()
+  assert.equal(retos.length,3)
+  assert.ok(retos.every(r=>r.wow&&r.takeaway))
+  const content=retos.map(r=>r.wow+' '+r.takeaway).join(' ')
   assert.match(content,/alta probabilidad de renovar/)
   assert.match(content,/comparación cruda puede ser negativa/)
   assert.match(content,/destruir valor/)
