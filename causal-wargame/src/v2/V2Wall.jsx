@@ -13,8 +13,9 @@ function decisionText(round,payload={}){
   return 'Ofrecer: '+((payload.treat||[]).join(', ')||'ninguno')+' · No ofrecer: '+((payload.avoid||[]).join(', ')||'ninguno')
 }
 
-function TopThree({rows=[]}){
+function TopThree({rows=[],show=true}){
   const top=rows.slice(0,3)
+  if(!show)return <section className="v2-wall-top3 waiting"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Se activa al cerrar la primera pregunta puntuable.</span></div><div className="v2-top3-wait">Todavía no hay ranking. Primero entiende el laboratorio.</div></section>
   return <section className="v2-wall-top3"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Puntaje individual acumulado</span></div><div className="v2-podium">{[1,0,2].map(index=>{const x=top[index];if(!x)return <div className="empty" key={index}/>;const rank=x.rank||index+1;return <article className={'rank-'+rank} key={x.player_id}><Medal size={rank===1?30:24}/><strong>{rank}°</strong><h2>{x.name}</h2><span>{x.team}</span><b>{x.points} pts</b><small>+{x.round_points||0} en este reto</small></article>})}</div></section>
 }
 
@@ -83,7 +84,7 @@ export default function V2Wall(){
       <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
 
       <div className="v2-wall-primary-grid">
-        <TopThree rows={data.top3||[]}/>
+        <TopThree rows={data.top3||[]} show={g.round>1||Number(data.checkpoint?.check||0)>0}/>
         <CheckpointBoard data={data} activeTeams={activeTeams}/>
       </div>
 
