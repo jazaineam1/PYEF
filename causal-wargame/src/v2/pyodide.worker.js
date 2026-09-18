@@ -30,10 +30,13 @@ _old_stdout, _old_stderr = sys.stdout, sys.stderr
 sys.stdout = _buffer
 sys.stderr = _buffer
 _image = None
+_ok = True
+_error = None
 try:
     exec(_user_code, globals())
 except Exception:
-    traceback.print_exc()
+    _ok = False
+    _error = traceback.format_exc()
 finally:
     sys.stdout = _old_stdout
     sys.stderr = _old_stderr
@@ -46,17 +49,26 @@ try:
         plt.close("all")
 except Exception:
     pass
-json.dumps({"output": _buffer.getvalue(), "image": _image})
+json.dumps({"ok": _ok, "output": _buffer.getvalue(), "error": _error, "image": _image})
 `)
       pyodide.globals.delete('payload_json')
       pyodide.globals.delete('_user_code')
       const parsed=JSON.parse(String(raw||'{}'))
-      self.postMessage({
-        type:'result',
-        requestId:msg.requestId||null,
-        output:parsed.output||'Sin salida. Usa print(...) para mostrar resultados.',
-        image:parsed.image||null
-      })
+      if(parsed.ok===false){
+        self.postMessage({
+          type:'execution_error',
+          requestId:msg.requestId||null,
+          output:parsed.output||'',
+          error:parsed.error||'Error ejecutando el código Python.'
+        })
+      }else{
+        self.postMessage({
+          type:'result',
+          requestId:msg.requestId||null,
+          output:parsed.output||'Sin salida. Usa print(...) para mostrar resultados.',
+          image:parsed.image||null
+        })
+      }
     }
   }catch(error){
     self.postMessage({type:'error',requestId:event.data?.requestId||null,error:error?.message||String(error)})

@@ -13,8 +13,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: causal-wargame-ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: causal-wargame-ci-live-shared
+  cancel-in-progress: false
 
 permissions:
   contents: read
