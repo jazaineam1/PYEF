@@ -7,6 +7,7 @@ const submit=readFileSync('supabase/functions/v2-submit/index.ts','utf8')
 const state=readFileSync('supabase/functions/v2-state/index.ts','utf8')
 const wall=readFileSync('supabase/functions/v2-wall-state/index.ts','utf8')
 const facilitator=readFileSync('supabase/functions/v2-facilitator/index.ts','utf8')
+const immutable=readFileSync('supabase/migrations/202609180009_v2_immutable_check_answer.sql','utf8')
 
 test('checkpoint scoring is 20 lab + 30 question + 20 revision + 30 team',()=>{
   assert.match(sql,/\(1,'prediction-vs-effect','b',20,30,20,30,true\)/)
@@ -35,4 +36,12 @@ test('player and wall states merge score/rank/top3 data',()=>{
   assert.match(wall,/cw_v2_wall_score_state/)
   assert.match(sql,/'top3',top3/)
   assert.match(sql,/'rank',coalesce\(my_rank,1\)/)
+})
+
+
+test('comprehension answer is first-write immutable',()=>{
+  assert.match(immutable,/already_answered/)
+  assert.match(immutable,/if found then/)
+  assert.match(immutable,/on conflict\(game_id,round_number,player_id,checkpoint\) do nothing/)
+  assert.doesNotMatch(immutable,/do update set points=excluded\.points/)
 })
