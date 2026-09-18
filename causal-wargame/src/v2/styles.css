@@ -89,3 +89,19 @@
 @media(max-width:900px){
   .v2-wall-main-grid{grid-template-columns:1fr}.v2-wall-phase.compact{grid-template-columns:1fr}.v2-wall-phase.compact p{display:none}
 }
+
+
+/* V2 browser Python causal evidence lab */
+.v2-python-lab{display:grid;gap:10px;padding:14px;border-radius:15px;background:#08111f;border:1px solid #31486f;min-height:285px}
+.v2-python-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.v2-python-head h2{font-size:19px;margin:4px 0 0}
+.v2-python-status{display:flex;align-items:center;gap:6px;border:1px solid #304363;border-radius:999px;padding:6px 9px;color:#9eacc5;font-size:10px;white-space:nowrap}
+.v2-python-status.ready{border-color:#2e8d72;color:#8ff2d1;background:#102b27}.v2-python-status.running,.v2-python-status.loading{border-color:#806b2f;color:#f3d57c;background:#292313}.v2-python-status.error{border-color:#8f4355;color:#ff9aaa;background:#341820}
+.v2-python-question{margin:0;color:#edf5ff;font-weight:800;line-height:1.4}.v2-python-instruction{margin:0;color:#9fb0cc;font-size:12px;line-height:1.45}
+.v2-python-editor{border:1px solid #263c62;border-radius:12px;overflow:hidden;background:#050b15}.v2-python-editorbar{display:flex;justify-content:space-between;align-items:center;padding:6px 9px;background:#0d1729;color:#8ea0bd;font-size:10px}
+.v2-python-editorbar button{display:flex;align-items:center;gap:5px;border:0;background:transparent;color:#aeeeff;cursor:pointer;font-size:10px}
+.v2-python-editor textarea{display:block;width:100%;min-height:225px;max-height:330px;resize:vertical;border:0;outline:0;background:#050b15;color:#d9e9ff;padding:11px 12px;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:4}
+.v2-python-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.v2-python-actions small{flex:1;min-width:220px;color:#7f90ac;font-size:10px;line-height:1.4}
+.v2-python-output{border:1px solid #2c416b;border-radius:12px;overflow:hidden;background:#06101d}.v2-python-output>div{display:flex;align-items:center;gap:6px;padding:6px 9px;background:#0d192d;color:#8ff2d1;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+.v2-python-output pre{margin:0;padding:11px 12px;max-height:260px;overflow:auto;color:#dce8f7;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
+.spin{animation:v2-spin 1s linear infinite}@keyframes v2-spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.v2-python-head{display:grid}.v2-python-status{justify-self:start}.v2-python-editor textarea{min-height:205px;font-size:11px}.v2-python-actions{align-items:stretch}.v2-python-actions .v2-primary{width:100%;justify-content:center}}
