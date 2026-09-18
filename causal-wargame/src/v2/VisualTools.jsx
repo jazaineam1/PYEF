@@ -5,6 +5,12 @@ const num=x=>Number(x||0)
 const pp=x=>`${num(x)>0?'+':''}${num(x).toFixed(Math.abs(num(x))<10?1:0)} pp`
 const pct=x=>`${Math.round(num(x)*100)}%`
 const cop=x=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(num(x))
+const featureLabel=x=>({
+  'Uso':'Días activos · últimos 30 días',
+  'Bugs reportados':'Incidentes app · últimos 30 días',
+  'Descuento':'Descuento vigente',
+  'Antigüedad':'Antigüedad del cliente'
+}[x]||x)
 
 export function ToolFrame({kicker='HERRAMIENTA DE ANÁLISIS',title,question,children,footer}){
   return <section className="v2-tool"><div className="v2-tool-head"><div><div className="v2-kicker">{kicker}</div><h2>{title}</h2></div>{question&&<div className="v2-tool-question">{question}</div>}</div>{children}{footer&&<p className="v2-tool-footer">{footer}</p>}</section>
@@ -12,13 +18,13 @@ export function ToolFrame({kicker='HERRAMIENTA DE ANÁLISIS',title,question,chil
 
 export function MiniShapBars({items=[]}){
   const max=Math.max(1,...items.map(x=>Math.abs(num(x.impact))))
-  return <div className="v2-mini-shap">{items.slice(0,4).map(x=>{const v=num(x.impact),w=Math.max(5,Math.abs(v)/max*100);return <div key={x.feature} className="v2-mini-shap-row"><span>{x.feature}</span><div className="v2-mini-shap-track"><i className={v>=0?'pos':'neg'} style={{width:`${w}%`}}/></div><b>{v>0?'+':''}{v}</b></div>})}</div>
+  return <div className="v2-mini-shap">{items.slice(0,4).map(x=>{const v=num(x.impact),w=Math.max(5,Math.abs(v)/max*100);return <div key={x.feature} className="v2-mini-shap-row"><span>{featureLabel(x.feature)}</span><div className="v2-mini-shap-track"><i className={v>=0?'pos':'neg'} style={{width:`${w}%`}}/></div><b>{v>0?'+':''}{v}</b></div>})}</div>
 }
 
 export function PopulationShapChart({summary=[]}){
   const rows=[...summary].sort((a,b)=>num(b.mean_abs)-num(a.mean_abs))
   const max=Math.max(1,...rows.map(x=>num(x.mean_abs)))
-  return <ToolFrame title="Qué está usando el modelo" question="¿Qué variables empujan la predicción?" footer="SHAP explica qué usa el modelo para predecir. No identifica por sí solo qué ocurriría al intervenir."><div className="v2-hbars">{rows.map(x=><div className="v2-hbar-row" key={x.feature}><span>{x.feature}</span><div className="v2-hbar-track"><i style={{width:`${num(x.mean_abs)/max*100}%`}}/></div><b>{num(x.mean_abs).toFixed(2)}</b></div>)}</div></ToolFrame>
+  return <ToolFrame title="Qué está usando el modelo" question="¿Qué variables empujan la predicción?" footer="SHAP explica qué usa el modelo para predecir. No identifica por sí solo qué ocurriría al intervenir."><div className="v2-hbars">{rows.map(x=><div className="v2-hbar-row" key={x.feature}><span>{featureLabel(x.feature)}</span><div className="v2-hbar-track"><i style={{width:`${num(x.mean_abs)/max*100}%`}}/></div><b>{num(x.mean_abs).toFixed(2)}</b></div>)}</div></ToolFrame>
 }
 
 export function ScoreUpliftChart({points=[],selectedId,onSelect}){
