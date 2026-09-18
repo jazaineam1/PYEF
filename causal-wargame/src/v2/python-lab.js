@@ -66,7 +66,7 @@ salida["probabilidad_renovacion"] = (100*salida["probabilidad_renovacion"]).roun
 
 print(salida.sort_values("probabilidad_renovacion", ascending=False).head(10).to_string(index=False))
 
-print("\nPregunta:")
+print("\\nPregunta:")
 print("¿Esta tabla dice quién CAMBIARÁ por recibir el mes gratis?")`,
           advancedCode:`import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -88,10 +88,10 @@ print("AUC predictivo:", round(roc_auc_score(y_test,p),3))
 
 m.fit(train[features],train["renovo"])
 grupos["p_modelo"] = m.predict_proba(grupos[features])[:,1]
-print("\nTop 10 por modelo reentrenado:")
+print("\\nTop 10 por modelo reentrenado:")
 print(grupos[["id","grupo","p_modelo"]].sort_values("p_modelo",ascending=False).head(10).to_string(index=False))
 
-print("\nUn AUC alto evalúa predicción. No identifica el efecto del mes gratis.")`
+print("\\nUn AUC alto evalúa predicción. No identifica el efecto del mes gratis.")`
         },
         {
           id:'visual',
@@ -156,14 +156,14 @@ print("Sin mes gratis :", round(tasas.loc[False],1), "%")
 print("Con mes gratis :", round(tasas.loc[True],1), "%")
 print("Diferencia observada:", round(tasas.loc[True]-tasas.loc[False],1), "pp")
 
-print("\n¿Esto prueba que el mes gratis empeoró la renovación?")`,
+print("\\n¿Esto prueba que el mes gratis empeoró la renovación?")`,
           advancedCode:`import pandas as pd
 
 df = pd.DataFrame(payload["historico"])
 crudo = df.groupby("recibio_mes_gratis")["renovo"].mean()
 
 print("Diferencia cruda:", round(100*(crudo.loc[True]-crudo.loc[False]),1), "pp")
-print("\nProbabilidad de recibir mes gratis según riesgo previo:")
+print("\\nProbabilidad de recibir mes gratis según riesgo previo:")
 print((100*df.groupby("riesgo_previo")["recibio_mes_gratis"].mean()).round(1).to_string())`
         },
         {
@@ -183,7 +183,7 @@ tabla = (
 print("Renovación dentro de cada nivel de riesgo (%)")
 print(tabla.to_string())
 
-print("\nLa idea importante:")
+print("\\nLa idea importante:")
 print("antes de comparar resultados, pregunta si los grupos ya eran distintos.")`,
           advancedCode:`import pandas as pd
 import numpy as np
@@ -205,7 +205,7 @@ mu0 = (w0*Y).sum()/w0.sum()
 
 print("Estimación ajustada:", round(100*(mu1-mu0),1), "pp")
 print("Propensity score min/max:", round(ps.min(),2), "/", round(ps.max(),2))
-print("\nTérmino avanzado: propensity score + IPW.")
+print("\\nTérmino avanzado: propensity score + IPW.")
 print("La técnica ayuda a construir comparabilidad; no elimina los supuestos.")`
         },
         {
@@ -227,7 +227,7 @@ plt.ylabel("% dentro del nivel de riesgo")
 plt.xlabel("Riesgo previo")
 plt.tight_layout()
 
-print("\nSi un nivel casi no tiene ambos grupos, la comparación se vuelve más frágil.")`,
+print("\\nSi un nivel casi no tiene ambos grupos, la comparación se vuelve más frágil.")`,
           advancedCode:`import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -290,7 +290,7 @@ lo,hi = efecto-1.96*se,efecto+1.96*se
 
 print("Efecto promedio:", round(100*efecto,1), "pp")
 print("IC 95%: [",round(100*lo,1),",",round(100*hi,1),"] pp")
-print("\nTérmino técnico: ATE e intervalo de confianza.")`
+print("\\nTérmino técnico: ATE e intervalo de confianza.")`
         },
         {
           id:'segments',
@@ -309,7 +309,7 @@ tabla["cambio_pp"] = tabla[True]-tabla[False]
 
 print(tabla.sort_values("cambio_pp",ascending=False).to_string())
 
-print("\nNo todos los segmentos responden igual.")`,
+print("\\nNo todos los segmentos responden igual.")`,
           advancedCode:`import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 
@@ -324,7 +324,7 @@ m0.fit(X[~df["recibio_mes_gratis"]],df.loc[~df["recibio_mes_gratis"],"renovo"])
 df["efecto_estimado"] = m1.predict(X)-m0.predict(X)
 print((100*df.groupby("segmento")["efecto_estimado"].mean()).round(1).sort_values(ascending=False).to_string())
 
-print("\nTérmino avanzado: T-Learner para heterogeneidad del efecto.")`
+print("\\nTérmino avanzado: T-Learner para heterogeneidad del efecto.")`
         },
         {
           id:'money',
@@ -353,7 +353,7 @@ print(seg[["segmento","audiencia","efecto_estimado","valor_incremental_cop"]]
       .sort_values("valor_incremental_cop",ascending=False)
       .to_string(index=False))
 
-print("\nCapacidad:", int(eco["capacity"]), "usuarios")`,
+print("\\nCapacidad:", int(eco["capacity"]), "usuarios")`,
           advancedCode:`import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
@@ -384,7 +384,7 @@ plt.xlabel("Valor incremental estimado (millones COP)")
 plt.tight_layout()
 
 print(plot[["segmento","efecto","valor_incremental_cop"]].to_string(index=False))
-print("\nTérminos avanzados: CATE / T-Learner.")`
+print("\\nTérminos avanzados: CATE / T-Learner.")`
         }
       ]
     }
