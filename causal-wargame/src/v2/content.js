@@ -1,4 +1,4 @@
-import{enabledChallenges,V2_CHALLENGE_COUNT}from'./challenge-registry'
+import{enabledChallenges,V2_CHALLENGE_COUNT}from'./challenge-registry.js'
 
 export const V2_MISSION={
   title:'DOS FUTUROS',
