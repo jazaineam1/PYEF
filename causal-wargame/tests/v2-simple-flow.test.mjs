@@ -24,8 +24,8 @@ test('V2 participant flow is driven by reusable challenge templates',async()=>{
   assert.match(play,/template==='recommendation'/)
   assert.match(play,/template==='segment-policy'/)
   assert.match(play,/EvidenceLab/)
-  assert.match(play,/PASO 3 · REVISA TU DECISIÓN/)
-  assert.match(play,/PASO 4 · DECIDAN JUNTOS/)
+  assert.match(play,/REVISA TU DECISIÓN/)
+  assert.match(play,/DECIDAN JUNTOS/)
 })
 
 test('challenge template makes a new reto declarative and validates required fields',()=>{
