@@ -35,7 +35,7 @@ function useV2Analysis(state){
 function Header({state,onExit}){
   const r=V2_ROUNDS[state.game.round]
   const me=state.progress?.my
-  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>V2</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Reto {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>{me?.rank_visible?`#${me?.rank??'—'}${Number(me?.tie_count||0)>1?` · empate ${me.tie_count}`:''}`:'ranking al cierre'}</span></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
+  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>V2</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Reto {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>#{me?.rank??'—'}</span></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
 }
 
 function MissionStrip({round}){
@@ -108,12 +108,38 @@ function StudentProgress({state}){
   const current=normalize(phase)
   const idx=Math.max(0,PHASES.findIndex(x=>x[0]===current))
   const me=progress.my||{}
-  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>ESTE RETO</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>POSICIÓN</small><strong>{me.rank_visible?`#${me.rank??'—'}`:'—'}</strong>{me.rank_visible&&Number(me.tie_count||0)>1&&<span>empate entre {me.tie_count}</span>}</div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
+  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>ESTE RETO</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>POSICIÓN</small><strong>#{me.rank??'—'}</strong><span>ranking en vivo</span></div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
+}
+
+function PhasePoints({phase,state,round}){
+  const cfg=state.progress?.challenge||{}
+  const defaults=V2_ROUNDS[round]?.points||{}
+  const values={
+    initial:0,
+    wait_initial:0,
+    lab:Number(cfg.lab_points??defaults.lab??20),
+    check:Number(cfg.check_points??defaults.check??30),
+    revision:Number(cfg.revision_points??defaults.revision??20),
+    wait_revision:0,
+    team:Number(cfg.team_points??defaults.team??30),
+    wait_reveal:0
+  }
+  const points=values[phase]??0
+  const copy=phase==='initial'
+    ?'Esta primera respuesta es diagnóstica: no suma ni resta puntos.'
+    :phase==='check'
+      ?`Esta pregunta puede sumar hasta ${points} puntos.`
+      :phase==='team'
+        ?`La decisión final puede sumar hasta ${points} puntos y se revela al cerrar el reto.`
+        :points>0
+          ?`Completar esta fase suma ${points} puntos.`
+          :'Esta fase no cambia tu puntaje.'
+  return <div className="v2-phase-points"><b>{points>0?`+${points}`:'0'} pts</b><span>{copy}</span></div>
 }
 
 function CheckpointQuestion({round,state,onDone}){
   const r=V2_ROUNDS[round]
-  const maxPoints=Number(state?.progress?.scoring?.check??30)
+  const maxPoints=Number(state?.progress?.challenge?.check_points??V2_ROUNDS[round]?.points?.check??30)
   const[answer,setAnswer]=useState('')
   const[result,setResult]=useState(null)
   const[busy,setBusy]=useState(false)
@@ -202,7 +228,7 @@ function RoundPlay({state,refresh,analysis}){
     {template==='segment-policy'&&<PolicyChoice state={state} round={round} onSend={p=>send('individual',p)} busy={busy}/>}
   </>
   else if(phase==='wait_initial')page=<TeamProgress state={state}/>
-  else if(phase==='lab')page=<EvidenceLab round={round} labKey={V2_ROUNDS[round]?.evidence} labPoints={state.progress?.scoring?.lab} state={state} analysis={analysis} onComplete={refresh}/>
+  else if(phase==='lab')page=<EvidenceLab round={round} labKey={V2_ROUNDS[round]?.evidence} labPoints={state.progress?.challenge?.lab_points??V2_ROUNDS[round]?.points?.lab} state={state} analysis={analysis} onComplete={refresh}/>
   else if(phase==='check')page=<CheckpointQuestion round={round} state={state} onDone={refresh}/>
   else if(phase==='revision')page=<>
     {template==='cohort-selection'&&<IndividualCohorts state={state} round={round} revision onSend={p=>send('revision',p)} busy={busy}/>}
@@ -218,7 +244,7 @@ function RoundPlay({state,refresh,analysis}){
   </>
   else page=<section className="v2-big-wait small"><Check size={44}/><h2>Decisión final registrada</h2><p>Tu puntaje final del reto aparece cuando el facilitador muestre el resultado.</p></section>
 
-  return <div className="v2-main v2-player-compact"><MissionStrip round={round}/><StudentProgress state={state}/>{err&&<div className="v2-alert error">{err}</div>}<section className="v2-single-step-page">{page}</section></div>
+  return <div className="v2-main v2-player-compact"><MissionStrip round={round}/><StudentProgress state={state}/><PhasePoints phase={phase} state={state} round={round}/>{err&&<div className="v2-alert error">{err}</div>}<section className="v2-single-step-page">{page}</section></div>
 }
 
 export default function V2Play(){
