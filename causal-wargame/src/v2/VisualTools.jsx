@@ -112,32 +112,18 @@ export function PolicyMeter({segments=[],choices={},capacity=15000}){
   </div>
 }
 
-function EvidenceTabs({items=[]}){
-  const[active,setActive]=useState(0)
-  if(!items.length)return null
-  const item=items[Math.min(active,items.length-1)]
-  return <div className="v2-evidence-deck"><div className="v2-evidence-tabs" role="tablist" aria-label="Herramientas de evidencia">{items.map((x,i)=><button type="button" key={x.label} className={active===i?'active':''} onClick={()=>setActive(i)}><b>{i+1}</b><span>{x.label}</span></button>)}</div><div className="v2-evidence-panel">{item.node}</div><div className="v2-evidence-nav"><button type="button" disabled={active===0} onClick={()=>setActive(x=>Math.max(0,x-1))}>← anterior</button><span>{active+1}/{items.length}</span><button type="button" disabled={active===items.length-1} onClick={()=>setActive(x=>Math.min(items.length-1,x+1))}>siguiente →</button></div></div>
-}
-
-export function EvidenceLab({round,state,analysis}){
+export function EvidenceLab({round,state,analysis,onComplete}){
   const tools=analysis?.team_tools
   if(!tools)return null
-  const pool=state?.team_pool||[]
-  const scoreDistribution=<ToolFrame title="Distribución de probabilidades" question="¿La confianza predictiva es lo mismo que impacto causal?"><div className="v2-score-rug">{[...pool].sort((a,b)=>num(a.score)-num(b.score)).map(c=><i key={c.id} style={{left:`${num(c.score)*100}%`}} title={`${c.id} · ${pct(c.score)}`}/>)}</div><div className="v2-score-rug-axis"><span>0%</span><span>Probabilidad estimada de renovación</span><span>100%</span></div><p className="v2-tool-footer">Todavía no conoces Y(0) y Y(1). Esta distribución es predictiva, no causal.</p></ToolFrame>
-  const economicThreshold=num(tools.economy?.renewal_value_cop)>0?100*num(tools.economy?.intervention_cost_cop)/num(tools.economy?.renewal_value_cop):4
-  const visualItems=round===1?[
-    {label:'SHAP',node:<PopulationShapChart summary={tools.feature_summary||[]}/>},
-    {label:'Probabilidades',node:scoreDistribution}
-  ]:round===2?[
-    {label:'DAG',node:<DagLab dag={tools.dag}/>}
-  ]:[
-    {label:'Precisión',node:<PrecisionSimulator curve={tools.precision_curve||[]} threshold={economicThreshold}/>},
-    {label:'Modelos causales',node:<EconMLCompare rows={tools.econml||[]}/>},
-    {label:'Placebo',node:<PlaceboPanel placebo={tools.placebo}/>}
-  ]
-  const pythonItem={label:'Python',node:<PythonEvidenceLab round={round} state={state} analysis={analysis}/>}
-  const items=[...visualItems.slice(0,1),pythonItem,...visualItems.slice(1)]
-  return <section className="v2-evidence-lab"><div className="v2-step compact"><b>PASO 2 · INVESTIGUEN</b><span>La evidencia visual orienta; Python permite modelar y cuantificar antes de revisar su decisión.</span></div><EvidenceTabs items={items}/></section>
+  const copy=round===1
+    ?'Ordena lo que predice el modelo y fíjate en la pregunta que todavía no puede responder.'
+    :round===2
+      ?'Compara primero los grupos tal como aparecen y luego vuelve a comparar usuarios parecidos.'
+      :'Mide el cambio promedio, compáralo por grupos y conviértelo a una decisión con costo.'
+  return <section className="v2-evidence-lab single-page">
+    <div className="v2-step compact"><b>LABORATORIO</b><span>{copy}</span></div>
+    <PythonEvidenceLab round={round} state={state} analysis={analysis} onComplete={onComplete}/>
+  </section>
 }
 
 function Round1RevealTools({state,reveal}){
