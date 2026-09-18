@@ -28,7 +28,10 @@ test('live reveal data stays server-side',()=>{
   assert.match(read('supabase/migrations/202609180001_v2_visual_causal_evidence.sql'),/cw_v2_analysis/)
 })
 
-test('the simulator declares its data are illustrative',()=>{
+test('the simulator uses isolated deterministic fixtures rather than live ground truth',()=>{
   const sim=read('src/v2/V2Simulator.jsx')
-  assert.match(sim,/ilustrativos y deliberadamente distintos/)
+  const fixtures=read('src/v2/simulator-fixtures.js')
+  assert.match(sim,/SIM_PATHS/)
+  assert.match(sim,/SIN BACKEND|RECORRIDO COMPLETO/)
+  assert.match(fixtures,/SIM_ANALYSIS/)
 })
