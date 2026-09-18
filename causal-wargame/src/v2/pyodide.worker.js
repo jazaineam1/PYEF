@@ -53,11 +53,12 @@ json.dumps({"output": _buffer.getvalue(), "image": _image})
       const parsed=JSON.parse(String(raw||'{}'))
       self.postMessage({
         type:'result',
+        requestId:msg.requestId||null,
         output:parsed.output||'Sin salida. Usa print(...) para mostrar resultados.',
         image:parsed.image||null
       })
     }
   }catch(error){
-    self.postMessage({type:'error',error:error?.message||String(error)})
+    self.postMessage({type:'error',requestId:event.data?.requestId||null,error:error?.message||String(error)})
   }
 }
