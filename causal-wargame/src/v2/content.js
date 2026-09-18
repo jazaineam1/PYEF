@@ -20,6 +20,8 @@ export const V2_ROUNDS=Object.fromEntries(enabledChallenges().map((c,i)=>[
     plainConcept:c.plainConcept,
     advancedTerms:c.advancedTerms,
     takeaway:c.takeaway,
+    checkQuestion:c.checkQuestion,
+    checkOptions:c.checkOptions,
     evidence:c.labKey,
     wow:c.wow,
     reality:c.takeaway,
