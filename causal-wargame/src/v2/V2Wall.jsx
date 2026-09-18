@@ -13,22 +13,23 @@ function decisionText(round,payload={}){
   return 'Ofrecer: '+((payload.treat||[]).join(', ')||'ninguno')+' · No ofrecer: '+((payload.avoid||[]).join(', ')||'ninguno')
 }
 
-function TopThree({rows=[],show=true}){
+function TopThree({rows=[],show=true,leaderCount=0,leaderPoints=0}){
   const top=rows.slice(0,3)
-  if(!show)return <section className="v2-wall-top3 waiting"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Se activa al cerrar la primera pregunta puntuable.</span></div><div className="v2-top3-wait">Todavía no hay ranking. Primero entiende el laboratorio.</div></section>
-  return <section className="v2-wall-top3"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Puntaje individual acumulado</span></div><div className="v2-podium">{[1,0,2].map(index=>{const x=top[index];if(!x)return <div className="empty" key={index}/>;const rank=x.rank||index+1;return <article className={'rank-'+rank} key={x.player_id}><Medal size={rank===1?30:24}/><strong>{rank}°</strong><h2>{x.name}</h2><span>{x.team}</span><b>{x.points} pts</b><small>+{x.round_points||0} en este reto</small></article>})}</div></section>
+  if(!show)return <section className="v2-wall-top3 waiting"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Se activa cuando cierre el primer laboratorio.</span></div><div className="v2-top3-wait">Todavía no hay puntaje público.</div></section>
+  return <section className="v2-wall-top3"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Puntaje individual acumulado</span></div>{Number(leaderCount)>3&&<div className="v2-alert hint"><span><b>Empate provisional:</b> {leaderCount} participantes tienen {leaderPoints} puntos.</span></div>}<div className="v2-podium">{[1,0,2].map(index=>{const x=top[index];if(!x)return <div className="empty" key={index}/>;const rank=x.rank||index+1;return <article className={'rank-'+rank} key={x.player_id}><Medal size={rank===1?30:24}/><strong>{rank}°</strong><h2>{x.name}</h2><span>{x.team}</span><b>{x.points} pts</b><small>+{x.round_points||0} en este reto</small></article>})}</div></section>
 }
 
 function CheckpointBoard({data,activeTeams}){
   const c=data.checkpoint||{}
   const humans=Math.max(1,Number(c.humans||data.humans||0))
   const teams=Math.max(1,activeTeams.length)
+  const score=data.scoring||{}
   const rows=[
     ['Decisión inicial',Number(c.initial||0),humans,'sin puntos'],
-    ['Laboratorio',Number(c.lab||0),humans,'+20 pts'],
-    ['Pregunta de cierre',Number(c.check||0),humans,'hasta +30 pts'],
-    ['Revisión',Number(c.revision||0),humans,'+20 pts'],
-    ['Decisión de equipo',Number(c.teams_locked||0),teams,'hasta +30 pts al revelar']
+    ['Laboratorio',Number(c.lab||0),humans,`+${Number(score.lab??20)} pts`],
+    ['Pregunta de cierre',Number(c.check||0),humans,`hasta +${Number(score.check??30)} pts`],
+    ['Revisión',Number(c.revision||0),humans,`+${Number(score.revision??20)} pts`],
+    ['Decisión de equipo',Number(c.teams_locked||0),teams,`hasta +${Number(score.team??30)} pts al revelar`]
   ]
   let current='Decisión inicial'
   for(const row of rows){if(row[1]<row[2]){current=row[0];break}else current='Esperando resultado'}
@@ -84,7 +85,7 @@ export default function V2Wall(){
       <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
 
       <div className="v2-wall-primary-grid">
-        <TopThree rows={data.top3||[]} show={g.round>1||(Number(data.checkpoint?.humans||0)>0&&Number(data.checkpoint?.check||0)>=Number(data.checkpoint?.humans||0))}/>
+        <TopThree rows={data.top3||[]} show={Boolean(data.ranking_visible)} leaderCount={data.leader_count||0} leaderPoints={data.leader_points||0}/>
         <CheckpointBoard data={data} activeTeams={activeTeams}/>
       </div>
 
