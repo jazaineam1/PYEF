@@ -71,10 +71,25 @@ try{
   assert(ready.ok&&ready.data.team_decision&&ready.data.team_decision.result===null,'V2 state redacts score before reveal')
   assert(ready.data.reveal===null,'V2 reveal remains hidden during round')
 
+  for(const other of groups.values()){
+    if(other===team)continue
+    for(const member of other){
+      const selected=member.state.packet.slice(0,2).map(c=>c.id)
+      const x=await gt(member.token,'v2-submit',{action:'individual',round:1,payload:{selected}})
+      assert(x.ok,'V2 all teams can submit individual proposals')
+    }
+    const os=await gt(other[0].token,'v2-state')
+    assert(os.ok&&os.data.team.all_submitted,'V2 other team reaches full participation')
+    const x=await gt(other[0].token,'v2-submit',{action:'team',round:1,payload:{selected:['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10']}})
+    assert(x.ok,'V2 all teams can lock a team decision')
+  }
+
   const wall=await call('v2-wall-state',{game_code:game})
   assert(wall.ok&&wall.data.humans===16,'V2 wall shows all joined humans')
   const wallTeam=wall.data.teams.find(t=>t.id===team[0].state.player.team_id)
   assert(wallTeam?.submitted===4&&wallTeam?.decision===true,'V2 wall shows team proposal/decision progress')
+  assert(wall.data.teams.every(t=>t.humans===0||t.round_score===null),'V2 public wall hides current round scores while decisions are open')
+  assert(Array.isArray(wall.data.decisions)&&wall.data.decisions.length===0,'V2 public wall hides team decisions until round close/reveal')
 
   r=await call('v2-facilitator',{action:'reveal'},{'x-facilitator-token':ft})
   assert(r.ok,'V2 reveal action')
@@ -85,7 +100,17 @@ try{
   analysis=await gt(team[2].token,'v2-analysis')
   assert(analysis.ok&&analysis.data.reveal_tools?.score_uplift?.length===24,'V2 score-vs-uplift and two-futures data unlock only at reveal')
 
-  console.log('DOS_FUTUROS_V2_OK · 16 humans · distributed packets · 4/4 gate · visual evidence unlocked progressively · reveal protected · wall progress')
+  const wallAfter=await call('v2-wall-state',{game_code:game})
+  assert(wallAfter.ok,'V2 wall refreshes after reveal')
+  const activeTeams=wallAfter.data.teams.filter(t=>t.humans>0)
+  assert(activeTeams.every(t=>Number.isInteger(t.round_score)),'V2 round score becomes visible only after reveal')
+  assert(activeTeams.every(t=>t.total_score===t.round_score&&t.rounds_scored===1),'V2 cumulative scoreboard updates after the round')
+  assert(wallAfter.data.decisions.length===activeTeams.length,'V2 projector shows every team decision after reveal')
+  const playerBoard=await gt(team[0].token,'v2-state')
+  assert(playerBoard.ok&&playerBoard.data.all_team_decisions.length===activeTeams.length,'V2 players can compare all team decisions after reveal')
+  assert(playerBoard.data.scoreboard.some(t=>t.total_score>0),'V2 players receive the cumulative score board after reveal')
+
+  console.log('DOS_FUTUROS_V2_OK · 16 humans · compact evidence · 4/4 gate · all-team decisions · score hidden until close · cumulative Kahoot board · reveal protected')
 }finally{
   login=await call('facilitator-login',{game_code:game,pin})
   if(login.ok){ft=login.data.token;await call('v2-facilitator',{action:'reset'},{'x-facilitator-token':ft})}
