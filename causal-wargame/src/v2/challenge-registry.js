@@ -19,6 +19,7 @@ export const V2_CHALLENGES=[
     template:'cohort-selection',
     profileRound:1,
     labKey:'prediction',
+    points:{lab:20,check:30,revision:20,team:30},
     kicker:'RETO 1',
     title:'¿A quién le darías un mes gratis?',
     simpleQuestion:'Una app no puede regalar un mes a todos. ¿A qué grupos se lo darías para lograr más renovaciones?',
@@ -48,6 +49,7 @@ export const V2_CHALLENGES=[
     template:'recommendation',
     profileRound:2,
     labKey:'comparison',
+    points:{lab:20,check:30,revision:20,team:30},
     kicker:'RETO 2',
     title:'¿El mes gratis está funcionando?',
     simpleQuestion:'En el histórico, quienes recibieron el mes gratis renovaron menos. ¿Eso prueba que el incentivo empeoró las renovaciones?',
@@ -77,6 +79,7 @@ export const V2_CHALLENGES=[
     template:'segment-policy',
     profileRound:3,
     labKey:'experiment',
+    points:{lab:20,check:30,revision:20,team:30},
     kicker:'RETO 3',
     title:'¿A quién se lo darías ahora?',
     simpleQuestion:'En una prueba aleatoria el mes gratis ayudó en promedio. ¿Eso significa que debemos ofrecérselo a todos los grupos?',
@@ -117,6 +120,7 @@ export function validateChallengeRegistry(challenges=V2_CHALLENGES){
       if(!c[key])errors.push(`${c.id||'reto'}: falta ${key}`)
     }
     if(![1,2,3].includes(Number(c.profileRound)))errors.push(`${c.id||'reto'}: profileRound debe ser 1, 2 o 3`)
+    if(!c.points||['lab','check','revision','team'].some(k=>!Number.isFinite(Number(c.points[k]))))errors.push(`${c.id||'reto'}: falta configuración de puntos`)
     if(!Array.isArray(c.checkOptions)||c.checkOptions.length<2)errors.push(`${c.id||'reto'}: faltan opciones de la pregunta de cierre`)
     if(!Array.isArray(c.journey)||c.journey.length<8)errors.push(`${c.id||'reto'}: journey incompleto`)
   }
@@ -130,6 +134,7 @@ export const CHALLENGE_TEMPLATE={
   template:'recommendation',
   profileRound:2,
   labKey:'comparison',
+  points:{lab:20,check:30,revision:20,team:30},
   kicker:'RETO 4',
   title:'Pregunta corta del reto',
   simpleQuestion:'La pregunta que el estudiante debe poder responder.',
