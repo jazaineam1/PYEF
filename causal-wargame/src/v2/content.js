@@ -34,7 +34,7 @@ export const V2_ROUNDS=Object.fromEntries(enabledChallenges().map((c,i)=>[
 export{V2_CHALLENGE_COUNT}
 
 export const RECOMMENDATIONS=[
-  ['cancel','Cancelar el bono'],
+  ['cancel','Cancelar el mes gratis'],
   ['keep','Mantenerlo como está'],
   ['redesign','Pedir una comparación mejor']
 ]
