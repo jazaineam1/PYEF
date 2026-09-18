@@ -32,7 +32,7 @@ test('simulator exposes individual journey, team map and adaptive authoring view
 test('simulated student sees scored check and simple concept before the technical name',()=>{
   const src=readFileSync('src/v2/V2Simulator.jsx','utf8')
   assert.match(src,/phase\.id==='check'/)
-  assert.match(src,/30 PUNTOS/)
+  assert.match(src,/pointsOf\(round\)\.check/)
   assert.match(src,/phase\.id==='wait_revision'/)
   assert.match(src,/Puntaje visible/)
   assert.match(src,/Primero, en palabras simples/)
