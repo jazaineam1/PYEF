@@ -16,7 +16,7 @@ const safeObs=rows=>(rows||[]).map(r=>({
   riesgo_previo:n(r.risk),
   uso:n(r.usage),
   antiguedad:n(r.tenure),
-  recibio_bono:Boolean(r.treated),
+  recibio_mes_gratis:Boolean(r.treated),
   renovo:n(r.renewed)
 }))
 
@@ -24,7 +24,7 @@ const safeExp=rows=>(rows||[]).map(r=>({
   segmento:String(r.segment||''),
   uso:n(r.usage),
   antiguedad:n(r.tenure),
-  recibio_bono:Boolean(r.treated),
+  recibio_mes_gratis:Boolean(r.treated),
   renovo:n(r.renewed)
 }))
 
@@ -34,7 +34,7 @@ const safeSegments=rows=>(rows||[]).map(s=>({
   audiencia:n(s.audience),
   riesgo:String(s.risk||''),
   valor_renovacion_cop:n(s.value_per_result??s.value),
-  costo_bono_cop:n(s.unit_cost??s.cost)
+  costo_mes_gratis_cop:n(s.unit_cost??s.cost)
 }))
 
 export function buildPythonLab(round,state={},analysis={}){
@@ -66,7 +66,7 @@ salida["probabilidad_renovacion"] = (100*salida["probabilidad_renovacion"]).roun
 print(salida.sort_values("probabilidad_renovacion", ascending=False).head(10).to_string(index=False))
 
 print("\nPregunta:")
-print("¿Esta tabla dice quién CAMBIARÁ por recibir el bono?")`,
+print("¿Esta tabla dice quién CAMBIARÁ por recibir el mes gratis?")`,
           advancedCode:`import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
@@ -90,7 +90,7 @@ cohortes["p_modelo"] = m.predict_proba(cohortes[features])[:,1]
 print("\nTop 10 por modelo reentrenado:")
 print(cohortes[["id","cohorte","p_modelo"]].sort_values("p_modelo",ascending=False).head(10).to_string(index=False))
 
-print("\nUn AUC alto evalúa predicción. No identifica el efecto del bono.")`
+print("\nUn AUC alto evalúa predicción. No identifica el efecto del mes gratis.")`
         },
         {
           id:'visual',
@@ -110,7 +110,7 @@ plt.xticks(rotation=60)
 plt.tight_layout()
 
 print("La gráfica responde: ¿quién probablemente renovará?")
-print("Todavía no responde: ¿quién renovará GRACIAS al bono?")`,
+print("Todavía no responde: ¿quién renovará GRACIAS al mes gratis?")`,
           advancedCode:`import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
@@ -144,26 +144,26 @@ print("No observa dos futuros de la misma cohorte.")`
         {
           id:'raw',
           label:'1 · Comparar',
-          question:'¿Qué parece decir el histórico si sólo comparamos bono vs. no bono?',
+          question:'¿Qué parece decir el histórico si sólo comparamos mes gratis vs. no mes gratis?',
           instruction:'Haz la comparación directa. Todavía no la llames “efecto”.',
           guidedCode:`import pandas as pd
 
 df = pd.DataFrame(payload["historico"])
 
-tasas = df.groupby("recibio_bono")["renovo"].mean()*100
-print("Sin bono :", round(tasas.loc[False],1), "%")
-print("Con bono :", round(tasas.loc[True],1), "%")
+tasas = df.groupby("recibio_mes_gratis")["renovo"].mean()*100
+print("Sin mes gratis :", round(tasas.loc[False],1), "%")
+print("Con mes gratis :", round(tasas.loc[True],1), "%")
 print("Diferencia observada:", round(tasas.loc[True]-tasas.loc[False],1), "pp")
 
-print("\n¿Esto prueba que el bono empeoró la renovación?")`,
+print("\n¿Esto prueba que el mes gratis empeoró la renovación?")`,
           advancedCode:`import pandas as pd
 
 df = pd.DataFrame(payload["historico"])
-crudo = df.groupby("recibio_bono")["renovo"].mean()
+crudo = df.groupby("recibio_mes_gratis")["renovo"].mean()
 
 print("Diferencia cruda:", round(100*(crudo.loc[True]-crudo.loc[False]),1), "pp")
-print("\nProbabilidad de recibir bono según riesgo previo:")
-print((100*df.groupby("riesgo_previo")["recibio_bono"].mean()).round(1).to_string())`
+print("\nProbabilidad de recibir mes gratis según riesgo previo:")
+print((100*df.groupby("riesgo_previo")["recibio_mes_gratis"].mean()).round(1).to_string())`
         },
         {
           id:'stratify',
@@ -175,7 +175,7 @@ print((100*df.groupby("riesgo_previo")["recibio_bono"].mean()).round(1).to_strin
 df = pd.DataFrame(payload["historico"])
 
 tabla = (
-    df.groupby(["riesgo_previo","recibio_bono"])["renovo"]
+    df.groupby(["riesgo_previo","recibio_mes_gratis"])["renovo"]
       .mean().mul(100).round(1).unstack()
 )
 
@@ -190,7 +190,7 @@ from sklearn.linear_model import LogisticRegression
 
 df = pd.DataFrame(payload["historico"])
 X = df[["riesgo_previo","uso","antiguedad"]]
-T = df["recibio_bono"].astype(int)
+T = df["recibio_mes_gratis"].astype(int)
 Y = df["renovo"].astype(float)
 
 m = LogisticRegression(max_iter=1000).fit(X,T)
@@ -217,8 +217,8 @@ import matplotlib.pyplot as plt
 
 df = pd.DataFrame(payload["historico"])
 
-tabla = pd.crosstab(df["riesgo_previo"],df["recibio_bono"],normalize="index")*100
-print("Distribución de bono dentro de cada riesgo (%)")
+tabla = pd.crosstab(df["riesgo_previo"],df["recibio_mes_gratis"],normalize="index")*100
+print("Distribución de mes gratis dentro de cada riesgo (%)")
 print(tabla.round(1).to_string())
 
 tabla.plot(kind="bar",figsize=(7,4))
@@ -234,15 +234,15 @@ from sklearn.linear_model import LogisticRegression
 
 df = pd.DataFrame(payload["historico"])
 X = df[["riesgo_previo","uso","antiguedad"]]
-T = df["recibio_bono"].astype(int)
+T = df["recibio_mes_gratis"].astype(int)
 
 m = LogisticRegression(max_iter=1000).fit(X,T)
 df["ps"] = np.clip(m.predict_proba(X)[:,1],.01,.99)
 
 plt.figure(figsize=(7,4))
-plt.hist(df.loc[T==0,"ps"],bins=18,alpha=.65,label="Sin bono")
-plt.hist(df.loc[T==1,"ps"],bins=18,alpha=.65,label="Con bono")
-plt.xlabel("Probabilidad estimada de recibir bono")
+plt.hist(df.loc[T==0,"ps"],bins=18,alpha=.65,label="Sin mes gratis")
+plt.hist(df.loc[T==1,"ps"],bins=18,alpha=.65,label="Con mes gratis")
+plt.xlabel("Probabilidad estimada de recibir mes gratis")
 plt.ylabel("Observaciones")
 plt.legend()
 plt.tight_layout()
@@ -271,17 +271,17 @@ print("Esto se conoce como overlap o soporte común.")`
           guidedCode:`import pandas as pd
 
 df = pd.DataFrame(payload["experimento"])
-tasas = df.groupby("recibio_bono")["renovo"].mean()*100
+tasas = df.groupby("recibio_mes_gratis")["renovo"].mean()*100
 
-print("Sin bono :", round(tasas.loc[False],1), "%")
-print("Con bono :", round(tasas.loc[True],1), "%")
+print("Sin mes gratis :", round(tasas.loc[False],1), "%")
+print("Con mes gratis :", round(tasas.loc[True],1), "%")
 print("Cambio promedio:", round(tasas.loc[True]-tasas.loc[False],1), "pp")`,
           advancedCode:`import pandas as pd
 import numpy as np
 
 df = pd.DataFrame(payload["experimento"])
-y1 = df.loc[df["recibio_bono"],"renovo"].astype(float)
-y0 = df.loc[~df["recibio_bono"],"renovo"].astype(float)
+y1 = df.loc[df["recibio_mes_gratis"],"renovo"].astype(float)
+y0 = df.loc[~df["recibio_mes_gratis"],"renovo"].astype(float)
 
 efecto = y1.mean()-y0.mean()
 se = np.sqrt(y1.var(ddof=1)/len(y1)+y0.var(ddof=1)/len(y0))
@@ -301,7 +301,7 @@ print("\nTérmino técnico: ATE e intervalo de confianza.")`
 df = pd.DataFrame(payload["experimento"])
 
 tabla = (
-    df.groupby(["segmento","recibio_bono"])["renovo"]
+    df.groupby(["segmento","recibio_mes_gratis"])["renovo"]
       .mean().mul(100).round(1).unstack()
 )
 tabla["cambio_pp"] = tabla[True]-tabla[False]
@@ -317,8 +317,8 @@ X = pd.get_dummies(df[["segmento","uso","antiguedad"]],columns=["segmento"],drop
 
 m1 = RandomForestRegressor(n_estimators=120,min_samples_leaf=20,random_state=42)
 m0 = RandomForestRegressor(n_estimators=120,min_samples_leaf=20,random_state=42)
-m1.fit(X[df["recibio_bono"]],df.loc[df["recibio_bono"],"renovo"])
-m0.fit(X[~df["recibio_bono"]],df.loc[~df["recibio_bono"],"renovo"])
+m1.fit(X[df["recibio_mes_gratis"]],df.loc[df["recibio_mes_gratis"],"renovo"])
+m0.fit(X[~df["recibio_mes_gratis"]],df.loc[~df["recibio_mes_gratis"],"renovo"])
 
 df["efecto_estimado"] = m1.predict(X)-m0.predict(X)
 print((100*df.groupby("segmento")["efecto_estimado"].mean()).round(1).sort_values(ascending=False).to_string())
@@ -328,7 +328,7 @@ print("\nTérmino avanzado: T-Learner para heterogeneidad del efecto.")`
         {
           id:'money',
           label:'3 · Dinero',
-          question:'¿Qué grupos generan valor después de pagar el bono?',
+          question:'¿Qué grupos generan valor después de pagar el mes gratis?',
           instruction:'Convierte el cambio observado por segmento a valor incremental.',
           guidedCode:`import pandas as pd
 
@@ -337,7 +337,7 @@ seg = pd.DataFrame(payload["segmentos"])
 eco = payload["economia"]
 
 tabla = (
-    df.groupby(["segmento","recibio_bono"])["renovo"]
+    df.groupby(["segmento","recibio_mes_gratis"])["renovo"]
       .mean().unstack()
 )
 tabla["efecto"] = tabla[True]-tabla[False]
@@ -364,8 +364,8 @@ eco = payload["economia"]
 X = pd.get_dummies(df[["segmento","uso","antiguedad"]],columns=["segmento"],drop_first=False)
 m1 = RandomForestRegressor(n_estimators=120,min_samples_leaf=20,random_state=42)
 m0 = RandomForestRegressor(n_estimators=120,min_samples_leaf=20,random_state=42)
-m1.fit(X[df["recibio_bono"]],df.loc[df["recibio_bono"],"renovo"])
-m0.fit(X[~df["recibio_bono"]],df.loc[~df["recibio_bono"],"renovo"])
+m1.fit(X[df["recibio_mes_gratis"]],df.loc[df["recibio_mes_gratis"],"renovo"])
+m0.fit(X[~df["recibio_mes_gratis"]],df.loc[~df["recibio_mes_gratis"],"renovo"])
 df["efecto"] = m1.predict(X)-m0.predict(X)
 cate = df.groupby("segmento")["efecto"].mean()
 
