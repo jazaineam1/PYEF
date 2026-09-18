@@ -2,14 +2,14 @@ const n=x=>Number(x||0)
 
 const safeCustomers=rows=>(rows||[]).map(c=>({
   id:String(c.id||''),
-  cohorte:String(c.name||c.id||''),
+  grupo:String(c.name||c.id||''),
   segmento:String(c.segment||''),
   uso:n(c.usage),
   incidentes:n(c.bugs),
   descuento:n(c.discount),
   antiguedad:n(c.tenure),
   probabilidad_renovacion:n(c.score),
-  tamano_cohorte:n(c.cohort_size||1000)
+  tamano_grupo:n(c.cohort_size||1000)
 }))
 
 const safeObs=rows=>(rows||[]).map(r=>({
@@ -43,7 +43,7 @@ export function buildPythonLab(round,state={},analysis={},labKey=null){
 
   if(profile==='prediction'){
     const context={
-      cohortes:safeCustomers(state.team_pool||[]),
+      grupos:safeCustomers(state.team_pool||[]),
       entrenamiento:(tools.ml_training||[]).map(r=>({
         uso:n(r.usage),incidentes:n(r.bugs),descuento:n(r.discount),antiguedad:n(r.tenure),renovo:n(r.renewed)
       }))
@@ -59,9 +59,9 @@ export function buildPythonLab(round,state={},analysis={},labKey=null){
           instruction:'Empieza con algo simple: ordena la probabilidad que ya produjo el modelo.',
           guidedCode:`import pandas as pd
 
-df = pd.DataFrame(payload["cohortes"])
+df = pd.DataFrame(payload["grupos"])
 
-salida = df[["id","cohorte","probabilidad_renovacion"]].copy()
+salida = df[["id","grupo","probabilidad_renovacion"]].copy()
 salida["probabilidad_renovacion"] = (100*salida["probabilidad_renovacion"]).round(1)
 
 print(salida.sort_values("probabilidad_renovacion", ascending=False).head(10).to_string(index=False))
@@ -74,7 +74,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 
 train = pd.DataFrame(payload["entrenamiento"])
-cohortes = pd.DataFrame(payload["cohortes"])
+grupos = pd.DataFrame(payload["grupos"])
 features = ["uso","incidentes","descuento","antiguedad"]
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -87,9 +87,9 @@ p = m.predict_proba(X_test)[:,1]
 print("AUC predictivo:", round(roc_auc_score(y_test,p),3))
 
 m.fit(train[features],train["renovo"])
-cohortes["p_modelo"] = m.predict_proba(cohortes[features])[:,1]
+grupos["p_modelo"] = m.predict_proba(grupos[features])[:,1]
 print("\nTop 10 por modelo reentrenado:")
-print(cohortes[["id","cohorte","p_modelo"]].sort_values("p_modelo",ascending=False).head(10).to_string(index=False))
+print(grupos[["id","grupo","p_modelo"]].sort_values("p_modelo",ascending=False).head(10).to_string(index=False))
 
 print("\nUn AUC alto evalúa predicción. No identifica el efecto del mes gratis.")`
         },
@@ -101,12 +101,12 @@ print("\nUn AUC alto evalúa predicción. No identifica el efecto del mes gratis
           guidedCode:`import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.DataFrame(payload["cohortes"]).sort_values("probabilidad_renovacion")
+df = pd.DataFrame(payload["grupos"]).sort_values("probabilidad_renovacion")
 
 plt.figure(figsize=(8,4))
 plt.bar(df["id"],100*df["probabilidad_renovacion"])
 plt.ylabel("Probabilidad estimada de renovación (%)")
-plt.xlabel("Cohorte")
+plt.xlabel("Grupo")
 plt.xticks(rotation=60)
 plt.tight_layout()
 
@@ -117,7 +117,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 
 train = pd.DataFrame(payload["entrenamiento"])
-df = pd.DataFrame(payload["cohortes"])
+df = pd.DataFrame(payload["grupos"])
 features = ["uso","incidentes","descuento","antiguedad"]
 
 m = LogisticRegression(max_iter=1000).fit(train[features],train["renovo"])
@@ -130,7 +130,7 @@ ax.set_ylabel("Probabilidad estimada de renovación (%)")
 fig.tight_layout()
 
 print("El modelo describe P(renovación | características).")
-print("No observa dos futuros de la misma cohorte.")`
+print("No observa dos futuros del mismo grupo.")`
         }
       ]
     }
@@ -169,7 +169,7 @@ print((100*df.groupby("riesgo_previo")["recibio_mes_gratis"].mean()).round(1).to
         {
           id:'stratify',
           label:'2 · Igualar',
-          question:'¿Qué pasa si comparamos clientes con un riesgo previo parecido?',
+          question:'¿Qué pasa si comparamos usuarios con un riesgo previo parecido?',
           instruction:'Separa por riesgo previo y vuelve a comparar dentro de cada grupo.',
           guidedCode:`import pandas as pd
 
@@ -211,7 +211,7 @@ print("La técnica ayuda a construir comparabilidad; no elimina los supuestos.")
         {
           id:'overlap',
           label:'3 · Comprobar',
-          question:'¿Existen clientes parecidos en ambos grupos?',
+          question:'¿Existen usuarios parecidos en ambos grupos?',
           instruction:'En modo guiado mira la distribución del riesgo. El modo avanzado muestra overlap con propensity score.',
           guidedCode:`import pandas as pd
 import matplotlib.pyplot as plt
@@ -268,7 +268,7 @@ print("Esto se conoce como overlap o soporte común.")`
           id:'experiment',
           label:'1 · Promedio',
           question:'En un experimento aleatorizado, ¿cuánto cambió la renovación en promedio?',
-          instruction:'Compara directamente tratamiento y control.',
+          instruction:'Compara directamente quienes recibieron el mes gratis y quienes no.',
           guidedCode:`import pandas as pd
 
 df = pd.DataFrame(payload["experimento"])
@@ -353,7 +353,7 @@ print(seg[["segmento","audiencia","efecto_estimado","valor_incremental_cop"]]
       .sort_values("valor_incremental_cop",ascending=False)
       .to_string(index=False))
 
-print("\nCapacidad:", int(eco["capacity"]), "clientes")`,
+print("\nCapacidad:", int(eco["capacity"]), "usuarios")`,
           advancedCode:`import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
