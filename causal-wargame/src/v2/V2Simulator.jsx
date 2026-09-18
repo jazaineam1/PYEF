@@ -5,12 +5,13 @@ import{enabledChallenges}from'./challenge-registry'
 import{EvidenceLab,MiniShapBars,PolicyMeter,RevealVisuals}from'./VisualTools'
 import{
   SIM_PLAYERS,SIM_ECONOMY,SIM_CUSTOMERS,SIM_SEGMENTS,SIM_ANALYSIS,SIM_PATHS,
-  SIM_TEAM_DECISIONS,SIM_REVEALS
+  SIM_TEAM_DECISIONS,SIM_REVEALS,SIM_TEAM_POINTS
 }from'./simulator-fixtures'
 
 const pct=n=>`${Math.round(Number(n||0)*100)}%`
 const cop=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Number(n||0))
 const copShort=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',notation:'compact',maximumFractionDigits:1}).format(Number(n||0))
+const pathScore=(studentId,round,kind)=>kind==='check'?Number(SIM_PATHS[studentId]?.[round]?.checkPoints||0):0
 
 function decisionText(round,payload={}){
   if(round===1)return (payload.selected||[]).join(', ')||'—'
@@ -77,17 +78,21 @@ function StudentStage({round,phase,student,state}){
 
   if(phase.id==='wait_initial')return <section className="v2-journey-stage"><div className="v2-step"><b>ESPERA AL EQUIPO</b><span>El laboratorio se abre cuando todos han tomado una primera decisión.</span></div><div className="v2-team-roster">{SIM_PLAYERS.map(p=><div className="ready" key={p.id}><span>✓</span>{p.name}</div>)}</div><div className="v2-alert"><Users size={18}/><span>4/4 decisiones iniciales. Ahora se desbloquea la evidencia.</span></div></section>
 
-  if(phase.id==='lab')return <section className="v2-journey-stage"><div className="v2-step"><b>PRUEBA TU IDEA CON DATOS</b><span>Modo guiado primero. “Profundizar” es opcional.</span></div><EvidenceLab round={round} state={state} analysis={SIM_ANALYSIS[round]}/></section>
+  if(phase.id==='lab')return <section className="v2-journey-stage"><div className="v2-step"><b>PRUEBA TU IDEA CON DATOS</b><span>Todo el laboratorio está visible en una sola página.</span></div><EvidenceLab round={round} state={state} analysis={SIM_ANALYSIS[round]}/><div className="v2-alert"><span>Al terminar todos los bloques, {student.name} recibe <b>+20 puntos</b>.</span></div></section>
 
-  if(phase.id==='revision')return <section className="v2-journey-stage"><div className="v2-step"><b>¿CAMBIAS TU DECISIÓN?</b><span>{r.revise}</span></div><StudentCards round={round} answer={path.revision}/><div className="v2-sim-decision-note changed"><b>{student.name} ahora piensa:</b> “{path.noteRevision}”</div><button className="v2-primary wide">Guardar decisión revisada</button></section>
+  if(phase.id==='check')return <section className="v2-journey-stage"><div className="v2-step"><b>PREGUNTA DE CIERRE · 30 PUNTOS</b><span>Una comprobación corta antes de revisar la decisión.</span></div><h2>{r.checkQuestion}</h2><div className="v2-check-options">{(r.checkOptions||[]).map(([v,label])=><button type="button" className={path.checkAnswer===v?'selected':''} key={v}><b>{v.toUpperCase()}</b><span>{label}</span></button>)}</div><div className={`v2-check-result ${path.checkPoints?'correct':'wrong'}`}><strong>{path.checkPoints}/30 puntos</strong><span>{path.checkPoints?'Respuesta correcta.':'No sumó puntos en esta pregunta.'}</span></div></section>
+
+  if(phase.id==='revision')return <section className="v2-journey-stage"><div className="v2-step"><b>¿CAMBIAS TU DECISIÓN?</b><span>{r.revise}</span></div><StudentCards round={round} answer={path.revision}/><div className="v2-sim-decision-note changed"><b>{student.name} ahora piensa:</b> “{path.noteRevision}”</div><button className="v2-primary wide">Guardar decisión revisada · +20 puntos</button></section>
+
+  if(phase.id==='wait_revision')return <section className="v2-journey-stage"><div className="v2-step"><b>ESPERA AL EQUIPO</b><span>Todos deben revisar antes de construir la decisión final.</span></div><div className="v2-team-roster">{SIM_PLAYERS.map(p=><div className="ready" key={p.id}><span>✓</span>{p.name}</div>)}</div><div className="v2-alert"><span>4/4 revisiones. Ya pueden decidir juntos.</span></div></section>
 
   if(phase.id==='compare')return <section className="v2-journey-stage"><div className="v2-step"><b>¿QUÉ CAMBIÓ EN EL EQUIPO?</b><span>El estudiante ve decisiones iniciales y revisadas, no sólo una respuesta final.</span></div><TeamComparison round={round}/></section>
 
-  if(phase.id==='team')return <section className="v2-journey-stage"><div className="v2-step"><b>DECIDAN JUNTOS</b><span>{r.team}</span></div><TeamDecision round={round}/><button className="v2-primary wide">Bloquear decisión del equipo</button></section>
+  if(phase.id==='team')return <section className="v2-journey-stage"><div className="v2-step"><b>DECIDAN JUNTOS</b><span>{r.team}</span></div><TeamDecision round={round}/><button className="v2-primary wide">Bloquear decisión del equipo</button><div className="v2-alert"><span>El puntaje del equipo se mantiene oculto hasta el resultado.</span></div></section>
 
-  if(phase.id==='reveal')return <section className="v2-journey-stage"><RevealPanel round={round} state={state}/></section>
+  if(phase.id==='reveal')return <section className="v2-journey-stage"><div className="v2-result"><b>Puntaje del equipo</b><strong>+{SIM_TEAM_POINTS[round]} pts</strong><span>Todos los integrantes reciben el mismo puntaje de decisión final.</span></div><RevealPanel round={round} state={state}/></section>
 
-  return <section className="v2-journey-stage"><div className="v2-kicker">LO QUE EL ESTUDIANTE DEBERÍA PODER DECIR</div><h2>{r.plainConcept}</h2><p className="v2-lead">{r.takeaway}</p><div className="v2-concept-ladder"><div><small>Primero, en palabras simples</small><strong>{r.plainConcept}</strong></div><ArrowRight size={22}/><div><small>Después se nombra</small><strong>{r.concept}</strong></div></div><details className="v2-advanced-terms"><summary>Vocabulario para profundizar, no obligatorio</summary><p>{(r.advancedTerms||[]).join(' · ')||'Sin términos adicionales.'}</p></details></section>
+  return <section className="v2-journey-stage"><div className="v2-kicker">LO QUE EL ESTUDIANTE DEBERÍA PODER DECIR</div><h2>{r.plainConcept}</h2><p className="v2-lead">{r.takeaway}</p><div className="v2-concept-ladder"><div><small>Primero, en palabras simples</small><strong>{r.plainConcept}</strong></div><ArrowRight size={22}/><div><small>Después se nombra</small><strong>{r.concept}</strong></div></div></section>
 }
 
 function TeacherMap({round,onStudent}){
@@ -149,7 +154,7 @@ export default function V2Simulator(){
       <>
         <JourneyTimeline journey={journey} index={phaseIndex} onSelect={setPhaseIndex}/>
         <div className="v2-student-sim-frame">
-          <header><div><span>Simulando a</span><strong>{student.name}</strong></div><div><span>Reto {round}/{V2_CHALLENGE_COUNT}</span><strong>{challenge.title}</strong></div></header>
+          <header><div><span>Simulando a</span><strong>{student.name}</strong></div><div><span>Reto {round}/{V2_CHALLENGE_COUNT}</span><strong>{challenge.title}</strong></div><div><span>Puntaje visible</span><strong>{phase.id==='brief'||phase.id==='initial'||phase.id==='wait_initial'?0:phase.id==='lab'?20:phase.id==='check'?20+pathScore(studentId,round,'check'):phase.id==='revision'||phase.id==='wait_revision'||phase.id==='team'?40+pathScore(studentId,round,'check'):70+pathScore(studentId,round,'check')}/100</strong></div></header>
           <StudentStage round={round} phase={phase} student={student} state={state}/>
         </div>
 
