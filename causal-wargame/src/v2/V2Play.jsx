@@ -35,7 +35,7 @@ function useV2Analysis(state){
 function Header({state,onExit}){
   const r=V2_ROUNDS[state.game.round]
   const me=state.progress?.my
-  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>V2</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Reto {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>{state.game.round>1||me?.check_answered?`#${me?.rank??'—'}`:'sin ranking aún'}</span></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
+  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>V2</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Reto {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>{me?.rank_visible?`#${me?.rank??'—'}${Number(me?.tie_count||0)>1?` · empate ${me.tie_count}`:''}`:'ranking al cierre'}</span></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
 }
 
 function MissionStrip({round}){
@@ -108,11 +108,12 @@ function StudentProgress({state}){
   const current=normalize(phase)
   const idx=Math.max(0,PHASES.findIndex(x=>x[0]===current))
   const me=progress.my||{}
-  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>ESTE RETO</small><strong>{me.round_points??0}<em>/100</em></strong></div><div><small>POSICIÓN</small><strong>{state.game.round>1||me.check_answered?`#${me.rank??'—'}`:'—'}</strong></div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
+  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>ESTE RETO</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>POSICIÓN</small><strong>{me.rank_visible?`#${me.rank??'—'}`:'—'}</strong>{me.rank_visible&&Number(me.tie_count||0)>1&&<span>empate entre {me.tie_count}</span>}</div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
 }
 
-function CheckpointQuestion({round,onDone}){
+function CheckpointQuestion({round,state,onDone}){
   const r=V2_ROUNDS[round]
+  const maxPoints=Number(state?.progress?.scoring?.check??30)
   const[answer,setAnswer]=useState('')
   const[result,setResult]=useState(null)
   const[busy,setBusy]=useState(false)
@@ -123,7 +124,7 @@ function CheckpointQuestion({round,onDone}){
     catch(e){setErr(e.message)}
     finally{setBusy(false)}
   }
-  return <section className="v2-check-page"><div className="v2-step"><b>PREGUNTA DE CIERRE · 30 PUNTOS</b><span>Una sola pregunta para comprobar que entendiste la idea del laboratorio.</span></div><h2>{r.checkQuestion}</h2><div className="v2-check-options">{(r.checkOptions||[]).map(([v,label])=><button type="button" key={v} className={answer===v?'selected':''} disabled={Boolean(result)} onClick={()=>setAnswer(v)}><b>{v.toUpperCase()}</b><span>{label}</span></button>)}</div>{err&&<div className="v2-alert error">{err}</div>}{!result?<button className="v2-primary wide" disabled={!answer||busy} onClick={submit}>{busy?'Enviando…':'Cerrar pregunta'}</button>:<><div className={`v2-check-result ${result.correct?'correct':'wrong'}`}><strong>{result.points}/{result.max_points} puntos</strong><span>{result.correct?'Correcto. La idea quedó clara.':'No suma puntos esta vez. El siguiente paso te permite revisar tu decisión.'}</span></div><button className="v2-primary wide" onClick={onDone}>Continuar</button></>}</section>
+  return <section className="v2-check-page"><div className="v2-step"><b>PREGUNTA DE CIERRE · {maxPoints} PUNTOS</b><span>Una sola pregunta para comprobar que entendiste la idea del laboratorio.</span></div><h2>{r.checkQuestion}</h2><div className="v2-check-options">{(r.checkOptions||[]).map(([v,label])=><button type="button" key={v} className={answer===v?'selected':''} disabled={Boolean(result)} onClick={()=>setAnswer(v)}><b>{v.toUpperCase()}</b><span>{label}</span></button>)}</div>{err&&<div className="v2-alert error">{err}</div>}{!result?<button className="v2-primary wide" disabled={!answer||busy} onClick={submit}>{busy?'Enviando…':'Cerrar pregunta'}</button>:<><div className={`v2-check-result ${result.correct?'correct':'wrong'}`}><strong>{result.points}/{result.max_points} puntos</strong><span>{result.correct?'Correcto. La idea quedó clara.':'No suma puntos esta vez. El siguiente paso te permite revisar tu decisión.'}</span></div><button className="v2-primary wide" onClick={onDone}>Continuar</button></>}</section>
 }
 
 function proposalText(round,payload={}){
@@ -201,8 +202,8 @@ function RoundPlay({state,refresh,analysis}){
     {template==='segment-policy'&&<PolicyChoice state={state} round={round} onSend={p=>send('individual',p)} busy={busy}/>}
   </>
   else if(phase==='wait_initial')page=<TeamProgress state={state}/>
-  else if(phase==='lab')page=<EvidenceLab round={round} labKey={V2_ROUNDS[round]?.evidence} state={state} analysis={analysis} onComplete={refresh}/>
-  else if(phase==='check')page=<CheckpointQuestion round={round} onDone={refresh}/>
+  else if(phase==='lab')page=<EvidenceLab round={round} labKey={V2_ROUNDS[round]?.evidence} labPoints={state.progress?.scoring?.lab} state={state} analysis={analysis} onComplete={refresh}/>
+  else if(phase==='check')page=<CheckpointQuestion round={round} state={state} onDone={refresh}/>
   else if(phase==='revision')page=<>
     {template==='cohort-selection'&&<IndividualCohorts state={state} round={round} revision onSend={p=>send('revision',p)} busy={busy}/>}
     {template==='recommendation'&&<Recommendation round={round} revision onSend={p=>send('revision',p)} busy={busy}/>}
