@@ -33,13 +33,13 @@ export function ScoreUpliftChart({points=[],selectedId,onSelect}){
   const xmin=Math.min(.2,...xs),xmax=Math.max(.95,...xs),ymin=Math.min(-8,...ys),ymax=Math.max(22,...ys)
   const sx=x=>pad.l+(x-xmin)/(xmax-xmin||1)*(W-pad.l-pad.r)
   const sy=y=>H-pad.b-(y-ymin)/(ymax-ymin||1)*(H-pad.t-pad.b)
-  return <ToolFrame kicker="REVEAL VISUAL" title="Probabilidad estimada vs efecto incremental" question="¿Las cohortes con mayor probabilidad predicha son las que más cambian por la intervención?" footer="Cada punto es un cliente. La línea horizontal marca efecto cero."><svg className="v2-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Probabilidad estimada versus uplift causal"><line className="axis" x1={pad.l} y1={H-pad.b} x2={W-pad.r} y2={H-pad.b}/><line className="axis" x1={pad.l} y1={pad.t} x2={pad.l} y2={H-pad.b}/><line className="zero" x1={pad.l} y1={sy(0)} x2={W-pad.r} y2={sy(0)}/>{[.3,.5,.7,.9].map(t=><g key={t}><line className="tick" x1={sx(t)} y1={H-pad.b} x2={sx(t)} y2={H-pad.b+5}/><text x={sx(t)} y={H-18} textAnchor="middle">{Math.round(t*100)}%</text></g>)}{[ymin,0,10,20].filter((v,i,a)=>v>=ymin&&v<=ymax&&a.indexOf(v)===i).map(t=><g key={t}><line className="tick" x1={pad.l-5} y1={sy(t)} x2={pad.l} y2={sy(t)}/><text x={pad.l-10} y={sy(t)+4} textAnchor="end">{t}</text></g>)}{points.map(p=><g key={p.id} className={selectedId===p.id?'point selected':'point'} onClick={()=>onSelect?.(p.id)}><circle cx={sx(num(p.score))} cy={sy(num(p.uplift_pp))} r={selectedId===p.id?8:6}/><title>{p.id}: score {pct(p.score)} · uplift {pp(p.uplift_pp)}</title></g>)}<text className="axis-label" x={(pad.l+W-pad.r)/2} y={H-2} textAnchor="middle">Probabilidad estimada</text><text className="axis-label" transform={`translate(15 ${(pad.t+H-pad.b)/2}) rotate(-90)`} textAnchor="middle">Efecto incremental (pp)</text></svg></ToolFrame>
+  return <ToolFrame kicker="REVEAL VISUAL" title="Probabilidad de renovar vs cambio por el mes gratis" question="¿Los grupos que parecen más seguros son también los que más cambian?" footer="Cada punto es un grupo. La línea horizontal significa que el mes gratis no cambió la probabilidad."><svg className="v2-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Probabilidad estimada versus cambio por el mes gratis"><line className="axis" x1={pad.l} y1={H-pad.b} x2={W-pad.r} y2={H-pad.b}/><line className="axis" x1={pad.l} y1={pad.t} x2={pad.l} y2={H-pad.b}/><line className="zero" x1={pad.l} y1={sy(0)} x2={W-pad.r} y2={sy(0)}/>{[.3,.5,.7,.9].map(t=><g key={t}><line className="tick" x1={sx(t)} y1={H-pad.b} x2={sx(t)} y2={H-pad.b+5}/><text x={sx(t)} y={H-18} textAnchor="middle">{Math.round(t*100)}%</text></g>)}{[ymin,0,10,20].filter((v,i,a)=>v>=ymin&&v<=ymax&&a.indexOf(v)===i).map(t=><g key={t}><line className="tick" x1={pad.l-5} y1={sy(t)} x2={pad.l} y2={sy(t)}/><text x={pad.l-10} y={sy(t)+4} textAnchor="end">{t}</text></g>)}{points.map(p=><g key={p.id} className={selectedId===p.id?'point selected':'point'} onClick={()=>onSelect?.(p.id)}><circle cx={sx(num(p.score))} cy={sy(num(p.uplift_pp))} r={selectedId===p.id?8:6}/><title>{p.id}: probabilidad {pct(p.score)} · cambio {pp(p.uplift_pp)}</title></g>)}<text className="axis-label" x={(pad.l+W-pad.r)/2} y={H-2} textAnchor="middle">Probabilidad estimada</text><text className="axis-label" transform={`translate(15 ${(pad.t+H-pad.b)/2}) rotate(-90)`} textAnchor="middle">Cambio por el mes gratis (pp)</text></svg></ToolFrame>
 }
 
 export function TwoFuturesPanel({customer}){
   if(!customer)return null
   const p0=num(customer.p0),p1=num(customer.p1),u=num(customer.uplift_pp)
-  return <ToolFrame kicker="DOS FUTUROS" title={`${customer.id} · ${customer.name||'cliente'}`} question="Para la misma persona sólo observamos uno de estos futuros."><div className="v2-futures"><div><span>Sin intervención · Y(0)</span><div className="v2-future-bar"><i style={{width:`${p0*100}%`}}/></div><b>{pct(p0)}</b></div><div><span>Con intervención · Y(1)</span><div className="v2-future-bar alt"><i style={{width:`${p1*100}%`}}/></div><b>{pct(p1)}</b></div><div className={u>=0?'v2-uplift positive':'v2-uplift negative'}><small>Efecto incremental</small><strong>{pp(u)}</strong></div></div></ToolFrame>
+  return <ToolFrame kicker="DOS FUTUROS" title={`${customer.id} · ${customer.name||'cliente'}`} question="Comparamos qué pasaría con y sin el mes gratis."><div className="v2-futures"><div><span>Sin mes gratis</span><div className="v2-future-bar"><i style={{width:`${p0*100}%`}}/></div><b>{pct(p0)}</b></div><div><span>Con mes gratis</span><div className="v2-future-bar alt"><i style={{width:`${p1*100}%`}}/></div><b>{pct(p1)}</b></div><div className={u>=0?'v2-uplift positive':'v2-uplift negative'}><small>Cambio</small><strong>{pp(u)}</strong></div></div></ToolFrame>
 }
 
 export function DagLab({dag}){
@@ -112,32 +112,19 @@ export function PolicyMeter({segments=[],choices={},capacity=15000}){
   </div>
 }
 
-function EvidenceTabs({items=[]}){
-  const[active,setActive]=useState(0)
-  if(!items.length)return null
-  const item=items[Math.min(active,items.length-1)]
-  return <div className="v2-evidence-deck"><div className="v2-evidence-tabs" role="tablist" aria-label="Herramientas de evidencia">{items.map((x,i)=><button type="button" key={x.label} className={active===i?'active':''} onClick={()=>setActive(i)}><b>{i+1}</b><span>{x.label}</span></button>)}</div><div className="v2-evidence-panel">{item.node}</div><div className="v2-evidence-nav"><button type="button" disabled={active===0} onClick={()=>setActive(x=>Math.max(0,x-1))}>← anterior</button><span>{active+1}/{items.length}</span><button type="button" disabled={active===items.length-1} onClick={()=>setActive(x=>Math.min(items.length-1,x+1))}>siguiente →</button></div></div>
-}
-
-export function EvidenceLab({round,state,analysis}){
+export function EvidenceLab({round,state,analysis,labKey,labPoints,onComplete,simulation=false}){
   const tools=analysis?.team_tools
   if(!tools)return null
-  const pool=state?.team_pool||[]
-  const scoreDistribution=<ToolFrame title="Distribución de probabilidades" question="¿La confianza predictiva es lo mismo que impacto causal?"><div className="v2-score-rug">{[...pool].sort((a,b)=>num(a.score)-num(b.score)).map(c=><i key={c.id} style={{left:`${num(c.score)*100}%`}} title={`${c.id} · ${pct(c.score)}`}/>)}</div><div className="v2-score-rug-axis"><span>0%</span><span>Probabilidad estimada de renovación</span><span>100%</span></div><p className="v2-tool-footer">Todavía no conoces Y(0) y Y(1). Esta distribución es predictiva, no causal.</p></ToolFrame>
-  const economicThreshold=num(tools.economy?.renewal_value_cop)>0?100*num(tools.economy?.intervention_cost_cop)/num(tools.economy?.renewal_value_cop):4
-  const visualItems=round===1?[
-    {label:'SHAP',node:<PopulationShapChart summary={tools.feature_summary||[]}/>},
-    {label:'Probabilidades',node:scoreDistribution}
-  ]:round===2?[
-    {label:'DAG',node:<DagLab dag={tools.dag}/>}
-  ]:[
-    {label:'Precisión',node:<PrecisionSimulator curve={tools.precision_curve||[]} threshold={economicThreshold}/>},
-    {label:'Modelos causales',node:<EconMLCompare rows={tools.econml||[]}/>},
-    {label:'Placebo',node:<PlaceboPanel placebo={tools.placebo}/>}
-  ]
-  const pythonItem={label:'Python',node:<PythonEvidenceLab round={round} state={state} analysis={analysis}/>}
-  const items=[...visualItems.slice(0,1),pythonItem,...visualItems.slice(1)]
-  return <section className="v2-evidence-lab"><div className="v2-step compact"><b>PASO 2 · INVESTIGUEN</b><span>La evidencia visual orienta; Python permite modelar y cuantificar antes de revisar su decisión.</span></div><EvidenceTabs items={items}/></section>
+  const profile=labKey||(round===1?'prediction':round===2?'comparison':'experiment')
+  const copy=profile==='prediction'
+    ?'Ordena lo que predice el modelo y fíjate en la pregunta que todavía no puede responder.'
+    :profile==='comparison'
+      ?'Compara primero los grupos tal como aparecen y luego vuelve a comparar usuarios parecidos.'
+      :'Mide el cambio promedio, compáralo por grupos y conviértelo a una decisión con costo.'
+  return <section className="v2-evidence-lab single-page">
+    <div className="v2-step compact"><b>LABORATORIO</b><span>{copy}</span></div>
+    <PythonEvidenceLab round={round} state={state} analysis={analysis} labKey={labKey} labPoints={labPoints} onComplete={onComplete} simulation={simulation}/>
+  </section>
 }
 
 function Round1RevealTools({state,reveal}){
@@ -148,10 +135,21 @@ function Round1RevealTools({state,reveal}){
   return <div className="v2-tools-grid reveal-tools"><ScoreUpliftChart points={points} selectedId={selected} onSelect={setSelected}/><TwoFuturesPanel customer={c}/></div>
 }
 
-export function RevealVisuals({round,state,analysis}){
+function ExperimentSimple({result}){
+  if(!result)return null
+  const withFree=num(result.treatment_rate),without=num(result.control_rate),change=num(result.ate_pp)
+  return <ToolFrame title="¿Qué pasó en la prueba?" question="Como el mes gratis se asignó al azar, esta comparación es mucho más justa."><div className="v2-tc-bars"><div><span>Con mes gratis</span><div className="v2-vertical"><i style={{height:`${withFree}%`}}/></div><b>{withFree}%</b></div><div><span>Sin mes gratis</span><div className="v2-vertical control"><i style={{height:`${without}%`}}/></div><b>{without}%</b></div></div><p className="v2-tool-footer">Cambio promedio observado: <b>{pp(change)}</b>.</p></ToolFrame>
+}
+
+function SegmentChangeBars({segments=[]}){
+  const max=Math.max(1,...segments.map(s=>Math.abs(num(s.effect??s.effect_pp))))
+  return <ToolFrame title="No todos los grupos cambiaron igual" question="¿En cuáles grupos ayudó más el mes gratis?"><div className="v2-hbars">{segments.map(s=>{const effect=num(s.effect??s.effect_pp);return <div key={s.id||s.name}><span>{s.name}</span><div className="v2-hbar-track"><i style={{width:`${Math.min(100,Math.abs(effect)/max*100)}%`}}/></div><b>{effect>0?'+':''}{effect} pp</b></div>})}</div></ToolFrame>
+}
+
+export function RevealVisuals({round,state,analysis,profileRound=round}){
   const reveal=analysis?.reveal_tools
   if(!reveal)return null
-  if(round===1)return <Round1RevealTools state={state} reveal={reveal}/>
-  if(round===3)return <div className="v2-tools-grid reveal-tools"><TreatmentControlCI result={reveal.experiment}/><CateForestPlot segments={reveal.segments||[]} /><PlaceboPanel placebo={reveal.placebo}/></div>
+  if(Number(profileRound)===1)return <Round1RevealTools state={state} reveal={reveal}/>
+  if(Number(profileRound)===3)return <div className="v2-tools-grid reveal-tools"><ExperimentSimple result={reveal.experiment}/><SegmentChangeBars segments={reveal.segments||[]}/></div>
   return null
 }

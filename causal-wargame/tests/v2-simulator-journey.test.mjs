@@ -29,9 +29,23 @@ test('simulator exposes individual journey, team map and adaptive authoring view
   assert.match(src,/phase\.id==='reveal'/)
 })
 
-test('simple concept is shown before technical and advanced vocabulary',()=>{
+test('simulated student sees scored check and simple concept before the technical name',()=>{
   const src=readFileSync('src/v2/V2Simulator.jsx','utf8')
+  assert.match(src,/phase\.id==='check'/)
+  assert.match(src,/pointsOf\(round\)\.check/)
+  assert.match(src,/phase\.id==='wait_revision'/)
+  assert.match(src,/Puntaje visible/)
   assert.match(src,/Primero, en palabras simples/)
   assert.match(src,/Después se nombra/)
-  assert.match(src,/Vocabulario para profundizar, no obligatorio/)
+  assert.doesNotMatch(src,/Vocabulario para profundizar, no obligatorio/)
+})
+
+
+test('teacher simulator completes the Python lab locally without touching live player API',()=>{
+  const sim=readFileSync('src/v2/V2Simulator.jsx','utf8')
+  const lab=readFileSync('src/v2/PythonEvidenceLab.jsx','utf8')
+  assert.match(sim,/EvidenceLab[^>]*simulation/)
+  assert.match(lab,/if\(simulation\)/)
+  assert.match(lab,/setLocalComplete\(true\)/)
+  assert.match(lab,/pending&&!simulation/)
 })

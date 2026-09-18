@@ -147,24 +147,24 @@ export const SIM_ANALYSIS={
 
 export const SIM_PATHS={
   ana:{
-    1:{initial:{selected:['S05','S10']},revision:{selected:['S03','S09']},noteInitial:'Elegí quienes parecían más probables de renovar.',noteRevision:'Después del laboratorio dejé de tratar la probabilidad como si fuera impacto.'},
-    2:{initial:{recommendation:'cancel'},revision:{recommendation:'redesign'},noteInitial:'Con bono renovaron menos; cancelaría.',noteRevision:'Ahora veo que los grupos eran distintos desde antes. Pediría una comparación mejor.'},
-    3:{initial:{choices:{digital:'treat',middle:'treat',traditional:'treat',wealth:'observe',arrears:'observe'}},revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Si funciona en promedio, traté varios grupos.',noteRevision:'Después de mirar el cambio por grupo y el costo, concentré el presupuesto.'}
+    1:{initial:{selected:['S05','S10']},revision:{selected:['S03','S09']},checkAnswer:'b',checkPoints:30,noteInitial:'Elegí quienes parecían más probables de renovar.',noteRevision:'Después del laboratorio dejé de tratar la probabilidad como si fuera impacto.'},
+    2:{initial:{recommendation:'cancel'},revision:{recommendation:'redesign'},checkAnswer:'a',checkPoints:30,noteInitial:'Con bono renovaron menos; cancelaría.',noteRevision:'Ahora veo que los grupos eran distintos desde antes. Pediría una comparación mejor.'},
+    3:{initial:{choices:{digital:'treat',middle:'treat',traditional:'treat',wealth:'observe',arrears:'observe'}},checkAnswer:'b',checkPoints:30,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Si funciona en promedio, traté varios grupos.',noteRevision:'Después de mirar el cambio por grupo y el costo, concentré el presupuesto.'}
   },
   luis:{
-    1:{initial:{selected:['S02','S07']},revision:{selected:['S01','S03']},noteInitial:'Seguí el ranking del modelo.',noteRevision:'Busqué señales de cambio, no sólo nivel esperado.'},
-    2:{initial:{recommendation:'keep'},revision:{recommendation:'redesign'},noteInitial:'Pensé que el histórico era suficiente.',noteRevision:'La asignación del bono estaba sesgada hacia alto riesgo.'},
-    3:{initial:{choices:{digital:'treat',middle:'observe',traditional:'treat',wealth:'treat',arrears:'avoid'}},revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Usé intuición comercial.',noteRevision:'La política final usa efecto y valor, no sólo segmento.'}
+    1:{initial:{selected:['S02','S07']},revision:{selected:['S01','S03']},checkAnswer:'a',checkPoints:0,noteInitial:'Seguí el ranking del modelo.',noteRevision:'Busqué señales de cambio, no sólo nivel esperado.'},
+    2:{initial:{recommendation:'keep'},revision:{recommendation:'redesign'},checkAnswer:'a',checkPoints:30,noteInitial:'Pensé que el histórico era suficiente.',noteRevision:'La asignación del bono estaba sesgada hacia alto riesgo.'},
+    3:{initial:{choices:{digital:'treat',middle:'observe',traditional:'treat',wealth:'treat',arrears:'avoid'}},checkAnswer:'b',checkPoints:30,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Usé intuición comercial.',noteRevision:'La política final usa efecto y valor, no sólo segmento.'}
   },
   camila:{
-    1:{initial:{selected:['S06','S14']},revision:{selected:['S03','S17']},noteInitial:'Priorizaba probabilidad alta.',noteRevision:'Entendí que renovar de todas formas no crea valor incremental.'},
-    2:{initial:{recommendation:'cancel'},revision:{recommendation:'redesign'},noteInitial:'La diferencia cruda parecía negativa.',noteRevision:'Comparé dentro de niveles de riesgo antes de concluir.'},
-    3:{initial:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'observe',arrears:'treat'}},revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'No esperaba daño en mora alta.',noteRevision:'El promedio escondía respuestas distintas.'}
+    1:{initial:{selected:['S06','S14']},revision:{selected:['S03','S17']},checkAnswer:'b',checkPoints:30,noteInitial:'Priorizaba probabilidad alta.',noteRevision:'Entendí que renovar de todas formas no crea valor incremental.'},
+    2:{initial:{recommendation:'cancel'},revision:{recommendation:'redesign'},checkAnswer:'c',checkPoints:0,noteInitial:'La diferencia cruda parecía negativa.',noteRevision:'Comparé dentro de niveles de riesgo antes de concluir.'},
+    3:{initial:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'observe',arrears:'treat'}},checkAnswer:'b',checkPoints:30,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'No esperaba daño en mora alta.',noteRevision:'El promedio escondía respuestas distintas.'}
   },
   juan:{
-    1:{initial:{selected:['S12','S21']},revision:{selected:['S03','S11']},noteInitial:'Tomé los scores literalmente.',noteRevision:'Ahora separo predicción y efecto.'},
-    2:{initial:{recommendation:'keep'},revision:{recommendation:'redesign'},noteInitial:'Preferí no cambiar la campaña.',noteRevision:'La comparación necesita grupos parecidos.'},
-    3:{initial:{choices:{digital:'observe',middle:'treat',traditional:'treat',wealth:'treat',arrears:'avoid'}},revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Priorizaba tamaño y valor bruto.',noteRevision:'Usé el cambio atribuible al bono y su costo.'}
+    1:{initial:{selected:['S12','S21']},revision:{selected:['S03','S11']},checkAnswer:'b',checkPoints:30,noteInitial:'Tomé los scores literalmente.',noteRevision:'Ahora separo predicción y efecto.'},
+    2:{initial:{recommendation:'keep'},revision:{recommendation:'redesign'},checkAnswer:'a',checkPoints:30,noteInitial:'Preferí no cambiar la campaña.',noteRevision:'La comparación necesita grupos parecidos.'},
+    3:{initial:{choices:{digital:'observe',middle:'treat',traditional:'treat',wealth:'treat',arrears:'avoid'}},checkAnswer:'a',checkPoints:0,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Priorizaba tamaño y valor bruto.',noteRevision:'Usé el cambio atribuible al bono y su costo.'}
   }
 }
 
@@ -179,3 +179,5 @@ export const SIM_REVEALS={
   2:{true_effect_pp:10,campaign_potential_value_cop:120000000},
   3:{incremental_value_cop:213000000,treated_audience:15000,capacity:15000}
 }
+
+export const SIM_TEAM_POINTS={1:25,2:30,3:30}

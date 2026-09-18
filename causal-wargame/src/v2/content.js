@@ -20,11 +20,15 @@ export const V2_ROUNDS=Object.fromEntries(enabledChallenges().map((c,i)=>[
     plainConcept:c.plainConcept,
     advancedTerms:c.advancedTerms,
     takeaway:c.takeaway,
+    checkQuestion:c.checkQuestion,
+    checkOptions:c.checkOptions,
     evidence:c.labKey,
     wow:c.wow,
     reality:c.takeaway,
     timeMinutes:c.timeMinutes,
     template:c.template,
+    profileRound:c.profileRound,
+    points:c.points,
     journey:c.journey
   }
 ]))
@@ -32,7 +36,7 @@ export const V2_ROUNDS=Object.fromEntries(enabledChallenges().map((c,i)=>[
 export{V2_CHALLENGE_COUNT}
 
 export const RECOMMENDATIONS=[
-  ['cancel','Cancelar el bono'],
+  ['cancel','Cancelar el mes gratis'],
   ['keep','Mantenerlo como está'],
   ['redesign','Pedir una comparación mejor']
 ]

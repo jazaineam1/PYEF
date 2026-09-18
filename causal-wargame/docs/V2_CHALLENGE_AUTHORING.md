@@ -1,99 +1,141 @@
 # V2 · Cómo agregar un nuevo reto
 
-La plataforma V2 separa **contenido** de **pantallas**.
+V2 está separada en cuatro piezas reutilizables:
 
-El archivo central es:
+1. **contenido** del reto;
+2. **tipo de decisión**;
+3. **perfil de datos/laboratorio**;
+4. **puntaje y reveal**.
+
+El archivo principal de autoría es:
 
 `src/v2/challenge-registry.js`
 
-Cada reto describe:
+La ruta del estudiante no cambia cuando agregas un reto:
 
-- una pregunta sencilla;
-- el contexto;
-- qué decide el estudiante antes de ver evidencia;
-- qué laboratorio usa;
-- qué vuelve a decidir;
-- qué decide el equipo;
-- qué se revela;
-- la idea cotidiana que debe comprender;
-- el término técnico que se presenta después;
-- términos avanzados opcionales.
+**contexto → decisión → laboratorio → pregunta → revisión → equipo → resultado → aprendizaje**
 
-## Recorrido estándar
+La interfaz del estudiante usa **una sola página por fase**. No hay pestañas.
 
-Todos los retos reutilizan el mismo contrato pedagógico:
+## Contrato de un reto
 
-1. Contexto
-2. Decisión inicial
-3. Espera al equipo
-4. Laboratorio
-5. Revisión individual
-6. Comparación antes/después
-7. Decisión de equipo
-8. Reveal
-9. Cierre conceptual
+Cada reto del registro define:
 
-El simulador docente consume este mismo contrato.
+- `id` y `order`;
+- `template`: cómo decide el estudiante;
+- `profileRound`: qué familia de datos/ground truth reutiliza;
+- `labKey`: qué laboratorio Python usa;
+- `points`: puntos por laboratorio, pregunta, revisión y equipo;
+- contexto y pregunta sencilla;
+- decisión inicial y revisada;
+- pregunta de comprensión;
+- decisión de equipo;
+- reveal;
+- idea simple y nombre técnico posterior.
 
-## Tipos de reto ya soportados
+### Templates disponibles
 
-### `cohort-selection`
+- `cohort-selection`: seleccionar grupos/cohortes.
+- `recommendation`: elegir una recomendación categórica.
+- `segment-policy`: asignar una acción a grupos bajo una capacidad.
 
-Selección de un número limitado de cohortes o unidades.
+### Perfiles reutilizables
 
-### `recommendation`
+Actualmente existen tres perfiles de backend:
 
-Una decisión categórica como cancelar, mantener o pedir mejor evidencia.
+- `profileRound: 1` → predicción vs. cambio causado.
+- `profileRound: 2` → comparación histórica y comparabilidad.
+- `profileRound: 3` → experimento, cambio por grupos y valor.
 
-### `segment-policy`
+Un reto nuevo puede reutilizar cualquiera de esos perfiles sin duplicar datos ni reescribir las funciones del juego.
 
-Una política por segmentos: intervenir, no intervenir o pedir más evidencia.
+## Puntaje
 
-Si un nuevo reto usa uno de estos tipos, el frontend puede reutilizar la pantalla actual. Si exige otra interacción, se agrega un nuevo adapter sin reescribir el recorrido completo.
+El puntaje es configurable por reto. El valor inicial es:
 
-## Laboratorios ya soportados
+- laboratorio: **20**
+- pregunta: **30**
+- revisión: **20**
+- decisión de equipo: **hasta 30**
 
-- `prediction`: predicción vs. cambio causado.
-- `comparison`: comparación cruda vs. grupos comparables.
-- `experiment`: experimento, efecto por grupo y valor.
+La primera decisión es diagnóstica y no da puntos.
 
-El modo **Guiado** usa vocabulario simple. El botón **Profundizar** muestra técnicas opcionales.
+El backend es la autoridad del puntaje. La tabla `cw_v2_challenge_runtime` guarda:
+
+- número de reto;
+- `challenge_key`;
+- respuesta correcta;
+- puntos;
+- `profile_round`;
+- `template`;
+- `lab_key`;
+- bloques de laboratorio requeridos.
+
+El laboratorio sólo puede cerrarse cuando el estudiante ha ejecutado todos los bloques requeridos. La pregunta puntuable sólo se puede contestar una vez.
+
+El Wall muestra:
+
+- **Top 3 individual**;
+- progreso de cada checkpoint;
+- últimos puntos obtenidos;
+- y, después del reveal, el valor económico de las decisiones de equipo.
+
+## Agregar un reto que reutiliza algo existente
+
+Ejemplo: quieres un cuarto reto con el mismo tipo de comparación del reto 2.
+
+1. Copia `CHALLENGE_TEMPLATE`.
+2. Define `order: 4`.
+3. Usa `template: "recommendation"`.
+4. Usa `profileRound: 2`.
+5. Usa `labKey: "comparison"`.
+6. Escribe el nuevo contexto, opciones y pregunta de comprensión.
+7. Agrega una fila de runtime para el reto 4 con `profile_round = 2`.
+8. Define la respuesta correcta únicamente en backend.
+9. Añade pruebas del nuevo manifest.
+
+El motor V2 admite hasta **12 retos** configurados. El conteo de retos es dinámico.
+
+## Cuándo sí hace falta código nuevo
+
+Hace falta un adapter nuevo únicamente cuando:
+
+- la interacción no cabe en los tres templates actuales;
+- necesitas un tipo de laboratorio diferente;
+- necesitas un nuevo dataset/ground truth y no puedes reutilizar uno de los tres perfiles.
+
+En ese caso se extiende una pieza específica; no se reescribe el recorrido completo.
 
 ## Plantilla para pedir un reto nuevo a ChatGPT
 
-Usa una instrucción como:
-
-> Agrega un reto V2 sobre [tema].
-> Contexto: [2–3 frases].
-> Pregunta que debe poder responder el estudiante: [pregunta].
-> Decisión inicial: [decisión].
-> Evidencia nueva: [qué descubre].
-> Decisión revisada: [qué vuelve a decidir].
-> Reveal: [verdad oculta].
-> Idea simple que debe aprender: [frase sin jerga].
-> Término técnico posterior: [nombre].
-> Tipo de reto: cohort-selection / recommendation / segment-policy.
-> Laboratorio: prediction / comparison / experiment.
+> Agrega un reto V2 sobre [tema].  
+> Contexto cotidiano: [máximo 2 frases].  
+> Pregunta única: [pregunta].  
+> Decisión inicial: [decisión].  
+> Template: cohort-selection / recommendation / segment-policy.  
+> Perfil reutilizable: 1 / 2 / 3.  
+> Laboratorio: prediction / comparison / experiment.  
+> Pregunta de cierre: [selección múltiple].  
+> Opciones: [A/B/C].  
+> Respuesta correcta: [sólo backend].  
+> Decisión revisada: [qué vuelve a decidir].  
+> Decisión de equipo: [qué bloquea].  
+> Reveal: [qué estaba oculto].  
+> Idea simple: [frase sin jerga].  
+> Nombre técnico posterior: [nombre].  
+> Puntaje: [lab/check/revision/team].  
 > Tiempo: [minutos].
-> Mantén los términos avanzados fuera del recorrido principal.
 
-La implementación debe:
+## Regla pedagógica
 
-1. añadir el manifest a `V2_CHALLENGES`;
-2. validar el registro;
-3. añadir datos/ground truth si el reto los necesita;
-4. extender el adapter sólo si el tipo es nuevo;
-5. extender backend/migración si aumenta el número de retos en una partida en vivo;
-6. añadir pruebas de no filtración antes del reveal.
+Un término técnico aparece **después** de que la persona ya entendió el problema.
 
-## Regla de simplicidad
+Primero:
 
-Un término técnico no aparece en la ruta principal hasta que el estudiante haya encontrado el problema que ese término nombra.
+> “Los grupos ya eran diferentes desde antes.”
 
-Ejemplo:
+Después:
 
-- primero: “los grupos eran distintos desde antes”;
-- después: “esto se llama confusión”;
-- opcional: propensity score, IPW, overlap.
+> “Esto se llama confusión.”
 
-El objetivo de la ruta principal es comprensión. La profundidad estadística queda disponible sin bloquear al resto del grupo.
+La ruta principal evalúa comprensión. La profundidad estadística no debe bloquear a quien está aprendiendo el concepto por primera vez.

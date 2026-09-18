@@ -1,13 +1,14 @@
 const STANDARD_JOURNEY=[
-  {id:'brief',label:'Contexto',student:'Entiende la situación y la decisión que tendrá que tomar.',evidence:false},
-  {id:'initial',label:'Decisión inicial',student:'Decide con la información disponible, antes de ver la evidencia nueva.',evidence:false},
-  {id:'wait_initial',label:'Espera al equipo',student:'Ve el progreso de sus compañeros; no ve sus respuestas todavía.',evidence:false},
-  {id:'lab',label:'Laboratorio',student:'Ejecuta Python o consulta evidencia para poner a prueba su primera intuición.',evidence:true},
-  {id:'revision',label:'Revisión',student:'Vuelve a decidir y puede mantener o cambiar su respuesta.',evidence:true},
-  {id:'compare',label:'Comparar',student:'Ve cómo cambiaron las respuestas de su equipo después del análisis.',evidence:true},
-  {id:'team',label:'Decisión de equipo',student:'Discute y bloquea una única política del equipo.',evidence:true},
-  {id:'reveal',label:'Reveal',student:'Descubre lo que estaba oculto y el impacto económico.',evidence:true},
-  {id:'debrief',label:'Cierre',student:'Nombra el concepto con palabras simples y lo conecta con el término técnico.',evidence:true}
+  {id:'brief',label:'Contexto',student:'Entiende una situación cotidiana y una sola pregunta.',evidence:false},
+  {id:'initial',label:'Tu decisión',student:'Responde con su intuición antes de abrir datos nuevos.',evidence:false},
+  {id:'wait_initial',label:'Equipo',student:'Espera a que todos hayan tomado una primera decisión.',evidence:false},
+  {id:'lab',label:'Laboratorio',student:'Ve todo el laboratorio en una sola página y ejecuta el código guiado.',evidence:true},
+  {id:'check',label:'Pregunta',student:'Responde una pregunta corta de comprensión y recibe puntaje.',evidence:true},
+  {id:'revision',label:'Revisión',student:'Vuelve a decidir después de observar los datos.',evidence:true},
+  {id:'wait_revision',label:'Equipo',student:'Espera las revisiones de sus compañeros.',evidence:true},
+  {id:'team',label:'Decisión final',student:'El equipo toma una decisión común.',evidence:true},
+  {id:'reveal',label:'Resultado',student:'Ve el resultado, el puntaje del equipo y lo que estaba oculto.',evidence:true},
+  {id:'debrief',label:'Qué aprendí',student:'Primero explica la idea en palabras simples y luego conoce su nombre técnico.',evidence:true}
 ]
 
 export const V2_CHALLENGES=[
@@ -16,21 +17,29 @@ export const V2_CHALLENGES=[
     order:1,
     enabled:true,
     template:'cohort-selection',
+    profileRound:1,
     labKey:'prediction',
-    kicker:'RETO 1 · PREDECIR NO ES CAMBIAR',
-    title:'¿A quién le ofrecerías el bono?',
-    simpleQuestion:'¿A quién le darías el bono si quieres lograr renovaciones adicionales?',
-    scenario:'Una plataforma de suscripción puede ofrecer un bono de renovación a una parte de sus clientes. Ya existe un modelo que predice quién probablemente renovará.',
+    points:{lab:20,check:30,revision:20,team:30},
+    kicker:'RETO 1',
+    title:'¿A quién le darías un mes gratis?',
+    simpleQuestion:'Una app no puede regalar un mes a todos. ¿A qué grupos se lo darías para lograr más renovaciones?',
+    scenario:'Una app cobra una suscripción mensual. Algunos usuarios pueden recibir el próximo mes gratis para que no se vayan. Un modelo ya estima quién probablemente renovará.',
     decisionUnit:'cohort',
-    initialDecision:'Elige entre 1 y 3 cohortes de tu muestra.',
-    revisedDecision:'Después del laboratorio, vuelve a elegir entre 1 y 3 cohortes. Puedes cambiar o mantener tu decisión.',
-    teamDecision:'El equipo debe seleccionar exactamente 10 cohortes.',
-    plainConcept:'Predecir quién renovará no es lo mismo que saber quién renovará gracias al bono.',
+    initialDecision:'Elige entre 1 y 3 grupos usando sólo lo que ves.',
+    revisedDecision:'Después del laboratorio, vuelve a elegir. Puedes mantener o cambiar tu decisión.',
+    teamDecision:'Entre todos, elijan 10 grupos.',
+    plainConcept:'Saber quién probablemente renovará no dice quién renovará gracias al mes gratis.',
     technicalTerm:'Predicción vs. efecto causal',
-    advancedTerms:['contrafactual','uplift','Y(1)-Y(0)'],
-    wow:'Una cohorte con alta probabilidad de renovar puede generar poco valor porque habría renovado de todas formas.',
-    takeaway:'La decisión correcta necesita comparar dos futuros: con bono y sin bono.',
-    timeMinutes:18,
+    advancedTerms:['contrafactual','uplift'],
+    wow:'Un grupo con alta probabilidad de renovar puede generar poco cambio porque quizá renovaría de todas formas.',
+    takeaway:'Para decidir una intervención importa el cambio que produce, no sólo el resultado que predice.',
+    checkQuestion:'Si un grupo tiene 90% de probabilidad de renovar, ¿qué puedes concluir?',
+    checkOptions:[
+      ['a','Que el mes gratis tendrá un efecto grande.'],
+      ['b','Que probablemente renovará; todavía no sé cuánto cambia por el mes gratis.'],
+      ['c','Que no debería recibir ningún incentivo.']
+    ],
+    timeMinutes:16,
     journey:STANDARD_JOURNEY
   },
   {
@@ -38,21 +47,29 @@ export const V2_CHALLENGES=[
     order:2,
     enabled:true,
     template:'recommendation',
+    profileRound:2,
     labKey:'comparison',
-    kicker:'RETO 2 · UNA COMPARACIÓN PUEDE ENGAÑAR',
-    title:'¿El bono está funcionando?',
-    simpleQuestion:'Si quienes recibieron el bono renovaron menos, ¿significa que el bono empeoró las renovaciones?',
-    scenario:'Históricamente el bono se ofrecía más a clientes con alto riesgo de cancelar. Los datos muestran menor renovación entre quienes recibieron el bono.',
+    points:{lab:20,check:30,revision:20,team:30},
+    kicker:'RETO 2',
+    title:'¿El mes gratis está funcionando?',
+    simpleQuestion:'En el histórico, quienes recibieron el mes gratis renovaron menos. ¿Eso prueba que el incentivo empeoró las renovaciones?',
+    scenario:'La empresa solía regalar el mes sobre todo a usuarios que parecían estar a punto de irse. Al mirar el histórico, el grupo con incentivo renovó menos.',
     decisionUnit:'recommendation',
-    initialDecision:'Recomienda cancelar, mantener o pedir una comparación mejor.',
-    revisedDecision:'Después de mirar grupos comparables, revisa tu recomendación.',
+    initialDecision:'Decide si cancelarías el incentivo, lo mantendrías o pedirías una comparación mejor.',
+    revisedDecision:'Después de comparar usuarios parecidos, revisa tu decisión.',
     teamDecision:'El equipo debe acordar una sola recomendación.',
-    plainConcept:'Antes de comparar resultados, pregunta si los grupos ya eran diferentes desde antes.',
+    plainConcept:'Antes de comparar resultados, revisa si los grupos ya eran diferentes desde antes.',
     technicalTerm:'Confusión y comparabilidad',
-    advancedTerms:['propensity score','IPW','overlap','backdoor'],
-    wow:'La comparación cruda puede ser negativa aunque el bono tenga un efecto positivo.',
-    takeaway:'Una diferencia observada no siempre es un efecto. Primero hay que construir una comparación justa.',
-    timeMinutes:18,
+    advancedTerms:['propensity score','IPW','overlap'],
+    wow:'Una comparación simple puede verse negativa aunque el incentivo realmente ayude.',
+    takeaway:'Una diferencia entre dos grupos no siempre es causada por el incentivo.',
+    checkQuestion:'Antes de decir que el incentivo causó la diferencia, ¿qué es lo más importante revisar?',
+    checkOptions:[
+      ['a','Si los grupos eran comparables antes de recibir el incentivo.'],
+      ['b','Cuál grupo tiene más filas en la base.'],
+      ['c','Si el promedio general es mayor a 50%.']
+    ],
+    timeMinutes:16,
     journey:STANDARD_JOURNEY
   },
   {
@@ -60,21 +77,29 @@ export const V2_CHALLENGES=[
     order:3,
     enabled:true,
     template:'segment-policy',
+    profileRound:3,
     labKey:'experiment',
-    kicker:'RETO 3 · FUNCIONA, PERO NO PARA TODOS',
-    title:'¿Dónde pondrías el presupuesto?',
-    simpleQuestion:'Si el bono funciona en promedio, ¿deberíamos ofrecerlo a todos?',
-    scenario:'Ahora existe un experimento aleatorizado. El bono mejora la renovación en promedio, pero el efecto cambia entre segmentos y sólo hay capacidad para 15.000 clientes.',
+    points:{lab:20,check:30,revision:20,team:30},
+    kicker:'RETO 3',
+    title:'¿A quién se lo darías ahora?',
+    simpleQuestion:'En una prueba aleatoria el mes gratis ayudó en promedio. ¿Eso significa que debemos ofrecérselo a todos los grupos?',
+    scenario:'Esta vez el incentivo se asignó al azar. En promedio ayudó, pero la empresa sólo puede cubrir a 15.000 usuarios y algunos grupos responden distinto.',
     decisionUnit:'policy',
-    initialDecision:'Para tus segmentos, propón tratar, evitar o pedir más evidencia.',
-    revisedDecision:'Después de comparar el efecto por grupos y convertirlo a dinero, revisa tu política.',
-    teamDecision:'El equipo construye una política para los cinco segmentos sin superar la capacidad.',
-    plainConcept:'Un efecto promedio positivo no significa que la intervención ayude a todas las personas por igual.',
+    initialDecision:'Para cada grupo, elige ofrecer, no ofrecer o pedir más evidencia.',
+    revisedDecision:'Después de comparar el cambio por grupo y el costo, revisa tu política.',
+    teamDecision:'Construyan una política para los cinco grupos sin superar 15.000 usuarios.',
+    plainConcept:'Que algo funcione en promedio no significa que funcione igual para todos.',
     technicalTerm:'Efecto promedio y heterogeneidad',
-    advancedTerms:['ATE','CATE','T-Learner','intervalo de confianza'],
-    wow:'Una campaña positiva en promedio puede destruir valor en algunos segmentos.',
+    advancedTerms:['ATE','CATE','T-Learner'],
+    wow:'Una intervención positiva en promedio puede perder dinero en algunos grupos.',
     takeaway:'Primero pregunta si funciona; después, para quién y a qué costo.',
-    timeMinutes:19,
+    checkQuestion:'El incentivo mejora la renovación 6 puntos en promedio. ¿Qué conclusión es correcta?',
+    checkOptions:[
+      ['a','Que mejora exactamente 6 puntos en todos los grupos.'],
+      ['b','Que hay una mejora promedio; todavía falta mirar grupos y costos.'],
+      ['c','Que debemos ofrecérselo a todos.']
+    ],
+    timeMinutes:18,
     journey:STANDARD_JOURNEY
   }
 ]
@@ -91,10 +116,13 @@ export function validateChallengeRegistry(challenges=V2_CHALLENGES){
     if(!c.id)errors.push('Cada reto necesita id.')
     if(ids.has(c.id))errors.push(`ID duplicado: ${c.id}`)
     ids.add(c.id)
-    for(const key of ['title','scenario','simpleQuestion','plainConcept','technicalTerm','template','labKey']){
+    for(const key of ['title','scenario','simpleQuestion','plainConcept','technicalTerm','template','profileRound','labKey','checkQuestion']){
       if(!c[key])errors.push(`${c.id||'reto'}: falta ${key}`)
     }
-    if(!Array.isArray(c.journey)||c.journey.length<6)errors.push(`${c.id||'reto'}: journey incompleto`)
+    if(![1,2,3].includes(Number(c.profileRound)))errors.push(`${c.id||'reto'}: profileRound debe ser 1, 2 o 3`)
+    if(!c.points||['lab','check','revision','team'].some(k=>!Number.isFinite(Number(c.points[k]))))errors.push(`${c.id||'reto'}: falta configuración de puntos`)
+    if(!Array.isArray(c.checkOptions)||c.checkOptions.length<2)errors.push(`${c.id||'reto'}: faltan opciones de la pregunta de cierre`)
+    if(!Array.isArray(c.journey)||c.journey.length<8)errors.push(`${c.id||'reto'}: journey incompleto`)
   }
   return errors
 }
@@ -104,20 +132,24 @@ export const CHALLENGE_TEMPLATE={
   order:4,
   enabled:false,
   template:'recommendation',
+  profileRound:2,
   labKey:'comparison',
-  kicker:'RETO 4 · ...',
-  title:'Pregunta sencilla del reto',
-  simpleQuestion:'La pregunta que el estudiante debe poder responder al final.',
-  scenario:'Contexto de 2 o 3 frases. Una sola decisión.',
+  points:{lab:20,check:30,revision:20,team:30},
+  kicker:'RETO 4',
+  title:'Pregunta corta del reto',
+  simpleQuestion:'La pregunta que el estudiante debe poder responder.',
+  scenario:'Contexto de dos frases, con una sola decisión.',
   decisionUnit:'recommendation',
   initialDecision:'Qué decide antes de ver nueva evidencia.',
   revisedDecision:'Qué vuelve a decidir después del laboratorio.',
   teamDecision:'Qué bloquea el equipo.',
   plainConcept:'La idea en lenguaje cotidiano.',
   technicalTerm:'El nombre técnico que se presenta después.',
-  advancedTerms:['término opcional 1'],
+  advancedTerms:['término opcional'],
   wow:'La intuición que se rompe.',
   takeaway:'Una frase que debería poder repetir el estudiante.',
+  checkQuestion:'Pregunta de comprensión que sí otorga puntaje.',
+  checkOptions:[['a','Opción A'],['b','Opción B'],['c','Opción C']],
   timeMinutes:15,
   journey:STANDARD_JOURNEY
 }

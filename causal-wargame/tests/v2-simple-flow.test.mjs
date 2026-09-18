@@ -10,7 +10,7 @@ test('V2 teaches a simple three-retos causal arc from one registry',()=>{
   assert.deepEqual(validateChallengeRegistry(),[])
   assert.match(V2_MISSION.rules.join(' · '),/Prueba tu idea con datos/)
   assert.match(V2_MISSION.rules.join(' · '),/Revisa tu decisión/)
-  assert.match(V2_ROUNDS[1].plainConcept,/Predecir/)
+  assert.match(V2_ROUNDS[1].plainConcept,/probablemente renovará/)
   assert.match(V2_ROUNDS[2].plainConcept,/grupos/)
   assert.match(V2_ROUNDS[3].plainConcept,/promedio/)
 })
@@ -24,8 +24,8 @@ test('V2 participant flow is driven by reusable challenge templates',async()=>{
   assert.match(play,/template==='recommendation'/)
   assert.match(play,/template==='segment-policy'/)
   assert.match(play,/EvidenceLab/)
-  assert.match(play,/PASO 3 · REVISA TU DECISIÓN/)
-  assert.match(play,/PASO 4 · DECIDAN JUNTOS/)
+  assert.match(play,/REVISA TU DECISIÓN/)
+  assert.match(play,/DECIDAN JUNTOS/)
 })
 
 test('challenge template makes a new reto declarative and validates required fields',()=>{
@@ -36,12 +36,12 @@ test('challenge template makes a new reto declarative and validates required fie
   assert.ok(candidate.labKey)
 })
 
-test('V2 primary game result remains economic value, not points',async()=>{
+test('V2 separates learning points from economic reveal value',async()=>{
   const fs=await import('node:fs')
   const play=fs.readFileSync(new URL('../src/v2/V2Play.jsx',import.meta.url),'utf8')
-  assert.match(play,/VALOR/)
+  assert.match(play,/TU PUNTAJE/)
+  assert.match(play,/round_points/)
   assert.match(play,/incremental_value_cop/)
   assert.match(play,/currency:'COP'/)
   assert.doesNotMatch(play,/>SCORE</)
-  assert.doesNotMatch(play,/ pts/)
 })

@@ -5,55 +5,55 @@ import{enabledChallenges}from'../src/v2/challenge-registry.js'
 
 const read=p=>readFileSync(p,'utf8')
 
-test('player evidence remains a compact tabbed deck',()=>{
+test('student evidence is one visible page with no tabs',()=>{
   const visual=read('src/v2/VisualTools.jsx')
-  assert.match(visual,/function EvidenceTabs/)
-  assert.match(visual,/v2-evidence-tabs/)
-  assert.match(visual,/La evidencia visual orienta/)
+  const lab=read('src/v2/PythonEvidenceLab.jsx')
+  assert.doesNotMatch(visual,/EvidenceTabs/)
+  assert.doesNotMatch(visual,/role="tablist"/)
+  assert.doesNotMatch(lab,/v2-python-step-tabs/)
+  assert.match(lab,/v2-python-all-steps/)
+  assert.match(lab,/TODO EN ESTA PÁGINA/)
 })
 
-test('player shows all-team decisions, cumulative COP value and WOW reveal',()=>{
+test('player shows score, rank and a non-clickable phase line',()=>{
   const play=read('src/v2/V2Play.jsx')
-  assert.match(play,/function ValueBoard/)
-  assert.match(play,/ASÍ DECIDIERON TODOS/)
-  assert.match(play,/incremental acumulado/)
-  assert.match(play,/function WowCard/)
-  assert.match(play,/GIRO WOW/)
+  assert.match(play,/function StudentProgress/)
+  assert.match(play,/TU PUNTAJE/)
+  assert.match(play,/POSICIÓN/)
+  assert.match(play,/PHASES/)
+  assert.match(play,/v2-single-step-page/)
 })
 
-test('projector has compact monetary board and team decision board',()=>{
+test('wall makes individual top 3 and checkpoint scoring primary',()=>{
   const wall=read('src/v2/V2Wall.jsx')
-  assert.match(wall,/function WallValue/)
-  assert.match(wall,/VALOR INCREMENTAL/)
-  assert.match(wall,/function WallDecisions/)
-  assert.match(wall,/PROGRESO EN VIVO/)
-  assert.match(wall,/CIERRE DE MISIÓN/)
+  assert.match(wall,/function TopThree/)
+  assert.match(wall,/TOP 3/)
+  assert.match(wall,/Puntaje individual acumulado/)
+  assert.match(wall,/function CheckpointBoard/)
+  assert.match(wall,/Laboratorio/)
+  assert.match(wall,/Pregunta de cierre/)
+  assert.match(wall,/score\.check/)
+  assert.match(wall,/score\.team/)
 })
 
-test('current mission money and decisions remain server-gated until close or reveal',()=>{
+test('current team economic value remains server-gated until close or reveal',()=>{
   const sql=read('supabase/migrations/202609180003_v2_causal_money_modeling.sql')
   assert.match(sql,/reveal_current:=g\.status in \('closed','reveal','teaching','microcheck','finished'\)/)
   assert.match(sql,/'round_value_cop',case when reveal_current/)
   assert.match(sql,/if reveal_current then[\s\S]*into decisions/)
-  assert.match(sql,/'total_value_cop'/)
-  assert.match(sql,/'scoreboard',coalesce\(public_board->'teams'/)
 })
 
-test('enabled retos have causal WOWs tied to real reasoning errors',()=>{
+test('enabled retos keep one simple WOW and one understanding check each',()=>{
   const retos=enabledChallenges()
   assert.equal(retos.length,3)
-  assert.ok(retos.every(r=>r.wow&&r.takeaway))
-  const content=retos.map(r=>r.wow+' '+r.takeaway).join(' ')
-  assert.match(content,/alta probabilidad de renovar/)
-  assert.match(content,/comparación cruda puede ser negativa/)
-  assert.match(content,/destruir valor/)
+  assert.ok(retos.every(r=>r.wow&&r.takeaway&&r.checkQuestion))
+  assert.ok(retos.every(r=>Array.isArray(r.checkOptions)&&r.checkOptions.length===3))
 })
 
-test('compact CSS keeps mobile cards and supports wider COP values',()=>{
+test('mobile CSS supports one-page phases and top-three wall',()=>{
   const css=read('src/v2/styles.css')
-  assert.match(css,/v2-player-compact/)
-  assert.match(css,/v2-grid\.customers[^}]*grid-template-columns:repeat\(2/)
-  assert.match(css,/v2-wall-main-grid/)
-  assert.match(css,/V2\.1 · causal modeling/)
-  assert.match(css,/v2-result\.money/)
+  assert.match(css,/V2\.3 · one-page student phases/)
+  assert.match(css,/v2-student-progress/)
+  assert.match(css,/v2-wall-top3/)
+  assert.match(css,/v2-wall-checkpoint-grid/)
 })
