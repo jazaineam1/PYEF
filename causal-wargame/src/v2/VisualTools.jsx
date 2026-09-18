@@ -46,7 +46,7 @@ export function DagLab({dag}){
 function bins(values=[],count=10){const out=Array.from({length:count},()=>0);for(const raw of values){const v=Math.max(0,Math.min(.999,num(raw)));out[Math.min(count-1,Math.floor(v*count))]++}return out}
 export function OverlapChart({treated=[],control=[]}){
   const a=bins(treated),b=bins(control),max=Math.max(1,...a,...b)
-  return <ToolFrame title="Overlap / soporte común" question="¿Existen tratados y controles comparables en los mismos perfiles?" footer="Cuando una zona tiene casi sólo tratados o casi sólo controles, el contrafactual depende más de extrapolación."><div className="v2-overlap-legend"><span><i className="treated"/>Tratados</span><span><i className="control"/>Control</span></div><div className="v2-overlap">{a.map((v,i)=><div className="v2-overlap-bin" key={i}><div className="v2-overlap-bars"><i className="treated" style={{height:`${v/max*100}%`}}/><i className="control" style={{height:`${b[i]/max*100}%`}}/></div><small>{i/10.toFixed?.(1)||i/10}</small></div>)}</div><div className="v2-overlap-axis"><span>0 · casi nunca tratado</span><span>Propensity score</span><span>1 · casi siempre tratado</span></div></ToolFrame>
+  return <ToolFrame title="Overlap / soporte común" question="¿Existen tratados y controles comparables en los mismos perfiles?" footer="Cuando una zona tiene casi sólo tratados o casi sólo controles, el contrafactual depende más de extrapolación."><div className="v2-overlap-legend"><span><i className="treated"/>Tratados</span><span><i className="control"/>Control</span></div><div className="v2-overlap">{a.map((v,i)=><div className="v2-overlap-bin" key={i}><div className="v2-overlap-bars"><i className="treated" style={{height:`${v/max*100}%`}}/><i className="control" style={{height:`${b[i]/max*100}%`}}/></div><small>{(i/10).toFixed(1)}</small></div>)}</div><div className="v2-overlap-axis"><span>0 · casi nunca tratado</span><span>Propensity score</span><span>1 · casi siempre tratado</span></div></ToolFrame>
 }
 
 export function RawAdjustedPanel({estimates=[]}){
@@ -106,10 +106,18 @@ export function EvidenceLab({round,state,analysis}){
   return <section className="v2-evidence-lab"><div className="v2-step"><b>PASO 2.5 · ANALICEN EVIDENCIA NUEVA</b><span>Úsenla para desafiar —no para reemplazar— la discusión del equipo.</span></div>{round===1&&<div className="v2-tools-grid"><PopulationShapChart summary={tools.feature_summary||[]}/><ToolFrame title="Distribución de scores" question="¿La confianza del modelo es lo mismo que impacto?"><div className="v2-score-rug">{[...pool].sort((a,b)=>num(a.score)-num(b.score)).map(c=><i key={c.id} style={{left:`${num(c.score)*100}%`}} title={`${c.id} · ${pct(c.score)}`}/>)}</div><div className="v2-score-rug-axis"><span>0%</span><span>Score predictivo</span><span>100%</span></div><p className="v2-tool-footer">Todavía no conoces Y(0) y Y(1). No conviertas esta gráfica en una afirmación causal.</p></ToolFrame></div>}{round===2&&<><div className="v2-tools-grid"><DagLab dag={tools.dag}/><RawAdjustedPanel estimates={tools.estimates||[]}/></div><div className="v2-tools-grid"><OverlapChart treated={tools.overlap?.treated||[]} control={tools.overlap?.control||[]}/><BalancePanel rows={tools.balance||[]}/></div></>}{round===3&&<PrecisionSimulator curve={tools.precision_curve||[]} threshold={num(tools.business_threshold_pp||2)}/>} {round===4&&<><div className="v2-tools-grid"><CateForestPlot segments={state.team_pool||[]}/><EconMLCompare rows={tools.econml||[]}/></div><PlaceboPanel placebo={tools.placebo}/></>}</section>
 }
 
+function Round1RevealTools({state,reveal}){
+  const points=reveal?.score_uplift||[]
+  const first=points.find(p=>state.team_decision?.payload?.selected?.includes(p.id))?.id||points[0]?.id||''
+  const[selected,setSelected]=useState(first)
+  const c=points.find(p=>p.id===selected)||points[0]
+  return <div className="v2-tools-grid reveal-tools"><ScoreUpliftChart points={points} selectedId={selected} onSelect={setSelected}/><TwoFuturesPanel customer={c}/></div>
+}
+
 export function RevealVisuals({round,state,analysis}){
   const reveal=analysis?.reveal_tools
   if(!reveal)return null
-  if(round===1){const points=reveal.score_uplift||[];const[selected,setSelected]=useState(points.find(p=>state.team_decision?.payload?.selected?.includes(p.id))?.id||points[0]?.id);const c=points.find(p=>p.id===selected);return <div className="v2-tools-grid reveal-tools"><ScoreUpliftChart points={points} selectedId={selected} onSelect={setSelected}/><TwoFuturesPanel customer={c}/></div>}
+  if(round===1)return <Round1RevealTools state={state} reveal={reveal}/>
   if(round===3)return <TreatmentControlCI result={reveal.experiment}/>
   if(round===4)return <><CateForestPlot segments={reveal.segments||[]} /><PlaceboPanel placebo={reveal.placebo}/></>
   return null
