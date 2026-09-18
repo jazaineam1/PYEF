@@ -3,6 +3,7 @@
   "order": 4,
   "enabled": false,
   "template": "recommendation",
+  "profileRound": 2,
   "labKey": "comparison",
   "kicker": "RETO 4",
   "title": "Pregunta corta",
@@ -19,9 +20,18 @@
   "takeaway": "Una frase que el estudiante puede repetir.",
   "checkQuestion": "Pregunta corta de comprensión.",
   "checkOptions": [
-    ["a", "Opción A"],
-    ["b", "Opción B"],
-    ["c", "Opción C"]
+    [
+      "a",
+      "Opción A"
+    ],
+    [
+      "b",
+      "Opción B"
+    ],
+    [
+      "c",
+      "Opción C"
+    ]
   ],
   "timeMinutes": 15
 }
