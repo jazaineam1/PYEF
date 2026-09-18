@@ -81,10 +81,10 @@ export default function V2Wall(){
 
     {lobby?<div className="v2-wall-lobby"><div className="v2-wall-count"><strong>{data.humans}</strong><span>participantes conectados</span></div><div className="v2-wall-teams compact">{data.teams.map(t=>{const members=data.players.filter(p=>p.team_id===t.id);const full=t.humans>=3;return <section className={'v2-wall-team '+(full?'ready':'')} key={t.id}><div className="v2-team-head"><h2>{t.name}</h2>{full&&<CheckCircle2 size={20}/>}</div><div className="v2-wall-member-row">{members.map(p=><span className={(p.online?'':'offline ') + (newIds.has(p.id)?'new':'')} key={p.id}>{p.name}</span>)}{!members.length&&<span className="offline">Esperando…</span>}</div><div className="v2-wall-progress"><i style={{width:Math.min(100,(t.humans/4)*100)+'%'}}/></div><small>{t.humans}/4 {full?'· LISTO':'· entrando'}</small></section>})}</div></div>:
     <div className="v2-wall-stage">
-      <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
+      <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
 
       <div className="v2-wall-primary-grid">
-        <TopThree rows={data.top3||[]} show={(data.top3||[]).some(x=>Number(x.points||0)>0)}/>
+        <TopThree rows={data.top3||[]} show={g.round>1||(Number(data.checkpoint?.humans||0)>0&&Number(data.checkpoint?.check||0)>=Number(data.checkpoint?.humans||0))}/>
         <CheckpointBoard data={data} activeTeams={activeTeams}/>
       </div>
 
