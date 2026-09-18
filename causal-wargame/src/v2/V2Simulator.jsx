@@ -154,7 +154,7 @@ export default function V2Simulator(){
       <>
         <JourneyTimeline journey={journey} index={phaseIndex} onSelect={setPhaseIndex}/>
         <div className="v2-student-sim-frame">
-          <header><div><span>Simulando a</span><strong>{student.name}</strong></div><div><span>Reto {round}/{V2_CHALLENGE_COUNT}</span><strong>{challenge.title}</strong></div><div><span>Puntaje visible</span><strong>{phase.id==='brief'||phase.id==='initial'||phase.id==='wait_initial'?0:phase.id==='lab'?20:phase.id==='check'?20+pathScore(studentId,round,'check'):phase.id==='revision'||phase.id==='wait_revision'||phase.id==='team'?40+pathScore(studentId,round,'check'):70+pathScore(studentId,round,'check')}/100</strong></div></header>
+          <header><div><span>Simulando a</span><strong>{student.name}</strong></div><div><span>Reto {round}/{V2_CHALLENGE_COUNT}</span><strong>{challenge.title}</strong></div><div><span>Puntaje visible</span><strong>{phase.id==='brief'||phase.id==='initial'||phase.id==='wait_initial'?0:phase.id==='lab'?20:phase.id==='check'?20+pathScore(studentId,round,'check'):phase.id==='revision'||phase.id==='wait_revision'||phase.id==='team'?40+pathScore(studentId,round,'check'):40+pathScore(studentId,round,'check')+Number(SIM_TEAM_POINTS[round]||0)}/100</strong></div></header>
           <StudentStage round={round} phase={phase} student={student} state={state}/>
         </div>
 
