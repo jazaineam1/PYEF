@@ -1,31 +1,29 @@
 import React,{useEffect,useMemo,useRef,useState}from'react'
-import{Play,RotateCcw,Terminal,LoaderCircle,Code2,Route}from'lucide-react'
+import{Check,LoaderCircle,Play,RotateCcw,Terminal}from'lucide-react'
 import{invoke}from'../lib/api'
 import{buildPythonLab}from'./python-lab'
 
 const TIMEOUT_MS=20000
 
-export function PythonEvidenceLab({round,state,analysis}){
+export function PythonEvidenceLab({round,state,analysis,onComplete}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis),[round,state,analysis])
-  const[stepIndex,setStepIndex]=useState(0)
   const[codes,setCodes]=useState({})
   const[results,setResults]=useState({})
   const[status,setStatus]=useState('idle')
   const[error,setError]=useState('')
-  const[mode,setMode]=useState('guided')
+  const[closing,setClosing]=useState(false)
   const workerRef=useRef(null)
   const timerRef=useRef(null)
   const pendingRef=useRef(null)
 
   useEffect(()=>{
     const initial={}
-    for(const s of lab?.steps||[]){initial[`guided:${s.id}`]=s.guidedCode||s.code||'';initial[`advanced:${s.id}`]=s.advancedCode||s.guidedCode||s.code||''}
+    for(const s of lab?.steps||[])initial[s.id]=s.guidedCode||s.code||''
     setCodes(initial)
     setResults({})
-    setStepIndex(0)
     setError('')
     setStatus('idle')
-    setMode('guided')
+    setClosing(false)
     clearTimeout(timerRef.current)
     workerRef.current?.terminate()
     workerRef.current=null
@@ -50,7 +48,7 @@ export function PythonEvidenceLab({round,state,analysis}){
           const duration=Math.round(performance.now()-pending.started)
           invoke('v2-submit',{
             action:'learning_event',round,event_type:'python_run',
-            payload:{step_id:stepId,code_changed:pending.codeChanged,duration_ms:duration,mode}
+            payload:{step_id:stepId,code_changed:pending.codeChanged,duration_ms:duration,mode:'guided'}
           }).catch(()=>{})
         }
         pendingRef.current=null
@@ -80,9 +78,8 @@ export function PythonEvidenceLab({round,state,analysis}){
 
   function run(step){
     const worker=ensureWorker()
-    const codeKey=`${mode}:${step.id}`
-    const baseCode=mode==='advanced'?(step.advancedCode||step.guidedCode||step.code):(step.guidedCode||step.code)
-    const code=codes[codeKey]??baseCode
+    const baseCode=step.guidedCode||step.code||''
+    const code=codes[step.id]??baseCode
     setStatus('running')
     setError('')
     pendingRef.current={stepId:step.id,started:performance.now(),codeChanged:code!==baseCode}
@@ -93,54 +90,61 @@ export function PythonEvidenceLab({round,state,analysis}){
       workerRef.current=null
       pendingRef.current=null
       setStatus('error')
-      setError('La ejecución superó 20 segundos y fue detenida. Simplifica el código o restaura el paso guiado.')
+      setError('La ejecución superó 20 segundos y fue detenida. Restaura el ejemplo e inténtalo otra vez.')
     },TIMEOUT_MS)
+  }
+
+  async function completeLab(){
+    if(!allDone||closing)return
+    setClosing(true)
+    setError('')
+    try{
+      await invoke('v2-submit',{action:'lab_complete',round})
+      await onComplete?.()
+    }catch(e){
+      setError(e.message)
+    }finally{
+      setClosing(false)
+    }
   }
 
   if(!lab)return null
   const steps=lab.steps||[]
-  const step=steps[Math.min(stepIndex,steps.length-1)]
-  if(!step)return null
   const ready=status==='ready'||status==='running'
   const busy=status==='loading'||status==='running'
-  const result=results[step.id]
+  const allDone=steps.length>0&&steps.every(s=>results[s.id])
 
-  return <section className="v2-python-lab">
+  return <section className="v2-python-lab single-page">
     <div className="v2-python-head">
-      <div><div className="v2-kicker">LABORATORIO PYTHON · MODELAMIENTO REAL</div><h2>{lab.title}</h2></div>
-      <div className={`v2-python-status ${status}`}><Terminal size={15}/><span>{status==='idle'?'apagado':status==='loading'?'cargando stack científico':status==='running'?'ejecutando':'Python listo'}</span></div>
+      <div><div className="v2-kicker">LABORATORIO · TODO EN ESTA PÁGINA</div><h2>{lab.title}</h2></div>
+      <div className={`v2-python-status ${status}`}><Terminal size={15}/><span>{status==='idle'?'Python apagado':status==='loading'?'Cargando Python':status==='running'?'Ejecutando':'Python listo'}</span></div>
     </div>
 
-    <div className="v2-python-modes">
-      <button type="button" className={mode==='guided'?'active':''} onClick={()=>setMode('guided')}><Route size={14}/> Guiado</button>
-      <button type="button" className={mode==='advanced'?'active':''} onClick={()=>setMode('advanced')}><Code2 size={14}/> Profundizar</button>
-      <span>{mode==='guided'?'Código corto para entender la idea.':'Opcional: aquí aparecen técnicas y términos más avanzados.'}</span>
-    </div>
+    <div className="v2-alert hint"><span>No necesitas memorizar código. Ejecuta cada bloque, mira el resultado y responde la pregunta que lo acompaña.</span></div>
 
-    <div className="v2-python-step-tabs">
-      {steps.map((s,i)=><button type="button" key={s.id} className={i===stepIndex?'active':''} onClick={()=>setStepIndex(i)}>{s.label}{results[s.id]?' ✓':''}</button>)}
-    </div>
+    {!ready&&<button type="button" className="v2-primary wide" disabled={busy} onClick={init}>{busy?<LoaderCircle className="spin" size={17}/>:<Terminal size={17}/>} {busy?'Cargando…':'Iniciar Python'}</button>}
 
-    <div className="v2-python-prompt">
-      <strong>{step.question}</strong>
-      <span>{step.instruction}</span>
-    </div>
-
-    <div className="v2-python-editor">
-      <div className="v2-python-editorbar"><span>{mode==='guided'?'guiado':'avanzado'} · {step.id}.py</span><button type="button" onClick={()=>{const key=`${mode}:${step.id}`;const base=mode==='advanced'?(step.advancedCode||step.guidedCode||step.code):(step.guidedCode||step.code);setCodes(v=>({...v,[key]:base}))}}><RotateCcw size={14}/> Restaurar</button></div>
-      <textarea aria-label="Código Python editable" value={codes[`${mode}:${step.id}`]??(mode==='advanced'?(step.advancedCode||step.guidedCode||step.code):(step.guidedCode||step.code))} onChange={e=>{const key=`${mode}:${step.id}`;setCodes(v=>({...v,[key]:e.target.value}))}} spellCheck="false"/>
-    </div>
-
-    <div className="v2-python-actions">
-      {!ready&&<button type="button" className="v2-primary" disabled={busy} onClick={init}>{busy?<LoaderCircle className="spin" size={17}/>:<Terminal size={17}/>} {busy?'Cargando motor…':'Iniciar Python'}</button>}
-      {ready&&<button type="button" className="v2-primary" disabled={busy} onClick={()=>run(step)}>{busy?<LoaderCircle className="spin" size={17}/>:<Play size={17}/>} {busy?'Ejecutando…':'Ejecutar este paso'}</button>}
-      <small>Python corre dentro del navegador. El modo guiado usa sólo lo necesario; “Profundizar” muestra técnicas opcionales. La respuesta oculta del reto no llega antes del reveal.</small>
+    <div className="v2-python-all-steps">
+      {steps.map((step,i)=>{
+        const base=step.guidedCode||step.code||''
+        const result=results[step.id]
+        return <article className={`v2-python-step-card ${result?'done':''}`} key={step.id}>
+          <div className="v2-python-step-title"><b>{i+1}</b><div><strong>{step.question}</strong><span>{step.instruction}</span></div>{result&&<Check size={18}/>}</div>
+          <div className="v2-python-editor">
+            <div className="v2-python-editorbar"><span>{step.id}.py</span><button type="button" onClick={()=>setCodes(v=>({...v,[step.id]:base}))}><RotateCcw size={14}/> Restaurar</button></div>
+            <textarea aria-label={`Código Python: ${step.question}`} value={codes[step.id]??base} onChange={e=>setCodes(v=>({...v,[step.id]:e.target.value}))} spellCheck="false"/>
+          </div>
+          <button type="button" className="v2-secondary" disabled={!ready||busy} onClick={()=>run(step)}>{busy&&pendingRef.current?.stepId===step.id?<LoaderCircle className="spin" size={16}/>:<Play size={16}/>} {result?'Ejecutar de nuevo':'Ejecutar'}</button>
+          {result&&<div className="v2-python-result">
+            <div className="v2-python-output"><div><Terminal size={14}/> resultado</div><pre>{result.output}</pre></div>
+            {result.image&&<figure className="v2-python-figure"><img src={result.image} alt="Gráfica producida por el código Python"/><figcaption>Resultado gráfico.</figcaption></figure>}
+          </div>}
+        </article>
+      })}
     </div>
 
     {error&&<div className="v2-alert error">{error}</div>}
-    {result&&<div className="v2-python-result">
-      <div className="v2-python-output"><div><Terminal size={14}/> salida Python</div><pre>{result.output}</pre></div>
-      {result.image&&<figure className="v2-python-figure"><img src={result.image} alt="Gráfica producida por el código Python"/><figcaption>Salida gráfica generada en el navegador.</figcaption></figure>}
-    </div>}
+    <button type="button" className="v2-primary wide" disabled={!allDone||closing} onClick={completeLab}>{closing?'Cerrando laboratorio…':allDone?'Terminar laboratorio · +20 puntos':'Ejecuta todos los bloques para terminar'}</button>
+    <small className="v2-python-footnote">Las técnicas avanzadas quedan fuera de la ruta principal. El objetivo aquí es entender la idea, no memorizar nombres.</small>
   </section>
 }
