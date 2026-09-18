@@ -1,0 +1,21 @@
+{
+  "id": "nuevo-reto",
+  "order": 4,
+  "enabled": false,
+  "template": "recommendation",
+  "labKey": "comparison",
+  "kicker": "RETO 4 · ...",
+  "title": "Pregunta sencilla",
+  "simpleQuestion": "¿Qué debería poder responder el estudiante?",
+  "scenario": "Contexto corto con una sola decisión.",
+  "decisionUnit": "recommendation",
+  "initialDecision": "Qué decide antes de nueva evidencia.",
+  "revisedDecision": "Qué decide después del laboratorio.",
+  "teamDecision": "Qué decisión bloquea el equipo.",
+  "plainConcept": "Idea cotidiana sin jerga.",
+  "technicalTerm": "Nombre técnico posterior.",
+  "advancedTerms": ["término opcional"],
+  "wow": "La intuición que se rompe.",
+  "takeaway": "Una frase que el estudiante puede repetir.",
+  "timeMinutes": 15
+}
