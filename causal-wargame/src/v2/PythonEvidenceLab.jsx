@@ -5,13 +5,14 @@ import{buildPythonLab}from'./python-lab'
 
 const TIMEOUT_MS=20000
 
-export function PythonEvidenceLab({round,state,analysis,onComplete}){
+export function PythonEvidenceLab({round,state,analysis,onComplete,simulation=false}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis),[round,state,analysis])
   const[codes,setCodes]=useState({})
   const[results,setResults]=useState({})
   const[status,setStatus]=useState('idle')
   const[error,setError]=useState('')
   const[closing,setClosing]=useState(false)
+  const[localComplete,setLocalComplete]=useState(false)
   const workerRef=useRef(null)
   const timerRef=useRef(null)
   const pendingRef=useRef(null)
@@ -24,6 +25,7 @@ export function PythonEvidenceLab({round,state,analysis,onComplete}){
     setError('')
     setStatus('idle')
     setClosing(false)
+    setLocalComplete(false)
     clearTimeout(timerRef.current)
     workerRef.current?.terminate()
     workerRef.current=null
@@ -44,7 +46,7 @@ export function PythonEvidenceLab({round,state,analysis,onComplete}){
         setResults(v=>({...v,[stepId]:{output:msg.output||'',image:msg.image||null}}))
         setStatus('ready')
         setError('')
-        if(pending){
+        if(pending&&!simulation){
           const duration=Math.round(performance.now()-pending.started)
           invoke('v2-submit',{
             action:'learning_event',round,event_type:'python_run',
@@ -99,6 +101,11 @@ export function PythonEvidenceLab({round,state,analysis,onComplete}){
     setClosing(true)
     setError('')
     try{
+      if(simulation){
+        setLocalComplete(true)
+        await onComplete?.()
+        return
+      }
       await invoke('v2-submit',{action:'lab_complete',round})
       await onComplete?.()
     }catch(e){
@@ -144,7 +151,7 @@ export function PythonEvidenceLab({round,state,analysis,onComplete}){
     </div>
 
     {error&&<div className="v2-alert error">{error}</div>}
-    <button type="button" className="v2-primary wide" disabled={!allDone||closing} onClick={completeLab}>{closing?'Cerrando laboratorio…':allDone?'Terminar laboratorio · +20 puntos':'Ejecuta todos los bloques para terminar'}</button>
+    <button type="button" className="v2-primary wide" disabled={!allDone||closing||localComplete} onClick={completeLab}>{localComplete?'Laboratorio completado · +20 puntos':closing?'Cerrando laboratorio…':allDone?'Terminar laboratorio · +20 puntos':'Ejecuta todos los bloques para terminar'}</button>
     <small className="v2-python-footnote">Las técnicas avanzadas quedan fuera de la ruta principal. El objetivo aquí es entender la idea, no memorizar nombres.</small>
   </section>
 }
