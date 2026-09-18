@@ -37,10 +37,11 @@ const safeSegments=rows=>(rows||[]).map(s=>({
   costo_mes_gratis_cop:n(s.unit_cost??s.cost)
 }))
 
-export function buildPythonLab(round,state={},analysis={}){
+export function buildPythonLab(round,state={},analysis={},labKey=null){
   const tools=analysis?.team_tools||{}
+  const profile=labKey||(round===1?'prediction':round===2?'comparison':'experiment')
 
-  if(round===1){
+  if(profile==='prediction'){
     const context={
       cohortes:safeCustomers(state.team_pool||[]),
       entrenamiento:(tools.ml_training||[]).map(r=>({
@@ -135,7 +136,7 @@ print("No observa dos futuros de la misma cohorte.")`
     }
   }
 
-  if(round===2){
+  if(profile==='comparison'){
     const context={historico:safeObs(tools.observational_rows||[])}
     return{
       title:'¿La comparación es justa?',
@@ -253,7 +254,7 @@ print("Esto se conoce como overlap o soporte común.")`
     }
   }
 
-  if(round===3){
+  if(profile==='experiment'){
     const context={
       experimento:safeExp(tools.experiment_rows||[]),
       segmentos:safeSegments(tools.segments||[]),
