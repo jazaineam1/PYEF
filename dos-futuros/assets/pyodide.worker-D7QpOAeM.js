@@ -6,10 +6,13 @@ _old_stdout, _old_stderr = sys.stdout, sys.stderr
 sys.stdout = _buffer
 sys.stderr = _buffer
 _image = None
+_ok = True
+_error = None
 try:
     exec(_user_code, globals())
 except Exception:
-    traceback.print_exc()
+    _ok = False
+    _error = traceback.format_exc()
 finally:
     sys.stdout = _old_stdout
     sys.stderr = _old_stderr
@@ -22,5 +25,5 @@ try:
         plt.close("all")
 except Exception:
     pass
-json.dumps({"output": _buffer.getvalue(), "image": _image})
-`);e.globals.delete(`payload_json`),e.globals.delete(`_user_code`);let i=JSON.parse(String(t||`{}`));self.postMessage({type:`result`,requestId:r.requestId||null,output:i.output||`Sin salida. Usa print(...) para mostrar resultados.`,image:i.image||null})}}catch(e){self.postMessage({type:`error`,requestId:t.data?.requestId||null,error:e?.message||String(e)})}}})();
+json.dumps({"ok": _ok, "output": _buffer.getvalue(), "error": _error, "image": _image})
+`);e.globals.delete(`payload_json`),e.globals.delete(`_user_code`);let i=JSON.parse(String(t||`{}`));i.ok===!1?self.postMessage({type:`execution_error`,requestId:r.requestId||null,output:i.output||``,error:i.error||`Error ejecutando el código Python.`}):self.postMessage({type:`result`,requestId:r.requestId||null,output:i.output||`Sin salida. Usa print(...) para mostrar resultados.`,image:i.image||null})}}catch(e){self.postMessage({type:`error`,requestId:t.data?.requestId||null,error:e?.message||String(e)})}}})();
