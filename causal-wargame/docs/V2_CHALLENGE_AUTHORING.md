@@ -10,6 +10,7 @@ Cada reto debe poder explicarse sin jerga en menos de un minuto y debe describir
 
 - una situación cotidiana;
 - una sola pregunta;
+- un `profileRound` reutilizable para backend/datos (1, 2 o 3);
 - qué decide el estudiante antes de ver evidencia;
 - qué laboratorio usa;
 - una pregunta corta de cierre;
@@ -51,6 +52,18 @@ El Wall muestra el **Top 3 individual** y el progreso de cada checkpoint. El val
 
 Las respuestas correctas no se incluyen en el bundle del navegador. Se configuran en `cw_v2_challenge_runtime`.
 
+## Perfiles reutilizables de backend
+
+Los datos y la lógica de evaluación no dependen ya del número del reto. Cada manifest declara un `profileRound`:
+
+- `1`: predicción y selección de cohortes;
+- `2`: comparación histórica;
+- `3`: experimento y política por segmentos.
+
+Por ejemplo, un **Reto 4** puede reutilizar `profileRound: 2` y `labKey: "comparison"`. El backend lo trata como una nueva ronda, pero reutiliza el perfil de datos y evaluación de comparación.
+
+El número máximo de retos se obtiene de las filas habilitadas de `cw_v2_challenge_runtime`; ya no está fijado a tres. La tabla permite hasta 12 rondas.
+
 ## Tipos de reto soportados
 
 ### `cohort-selection`
@@ -90,18 +103,20 @@ Puedes pedirlo así:
 > Idea simple: [frase sin jerga].
 > Nombre técnico posterior: [nombre].
 > Tipo: cohort-selection / recommendation / segment-policy.
+> Perfil backend: 1 / 2 / 3.
 > Laboratorio: prediction / comparison / experiment.
 > Tiempo: [minutos].
 
 La implementación debe:
 
-1. agregar el manifest a `V2_CHALLENGES`;
-2. registrar la respuesta correcta y puntajes en `cw_v2_challenge_runtime`;
+1. agregar el manifest a `V2_CHALLENGES`, incluyendo `profileRound`;
+2. registrar el mismo reto en `cw_v2_challenge_runtime` con `round_number`, `challenge_key`, `profile_round`, `template`, `lab_key`, respuesta correcta y puntajes;
 3. añadir datos o ground truth si el reto los necesita;
 4. reutilizar un template existente cuando sea posible;
 5. añadir un adapter sólo si la interacción es nueva;
 6. probar que el ground truth no se filtra antes del reveal;
-7. probar que el Wall y el Top 3 reciben el nuevo checkpoint.
+7. probar que el Wall y el Top 3 reciben el nuevo checkpoint;
+8. comprobar que el simulador puede recorrerlo. Si no se crea una ruta específica, puede reutilizar la ruta determinística del `profileRound`.
 
 ## Regla de simplicidad
 
@@ -113,3 +128,36 @@ Ejemplo:
 - después: “esto se llama confusión”.
 
 El objetivo principal es que la persona pueda explicar la idea con sus palabras. El nombre técnico sirve para conectar esa intuición con el lenguaje profesional.
+
+
+## Ejemplo: agregar un Reto 4 reutilizando el perfil de comparación
+
+En el registro del frontend:
+
+```js
+{
+  id: 'nuevo-reto-comparacion',
+  order: 4,
+  enabled: true,
+  template: 'recommendation',
+  profileRound: 2,
+  labKey: 'comparison',
+  // ...copy pedagógico...
+}
+```
+
+En runtime:
+
+```sql
+insert into public.cw_v2_challenge_runtime(
+  round_number, challenge_key, correct_answer,
+  lab_points, check_points, revision_points, team_points,
+  enabled, profile_round, template, lab_key
+) values (
+  4, 'nuevo-reto-comparacion', 'a',
+  20, 30, 20, 30,
+  true, 2, 'recommendation', 'comparison'
+);
+```
+
+Con eso, Player, Wall, Facilitator, puntaje, flujo de fases y backend pueden avanzar a la ronda 4 sin cambiar el motor base. Sólo hace falta código nuevo si la interacción o el tipo de datos deja de pertenecer a los tres perfiles existentes.
