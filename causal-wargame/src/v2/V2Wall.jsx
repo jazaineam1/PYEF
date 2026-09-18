@@ -38,6 +38,12 @@ function CheckpointBoard({data,activeTeams}){
   return <section className="v2-wall-checkpoints"><div className="v2-wall-section-title"><b>AHORA · {current.toUpperCase()}</b><span>El puntaje aparece cuando cada actividad se cierra.</span></div><div className="v2-wall-checkpoint-grid">{rows.map(([label,value,total,points])=><article className={value>=total?'done':''} key={label}><div><strong>{label}</strong><span>{points}</span></div><b>{value}/{total}</b><div className="v2-wall-progress"><i style={{width:Math.min(100,value/Math.max(1,total)*100)+'%'}}/></div></article>)}</div></section>
 }
 
+function RecentScores({rows=[]}){
+  if(!rows.length)return null
+  const labels={lab:'Laboratorio',check:'Pregunta',revision:'Revisión',team:'Equipo'}
+  return <section className="v2-wall-recent"><div className="v2-wall-section-title"><b>ÚLTIMOS PUNTOS</b><span>Se actualiza al cerrar cada actividad.</span></div><div className="v2-wall-recent-list">{rows.slice(0,6).map((x,i)=><article key={`${x.name}-${x.checkpoint}-${x.scored_at||i}`}><div><strong>{x.name}</strong><span>{x.team} · {labels[x.checkpoint]||x.checkpoint}</span></div><b>+{Number(x.points||0)} pts</b></article>)}</div></section>
+}
+
 function WallValue({teams=[]}){
   const rows=[...teams].filter(t=>Number(t.humans||0)>0||Number(t.rounds_scored||0)>0).sort((a,b)=>Number(b.total_value_cop||0)-Number(a.total_value_cop||0)||Number(a.position||0)-Number(b.position||0))
   if(!rows.some(t=>Number(t.rounds_scored||0)>0))return null
@@ -76,6 +82,10 @@ export default function V2Wall(){
   const lobby=['lobby','briefing','lesson'].includes(g.status)
   const reveal=['closed','reveal','teaching','microcheck','finished'].includes(g.status)
   const activeTeams=(data.teams||[]).filter(t=>t.humans>0)
+  const topRows=data.top3||[]
+  const rankingVisible=topRows.some(x=>Number(x.points||0)>0)
+  const leaderPoints=rankingVisible?Number(topRows[0]?.points||0):0
+  const leaderCount=rankingVisible?(data.player_scores||[]).filter(x=>Number(x.points||0)===leaderPoints).length:0
 
   return <main className="v2-wall compact-wall">
     <div className="v2-wall-top"><div><div className="v2-brand">DOS FUTUROS <span>WALL</span></div><div className="v2-kicker">{lobby?'ÚNETE DESDE TU TELÉFONO':statusCopy(g.status)}</div></div><div className="v2-wall-code"><span>CÓDIGO</span><strong>{g.code}</strong></div></div>
@@ -85,9 +95,10 @@ export default function V2Wall(){
       <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
 
       <div className="v2-wall-primary-grid">
-        <TopThree rows={data.top3||[]} show={Boolean(data.ranking_visible)} leaderCount={data.leader_count||0} leaderPoints={data.leader_points||0}/>
+        <TopThree rows={topRows} show={rankingVisible} leaderCount={leaderCount} leaderPoints={leaderPoints}/>
         <CheckpointBoard data={data} activeTeams={activeTeams}/>
       </div>
+      <RecentScores rows={data.recent_scores||[]}/>
 
       {reveal&&<><WallValue teams={data.teams}/><WallDecisions round={g.round} decisions={data.decisions||[]}/></>}
       {g.status==='reveal'&&<section className="v2-wall-wow"><div><Sparkles size={24}/> IDEA CLAVE</div><strong>{r?.wow}</strong><p>{r?.reality}</p></section>}
