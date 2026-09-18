@@ -41,13 +41,14 @@ test('reto 3 guided lab uses experiment, groups and COP',()=>{
   assert.match(guided,/valor_incremental_cop/)
 })
 
-test('browser lab renders every step on one page and closes for 20 points',()=>{
+test('browser lab renders every step on one page and displays configurable completion points',()=>{
   const component=readFileSync('src/v2/PythonEvidenceLab.jsx','utf8')
   const worker=readFileSync('src/v2/pyodide.worker.js','utf8')
   assert.match(component,/v2-python-all-steps/)
   assert.match(component,/steps\.map/)
   assert.match(component,/lab_complete/)
-  assert.match(component,/\+20 puntos/)
+  assert.match(component,/labPoints=20/)
+  assert.match(component,/Terminar laboratorio/)
   assert.doesNotMatch(component,/Profundizar/)
   assert.doesNotMatch(component,/v2-python-step-tabs/)
   assert.match(worker,/scikit-learn/)
