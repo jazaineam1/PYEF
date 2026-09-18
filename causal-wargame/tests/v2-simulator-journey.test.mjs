@@ -1,0 +1,37 @@
+import test from'node:test'
+import assert from'node:assert/strict'
+import{readFileSync}from'node:fs'
+import{SIM_PLAYERS,SIM_PATHS}from'../src/v2/simulator-fixtures.js'
+import{enabledChallenges}from'../src/v2/challenge-registry.js'
+
+test('teacher simulator contains a deterministic beginning-to-end path for every student and reto',()=>{
+  const challenges=enabledChallenges()
+  assert.equal(SIM_PLAYERS.length,4)
+  for(const p of SIM_PLAYERS){
+    for(const c of challenges){
+      const path=SIM_PATHS[p.id][c.order]
+      assert.ok(path?.initial,p.name+' reto '+c.order+' initial')
+      assert.ok(path?.revision,p.name+' reto '+c.order+' revision')
+      assert.ok(path?.noteInitial)
+      assert.ok(path?.noteRevision)
+    }
+  }
+})
+
+test('simulator exposes individual journey, team map and adaptive authoring views',()=>{
+  const src=readFileSync('src/v2/V2Simulator.jsx','utf8')
+  for(const label of ['Experiencia de un estudiante','Camino de cada estudiante','Cómo agregar retos','JourneyTimeline','TeacherMap','AdaptabilityPanel']){
+    assert.match(src,new RegExp(label))
+  }
+  assert.match(src,/StudentStage/)
+  assert.match(src,/SIM_PATHS/)
+  assert.match(src,/phase\.id==='lab'/)
+  assert.match(src,/phase\.id==='reveal'/)
+})
+
+test('simple concept is shown before technical and advanced vocabulary',()=>{
+  const src=readFileSync('src/v2/V2Simulator.jsx','utf8')
+  assert.match(src,/Primero, en palabras simples/)
+  assert.match(src,/Después se nombra/)
+  assert.match(src,/Vocabulario para profundizar, no obligatorio/)
+})
