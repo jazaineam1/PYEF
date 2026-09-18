@@ -105,3 +105,35 @@
 .v2-python-output pre{margin:0;padding:11px 12px;max-height:260px;overflow:auto;color:#dce8f7;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}
 .spin{animation:v2-spin 1s linear infinite}@keyframes v2-spin{to{transform:rotate(360deg)}}
 @media(max-width:600px){.v2-python-head{display:grid}.v2-python-status{justify-self:start}.v2-python-editor textarea{min-height:205px;font-size:11px}.v2-python-actions{align-items:stretch}.v2-python-actions .v2-primary{width:100%;justify-content:center}}
+
+
+/* V2.1 · causal modeling, revision flow and COP */
+.v2-economy-line{display:block;margin-top:8px;color:#9fb0cb;font-size:11px;line-height:1.45}
+.v2-economy-line b{color:#dff9ef}
+.v2-python-modes{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.v2-python-modes button,.v2-python-step-tabs button{display:flex;align-items:center;gap:5px;border:1px solid #2f456c;background:#0c1830;color:#b8c8e2;border-radius:999px;padding:7px 10px;font-size:11px;cursor:pointer}
+.v2-python-modes button.active,.v2-python-step-tabs button.active{background:#17384c;border-color:#6ee7ff;color:#d8fbff}
+.v2-python-modes>span{margin-left:auto;color:#8092b1;font-size:10px;line-height:1.35}
+.v2-python-step-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.v2-python-step-tabs button{white-space:nowrap}
+.v2-python-prompt{display:grid;gap:5px;padding:10px 12px;border-radius:12px;background:#0e1b31;border:1px solid #2b4269}
+.v2-python-prompt strong{color:#f1f7ff;font-size:13px;line-height:1.4}
+.v2-python-prompt span{color:#a2b2cd;font-size:11px;line-height:1.45}
+.v2-python-result{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+.v2-python-figure{margin:0;border:1px solid #2c416b;border-radius:12px;background:#f5f7fb;overflow:hidden}
+.v2-python-figure img{display:block;width:100%;max-height:360px;object-fit:contain;background:#fff}
+.v2-python-figure figcaption{padding:6px 9px;background:#0d192d;color:#8fa0bd;font-size:9px}
+.v2-result.money{border-color:#2e8d72;background:linear-gradient(135deg,#102c28,#0e1931)}
+.v2-result.money strong{font-size:clamp(30px,6vw,54px);color:#8ff2d1}
+.v2-result.money span{color:#a9bcd3}
+.v2-scoreboard-rows>div{grid-template-columns:20px minmax(60px,1fr) 45px minmax(65px,auto) auto}
+.v2-wall-score-rows>div{grid-template-columns:22px minmax(65px,1fr) 72px minmax(72px,auto) auto}
+.v2-segments article>div:nth-child(2)>b{word-break:normal}
+@media(max-width:600px){
+  .v2-python-modes>span{width:100%;margin-left:0}
+  .v2-python-step-tabs{margin-right:-4px}
+  .v2-python-result{grid-template-columns:1fr}
+  .v2-result.money strong{font-size:32px}
+  .v2-scoreboard-rows>div{grid-template-columns:20px minmax(60px,1fr) 36px minmax(58px,auto)}
+  .v2-scoreboard-rows>div em{grid-column:2/-1}
+}
