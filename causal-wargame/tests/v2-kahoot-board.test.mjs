@@ -32,7 +32,8 @@ test('wall makes individual top 3 and checkpoint scoring primary',()=>{
   assert.match(wall,/function CheckpointBoard/)
   assert.match(wall,/Laboratorio/)
   assert.match(wall,/Pregunta de cierre/)
-  assert.match(wall,/hasta \+30 pts/)
+  assert.match(wall,/score\.check/)
+  assert.match(wall,/score\.team/)
 })
 
 test('current team economic value remains server-gated until close or reveal',()=>{
