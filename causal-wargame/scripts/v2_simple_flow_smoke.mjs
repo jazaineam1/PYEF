@@ -77,12 +77,25 @@ try{
   const prematureRevision=await gt(team[0].token,'v2-submit',{action:'revision',round:1,payload:{selected:team[0].state.packet.slice(-2).map(c=>c.id)}})
   assert(!prematureRevision.ok&&/laboratorio/i.test(String(prematureRevision.data?.error||'')),'V2 revision must wait for lab completion')
 
+  const prematureLab=await gt(team[0].token,'v2-submit',{action:'lab_complete',round:1})
+  assert(!prematureLab.ok&&/bloques/i.test(String(prematureLab.data?.error||'')),'V2 lab points require every guided block to run')
+
   for(let i=0;i<4;i++){
+    for(const stepId of ['rank','visual']){
+      const run=await gt(team[i].token,'v2-submit',{
+        action:'learning_event',round:1,event_type:'python_run',
+        payload:{step_id:stepId,code_changed:false,duration_ms:500,mode:'guided'}
+      })
+      assert(run.ok,`V2 records guided block ${stepId} for player ${i+1}`)
+    }
     const lab=await gt(team[i].token,'v2-submit',{action:'lab_complete',round:1})
-    assert(lab.ok&&lab.data.points===20,`V2 lab closes for 20 points ${i+1}`)
+    assert(lab.ok&&lab.data.points===20&&lab.data.steps===2,`V2 lab closes for 20 points after 2/2 blocks ${i+1}`)
     const check=await gt(team[i].token,'v2-submit',{action:'check',round:1,answer:'b'})
     assert(check.ok&&check.data.points===30&&check.data.correct===true,`V2 checkpoint question scores 30 points ${i+1}`)
   }
+
+  const retryCheck=await gt(team[0].token,'v2-submit',{action:'check',round:1,answer:'a'})
+  assert(retryCheck.ok&&retryCheck.data.already_answered===true&&retryCheck.data.points===30&&retryCheck.data.correct===true,'V2 checkpoint is immutable after first answer')
 
   let scored=await gt(team[0].token,'v2-state')
   assert(scored.ok&&scored.data.progress?.my?.round_points===50,'V2 player sees 50/100 after lab + question')
@@ -126,6 +139,13 @@ try{
     assert(os.ok&&os.data.team.all_submitted,'V2 other team reaches full initial participation')
 
     for(const member of other){
+      for(const stepId of ['rank','visual']){
+        let x=await gt(member.token,'v2-submit',{
+          action:'learning_event',round:1,event_type:'python_run',
+          payload:{step_id:stepId,code_changed:false,duration_ms:500,mode:'guided'}
+        })
+        assert(x.ok,'V2 all teams execute each guided lab block')
+      }
       let x=await gt(member.token,'v2-submit',{action:'lab_complete',round:1})
       assert(x.ok&&x.data.points===20,'V2 all teams close lab')
       x=await gt(member.token,'v2-submit',{action:'check',round:1,answer:'b'})
@@ -149,6 +169,8 @@ try{
   assert(Array.isArray(wall.data.decisions)&&wall.data.decisions.length===0,'V2 wall hides team policies until close/reveal')
   assert(wall.data.checkpoint?.lab===16&&wall.data.checkpoint?.check===16&&wall.data.checkpoint?.revision===16,'V2 wall tracks scored checkpoints for all 16 humans')
   assert(Array.isArray(wall.data.top3)&&wall.data.top3.length===3,'V2 wall exposes a principal individual top 3')
+  assert(Array.isArray(wall.data.recent_scores)&&wall.data.recent_scores.length>0,'V2 wall exposes recent point events as activities close')
+  assert(wall.data.scoring?.max===100,'V2 wall receives the server scoring contract')
   assert(wall.data.top3.every(x=>x.points===70),'V2 top 3 reflects lab + correct check + revision before reveal')
 
   r=await call('v2-facilitator',{action:'reveal'},{'x-facilitator-token':ft})
