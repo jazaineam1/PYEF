@@ -39,3 +39,13 @@ test('simulated student sees scored check and simple concept before the technica
   assert.match(src,/Después se nombra/)
   assert.doesNotMatch(src,/Vocabulario para profundizar, no obligatorio/)
 })
+
+
+test('teacher simulator completes the Python lab locally without touching live player API',()=>{
+  const sim=readFileSync('src/v2/V2Simulator.jsx','utf8')
+  const lab=readFileSync('src/v2/PythonEvidenceLab.jsx','utf8')
+  assert.match(sim,/EvidenceLab[^>]*simulation/)
+  assert.match(lab,/if\(simulation\)/)
+  assert.match(lab,/setLocalComplete\(true\)/)
+  assert.match(lab,/pending&&!simulation/)
+})
