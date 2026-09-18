@@ -28,6 +28,7 @@ export const V2_ROUNDS=Object.fromEntries(enabledChallenges().map((c,i)=>[
     timeMinutes:c.timeMinutes,
     template:c.template,
     profileRound:c.profileRound,
+    points:c.points,
     journey:c.journey
   }
 ]))
