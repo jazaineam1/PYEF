@@ -39,6 +39,9 @@ try{
   const ids=team.flatMap(x=>x.state.packet.map(c=>c.id))
   assert(new Set(ids).size===24,'V2 packets partition all 24 customers without duplicates')
   assert(team.every(x=>x.state.packet.every(c=>!('p0'in c)&&!('p1'in c))),'V2 hidden counterfactuals must not leak')
+  let analysis=await gt(team[0].token,'v2-analysis')
+  assert(analysis.ok&&analysis.data.team_tools===null,'V2 visual team tools stay locked before all individual proposals')
+  assert(analysis.data.reveal_tools===null,'V2 visual reveal stays hidden during individual work')
 
   for(let i=0;i<3;i++){
     const selected=team[i].state.packet.slice(0,2).map(c=>c.id)
@@ -56,6 +59,9 @@ try{
   assert(ready.ok&&ready.data.team.all_submitted===true,'V2 team reaches 4/4')
   assert(ready.data.team_submissions.length===4,'V2 shows four proposals after 4/4')
   assert(ready.data.team_pool.length===24,'V2 unlocks full pool only after 4/4')
+  analysis=await gt(team[0].token,'v2-analysis')
+  assert(analysis.ok&&Array.isArray(analysis.data.team_tools?.feature_summary),'V2 visual evidence lab unlocks at 4/4')
+  assert(analysis.data.reveal_tools===null,'V2 counterfactual chart stays hidden before reveal')
 
   const teamDecision=await gt(team[1].token,'v2-submit',{action:'team',round:1,payload:{selected:['C01','C02','C03','C04','C05','C06','C07','C08','C09','C10']}})
   assert(teamDecision.ok,'V2 any teammate can lock team decision')
@@ -76,8 +82,10 @@ try{
   assert(after.ok&&after.data.reveal?.concept?.includes('Predicción'),'V2 reveal teaches prediction vs causal effect')
   assert(Array.isArray(after.data.reveal?.customers)&&after.data.reveal.customers.length===24,'V2 reveal exposes counterfactual table')
   assert(after.data.team_decision?.result?.score!==undefined,'V2 score becomes visible only after reveal')
+  analysis=await gt(team[2].token,'v2-analysis')
+  assert(analysis.ok&&analysis.data.reveal_tools?.score_uplift?.length===24,'V2 score-vs-uplift and two-futures data unlock only at reveal')
 
-  console.log('DOS_FUTUROS_V2_OK · 16 humans · 6 customers/person · 4/4 gate · equal power · score hidden until reveal · wall progress')
+  console.log('DOS_FUTUROS_V2_OK · 16 humans · distributed packets · 4/4 gate · visual evidence unlocked progressively · reveal protected · wall progress')
 }finally{
   login=await call('facilitator-login',{game_code:game,pin})
   if(login.ok){ft=login.data.token;await call('v2-facilitator',{action:'reset'},{'x-facilitator-token':ft})}
