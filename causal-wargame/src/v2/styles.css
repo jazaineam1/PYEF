@@ -275,3 +275,23 @@
 .v2-fac-checkpoints>div.done{border-color:#2f6f61;background:#102620}
 .v2-fac-checkpoints>div.done b{color:#aaf4dd}
 @media(max-width:720px){.v2-fac-checkpoints{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* V2.4 · explicit phase rewards + recent wall scoring */
+.v2-phase-points{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #2e456c;border-radius:12px;background:#0c1729}
+.v2-phase-points>b{font-size:18px;color:#8ff2d1;white-space:nowrap}
+.v2-phase-points>span{font-size:10px;line-height:1.35;color:#97a9c3}
+.v2-wall-recent{margin-top:12px;border:1px solid #30466d;border-radius:16px;background:#0a1425;padding:12px 14px}
+.v2-wall-recent-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:10px}
+.v2-wall-recent-list article{display:flex;justify-content:space-between;gap:9px;align-items:center;padding:8px 9px;border:1px solid #293e61;border-radius:10px;background:#0d182a}
+.v2-wall-recent-list article>div{display:grid;gap:2px;min-width:0}
+.v2-wall-recent-list strong{font-size:10px;color:#e5effd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2-wall-recent-list span{font-size:8px;color:#7f91af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2-wall-recent-list article>b{font-size:12px;color:#8ff2d1;white-space:nowrap}
+@media(max-width:800px){
+  .v2-wall-recent-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+  .v2-phase-points{align-items:flex-start}
+  .v2-wall-recent-list{grid-template-columns:1fr}
+}
