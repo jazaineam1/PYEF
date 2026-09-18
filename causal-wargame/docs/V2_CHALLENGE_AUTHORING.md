@@ -1,99 +1,115 @@
 # V2 · Cómo agregar un nuevo reto
 
-La plataforma V2 separa **contenido** de **pantallas**.
+La plataforma V2 separa **contenido**, **tipo de decisión**, **laboratorio** y **puntaje**.
 
-El archivo central es:
+El archivo principal de autoría es:
 
 `src/v2/challenge-registry.js`
 
-Cada reto describe:
+Cada reto debe poder explicarse sin jerga en menos de un minuto y debe describir:
 
-- una pregunta sencilla;
-- el contexto;
+- una situación cotidiana;
+- una sola pregunta;
 - qué decide el estudiante antes de ver evidencia;
 - qué laboratorio usa;
+- una pregunta corta de cierre;
 - qué vuelve a decidir;
 - qué decide el equipo;
 - qué se revela;
 - la idea cotidiana que debe comprender;
-- el término técnico que se presenta después;
-- términos avanzados opcionales.
+- el nombre técnico que se presenta sólo al final.
 
 ## Recorrido estándar
 
-Todos los retos reutilizan el mismo contrato pedagógico:
+La interfaz del estudiante usa **una página por fase**. No hay pestañas.
 
 1. Contexto
 2. Decisión inicial
 3. Espera al equipo
-4. Laboratorio
-5. Revisión individual
-6. Comparación antes/después
-7. Decisión de equipo
-8. Reveal
-9. Cierre conceptual
+4. Laboratorio — todos los bloques visibles en una página
+5. Pregunta de cierre puntuable
+6. Revisión individual
+7. Espera al equipo
+8. Decisión final del equipo
+9. Resultado
+10. Qué aprendí
 
-El simulador docente consume este mismo contrato.
+El simulador docente consume este mismo contrato y permite recorrer a cada estudiante de principio a fin.
 
-## Tipos de reto ya soportados
+## Puntaje estándar
+
+Cada reto suma 100 puntos:
+
+- laboratorio terminado: **20**
+- pregunta de comprensión: **30**
+- revisión individual: **20**
+- decisión del equipo: **hasta 30**
+
+La primera decisión es diagnóstica y no da puntos. El puntaje del equipo permanece oculto hasta el reveal.
+
+El Wall muestra el **Top 3 individual** y el progreso de cada checkpoint. El valor económico del equipo es un resultado secundario que aparece después del reveal.
+
+Las respuestas correctas no se incluyen en el bundle del navegador. Se configuran en `cw_v2_challenge_runtime`.
+
+## Tipos de reto soportados
 
 ### `cohort-selection`
-
-Selección de un número limitado de cohortes o unidades.
+Seleccionar un número limitado de grupos.
 
 ### `recommendation`
-
-Una decisión categórica como cancelar, mantener o pedir mejor evidencia.
+Elegir una recomendación categórica.
 
 ### `segment-policy`
+Definir una acción para cada grupo bajo una restricción de capacidad.
 
-Una política por segmentos: intervenir, no intervenir o pedir más evidencia.
+Si un reto usa uno de estos tipos, se reutiliza la interfaz actual. Un tipo de interacción completamente nuevo requiere un adapter nuevo, no reescribir el recorrido.
 
-Si un nuevo reto usa uno de estos tipos, el frontend puede reutilizar la pantalla actual. Si exige otra interacción, se agrega un nuevo adapter sin reescribir el recorrido completo.
+## Laboratorios soportados
 
-## Laboratorios ya soportados
+- `prediction`: qué predice un modelo vs. qué cambia por una acción.
+- `comparison`: comparación simple vs. grupos comparables.
+- `experiment`: prueba aleatoria, cambio por grupo y valor.
 
-- `prediction`: predicción vs. cambio causado.
-- `comparison`: comparación cruda vs. grupos comparables.
-- `experiment`: experimento, efecto por grupo y valor.
-
-El modo **Guiado** usa vocabulario simple. El botón **Profundizar** muestra técnicas opcionales.
+La ruta principal usa sólo código guiado y vocabulario sencillo. Las técnicas avanzadas pueden mantenerse como material de autoría o extensión, pero no aparecen como pestañas en la experiencia normal.
 
 ## Plantilla para pedir un reto nuevo a ChatGPT
 
-Usa una instrucción como:
+Puedes pedirlo así:
 
 > Agrega un reto V2 sobre [tema].
-> Contexto: [2–3 frases].
-> Pregunta que debe poder responder el estudiante: [pregunta].
+> Contexto cotidiano: [máximo 2 frases].
+> Pregunta única: [pregunta].
 > Decisión inicial: [decisión].
-> Evidencia nueva: [qué descubre].
-> Decisión revisada: [qué vuelve a decidir].
+> Laboratorio: [qué deben observar o calcular].
+> Pregunta de cierre: [pregunta de selección múltiple].
+> Opciones: [A/B/C].
+> Respuesta correcta: [sólo para backend, no para el frontend].
+> Decisión revisada: [qué vuelven a decidir].
+> Decisión de equipo: [qué bloquean].
 > Reveal: [verdad oculta].
-> Idea simple que debe aprender: [frase sin jerga].
-> Término técnico posterior: [nombre].
-> Tipo de reto: cohort-selection / recommendation / segment-policy.
+> Idea simple: [frase sin jerga].
+> Nombre técnico posterior: [nombre].
+> Tipo: cohort-selection / recommendation / segment-policy.
 > Laboratorio: prediction / comparison / experiment.
 > Tiempo: [minutos].
-> Mantén los términos avanzados fuera del recorrido principal.
 
 La implementación debe:
 
-1. añadir el manifest a `V2_CHALLENGES`;
-2. validar el registro;
-3. añadir datos/ground truth si el reto los necesita;
-4. extender el adapter sólo si el tipo es nuevo;
-5. extender backend/migración si aumenta el número de retos en una partida en vivo;
-6. añadir pruebas de no filtración antes del reveal.
+1. agregar el manifest a `V2_CHALLENGES`;
+2. registrar la respuesta correcta y puntajes en `cw_v2_challenge_runtime`;
+3. añadir datos o ground truth si el reto los necesita;
+4. reutilizar un template existente cuando sea posible;
+5. añadir un adapter sólo si la interacción es nueva;
+6. probar que el ground truth no se filtra antes del reveal;
+7. probar que el Wall y el Top 3 reciben el nuevo checkpoint.
 
 ## Regla de simplicidad
 
-Un término técnico no aparece en la ruta principal hasta que el estudiante haya encontrado el problema que ese término nombra.
+Un término técnico aparece **después** de que la persona entendió el problema que ese término nombra.
 
 Ejemplo:
 
-- primero: “los grupos eran distintos desde antes”;
-- después: “esto se llama confusión”;
-- opcional: propensity score, IPW, overlap.
+- primero: “los grupos ya eran distintos antes”;
+- después: “esto se llama confusión”.
 
-El objetivo de la ruta principal es comprensión. La profundidad estadística queda disponible sin bloquear al resto del grupo.
+El objetivo principal es que la persona pueda explicar la idea con sus palabras. El nombre técnico sirve para conectar esa intuición con el lenguaje profesional.
