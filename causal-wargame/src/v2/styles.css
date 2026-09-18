@@ -305,3 +305,8 @@
 .v2-fac-top3>div>span{font-size:8px;color:#7689a8}
 .v2-fac-top3 article{display:grid;grid-template-columns:28px 1fr auto;gap:7px;align-items:center;padding:7px 8px;border:1px solid #293e61;border-radius:9px;background:#0d192c}
 .v2-fac-top3 article>b{color:#8ff2d1}.v2-fac-top3 article>strong{font-size:10px}.v2-fac-top3 article>span{font-size:9px;color:#9eb0ca}
+
+.v2-python-step-card.failed{border-color:#8b4b5b;background:#21131a}
+.v2-python-output.error{border-color:#8b4b5b;background:#180e13}
+.v2-python-output.error>div{color:#ffc1cf}
+.v2-python-output.error small{display:block;padding:0 12px 12px;color:#dca8b5;font-size:10px;line-height:1.4}
