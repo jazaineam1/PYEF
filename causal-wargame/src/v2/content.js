@@ -13,7 +13,9 @@ export const V2_ROUNDS={
     team:'Cuando todos hayan enviado, comparen propuestas y seleccionen exactamente 10 clientes.',
     concept:'Predicción ≠ efecto causal · contrafactual',
     takeaway:'SHAP explica por qué el modelo predice. No demuestra qué pasará si cambias una variable ni quién cambiará por la intervención.',
-    evidence:'SHAP de población · score vs uplift · panel de dos futuros'
+    evidence:'SHAP de población · score vs uplift · panel de dos futuros',
+    wow:'El score más alto no tiene por qué ser el cliente que más cambia si lo intervienes.',
+    reality:'Es una diferencia habitual entre modelos de propensión al resultado y modelos de efecto de tratamiento: predecir Y no equivale a estimar Y(1)-Y(0).'
   },
   2:{
     kicker:'RONDA 2 · LA COMPARACIÓN ENGAÑOSA',
@@ -23,7 +25,9 @@ export const V2_ROUNDS={
     team:'Comparen qué tipo de clientes recibió tratamiento y acuerden una recomendación.',
     concept:'Confusión · comparabilidad · overlap',
     takeaway:'Una diferencia observada no es automáticamente un efecto. Pregunta por qué unos fueron tratados y otros no.',
-    evidence:'DAG Lab · overlap · crudo vs ajustado · balance'
+    evidence:'DAG Lab · overlap · crudo vs ajustado · balance',
+    wow:'La campaña parece dañina en la comparación cruda y cambia de signo cuando construyes grupos más comparables.',
+    reality:'Es un patrón plausible cuando la intervención se asigna precisamente a los clientes con peor riesgo basal: selección por riesgo y falta de overlap pueden invertir la lectura ingenua.'
   },
   3:{
     kicker:'RONDA 3 · HAGAMOS UNA PRUEBA',
@@ -33,7 +37,9 @@ export const V2_ROUNDS={
     team:'Comparen sus diseños y acuerden uno solo antes de observar resultados.',
     concept:'Randomización · ATE · incertidumbre',
     takeaway:'La aleatorización combate sesgo de selección. Más N reduce incertidumbre; no arregla una comparación sesgada.',
-    evidence:'simulador N–MDE · tratamiento/control · ATE + IC'
+    evidence:'simulador N–MDE · tratamiento/control · ATE + IC',
+    wow:'La regla menos “inteligente” —el azar— produce la evidencia causal más creíble.',
+    reality:'La aleatorización sacrifica targeting en la asignación experimental para ganar comparabilidad; después el targeting puede volver en la política.'
   },
   4:{
     kicker:'RONDA 4 · FUNCIONA… ¿PERO PARA QUIÉN?',
@@ -43,7 +49,9 @@ export const V2_ROUNDS={
     team:'Construyan una política para los cinco segmentos sin superar capacidad.',
     concept:'CATE · incertidumbre · robustez · política',
     takeaway:'Un ATE positivo no implica tratar a todos. La política debe combinar efecto, incertidumbre, capacidad y señales de robustez.',
-    evidence:'CATE forest · comparador EconML · placebo · simulador de política'
+    evidence:'CATE forest · comparador EconML · placebo · simulador de política',
+    wow:'Un ATE positivo puede terminar en una política que explícitamente NO trata a parte de la población.',
+    reality:'Con heterogeneidad, capacidad limitada, intervalos amplios o señales de falsificación, tratar a todos puede destruir valor o aumentar riesgo aunque el promedio sea positivo.'
   }
 }
 
