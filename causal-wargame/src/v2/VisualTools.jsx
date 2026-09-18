@@ -1,4 +1,4 @@
-import React,{useMemo,useState}from'react'
+import React,{useState}from'react'
 
 const num=x=>Number(x||0)
 const pp=x=>`${num(x)>0?'+':''}${num(x).toFixed(Math.abs(num(x))<10?1:0)} pp`
@@ -99,11 +99,34 @@ export function PolicyMeter({segments=[],choices={},capacity=15000}){
   return <div className="v2-policy-meter"><div><span>Capacidad</span><b>{used.toLocaleString()} / {capacity.toLocaleString()}</b><div className="v2-capacity"><i style={{width:`${Math.min(100,used/capacity*100)}%`}}/></div></div><div><span>Valor incremental estimado</span><b>{Math.round(value).toLocaleString()}</b></div><div><span>Segmentos tratados</span><b>{treated.length}</b></div></div>
 }
 
+function EvidenceTabs({items=[]}){
+  const[active,setActive]=useState(0)
+  if(!items.length)return null
+  const item=items[Math.min(active,items.length-1)]
+  return <div className="v2-evidence-deck"><div className="v2-evidence-tabs" role="tablist" aria-label="Herramientas de evidencia">{items.map((x,i)=><button type="button" key={x.label} className={active===i?'active':''} onClick={()=>setActive(i)}><b>{i+1}</b><span>{x.label}</span></button>)}</div><div className="v2-evidence-panel">{item.node}</div><div className="v2-evidence-nav"><button type="button" disabled={active===0} onClick={()=>setActive(x=>Math.max(0,x-1))}>← anterior</button><span>{active+1}/{items.length}</span><button type="button" disabled={active===items.length-1} onClick={()=>setActive(x=>Math.min(items.length-1,x+1))}>siguiente →</button></div></div>
+}
+
 export function EvidenceLab({round,state,analysis}){
   const tools=analysis?.team_tools
   if(!tools)return null
   const pool=state?.team_pool||[]
-  return <section className="v2-evidence-lab"><div className="v2-step"><b>PASO 2.5 · ANALICEN EVIDENCIA NUEVA</b><span>Úsenla para desafiar —no para reemplazar— la discusión del equipo.</span></div>{round===1&&<div className="v2-tools-grid"><PopulationShapChart summary={tools.feature_summary||[]}/><ToolFrame title="Distribución de scores" question="¿La confianza del modelo es lo mismo que impacto?"><div className="v2-score-rug">{[...pool].sort((a,b)=>num(a.score)-num(b.score)).map(c=><i key={c.id} style={{left:`${num(c.score)*100}%`}} title={`${c.id} · ${pct(c.score)}`}/>)}</div><div className="v2-score-rug-axis"><span>0%</span><span>Score predictivo</span><span>100%</span></div><p className="v2-tool-footer">Todavía no conoces Y(0) y Y(1). No conviertas esta gráfica en una afirmación causal.</p></ToolFrame></div>}{round===2&&<><div className="v2-tools-grid"><DagLab dag={tools.dag}/><RawAdjustedPanel estimates={tools.estimates||[]}/></div><div className="v2-tools-grid"><OverlapChart treated={tools.overlap?.treated||[]} control={tools.overlap?.control||[]}/><BalancePanel rows={tools.balance||[]}/></div></>}{round===3&&<PrecisionSimulator curve={tools.precision_curve||[]} threshold={num(tools.business_threshold_pp||2)}/>} {round===4&&<><div className="v2-tools-grid"><CateForestPlot segments={state.team_pool||[]}/><EconMLCompare rows={tools.econml||[]}/></div><PlaceboPanel placebo={tools.placebo}/></>}</section>
+  const scoreDistribution=<ToolFrame title="Distribución de scores" question="¿La confianza del modelo es lo mismo que impacto?"><div className="v2-score-rug">{[...pool].sort((a,b)=>num(a.score)-num(b.score)).map(c=><i key={c.id} style={{left:`${num(c.score)*100}%`}} title={`${c.id} · ${pct(c.score)}`}/>)}</div><div className="v2-score-rug-axis"><span>0%</span><span>Score predictivo</span><span>100%</span></div><p className="v2-tool-footer">Todavía no conoces Y(0) y Y(1). No conviertas esta gráfica en una afirmación causal.</p></ToolFrame>
+  const items=round===1?[
+    {label:'SHAP',node:<PopulationShapChart summary={tools.feature_summary||[]}/>},
+    {label:'Scores',node:scoreDistribution}
+  ]:round===2?[
+    {label:'DAG',node:<DagLab dag={tools.dag}/>},
+    {label:'Crudo vs ajustado',node:<RawAdjustedPanel estimates={tools.estimates||[]}/>},
+    {label:'Overlap',node:<OverlapChart treated={tools.overlap?.treated||[]} control={tools.overlap?.control||[]}/>},
+    {label:'Balance',node:<BalancePanel rows={tools.balance||[]}/>}
+  ]:round===3?[
+    {label:'N vs precisión',node:<PrecisionSimulator curve={tools.precision_curve||[]} threshold={num(tools.business_threshold_pp||2)}/>}
+  ]:[
+    {label:'CATE',node:<CateForestPlot segments={state.team_pool||[]}/>},
+    {label:'EconML',node:<EconMLCompare rows={tools.econml||[]}/>},
+    {label:'Placebo',node:<PlaceboPanel placebo={tools.placebo}/>}
+  ]
+  return <section className="v2-evidence-lab"><div className="v2-step compact"><b>PASO 2.5 · EVIDENCIA NUEVA</b><span>Una herramienta a la vez. Úsenla para desafiar su primera intuición.</span></div><EvidenceTabs items={items}/></section>
 }
 
 function Round1RevealTools({state,reveal}){
@@ -119,6 +142,6 @@ export function RevealVisuals({round,state,analysis}){
   if(!reveal)return null
   if(round===1)return <Round1RevealTools state={state} reveal={reveal}/>
   if(round===3)return <TreatmentControlCI result={reveal.experiment}/>
-  if(round===4)return <><CateForestPlot segments={reveal.segments||[]} /><PlaceboPanel placebo={reveal.placebo}/></>
+  if(round===4)return <div className="v2-tools-grid reveal-tools"><CateForestPlot segments={reveal.segments||[]} /><PlaceboPanel placebo={reveal.placebo}/></div>
   return null
 }
