@@ -9,6 +9,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
   const lab=useMemo(()=>buildPythonLab(round,state,analysis,labKey),[round,state,analysis,labKey])
   const[codes,setCodes]=useState({})
   const[results,setResults]=useState({})
+  const[stepErrors,setStepErrors]=useState({})
   const[status,setStatus]=useState('idle')
   const[error,setError]=useState('')
   const[closing,setClosing]=useState(false)
@@ -22,6 +23,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
     for(const s of lab?.steps||[])initial[s.id]=s.guidedCode||s.code||''
     setCodes(initial)
     setResults({})
+    setStepErrors({})
     setError('')
     setStatus('idle')
     setClosing(false)
@@ -44,6 +46,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
         const pending=pendingRef.current
         const stepId=pending?.stepId||msg.requestId
         setResults(v=>({...v,[stepId]:{output:msg.output||'',image:msg.image||null}}))
+        setStepErrors(v=>({...v,[stepId]:''}))
         setStatus('ready')
         setError('')
         if(pending&&!simulation){
@@ -53,6 +56,15 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
             payload:{step_id:stepId,code_changed:pending.codeChanged,duration_ms:duration,mode:'guided'}
           }).catch(()=>{})
         }
+        pendingRef.current=null
+      }
+      if(msg.type==='execution_error'){
+        clearTimeout(timerRef.current)
+        const stepId=pendingRef.current?.stepId||msg.requestId
+        setResults(v=>{const next={...v};delete next[stepId];return next})
+        setStepErrors(v=>({...v,[stepId]:[msg.output,msg.error].filter(Boolean).join('\n')}))
+        setStatus('ready')
+        setError('')
         pendingRef.current=null
       }
       if(msg.type==='error'){
@@ -84,6 +96,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
     const code=codes[step.id]??baseCode
     setStatus('running')
     setError('')
+    setStepErrors(v=>({...v,[step.id]:''}))
     pendingRef.current={stepId:step.id,started:performance.now(),codeChanged:code!==baseCode}
     worker.postMessage({type:'run',requestId:step.id,code,context:lab?.context||{}})
     clearTimeout(timerRef.current)
@@ -135,13 +148,15 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
       {steps.map((step,i)=>{
         const base=step.guidedCode||step.code||''
         const result=results[step.id]
-        return <article className={`v2-python-step-card ${result?'done':''}`} key={step.id}>
+        const stepError=stepErrors[step.id]
+        return <article className={`v2-python-step-card ${result?'done':stepError?'failed':''}`} key={step.id}>
           <div className="v2-python-step-title"><b>{i+1}</b><div><strong>{step.question}</strong><span>{step.instruction}</span></div>{result&&<Check size={18}/>}</div>
           <div className="v2-python-editor">
             <div className="v2-python-editorbar"><span>{step.id}.py</span><button type="button" onClick={()=>setCodes(v=>({...v,[step.id]:base}))}><RotateCcw size={14}/> Restaurar</button></div>
             <textarea aria-label={`Código Python: ${step.question}`} value={codes[step.id]??base} onChange={e=>setCodes(v=>({...v,[step.id]:e.target.value}))} spellCheck="false"/>
           </div>
           <button type="button" className="v2-secondary" disabled={!ready||busy} onClick={()=>run(step)}>{busy&&pendingRef.current?.stepId===step.id?<LoaderCircle className="spin" size={16}/>:<Play size={16}/>} {result?'Ejecutar de nuevo':'Ejecutar'}</button>
+          {stepError&&<div className="v2-python-output error"><div><Terminal size={14}/> error de Python</div><pre>{stepError}</pre><small>Este bloque todavía no cuenta como completado. Corrige el código o pulsa “Restaurar” y ejecútalo de nuevo.</small></div>}
           {result&&<div className="v2-python-result">
             <div className="v2-python-output"><div><Terminal size={14}/> resultado</div><pre>{result.output}</pre></div>
             {result.image&&<figure className="v2-python-figure"><img src={result.image} alt="Gráfica producida por el código Python"/><figcaption>Resultado gráfico.</figcaption></figure>}
