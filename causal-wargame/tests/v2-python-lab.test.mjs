@@ -53,4 +53,8 @@ test('browser lab renders every step on one page and displays configurable compl
   assert.doesNotMatch(component,/v2-python-step-tabs/)
   assert.match(worker,/scikit-learn/)
   assert.match(worker,/matplotlib/)
+  assert.match(worker,/execution_error/)
+  assert.match(worker,/_ok = False/)
+  assert.match(component,/stepErrors/)
+  assert.match(component,/Este bloque todavía no cuenta como completado/)
 })
