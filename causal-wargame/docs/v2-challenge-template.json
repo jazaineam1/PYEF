@@ -5,6 +5,12 @@
   "template": "recommendation",
   "profileRound": 2,
   "labKey": "comparison",
+  "points": {
+    "lab": 20,
+    "check": 30,
+    "revision": 20,
+    "team": 30
+  },
   "kicker": "RETO 4",
   "title": "Pregunta corta",
   "simpleQuestion": "¿Qué debería poder responder el estudiante?",
