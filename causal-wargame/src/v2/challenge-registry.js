@@ -17,6 +17,7 @@ export const V2_CHALLENGES=[
     order:1,
     enabled:true,
     template:'cohort-selection',
+    profileRound:1,
     labKey:'prediction',
     kicker:'RETO 1',
     title:'¿A quién le darías un mes gratis?',
@@ -45,6 +46,7 @@ export const V2_CHALLENGES=[
     order:2,
     enabled:true,
     template:'recommendation',
+    profileRound:2,
     labKey:'comparison',
     kicker:'RETO 2',
     title:'¿El mes gratis está funcionando?',
@@ -73,6 +75,7 @@ export const V2_CHALLENGES=[
     order:3,
     enabled:true,
     template:'segment-policy',
+    profileRound:3,
     labKey:'experiment',
     kicker:'RETO 3',
     title:'¿A quién se lo darías ahora?',
@@ -110,9 +113,10 @@ export function validateChallengeRegistry(challenges=V2_CHALLENGES){
     if(!c.id)errors.push('Cada reto necesita id.')
     if(ids.has(c.id))errors.push(`ID duplicado: ${c.id}`)
     ids.add(c.id)
-    for(const key of ['title','scenario','simpleQuestion','plainConcept','technicalTerm','template','labKey','checkQuestion']){
+    for(const key of ['title','scenario','simpleQuestion','plainConcept','technicalTerm','template','profileRound','labKey','checkQuestion']){
       if(!c[key])errors.push(`${c.id||'reto'}: falta ${key}`)
     }
+    if(![1,2,3].includes(Number(c.profileRound)))errors.push(`${c.id||'reto'}: profileRound debe ser 1, 2 o 3`)
     if(!Array.isArray(c.checkOptions)||c.checkOptions.length<2)errors.push(`${c.id||'reto'}: faltan opciones de la pregunta de cierre`)
     if(!Array.isArray(c.journey)||c.journey.length<8)errors.push(`${c.id||'reto'}: journey incompleto`)
   }
@@ -124,6 +128,7 @@ export const CHALLENGE_TEMPLATE={
   order:4,
   enabled:false,
   template:'recommendation',
+  profileRound:2,
   labKey:'comparison',
   kicker:'RETO 4',
   title:'Pregunta corta del reto',
