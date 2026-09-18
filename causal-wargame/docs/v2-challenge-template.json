@@ -4,18 +4,24 @@
   "enabled": false,
   "template": "recommendation",
   "labKey": "comparison",
-  "kicker": "RETO 4 · ...",
-  "title": "Pregunta sencilla",
+  "kicker": "RETO 4",
+  "title": "Pregunta corta",
   "simpleQuestion": "¿Qué debería poder responder el estudiante?",
-  "scenario": "Contexto corto con una sola decisión.",
+  "scenario": "Contexto cotidiano de máximo dos frases.",
   "decisionUnit": "recommendation",
   "initialDecision": "Qué decide antes de nueva evidencia.",
   "revisedDecision": "Qué decide después del laboratorio.",
   "teamDecision": "Qué decisión bloquea el equipo.",
   "plainConcept": "Idea cotidiana sin jerga.",
   "technicalTerm": "Nombre técnico posterior.",
-  "advancedTerms": ["término opcional"],
+  "advancedTerms": [],
   "wow": "La intuición que se rompe.",
   "takeaway": "Una frase que el estudiante puede repetir.",
+  "checkQuestion": "Pregunta corta de comprensión.",
+  "checkOptions": [
+    ["a", "Opción A"],
+    ["b", "Opción B"],
+    ["c", "Opción C"]
+  ],
   "timeMinutes": 15
 }
