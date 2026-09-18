@@ -29,16 +29,22 @@ function TeamCard({team,players}){
 
 function ClassProgress({state}){
   const c=state.checkpoint||{}
+  const score=state.scoring||{}
   const humans=Math.max(1,Number(c.humans||state.humans||0))
   const teams=Math.max(1,(state.teams||[]).filter(t=>t.humans>0).length)
   const rows=[
-    ['Decisión inicial',Number(c.initial||0),humans],
-    ['Laboratorio',Number(c.lab||0),humans],
-    ['Pregunta',Number(c.check||0),humans],
-    ['Revisión',Number(c.revision||0),humans],
-    ['Equipo',Number(c.teams_locked||0),teams]
+    ['Decisión inicial',Number(c.initial||0),humans,'0 pts'],
+    ['Laboratorio',Number(c.lab||0),humans,`+${Number(score.lab??20)}`],
+    ['Pregunta',Number(c.check||0),humans,`hasta +${Number(score.check??30)}`],
+    ['Revisión',Number(c.revision||0),humans,`+${Number(score.revision??20)}`],
+    ['Equipo',Number(c.teams_locked||0),teams,`hasta +${Number(score.team??30)}`]
   ]
-  return <div className="v2-fac-checkpoints">{rows.map(([label,value,total])=><div className={value>=total?'done':''} key={label}><span>{label}</span><b>{value}/{total}</b></div>)}</div>
+  return <div className="v2-fac-checkpoints">{rows.map(([label,value,total,points])=><div className={value>=total?'done':''} key={label}><span>{label}<small>{points}</small></span><b>{value}/{total}</b></div>)}</div>
+}
+
+function FacilitatorTop3({rows=[]}){
+  const visible=rows.some(x=>Number(x.points||0)>0)
+  return <div className="v2-fac-top3"><div><b>TOP 3 INDIVIDUAL</b><span>{visible?'ranking en vivo':'se activa al cerrar el primer laboratorio'}</span></div>{visible&&rows.slice(0,3).map((x,i)=><article key={x.player_id}><b>{i+1}°</b><strong>{x.name}</strong><span>{x.points} pts</span></article>)}</div>
 }
 
 export default function V2Facilitator(){
@@ -60,6 +66,6 @@ export default function V2Facilitator(){
   return <main className="v2-shell"><div className="v2-fac"><div className="v2-wall-top"><div><div className="v2-brand">DOS FUTUROS <span>V2</span></div><div className="v2-kicker">CONSOLA DOCENTE · {statusCopy(g.status)}</div></div><div className="v2-wall-code"><span>CÓDIGO</span><strong>{g.code}</strong></div></div><div className="v2-fac-grid" style={{marginTop:20}}>
     <section className="v2-panel"><div className="v2-kicker">CONTROL DE CLASE · RETO {Math.min(g.round,g.max_round||V2_CHALLENGE_COUNT)} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h2>{r?.title||'Experiencia finalizada'}</h2><p>{r?.case}</p>{r?.evidence&&<div className="v2-alert hint"><span><b>Laboratorio:</b> una página de Python guiado</span></div>}<div className="v2-fac-actions">{['lobby','briefing'].includes(g.status)&&<button className="v2-primary" disabled={busy||state.humans<1} onClick={()=>act('start')}><Play size={17}/> Iniciar reto {g.round}</button>}{g.status==='round'&&<button className="v2-primary" disabled={busy} onClick={()=>act('reveal')}><Unlock size={17}/> Cerrar y revelar</button>}{g.status==='paused'&&<button className="v2-primary" disabled={busy} onClick={()=>act('resume')}><Play size={17}/> Reanudar</button>}{g.status==='round'&&<button className="v2-secondary" disabled={busy} onClick={()=>act('pause')}>Pausar</button>}{['reveal','teaching'].includes(g.status)&&<button className="v2-primary" disabled={busy} onClick={()=>act('next')}><Play size={17}/> {g.round>=(g.max_round||V2_CHALLENGE_COUNT)?'Finalizar experiencia':'Preparar reto siguiente'}</button>}<button className="v2-secondary" disabled={busy} onClick={()=>act('rebalance')}><RefreshCw size={16}/> Rebalancear lobby</button><button className="v2-secondary" disabled={busy} onClick={()=>{if(confirm('¿Reiniciar esta sesión V2? Se borran jugadores, decisiones y trazas de aprendizaje.'))act('reset')}}><RotateCcw size={16}/> Reiniciar</button></div><div className="v2-links"><a href={play} target="_blank" rel="noreferrer">Participante V2 <ExternalLink size={13}/></a><a href={wall} target="_blank" rel="noreferrer">Wall V2 <ExternalLink size={13}/></a><a href={sim} target="_blank" rel="noreferrer">Simulador docente V2 <ExternalLink size={13}/></a></div></section>
 
-    <section className="v2-panel"><div className="v2-kicker">LOBBY / PROGRESO</div><h2><Users size={20}/> {state.humans} participantes</h2><p>Todos siguen la misma ruta: deciden, ejecutan el laboratorio, responden una pregunta, revisan y deciden en equipo.</p><ClassProgress state={state}/>{state.teams.map(t=><TeamCard key={t.id} team={t} players={state.players}/>)}</section>
+    <section className="v2-panel"><div className="v2-kicker">LOBBY / PROGRESO</div><h2><Users size={20}/> {state.humans} participantes</h2><p>Todos siguen la misma ruta: deciden, ejecutan el laboratorio, responden una pregunta, revisan y deciden en equipo.</p><ClassProgress state={state}/><FacilitatorTop3 rows={state.top3||[]}/>{state.teams.map(t=><TeamCard key={t.id} team={t} players={state.players}/>)}</section>
   </div><button className="v2-secondary" style={{marginTop:18}} onClick={exit}>Cerrar sesión del facilitador</button></div></main>
 }
