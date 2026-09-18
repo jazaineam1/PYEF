@@ -112,7 +112,7 @@ export function PolicyMeter({segments=[],choices={},capacity=15000}){
   </div>
 }
 
-export function EvidenceLab({round,state,analysis,labKey,onComplete,simulation=false}){
+export function EvidenceLab({round,state,analysis,labKey,labPoints,onComplete,simulation=false}){
   const tools=analysis?.team_tools
   if(!tools)return null
   const profile=labKey||(round===1?'prediction':round===2?'comparison':'experiment')
@@ -123,7 +123,7 @@ export function EvidenceLab({round,state,analysis,labKey,onComplete,simulation=f
       :'Mide el cambio promedio, compáralo por grupos y conviértelo a una decisión con costo.'
   return <section className="v2-evidence-lab single-page">
     <div className="v2-step compact"><b>LABORATORIO</b><span>{copy}</span></div>
-    <PythonEvidenceLab round={round} state={state} analysis={analysis} labKey={labKey} onComplete={onComplete} simulation={simulation}/>
+    <PythonEvidenceLab round={round} state={state} analysis={analysis} labKey={labKey} labPoints={labPoints} onComplete={onComplete} simulation={simulation}/>
   </section>
 }
 
