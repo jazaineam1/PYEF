@@ -39,12 +39,12 @@ test('current mission money and decisions remain server-gated until close or rev
 })
 
 test('three missions have causal WOWs tied to real reasoning errors',()=>{
-  const content=read('src/v2/content.js')
+  const content=read('src/v2/challenge-registry.js')
   const wow=(content.match(/wow:'/g)||[]).length
-  const reality=(content.match(/reality:'/g)||[]).length
+  const reality=(content.match(/takeaway:'/g)||[]).length
   assert.equal(wow,3)
   assert.equal(reality,3)
-  assert.match(content,/mayor probabilidad de renovación/)
+  assert.match(content,/alta probabilidad de renovar/)
   assert.match(content,/comparación cruda puede ser negativa/)
   assert.match(content,/destruir valor/)
 })
