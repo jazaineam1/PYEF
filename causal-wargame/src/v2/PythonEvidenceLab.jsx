@@ -1,23 +1,34 @@
 import React,{useEffect,useMemo,useRef,useState}from'react'
-import{Play,RotateCcw,Terminal,LoaderCircle}from'lucide-react'
+import{Play,RotateCcw,Terminal,LoaderCircle,Code2,Route}from'lucide-react'
+import{invoke}from'../lib/api'
 import{buildPythonLab}from'./python-lab'
 
-const TIMEOUT_MS=10000
+const TIMEOUT_MS=20000
 
 export function PythonEvidenceLab({round,state,analysis}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis),[round,state,analysis])
-  const[code,setCode]=useState(lab?.code||'')
+  const[stepIndex,setStepIndex]=useState(0)
+  const[codes,setCodes]=useState({})
+  const[results,setResults]=useState({})
   const[status,setStatus]=useState('idle')
-  const[output,setOutput]=useState('')
   const[error,setError]=useState('')
+  const[mode,setMode]=useState('guided')
   const workerRef=useRef(null)
   const timerRef=useRef(null)
+  const pendingRef=useRef(null)
 
   useEffect(()=>{
-    setCode(lab?.code||'')
-    setOutput('')
+    const initial={}
+    for(const s of lab?.steps||[])initial[s.id]=s.code
+    setCodes(initial)
+    setResults({})
+    setStepIndex(0)
     setError('')
     setStatus('idle')
+    setMode('guided')
+    clearTimeout(timerRef.current)
+    workerRef.current?.terminate()
+    workerRef.current=null
   },[round,lab?.title])
 
   useEffect(()=>()=>{clearTimeout(timerRef.current);workerRef.current?.terminate()},[])
@@ -30,20 +41,32 @@ export function PythonEvidenceLab({round,state,analysis}){
       if(msg.type==='ready'){setStatus('ready');setError('')}
       if(msg.type==='result'){
         clearTimeout(timerRef.current)
-        setOutput(msg.output||'')
+        const pending=pendingRef.current
+        const stepId=pending?.stepId||msg.requestId
+        setResults(v=>({...v,[stepId]:{output:msg.output||'',image:msg.image||null}}))
         setStatus('ready')
         setError('')
+        if(pending){
+          const duration=Math.round(performance.now()-pending.started)
+          invoke('v2-submit',{
+            action:'learning_event',round,event_type:'python_run',
+            payload:{step_id:stepId,code_changed:pending.codeChanged,duration_ms:duration,mode}
+          }).catch(()=>{})
+        }
+        pendingRef.current=null
       }
       if(msg.type==='error'){
         clearTimeout(timerRef.current)
         setStatus('error')
         setError(msg.error||'Error ejecutando Python')
+        pendingRef.current=null
       }
     }
     worker.onerror=e=>{
       clearTimeout(timerRef.current)
       setStatus('error')
       setError(e.message||'No fue posible iniciar Python en este navegador.')
+      pendingRef.current=null
     }
     workerRef.current=worker
     return worker
@@ -55,45 +78,67 @@ export function PythonEvidenceLab({round,state,analysis}){
     ensureWorker().postMessage({type:'init'})
   }
 
-  function run(){
+  function run(step){
     const worker=ensureWorker()
+    const code=codes[step.id]??step.code
     setStatus('running')
     setError('')
-    setOutput('')
-    worker.postMessage({type:'run',code,context:lab?.context||{}})
+    pendingRef.current={stepId:step.id,started:performance.now(),codeChanged:code!==step.code}
+    worker.postMessage({type:'run',requestId:step.id,code,context:lab?.context||{}})
     clearTimeout(timerRef.current)
     timerRef.current=setTimeout(()=>{
       worker.terminate()
       workerRef.current=null
+      pendingRef.current=null
       setStatus('error')
-      setError('La ejecución superó 10 segundos y fue detenida. Revisa el código e inténtalo de nuevo.')
+      setError('La ejecución superó 20 segundos y fue detenida. Simplifica el código o restaura el paso guiado.')
     },TIMEOUT_MS)
   }
 
   if(!lab)return null
+  const steps=lab.steps||[]
+  const step=steps[Math.min(stepIndex,steps.length-1)]
+  if(!step)return null
   const ready=status==='ready'||status==='running'
   const busy=status==='loading'||status==='running'
+  const result=results[step.id]
 
   return <section className="v2-python-lab">
     <div className="v2-python-head">
-      <div><div className="v2-kicker">LABORATORIO PYTHON · EN TU NAVEGADOR</div><h2>{lab.title}</h2></div>
-      <div className={`v2-python-status ${status}`}><Terminal size={15}/><span>{status==='idle'?'apagado':status==='loading'?'cargando Pyodide':status==='running'?'ejecutando':'Python listo'}</span></div>
+      <div><div className="v2-kicker">LABORATORIO PYTHON · MODELAMIENTO REAL</div><h2>{lab.title}</h2></div>
+      <div className={`v2-python-status ${status}`}><Terminal size={15}/><span>{status==='idle'?'apagado':status==='loading'?'cargando stack científico':status==='running'?'ejecutando':'Python listo'}</span></div>
     </div>
-    <p className="v2-python-question">{lab.question}</p>
-    <p className="v2-python-instruction">{lab.instruction}</p>
+
+    <div className="v2-python-modes">
+      <button type="button" className={mode==='guided'?'active':''} onClick={()=>setMode('guided')}><Route size={14}/> Guiado</button>
+      <button type="button" className={mode==='free'?'active':''} onClick={()=>setMode('free')}><Code2 size={14}/> Libre</button>
+      <span>{mode==='guided'?'Sigue la pregunta y modifica lo necesario.':'Edita completamente el código; los datos desbloqueados son los mismos.'}</span>
+    </div>
+
+    <div className="v2-python-step-tabs">
+      {steps.map((s,i)=><button type="button" key={s.id} className={i===stepIndex?'active':''} onClick={()=>setStepIndex(i)}>{s.label}{results[s.id]?' ✓':''}</button>)}
+    </div>
+
+    <div className="v2-python-prompt">
+      <strong>{step.question}</strong>
+      <span>{step.instruction}</span>
+    </div>
 
     <div className="v2-python-editor">
-      <div className="v2-python-editorbar"><span>main.py</span><button type="button" onClick={()=>setCode(lab.code)}><RotateCcw size={14}/> Restaurar</button></div>
-      <textarea aria-label="Código Python editable" value={code} onChange={e=>setCode(e.target.value)} spellCheck="false"/>
+      <div className="v2-python-editorbar"><span>{step.id}.py</span><button type="button" onClick={()=>setCodes(v=>({...v,[step.id]:step.code}))}><RotateCcw size={14}/> Restaurar</button></div>
+      <textarea aria-label="Código Python editable" value={codes[step.id]??step.code} onChange={e=>setCodes(v=>({...v,[step.id]:e.target.value}))} spellCheck="false"/>
     </div>
 
     <div className="v2-python-actions">
       {!ready&&<button type="button" className="v2-primary" disabled={busy} onClick={init}>{busy?<LoaderCircle className="spin" size={17}/>:<Terminal size={17}/>} {busy?'Cargando motor…':'Iniciar Python'}</button>}
-      {ready&&<button type="button" className="v2-primary" disabled={busy} onClick={run}>{busy?<LoaderCircle className="spin" size={17}/>:<Play size={17}/>} {busy?'Ejecutando…':'Ejecutar'}</button>}
-      <small>Python corre localmente con WebAssembly. El laboratorio sólo recibe los datos ya desbloqueados para esta ronda.</small>
+      {ready&&<button type="button" className="v2-primary" disabled={busy} onClick={()=>run(step)}>{busy?<LoaderCircle className="spin" size={17}/>:<Play size={17}/>} {busy?'Ejecutando…':'Ejecutar este paso'}</button>}
+      <small>NumPy, pandas, SciPy, scikit-learn y Matplotlib corren localmente con WebAssembly. El ground truth permanece fuera del payload hasta el reveal.</small>
     </div>
 
     {error&&<div className="v2-alert error">{error}</div>}
-    {output&&<div className="v2-python-output"><div><Terminal size={14}/> salida</div><pre>{output}</pre></div>}
+    {result&&<div className="v2-python-result">
+      <div className="v2-python-output"><div><Terminal size={14}/> salida Python</div><pre>{result.output}</pre></div>
+      {result.image&&<figure className="v2-python-figure"><img src={result.image} alt="Gráfica producida por el código Python"/><figcaption>Salida gráfica generada en el navegador.</figcaption></figure>}
+    </div>}
   </section>
 }
