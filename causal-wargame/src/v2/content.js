@@ -1,60 +1,49 @@
+import{enabledChallenges,V2_CHALLENGE_COUNT}from'./challenge-registry'
+
 export const V2_MISSION={
   title:'DOS FUTUROS',
-  subtitle:'De predecir resultados a decidir intervenciones con evidencia causal y valor económico.',
-  rules:['Decide con lo que sabes','Investiga con evidencia y Python','Revisa tu decisión','Habla con tu equipo','Bloqueen una política','Descubran el otro futuro']
+  subtitle:'Aprende a distinguir predicción, comparación y efecto causal tomando decisiones simples.',
+  rules:['Decide con lo que sabes','Prueba tu idea con datos','Revisa tu decisión','Habla con tu equipo','Decidan juntos','Descubre qué cambió']
 }
 
-export const V2_ROUNDS={
-  1:{
-    kicker:'MISIÓN 1 · EL MODELO PREDICE',
-    title:'¿A quién intervenirías?',
-    case:'Un modelo predice renovación. Tienen presupuesto para intervenir 10 de 24 cohortes; cada ficha representa 1.000 clientes similares.',
-    individual:'Elige entre 1 y 3 cohortes de tu muestra usando la información predictiva disponible.',
-    revise:'Después de modelar en Python, vuelve a elegir entre 1 y 3 cohortes. Puedes mantener o cambiar tu criterio.',
-    team:'Comparen la decisión inicial y la revisada. Seleccionen exactamente 10 cohortes.',
-    concept:'Predicción ≠ efecto causal · contrafactual',
-    takeaway:'Un buen modelo de P(Y|X) puede ordenar correctamente quién renovará y aun así no decir quién renovará gracias a la intervención.',
-    evidence:'Modelo predictivo real en Python · SHAP · dos futuros · valor incremental en COP',
-    wow:'La cohorte con mayor probabilidad de renovación no tiene por qué ser la que más valor genera al intervenir.',
-    reality:'La predicción describe resultados esperados; la decisión causal necesita comparar qué ocurriría con y sin intervención.'
-  },
-  2:{
-    kicker:'MISIÓN 2 · LA COMPARACIÓN ENGAÑOSA',
-    title:'¿La campaña realmente funciona?',
-    case:'En los datos históricos, los tratados renovaron menos. Antes de cancelar o escalar, deben decidir si esa comparación identifica un efecto.',
-    individual:'Con tu muestra, recomienda cancelar, mantener o rediseñar la evidencia antes de escalar.',
-    revise:'Después de estimar propensión, overlap y un ajuste causal, revisa tu recomendación.',
-    team:'Acuerden una sola recomendación y expliquen qué evidencia la sostiene.',
-    concept:'Confusión · comparabilidad · identificación',
-    takeaway:'Tratados y controles pueden diferir antes de intervenir. La asignación del tratamiento determina qué comparación causal es defendible.',
-    evidence:'DAG · propensity score en Python · IPW · overlap · balance',
-    wow:'La comparación cruda puede ser negativa aun cuando el tratamiento tenga un efecto causal positivo.',
-    reality:'Cuando los perfiles de mayor riesgo reciben más tratamiento, la diferencia observada mezcla efecto causal con selección.'
-  },
-  3:{
-    kicker:'MISIÓN 3 · DEL EXPERIMENTO A LA POLÍTICA',
-    title:'¿Dónde pondrían el presupuesto?',
-    case:'Ya existe un experimento aleatorizado. La intervención funciona en promedio, pero la capacidad máxima es 15.000 clientes y el efecto puede variar por segmento.',
-    individual:'Para tus segmentos, propone tratar, evitar o pedir más evidencia.',
-    revise:'Estima ATE, CATE y valor incremental con Python. Luego revisa tu política.',
-    team:'Construyan una política para los cinco segmentos sin superar la capacidad.',
-    concept:'Randomización · ATE · CATE · incertidumbre · política',
-    takeaway:'Un ATE positivo no implica tratar a todos. La política combina efecto, incertidumbre, costo, capacidad y valor.',
-    evidence:'ATE + IC en Python · T-Learner real · CATE · EconML comparativo · valor incremental en COP',
-    wow:'Una intervención positiva en promedio puede destruir valor en algunos segmentos.',
-    reality:'La heterogeneidad convierte una pregunta de efecto promedio en una decisión de asignación bajo restricciones.'
+export const V2_ROUNDS=Object.fromEntries(enabledChallenges().map((c,i)=>[
+  i+1,{
+    id:c.id,
+    kicker:c.kicker,
+    title:c.title,
+    case:c.scenario,
+    question:c.simpleQuestion,
+    individual:c.initialDecision,
+    revise:c.revisedDecision,
+    team:c.teamDecision,
+    concept:c.technicalTerm,
+    plainConcept:c.plainConcept,
+    advancedTerms:c.advancedTerms,
+    takeaway:c.takeaway,
+    evidence:c.labKey,
+    wow:c.wow,
+    reality:c.takeaway,
+    timeMinutes:c.timeMinutes,
+    template:c.template,
+    journey:c.journey
   }
-}
+]))
+
+export{V2_CHALLENGE_COUNT}
 
 export const RECOMMENDATIONS=[
-  ['cancel','Cancelar'],['keep','Mantener como está'],['redesign','Rediseñar evidencia antes de escalar']
+  ['cancel','Cancelar el bono'],
+  ['keep','Mantenerlo como está'],
+  ['redesign','Pedir una comparación mejor']
 ]
 
 export const POLICY_ACTIONS=[
-  ['treat','Tratar'],['avoid','Evitar'],['observe','Más evidencia']
+  ['treat','Ofrecer bono'],
+  ['avoid','No ofrecerlo'],
+  ['observe','Pedir más evidencia']
 ]
 
 export const statusCopy=status=>({
-  lobby:'Esperando participantes',briefing:'Misión lista',lesson:'Preparando misión',round:'Decisión abierta',
-  closed:'Decisiones cerradas',reveal:'Reveal',teaching:'Debrief',microcheck:'Comprobación',paused:'Pausa',finished:'Experiencia finalizada'
+  lobby:'Esperando participantes',briefing:'Reto listo',lesson:'Preparando reto',round:'Decisión abierta',
+  closed:'Decisiones cerradas',reveal:'Reveal',teaching:'Cierre docente',microcheck:'Comprobación',paused:'Pausa',finished:'Experiencia finalizada'
 }[status]||status)
