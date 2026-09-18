@@ -153,11 +153,11 @@ begin
   select * into p from public.cw_validate_player_token(p_token);
   if p.id is null then raise exception 'Sesión inválida'; end if;
   select * into g from public.cw_games where id=p.game_id;
-  select (lab_points+check_points+revision_points+team_points),
-         jsonb_build_object('key',challenge_key,'profile_round',profile_round,'template',template,'lab_key',lab_key)
+  select (r.lab_points+r.check_points+r.revision_points+r.team_points),
+         jsonb_build_object('key',r.challenge_key,'profile_round',r.profile_round,'template',r.template,'lab_key',r.lab_key)
   into round_max,challenge
-  from public.cw_v2_challenge_runtime
-  where round_number=g.current_round and enabled;
+  from public.cw_v2_challenge_runtime r
+  where r.round_number=g.current_round and r.enabled;
   round_max:=coalesce(round_max,100);
 
   select count(*) into humans from public.cw_players
