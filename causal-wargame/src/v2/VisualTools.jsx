@@ -145,10 +145,10 @@ function SegmentChangeBars({segments=[]}){
   return <ToolFrame title="No todos los grupos cambiaron igual" question="¿En cuáles grupos ayudó más el mes gratis?"><div className="v2-hbars">{segments.map(s=>{const effect=num(s.effect??s.effect_pp);return <div key={s.id||s.name}><span>{s.name}</span><div className="v2-hbar-track"><i style={{width:`${Math.min(100,Math.abs(effect)/max*100)}%`}}/></div><b>{effect>0?'+':''}{effect} pp</b></div>})}</div></ToolFrame>
 }
 
-export function RevealVisuals({round,state,analysis}){
+export function RevealVisuals({round,state,analysis,profileRound=round}){
   const reveal=analysis?.reveal_tools
   if(!reveal)return null
-  if(round===1)return <Round1RevealTools state={state} reveal={reveal}/>
-  if(round===3)return <div className="v2-tools-grid reveal-tools"><ExperimentSimple result={reveal.experiment}/><SegmentChangeBars segments={reveal.segments||[]}/></div>
+  if(Number(profileRound)===1)return <Round1RevealTools state={state} reveal={reveal}/>
+  if(Number(profileRound)===3)return <div className="v2-tools-grid reveal-tools"><ExperimentSimple result={reveal.experiment}/><SegmentChangeBars segments={reveal.segments||[]}/></div>
   return null
 }
