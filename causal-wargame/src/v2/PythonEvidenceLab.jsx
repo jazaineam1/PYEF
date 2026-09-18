@@ -5,7 +5,7 @@ import{buildPythonLab}from'./python-lab'
 
 const TIMEOUT_MS=20000
 
-export function PythonEvidenceLab({round,state,analysis,onComplete,simulation=false}){
+export function PythonEvidenceLab({round,state,analysis,labKey,onComplete,simulation=false}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis,labKey),[round,state,analysis,labKey])
   const[codes,setCodes]=useState({})
   const[results,setResults]=useState({})
