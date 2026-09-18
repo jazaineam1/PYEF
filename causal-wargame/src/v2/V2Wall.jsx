@@ -84,7 +84,7 @@ export default function V2Wall(){
       <div className="v2-wall-phase compact"><div><div className="v2-kicker">RETO {g.round} DE {V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
 
       <div className="v2-wall-primary-grid">
-        <TopThree rows={data.top3||[]} show={g.round>1||Number(data.checkpoint?.check||0)>0}/>
+        <TopThree rows={data.top3||[]} show={(data.top3||[]).some(x=>Number(x.points||0)>0)}/>
         <CheckpointBoard data={data} activeTeams={activeTeams}/>
       </div>
 
