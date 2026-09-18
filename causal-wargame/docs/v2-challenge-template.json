@@ -26,18 +26,13 @@
   "takeaway": "Una frase que el estudiante puede repetir.",
   "checkQuestion": "Pregunta corta de comprensión.",
   "checkOptions": [
-    [
-      "a",
-      "Opción A"
-    ],
-    [
-      "b",
-      "Opción B"
-    ],
-    [
-      "c",
-      "Opción C"
-    ]
+    ["a", "Opción A"],
+    ["b", "Opción B"],
+    ["c", "Opción C"]
   ],
+  "runtime": {
+    "correctAnswer": "a",
+    "labStepIds": ["raw", "stratify", "overlap"]
+  },
   "timeMinutes": 15
 }
