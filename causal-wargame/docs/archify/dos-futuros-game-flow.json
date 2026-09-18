@@ -1,0 +1,51 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "DOS FUTUROS · Mando, jugadores y aprendizaje causal",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {"id":"full-round","label":"Una ronda completa","focus":["open_round","brief","problem","strategy","causal","models","experiments","war_room","coherence","team_decision","learning_close"],"note":"Ciclo completo: mando docente, exploración especializada, integración, decisión, debrief y transferencia."},
+      {"id":"four-roles","label":"Los 4 roles","focus":["strategy","causal","models","experiments","war_room"],"note":"La secuencia muestra dependencia lógica; durante la clase los especialistas pueden explorar en paralelo."},
+      {"id":"command","label":"Mando docente","focus":["open_round","brief","problem","learning_close"],"note":"El facilitador controla ritmo, explicación y debrief; la evidencia y la decisión pertenecen al equipo."}
+    ]
+  },
+  "lanes": [
+    {"id":"command","label":"Facilitador / mando"},
+    {"id":"team","label":"Equipos Fisher · Neyman · Rubin · Pearl"},
+    {"id":"roles","label":"4 especialistas"},
+    {"id":"integration","label":"Integración · decisión · aprendizaje"}
+  ],
+  "nodes": [
+    {"id":"open_round","lane":"command","col":0,"type":"external","label":"Abrir ronda","sublabel":"tiempo · fase · consigna","width":145},
+    {"id":"brief","lane":"command","col":1,"type":"frontend","label":"Mini-clase","sublabel":"intuición antes del término","tag":"4–6 min","width":145},
+    {"id":"problem","lane":"team","col":1,"type":"frontend","label":"Problema + voto","sublabel":"primera respuesta","width":145},
+    {"id":"strategy","lane":"roles","col":0,"type":"frontend","label":"🦁 Define","sublabel":"qué decidir","tag":"Decision Studio","width":145},
+    {"id":"causal","lane":"roles","col":1,"type":"frontend","label":"🐈‍⬛ Identifica","sublabel":"DAG · ajuste","tag":"DAG Lab","width":145},
+    {"id":"models","lane":"roles","col":2,"type":"frontend","label":"🦉 Estima","sublabel":"uplift · CATE","tag":"Model Explorer","width":145},
+    {"id":"experiments","lane":"roles","col":3,"type":"frontend","label":"🐢 Comprueba","sublabel":"N · IC · stress test","tag":"Experiment Designer","width":155},
+    {"id":"war_room","lane":"integration","col":3,"type":"messagebus","label":"War Room","sublabel":"4 aportes · una historia","tag":"evidencia","width":155},
+    {"id":"coherence","lane":"integration","col":2,"type":"security","label":"Coherencia","sublabel":"corregir contradicciones","tag":"antes de decidir","width":155},
+    {"id":"team_decision","lane":"integration","col":1,"type":"backend","label":"Decisión del equipo","sublabel":"acción bajo evidencia","width":155},
+    {"id":"learning_close","lane":"integration","col":0,"type":"cloud","label":"Reveal + debrief","sublabel":"microcheck · transferencia","tag":"cierre docente","width":155}
+  ],
+  "edges": [
+    {"id":"open-brief","from":"open_round","to":"brief","label":"activa","variant":"default","role":"main"},
+    {"id":"brief-problem","from":"brief","to":"problem","label":"plantea","variant":"emphasis","role":"main"},
+    {"id":"problem-strategy","from":"problem","to":"strategy","label":"definir","variant":"emphasis","role":"main"},
+    {"id":"strategy-causal","from":"strategy","to":"causal","label":"pregunta","variant":"emphasis","role":"main"},
+    {"id":"causal-models","from":"causal","to":"models","label":"identificación","variant":"emphasis","role":"main"},
+    {"id":"models-experiments","from":"models","to":"experiments","label":"efecto","variant":"emphasis","role":"main"},
+    {"id":"experiments-war","from":"experiments","to":"war_room","label":"evidencia","variant":"emphasis","role":"main"},
+    {"id":"war-coherence","from":"war_room","to":"coherence","label":"integra","variant":"emphasis","role":"main"},
+    {"id":"coherence-decision","from":"coherence","to":"team_decision","label":"coherente","variant":"emphasis","role":"main"},
+    {"id":"decision-close","from":"team_decision","to":"learning_close","label":"cerrar y aprender","variant":"dashed","role":"main"}
+  ],
+  "cards": [
+    {"dot":"amber","title":"Mando","items":["El facilitador abre/cierra fases, enseña lo mínimo y conduce el debrief","La pantalla pública acompaña tiempo, progreso y resultados; no decide"]},
+    {"dot":"violet","title":"4 roles visibles","items":["🦁 define · 🐈‍⬛ identifica · 🦉 estima · 🐢 comprueba y hace stress test","El copiloto queda como función secundaria de 🐢; no aparece un quinto rol"]},
+    {"dot":"cyan","title":"Dependencia lógica","items":["Los especialistas pueden explorar en paralelo; la cadena muestra qué necesita la decisión causal","El War Room exige coherencia antes de cerrar"]},
+    {"dot":"emerald","title":"Aprender jugando","items":["Predice → manipula → observa → feedback → concepto → aplicación","El cierre usa un caso nuevo para comprobar transferencia"]}
+  ]
+}

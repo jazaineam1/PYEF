@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "DOS FUTUROS · Arquitectura técnica",
+    "quality_profile": "showcase",
+    "viewBox": [1080, 650],
+    "views": [
+      {"id":"runtime","label":"Ruta de juego","focus":["classroom","pages","ui","role_engine","war_room","edge_api","postgres"],"note":"Sigue una interacción desde las superficies de aula hasta el estado persistido en Supabase."},
+      {"id":"pedagogy","label":"Motor pedagógico","focus":["ui","role_engine","war_room","causal_assets"],"note":"Aísla las herramientas por rol, la evidencia compartida y los escenarios causales."},
+      {"id":"delivery","label":"Build y publicación","focus":["delivery","pages"],"note":"Muestra la ruta de pruebas, build seguro y publicación estática."}
+    ]
+  },
+  "components": [
+    {"id":"classroom","type":"external","label":"Aula","sublabel":"jugadores · docente · pantalla","pos":[25,285],"size":[135,70]},
+    {"id":"pages","type":"cloud","label":"GitHub Pages","sublabel":"dos-futuros/","pos":[200,285],"size":[135,70],"tag":"estático"},
+    {"id":"delivery","type":"cloud","label":"GitHub Actions + build","sublabel":"tests · build · publish","pos":[192.5,70],"size":[150,72]},
+    {"id":"ui","type":"frontend","label":"React + Vite","sublabel":"4 superficies web","pos":[375,285],"size":[145,72]},
+    {"id":"role_engine","type":"frontend","label":"RoleLab","sublabel":"herramientas por rol","pos":[560,170],"size":[150,76]},
+    {"id":"war_room","type":"backend","label":"War Room","sublabel":"evidencia · coherencia","pos":[560,395],"size":[150,76]},
+    {"id":"edge_api","type":"backend","label":"Edge Functions","sublabel":"join · state · decide","pos":[755,285],"size":[150,76],"tag":"HTTPS"},
+    {"id":"causal_assets","type":"database","label":"Escenarios causales","sublabel":"sintéticos · EconML","pos":[755,480],"size":[150,76]},
+    {"id":"postgres","type":"database","label":"PostgreSQL + RPC","sublabel":"sesión · decisiones","pos":[930,285],"size":[125,76]}
+  ],
+  "boundaries": [
+    {"kind":"region","label":"Experiencia de aula","wraps":["classroom","pages","ui","role_engine","war_room"],"pad":24},
+    {"kind":"region","label":"Supabase","wraps":["edge_api","causal_assets","postgres"],"pad":24}
+  ],
+  "connections": [
+    {"id":"classroom-pages","from":"classroom","to":"pages","variant":"emphasis"},
+    {"id":"pages-ui","from":"pages","to":"ui","variant":"default"},
+    {"id":"ui-role","from":"ui","to":"role_engine","variant":"emphasis"},
+    {"id":"role-war","from":"role_engine","to":"war_room","variant":"emphasis"},
+    {"id":"war-api","from":"war_room","to":"edge_api","variant":"emphasis"},
+    {"id":"api-db","from":"edge_api","to":"postgres","variant":"security"},
+    {"id":"assets-api","from":"causal_assets","to":"edge_api","variant":"dashed"},
+    {"id":"delivery-pages","from":"delivery","to":"pages","variant":"dashed","fromSide":"bottom","toSide":"top","route":"straight"}
+  ],
+  "cards": [
+    {"dot":"cyan","title":"Ruta principal","items":["Aula → GitHub Pages → React → RoleLab → War Room → Edge Functions → PostgreSQL","El frontend es estático; Supabase conserva el estado mutable de la sesión"]},
+    {"dot":"violet","title":"Motor pedagógico","items":["RoleLab presenta la herramienta especializada de cada rol y ronda","War Room integra evidencia y muestra incoherencias antes de cerrar una decisión"]},
+    {"dot":"emerald","title":"Operación","items":["GitHub Actions prueba, construye y publica el build seguro","Los escenarios son sintéticos y los resultados de modelos causales pueden estar precomputados"]}
+  ]
+}
