@@ -2,7 +2,7 @@ import React,{useEffect,useMemo,useState}from'react'
 import{Check,ChevronRight,Lightbulb,LogOut,Trophy,Sparkles,RefreshCw}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,RECOMMENDATIONS,POLICY_ACTIONS,statusCopy}from'./content'
-import{EvidenceLab,MiniShapBars,PolicyMeter,RevealVisuals}from'./VisualTools'
+import{EvidenceLab,PolicyMeter,RevealVisuals}from'./VisualTools'
 
 const jitter=n=>Math.round(n*(.85+Math.random()*.3))
 const pct=n=>`${Math.round(Number(n||0)*100)}%`
@@ -15,7 +15,7 @@ function Join({onJoined}){
   const[name,setName]=useState('')
   const[busy,setBusy]=useState(false),[err,setErr]=useState('')
   async function go(){setBusy(true);setErr('');try{const r=await invoke('join-game',{game_code:code.trim().toUpperCase(),display_name:name.trim()});savePlayerToken(r.token);savePlayerGameCode(code);onJoined()}catch(e){setErr(e.message)}finally{setBusy(false)}}
-  return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-brand">DOS FUTUROS <span>V2</span></div><div className="v2-kicker">SIMULADOR DE DECISIONES CAUSALES</div><h1>Predice. Investiga. Cambia de opinión si la evidencia lo exige.</h1><p className="v2-lead">Todos son analistas. Primero decides con información incompleta; después modelas en Python, revisas tu decisión y finalmente el equipo bloquea una política.</p><div className="v2-rule-row">{V2_MISSION.rules.map((x,i)=><div key={x}><b>{i+1}</b><span>{x}</span></div>)}</div><label>Código de sesión<input value={code} autoCapitalize="characters" onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Ej. FUTUROS26"/></label><label>Tu nombre<input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre visible"/></label>{err&&<div className="v2-alert error">{err}</div>}<button className="v2-primary" disabled={busy||code.trim().length<4||name.trim().length<2} onClick={go}>{busy?'Entrando…':'Entrar al equipo'} <ChevronRight size={18}/></button></section></main>
+  return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-brand">DOS FUTUROS <span>V2</span></div><div className="v2-kicker">JUEGO DE DECISIONES CON DATOS</div><h1>Decide. Mira los datos. Vuelve a decidir.</h1><p className="v2-lead">En cada reto tomas una decisión sencilla, haces un laboratorio corto y ves si los datos cambian tu respuesta.</p><div className="v2-rule-row">{V2_MISSION.rules.map((x,i)=><div key={x}><b>{i+1}</b><span>{x}</span></div>)}</div><label>Código de sesión<input value={code} autoCapitalize="characters" onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="Ej. FUTUROS26"/></label><label>Tu nombre<input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre visible"/></label>{err&&<div className="v2-alert error">{err}</div>}<button className="v2-primary" disabled={busy||code.trim().length<4||name.trim().length<2} onClick={go}>{busy?'Entrando…':'Entrar al equipo'} <ChevronRight size={18}/></button></section></main>
 }
 
 function useV2State(enabled){
@@ -66,12 +66,12 @@ function IndividualCohorts({state,onSend,busy,revision=false,round}){
   const[sel,setSel]=useState([])
   const rows=revision?(state.team_pool||[]):state.packet
   const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):v.length<3?[...v,id]:v)
-  return <><div className="v2-step"><b>{revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-grid customers">{rows.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/3 cohortes</span><button className="v2-primary" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{revision?'Guardar decisión revisada':'Enviar decisión inicial'}</button></div></>
+  return <><div className="v2-step"><b>{revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-grid customers">{rows.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/3 cohortes</span><button className="v2-primary" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{revision?'Guardar decisión revisada':'Enviar decisión inicial'}</button></div></>
 }
 
 function Recommendation({onSend,busy,revision=false,round}){
   const[rec,setRec]=useState('')
-  return <><div className="v2-step"><b>{revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>{revision?'Guardar recomendación revisada':'Enviar recomendación inicial'}</button></>
+  return <><div className="v2-step"><b>{revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>{revision?'Guardar recomendación revisada':'Enviar recomendación inicial'}</button></>
 }
 
 function PolicyChoice({state,onSend,busy,revision=false,team=false,round}){
@@ -87,7 +87,7 @@ function PolicyChoice({state,onSend,busy,revision=false,team=false,round}){
     }
     return{choices}
   }
-  return <><div className="v2-step"><b>{team?'PASO 4 · DECIDAN JUNTOS':revision?'PASO 3 · REVISA TU DECISIÓN':'PASO 1 · PROPÓN TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>{(revision||team)&&<PolicyMeter segments={segs} choices={choices} capacity={capacity}/>}<div className="v2-segments">{segs.map(s=><SegmentCard key={s.id} s={s} value={choices[s.id]} onChange={v=>setChoices({...choices,[s.id]:v})}/>)}</div><button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{team?(used>capacity?'Superan capacidad':'Bloquear política del equipo'):revision?'Guardar política revisada':'Enviar propuesta inicial'}</button></>
+  return <><div className="v2-step"><b>{team?'DECIDAN JUNTOS':revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>{(revision||team)&&<PolicyMeter segments={segs} choices={choices} capacity={capacity}/>}<div className="v2-segments">{segs.map(s=><SegmentCard key={s.id} s={s} value={choices[s.id]} onChange={v=>setChoices({...choices,[s.id]:v})}/>)}</div><button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{team?(used>capacity?'Superan capacidad':'Bloquear política del equipo'):revision?'Guardar política revisada':'Enviar propuesta inicial'}</button></>
 }
 
 function TeamProgress({state,phase='initial'}){
@@ -164,12 +164,12 @@ function TeamCohorts({state,onSend,busy,round}){
   const initial=useMemo(()=>[...new Set((state.team_revisions||[]).flatMap(s=>s.payload.selected||[]))].slice(0,10),[state.game.round,state.team_revisions?.length])
   const[sel,setSel]=useState(initial)
   const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):v.length<10?[...v,id]:v)
-  return <><div className="v2-step"><b>PASO 4 · DECIDAN JUNTOS</b><span>{V2_ROUNDS[round].team}</span></div><div className="v2-grid customers compact">{state.team_pool.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/10 cohortes</span><button className="v2-primary" disabled={busy||sel.length!==10} onClick={()=>onSend({selected:sel})}>Bloquear política del equipo</button></div></>
+  return <><div className="v2-step"><b>DECIDAN JUNTOS</b><span>{V2_ROUNDS[round].team}</span></div><div className="v2-grid customers compact">{state.team_pool.map(c=><CustomerCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/10 cohortes</span><button className="v2-primary" disabled={busy||sel.length!==10} onClick={()=>onSend({selected:sel})}>Bloquear política del equipo</button></div></>
 }
 
 function TeamRecommendation({onSend,busy,round}){
   const[rec,setRec]=useState('')
-  return <><div className="v2-step"><b>PASO 4 · DECIDAN JUNTOS</b><span>{V2_ROUNDS[round].team}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>Bloquear recomendación del equipo</button></>
+  return <><div className="v2-step"><b>DECIDAN JUNTOS</b><span>{V2_ROUNDS[round].team}</span></div><div className="v2-choice-row">{RECOMMENDATIONS.map(([v,l])=><button className={rec===v?'selected':''} key={v} onClick={()=>setRec(v)}>{l}</button>)}</div><button className="v2-primary wide" disabled={busy||!rec} onClick={()=>onSend({recommendation:rec})}>Bloquear recomendación del equipo</button></>
 }
 
 function Reveal({state,analysis}){
