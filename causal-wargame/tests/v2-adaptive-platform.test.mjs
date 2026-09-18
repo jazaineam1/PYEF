@@ -17,9 +17,10 @@ test('a fourth reto can reuse an existing backend and Python profile',()=>{
 test('embedded Python receives labKey instead of assuming round 1/2/3',()=>{
   const component=read('src/v2/PythonEvidenceLab.jsx')
   const visuals=read('src/v2/VisualTools.jsx')
-  assert.match(component,/\{round,state,analysis,labKey,onComplete/)
+  assert.match(component,/\{round,state,analysis,labKey,labPoints=20,onComplete/)
   assert.match(component,/buildPythonLab\(round,state,analysis,labKey\)/)
   assert.match(visuals,/labKey=\{labKey\}/)
+  assert.match(visuals,/labPoints=\{labPoints\}/)
 })
 
 test('live backend uses configured profile and dynamic enabled challenge count',()=>{
@@ -46,4 +47,11 @@ test('simulator can fall back to the reusable profile for a newly added reto',()
   assert.match(sim,/const profileOf=/)
   assert.match(sim,/const simPath=/)
   assert.match(sim,/SIM_PATHS\[studentId\]\?\.\[profileOf\(round\)\]/)
+})
+
+
+test('challenge manifests declare non-secret point weights',()=>{
+  const candidate={...CHALLENGE_TEMPLATE,id:'score-demo'}
+  assert.deepEqual(validateChallengeRegistry([candidate]),[])
+  assert.equal(Object.values(candidate.points).reduce((a,b)=>a+Number(b),0),100)
 })
