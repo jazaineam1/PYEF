@@ -37,7 +37,7 @@ begin
  return jsonb_build_object('available',true,'game_code',upper(btrim(p_code)),'phase',phase,
   'max_players',30,'registered_players',(select count(*) from public.cw_dean_players where game_id=gid),
   'group_size',6,'exam_count',15,'groups',groups,'mine',own);
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_quiz_state(p_code text,p_hash text default null)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -82,4 +82,4 @@ begin
  'deadline_at',s.deadline_at,'server_now',clock_timestamp(),'received',answered,
  'counts',counts,'leaderboard',rank,'mine',mine,'my_points',mine_points,
  'participants',(select count(*) from public.cw_dean_players where game_id=gid));
-end $f$
+end $f$;
