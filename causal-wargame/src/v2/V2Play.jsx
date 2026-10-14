@@ -1,3 +1,4 @@
+import{prewarmPython}from'./PythonEvidenceLab'
 import React,{useEffect,useMemo,useState}from'react'
 import{Check,ChevronRight,LogOut,Sparkles,Trophy}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
@@ -180,9 +181,10 @@ export default function V2Play(){
   const[joined,setJoined]=useState(Boolean(getPlayerToken()))
   const{state,error,refresh}=useV2State(joined)
   const analysis=useV2Analysis(state)
+  useEffect(()=>{if(joined&&state&&['lobby','briefing','lesson'].includes(state.game?.status))prewarmPython()},[joined,state?.game?.status])
   function exit(){clearPlayerSession();setJoined(false);location.reload()}
   if(!joined)return <Join onJoined={()=>setJoined(true)}/>
-  if(error&&!state)return <main className="v2-shell v2-center"><div className="v2-alert error">{error}</div><button className="v2-secondary" onClick={exit}>Volver a entrar</button></main>
+  if(error&&!state)return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-kicker">MODO CONTINGENCIA</div><h1>La partida no responde</h1><p>Tu progreso no se ha reiniciado. Puedes reintentar sin salir. Si el servidor continúa sin responder, usa el simulador de práctica: funciona sin Supabase, pero no registra puntos ni reemplaza la partida competitiva.</p><div className="v2-alert error">{error}</div><button className="v2-primary wide" onClick={refresh}>Reintentar conexión</button><a className="v2-secondary wide" href="./v2-simulator.html">Abrir simulador de práctica</a><button className="v2-secondary wide" onClick={exit}>Cerrar sesión en este dispositivo</button></section></main>
   if(!state)return <main className="v2-shell v2-center"><div className="v2-loader">Conectando…</div></main>
   const waiting=['lobby','briefing','lesson'].includes(state.game.status)
   const reveal=['reveal','teaching','microcheck','finished'].includes(state.game.status)
