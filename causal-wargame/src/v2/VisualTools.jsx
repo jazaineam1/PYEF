@@ -107,8 +107,8 @@ export function PolicyMeter({segments=[],choices={},capacity=15000}){
   const value=canValue?treated.reduce((a,s)=>a+(num(s.effect??s.effect_pp)/100*num(s.audience)*num(s.value??s.value_per_result)-num(s.audience)*num(s.cost??s.unit_cost)),0):null
   return <div className="v2-policy-meter">
     <div><span>Capacidad</span><b>{used.toLocaleString()} / {capacity.toLocaleString()}</b><div className="v2-capacity"><i style={{width:`${Math.min(100,used/capacity*100)}%`}}/></div></div>
-    <div><span>Valor incremental</span><b>{value===null?'por estimar':cop(value)}</b></div>
-    <div><span>Segmentos tratados</span><b>{treated.length}</b></div>
+    <div><span>Impacto académico estimado</span><b>{value===null?'por estimar':value.toFixed(1)}</b></div>
+    <div><span>Perfiles priorizados</span><b>{treated.length}</b></div>
   </div>
 }
 
@@ -116,11 +116,14 @@ export function EvidenceLab({round,state,analysis,labKey,labPoints,onComplete,si
   const tools=analysis?.team_tools
   if(!tools)return null
   const profile=labKey||(round===1?'prediction':round===2?'comparison':'experiment')
-  const copy=profile==='prediction'
-    ?'Ordena lo que predice el modelo y fíjate en la pregunta que todavía no puede responder.'
-    :profile==='comparison'
-      ?'Compara primero los grupos tal como aparecen y luego vuelve a comparar usuarios parecidos.'
-      :'Mide el cambio promedio, compáralo por grupos y conviértelo a una decisión con costo.'
+  const copy={
+    prediction:'Entrena un buen predictor y descubre qué pregunta causal todavía no puede responder.',
+    'ab-test':'Aleatoriza, estima ATE y observa cómo cambia la estimación entre muestras.',
+    dag:'Usa el DAG para distinguir confusores, mediadores y colliders antes de ajustar.',
+    dml:'Construye Double Machine Learning paso a paso: modelos auxiliares, residuos y efecto.',
+    heterogeneity:'Pasa del ATE al CATE y estima para quién funciona mejor la intervención.',
+    'model-battle':'Compara S-Learner, T-Learner, DR-Learner y referencias de Causal Forest/EconML.'
+  }[profile]||'Ejecuta el análisis causal y conecta cada resultado con la decisión.'
   return <section className="v2-evidence-lab single-page">
     <div className="v2-step compact"><b>LABORATORIO</b><span>{copy}</span></div>
     <PythonEvidenceLab round={round} state={state} analysis={analysis} labKey={labKey} labPoints={labPoints} onComplete={onComplete} simulation={simulation}/>
