@@ -39,7 +39,8 @@ export const V2_CHALLENGES=[
     ],
     glossary:glossary(
       ['ML','Machine Learning · aprendizaje automático','Modelos que aprenden patrones de datos para predecir o clasificar.'],
-      ['Contrafactual','Counterfactual','El resultado que habría ocurrido bajo la alternativa que no observamos.']
+      ['Contrafactual','Counterfactual','El resultado que habría ocurrido bajo la alternativa que no observamos.'],
+      ['Uplift','Cambio incremental','Diferencia esperada entre el resultado con intervención y sin intervención para un perfil.']
     ),
     timeMinutes:12,journey:STANDARD_JOURNEY
   },
@@ -113,7 +114,9 @@ export const V2_CHALLENGES=[
       ['Backdoor','Camino de puerta trasera','Camino no causal que puede crear asociación entre tratamiento y resultado.'],
       ['Confusor','Confounder','Causa previa relacionada con tratamiento y resultado.'],
       ['Mediador','Mediator','Variable por la que pasa parte del efecto del tratamiento.'],
-      ['Collider','Collider','Variable que recibe flechas de dos causas; condicionarla puede introducir sesgo.']
+      ['Collider','Collider','Variable que recibe flechas de dos causas; condicionarla puede introducir sesgo.'],
+      ['d-separation','Separación gráfica en un DAG','Regla gráfica para razonar cuándo dos variables quedan independientes al condicionar otras.'],
+      ['Adjustment set','Conjunto de ajuste','Variables por las que se condiciona para bloquear caminos de confusión sin abrir caminos indebidos.']
     ),
     timeMinutes:16,journey:STANDARD_JOURNEY
   },
@@ -150,7 +153,10 @@ export const V2_CHALLENGES=[
       ['T','Treatment · tratamiento','Intervención cuyo efecto queremos estimar.'],
       ['Y','Outcome · resultado','Variable que queremos explicar causalmente; aquí, la nota.'],
       ['X','Covariables','Características previas usadas para hacer la comparación más defendible.'],
-      ['R²','Coeficiente de determinación','Medida predictiva de cuánto de la variación de Y explica un modelo; no prueba causalidad.']
+      ['R²','Coeficiente de determinación','Medida predictiva de cuánto de la variación de Y explica un modelo; no prueba causalidad.'],
+      ['Residualización','Residualization','Quitar de una variable la parte que un modelo puede explicar con X y trabajar con lo que queda.'],
+      ['Ortogonalización','Orthogonalization','Construcción del estimador para reducir sensibilidad a pequeños errores de los modelos auxiliares.'],
+      ['Cross-fitting','Predicción cruzada fuera de muestra','Entrenar modelos auxiliares en unas filas y predecir otras para reducir sesgo por sobreajuste.']
     ),
     timeMinutes:18,journey:STANDARD_JOURNEY
   },
@@ -180,7 +186,8 @@ export const V2_CHALLENGES=[
     glossary:glossary(
       ['CATE','Conditional Average Treatment Effect · efecto promedio condicional del tratamiento','Efecto promedio para personas con determinadas características.'],
       ['S-Learner','Single Learner · aprendiz único','Un modelo predice Y usando X y T; se compara la predicción con T=1 y T=0.'],
-      ['T-Learner','Two Learners · dos aprendices','Un modelo aprende el resultado tratado y otro el resultado control; su diferencia estima efecto.']
+      ['T-Learner','Two Learners · dos aprendices','Un modelo aprende el resultado tratado y otro el resultado control; su diferencia estima efecto.'],
+      ['Uplift','Cambio incremental','Cuánto cambia el resultado esperado por aplicar la intervención a un perfil.']
     ),
     timeMinutes:16,journey:STANDARD_JOURNEY
   },
@@ -217,7 +224,9 @@ export const V2_CHALLENGES=[
       ['DR-Learner','Doubly Robust Learner · aprendiz doblemente robusto','Combina modelos de tratamiento y resultado para estimar efectos con mayor robustez bajo ciertos supuestos.'],
       ['Causal Forest','Bosque causal','Familia de árboles diseñada para aprender heterogeneidad del efecto.'],
       ['EconML','Econometric Machine Learning','Librería de Microsoft con estimadores de inferencia causal basados en ML.'],
-      ['Overlap','Soporte común','Existencia de perfiles comparables con y sin tratamiento.']
+      ['Overlap','Soporte común','Existencia de perfiles comparables con y sin tratamiento.'],
+      ['CausalForestDML','Causal Forest con Double Machine Learning','Estimador de EconML que combina bosque causal con una estrategia DML para aprender efectos heterogéneos.'],
+      ['Policy learning','Aprendizaje de política','Uso de efectos causales estimados para decidir a quién intervenir bajo una regla u objetivo.']
     ),
     timeMinutes:14,journey:STANDARD_JOURNEY
   }
@@ -251,7 +260,7 @@ export function validateChallengeRegistry(challenges=V2_CHALLENGES){
 }
 
 export const CHALLENGE_TEMPLATE={
-  id:'nuevo-reto',order:7,enabled:false,template:'single-choice',profileRound:2,labKey:'comparison',
+  id:'nuevo-reto',order:7,enabled:false,template:'single-choice',profileRound:2,labKey:'dml',
   points:{lab:20,check:30,revision:20,team:30},kicker:'MISIÓN 7',title:'Pregunta corta del reto',
   simpleQuestion:'La pregunta que el estudiante debe poder responder.',scenario:'Contexto académico de dos frases, con una sola decisión.',
   decisionUnit:'choice',initialDecision:'Qué decide antes de ver nueva evidencia.',revisedDecision:'Qué vuelve a decidir después del laboratorio.',
