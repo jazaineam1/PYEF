@@ -1,5 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import{createRoot}from'react-dom/client';
+import {predictiveHoldout} from './dean-predictive.js';
 import './dean-cup.css';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -205,6 +206,7 @@ function ABFromObserved({rows}){
   <small>{t.length} estudiantes tratados (4 h) y {c.length} controles (0 h), 15 exámenes por estudiante. Esta diferencia es una estimación; no equivale al efecto individual observado.</small>
  </div>
 }
+function DeanPredictiveStats({rows,layer}){const fields=['pga_previo','complejidad','horas_bienestar_sem'];if(layer==='survey')fields.push('horas_estudio','horas_sueno');const x=predictiveHoldout(rows,fields);return <div className="dean-prediction"><h3>📊 Comparación predictiva real · estudiantes reservados</h3>{x.error?<p>{x.error}</p>:<><p>R² fuera de muestra: <strong>{x.holdout.r2==null?'No definido':x.holdout.r2.toFixed(3)}</strong> · MAE: <strong>{x.holdout.mae.toFixed(2)} puntos</strong></p><p>{x.trainN} exámenes de entrenamiento, {x.testN} de validación; grupos separados por estudiante.</p><p>Coeficiente del bienestar ajustado: <strong>{x.wellness.toFixed(2)} puntos/h</strong> (asociación, no efecto causal).</p></>}<small>Una mayor precisión con mediadores posteriores NO valida un ajuste causal. Los resultados cambian según los datos creados por esta sala; no se inventa un R² fijo.</small></div>}
 function DeanCausalLab({phase,token,version}){
  const [rows,setRows]=useState(null),[layer,setLayer]=useState(''),[error,setError]=useState(''),[loading,setLoading]=useState(false);
  if(version!=='zip_dgp_2026'||!['rector','survey','causal','final','finished'].includes(phase))return null;
@@ -240,7 +242,7 @@ function DeanCausalLab({phase,token,version}){
     {layer==='ab'?<ABFromObserved rows={rows}/>:<>
       <p>Pendiente simple bienestar → nota: <strong>{slope(rows,'horas_bienestar_sem','nota_final')==null?'No estimable con la variación disponible':slope(rows,'horas_bienestar_sem','nota_final').toFixed(2)+' puntos por hora'}</strong></p>
       {layer==='survey'&&<p>Pendiente simple estudio → nota: <strong>{slope(rows,'horas_estudio','nota_final')==null?'No estimable':slope(rows,'horas_estudio','nota_final').toFixed(2)+' puntos por hora'}</strong></p>}
-      <p>¡Ojo! Una pendiente de asociación no identifica por sí sola el efecto de una intervención. El historial y los mediadores importan.</p>
+      <p>¡Ojo! Una pendiente de asociación no identifica por sí sola el efecto de una intervención. El historial y los mediadores importan.</p><DeanPredictiveStats rows={rows} layer={layer}/>
     </>}
   </div>}
   {phase!=='rector'&&<div className="dean-lab-dag" role="img" aria-label="DAG: historial previo influye en bienestar y nota; bienestar afecta estudio, sueño, fatiga y nota">
