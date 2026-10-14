@@ -27,7 +27,8 @@ test('Score and physiology are computed server-side with strict archetype slider
 test('No student receives hidden fatigue via state or rector/survey exports',()=>{
  const sql=r('supabase/migrations/202610140004_v2_deans_cup_30.sql')
  const pub=sql.slice(sql.indexOf('create or replace function public.cw_dean_state'),sql.indexOf('create or replace function public.cw_dean_export'))
- const exp=sql.slice(sql.indexOf('create or replace function public.cw_dean_export'),sql.indexOf('-- The 30-player final'))
+ const begin=sql.indexOf('create or replace function public.cw_dean_export')
+ const exp=sql.slice(begin,sql.indexOf('end $f$;',begin)+8)
  assert.doesNotMatch(pub,/hidden_fatigue|latent_resilience/)
  assert.doesNotMatch(exp,/jsonb_build_array\([^)]*hidden_fatigue/)
  assert.match(exp,/stage not in \('rector','survey','causal','final','finished'\)/)
