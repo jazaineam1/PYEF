@@ -3,6 +3,8 @@ import{ArrowLeft,ArrowRight,Check,Eye,GitBranch,GraduationCap,RefreshCw,Sparkles
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound}from'./content'
 import{enabledChallenges}from'./challenge-registry'
 import{EvidenceLab,PolicyMeter}from'./VisualTools'
+import V2Practice from './V2Practice'
+import{CohortArena,DagArena,StrategyArena,ResourceArena}from'./V2Arcade'
 import{SIM_PLAYERS,SIM_ECONOMY,SIM_CUSTOMERS,SIM_SEGMENTS,SIM_ANALYSIS,SIM_PATHS,SIM_TEAM_DECISIONS,SIM_REVEALS,SIM_TEAM_POINTS}from'./simulator-fixtures'
 
 const pct=n=>`${Math.round(Number(n||0)*100)}%`
@@ -24,54 +26,16 @@ function decisionText(round,payload={}){
 }
 
 function ChoicePreview({round,answer={}}){
-  const template=V2_ROUNDS[round]?.template
-
-  if(template==='cohort-selection'){
-    const selected=answer.selected||[]
-    return <div className="v2-grid customers compact">
-      {SIM_CUSTOMERS.slice(0,12).map(c=><article className={'v2-customer '+(selected.includes(c.id)?'selected':'')} key={c.id}>
-        <div className="v2-card-top"><span>{c.id}</span>{selected.includes(c.id)&&<Check size={16}/>}</div>
-        <h3>{c.name}</h3>
-        <small>{c.segment}</small>
-        <div className="v2-score">{pct(c.score)}</div>
-        <small>probabilidad estimada de aprobar</small>
-      </article>)}
-    </div>
-  }
-
-  if(template==='single-choice'){
-    return <div className="v2-check-options">
-      {optionsForRound(round).map(([v,l])=><button type="button" className={answer.choice===v?'selected':''} key={v}><span>{l}</span></button>)}
-    </div>
-  }
-
-  if(template==='multi-select'){
-    return <div className="v2-check-options">
-      {optionsForRound(round).map(([v,l])=>{
-        const selected=(answer.selected||[]).includes(v)
-        return <button type="button" className={selected?'selected':''} key={v}><b>{selected?'✓':'+'}</b><span>{l}</span></button>
-      })}
-    </div>
-  }
-
-  const choices=answer.choices||Object.fromEntries([
-    ...(answer.treat||[]).map(x=>[x,'treat']),
-    ...(answer.avoid||[]).map(x=>[x,'avoid']),
-    ...(answer.observe||[]).map(x=>[x,'observe'])
-  ])
-
-  return <>
-    <PolicyMeter segments={SIM_SEGMENTS} choices={choices} capacity={SIM_ECONOMY.capacity}/>
-    <div className="v2-segments">
-      {SIM_SEGMENTS.map(s=><article key={s.id}>
-        <div><h3>{s.name}</h3><small>{s.audience.toLocaleString()} estudiantes</small></div>
-        <div><b>{s.effect_pp>0?'+':''}{s.effect_pp} pp</b><small>efecto sintético oculto durante el juego real</small></div>
-        <select value={choices[s.id]||'observe'} readOnly disabled>
-          {POLICY_ACTIONS.map(([v,l])=><option value={v} key={v}>{l}</option>)}
-        </select>
-      </article>)}
-    </div>
-  </>
+ const template=V2_ROUNDS[round]?.template
+ if(template==='cohort-selection')return <CohortArena rows={SIM_CUSTOMERS.slice(0,12)} selected={answer.selected||[]} max={3} locked/>
+ if(template==='single-choice')return <StrategyArena round={round} options={optionsForRound(round)} choice={answer.choice||''} locked/>
+ if(template==='multi-select')return <DagArena selected={answer.selected||[]} locked/>
+ const choices=answer.choices||Object.fromEntries([
+   ...(answer.treat||[]).map(x=>[x,'treat']),
+   ...(answer.avoid||[]).map(x=>[x,'avoid']),
+   ...(answer.observe||[]).map(x=>[x,'observe'])
+ ])
+ return <ResourceArena segments={SIM_SEGMENTS} choices={choices} capacity={SIM_ECONOMY.capacity} locked/>
 }
 
 function Glossary({round}){
@@ -260,7 +224,7 @@ function visibleScore(phase,studentId,round){
 
 export default function V2Simulator(){
   const challenges=enabledChallenges()
-  const[view,setView]=useState('student')
+  const[view,setView]=useState(()=>new URLSearchParams(location.search).get('practice')==='1'?'practice':'student')
   const[studentId,setStudentId]=useState('ana')
   const[round,setRound]=useState(1)
   const[phaseIndex,setPhaseIndex]=useState(0)
@@ -314,7 +278,9 @@ export default function V2Simulator(){
   }
 
   let content
-  if(view==='adapt'){
+  if(view==='practice'){
+    content=<V2Practice/>
+  }else if(view==='adapt'){
     content=<AdaptabilityPanel/>
   }else if(view==='team'){
     content=<>
@@ -376,6 +342,7 @@ export default function V2Simulator(){
         <p>{V2_MISSION.subtitle}</p>
         <div className="v2-sim-toolbar">
           <div className="v2-sim-tabs">
+            <button className={view==='practice'?'active':''} onClick={()=>setView('practice')}>🎮 Jugar seis misiones (sin backend)</button>
             <button className={view==='student'?'active':''} onClick={()=>setView('student')}><Eye size={15}/> Experiencia de un estudiante</button>
             <button className={view==='team'?'active':''} onClick={()=>setView('team')}><Users size={15}/> Camino de cada estudiante</button>
             <button className={view==='adapt'?'active':''} onClick={()=>setView('adapt')}><GitBranch size={15}/> Cómo agregar retos</button>
