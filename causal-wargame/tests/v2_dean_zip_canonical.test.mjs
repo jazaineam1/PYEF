@@ -62,3 +62,8 @@ test('15-minute exam deadline is server-governed and auto-completes absentees on
  assert.match(ui,/function ExamCountdown/)
  assert.match(ui,/ExamCountdown deadline=/)
 })
+
+test('Incomplete rooms do not invent missing participants to reach fixed 90 exams',()=>{
+ const migration=read('supabase/migrations/202610140008_dean_timer_auto_finish.sql')
+ for(const part of ['target_exams','count(distinct p.id)*15','count(distinct p.id)>0','groups_current'])assert.ok(migration.includes(part),part)
+})
