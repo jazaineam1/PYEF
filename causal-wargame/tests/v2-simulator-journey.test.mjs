@@ -38,5 +38,6 @@ test('teacher simulator completes the Python lab locally without live player API
   assert.match(sim,/EvidenceLab[^>]*simulation/)
   assert.match(lab,/if\(simulation\)/)
   assert.match(lab,/setLocalComplete\(true\)/)
-  assert.match(lab,/pending&&!simulation/)
+  assert.match(lab,/if\(!simulation\)/)
+  assert.match(lab,/await invoke\('v2-submit'/)
 })
