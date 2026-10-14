@@ -5,7 +5,7 @@ import './arcade.css'
 
 // Gameplay presentation only. Authoritative decisions, timing and scores remain on the V2 server.
 const AVATARS=['🧑🏽‍🎓','👩🏻‍🎓','👨🏾‍🎓','👩🏽‍🚀','🧑🏻‍🔬','👩🏾‍💻','🧑‍🎨','👨🏽‍🔬','👩🏼‍🚀','🧑🏿‍💻','👩🏽‍🏫','👨🏻‍🎓']
-const agentFor=id=>AVATARS[[...String(id||'a')].reduce((a,c)=>a+c.charCodeAt(0),0)%AVATARS.length]
+export const agentFor=id=>AVATARS[[...String(id||'a')].reduce((a,c)=>a+c.charCodeAt(0),0)%AVATARS.length]
 const THREATS={1:['🛰️','LA PREDICCIÓN ENGAÑA','Una puntuación alta no garantiza impacto.'],2:['⚗️','CAMPO EXPERIMENTAL','Diseña una comparación, no adivines el resultado.'],3:['🕸️','LA RED INVISIBLE','Una mala variable puede abrir un sesgo.'],4:['🧠','DESACTIVA EL RUIDO','Separa predicción y efecto.'],5:['🎯','RECURSOS LIMITADOS','No todos recibirán apoyo: prioriza.'],6:['🏆','ARENA DE MODELOS','Los algoritmos compiten; la identificación decide.']}
 export function ArenaIntro({round,mode='decision',sub}){
  const [emoji,title,desc]=THREATS[round]||THREATS[1]
@@ -105,10 +105,10 @@ export function ResourceArena({segments=[],choices={},capacity=15000,onChoose,lo
   </article>)}</div>
  </div>
 }
-export function BossArena({round,options=[],answer,onChange,result,disabled=false}){
+export function BossArena({round,question,options=[],answer,onChange,result,disabled=false}){
  return <div className="v2-arcade-game">
   <ArenaIntro round={round} mode="boss" sub="Tres portales, una decisión. Identifica la estrategia que sobrevive a la evidencia."/>
-  <div className="v2-arcade-boss"><div className="v2-arcade-boss-face" aria-hidden="true">👾<span>⚡</span></div><div><small>GUARDIÁN DEL NIVEL</small><strong>Elige tu respuesta y desbloquea la revisión.</strong><span>El servidor valida el resultado. No hay puntos inventados.</span></div></div>
+  <div className="v2-arcade-boss"><div className="v2-arcade-boss-face" aria-hidden="true">👾<span>⚡</span></div><div><small>GUARDIÁN DEL NIVEL</small><strong>{question||'Elige tu jugada y desbloquea la revisión.'}</strong><span>El servidor valida el resultado. No hay puntos inventados.</span></div></div>
   <div className="v2-arcade-moves">{options.map(([value,label],i)=><button key={value} type="button" disabled={disabled||Boolean(result)} aria-pressed={answer===value}
     className={'v2-arcade-move '+(answer===value?'selected':'')} onClick={()=>onChange?.(value)}>
      <span className="v2-arcade-move-icon" aria-hidden="true">{['🚪','🌀','🛡️','🧪'][i%4]}</span><span className="v2-arcade-move-body"><small>PORTAL {i+1}</small><strong>{label}</strong></span><span className="v2-arcade-move-tick">{answer===value?'✓':'→'}</span>
