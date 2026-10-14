@@ -8,7 +8,7 @@ export const WORKSHOP_PYTHON={
   "3": {
     "title": "Controlar todo también puede sesgar",
     "idea": "Dos experimentos sintéticos separados muestran mediación y collider con resultados calculados.",
-    "code": "import numpy as np\nrng=np.random.default_rng(143)\nn=3000\nt=rng.binomial(1,.5,n)\nu=rng.normal(size=n)\nm=.9*t+.6*u+rng.normal(size=n)\ny=4.8*t+2*m+u+rng.normal(size=n)\ndef coef(y,*xs): return np.linalg.lstsq(np.column_stack([np.ones(n),*xs]),y,rcond=None)[0][1]\nprint(\"Efecto total verdadero:\",round(4.8+2*.9,2))\nprint(\"Sin ajustar mediador:\",round(coef(y,t),2))\nprint(\"Ajustando mediador (solo directo):\",round(coef(y,t,m),2))\nc=.85*t+.8*u+rng.normal(size=n)\ny2=4.8*t+2*u+rng.normal(size=n)\nprint(\"Segunda simulación: efecto verdadero\",4.8)\nprint(\"Sin condicionar collider:\",round(coef(y2,t),2))\nprint(\"Condicionando collider:\",round(coef(y2,t,c),2))"
+    "code": "import numpy as np\nrng=np.random.default_rng(143)\nn=3000\nt=rng.binomial(1,.5,n)\nu=rng.normal(size=n)\nm=.9*t+.6*u+rng.normal(size=n)\ny=4.8*t+2*m+u+rng.normal(size=n)\ndef coef(y,*xs): return np.linalg.lstsq(np.column_stack([np.ones(n),*xs]),y,rcond=None)[0][1]\nprint(\"Efecto total verdadero:\",round(4.8+2*.9,2))\nprint(\"Sin ajustar mediador:\",round(coef(y,t),2))\nprint(\"Ajustando mediador (NO es efecto total):\",round(coef(y,t,m),2))\nc=.85*t+.8*u+rng.normal(size=n)\ny2=4.8*t+2*u+rng.normal(size=n)\nprint(\"Segunda simulación: efecto verdadero\",4.8)\nprint(\"Sin condicionar collider:\",round(coef(y2,t),2))\nprint(\"Condicionando collider:\",round(coef(y2,t,c),2))"
   },
   "4": {
     "title": "A/B, DML y CATE — cálculo real",

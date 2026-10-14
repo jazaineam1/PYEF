@@ -207,6 +207,10 @@ begin
   insert into public.cw_v2_quiz_sessions(game_id) values(gid) on conflict do nothing;
   select * into q from public.cw_v2_quiz_sessions where game_id=gid for update;
   if p_action='start' and q.phase='idle' then
+    -- The collective final is reserved for the last 15 minutes when a 120-min workshop is active.
+    if exists (select 1 from public.cw_v2_workshop where game_id=gid and active=true and phase_index<>5) then
+      raise exception 'La batalla final se desbloquea en la última fase del taller';
+    end if;
     update public.cw_v2_quiz_sessions set phase='question_preview',current_question=1,started_at=clock_timestamp(),version=version+1 where game_id=gid;
   elsif p_action='open' and q.phase='question_preview' then
     select seconds into target from public.cw_v2_quiz_questions where question_no=q.current_question;
