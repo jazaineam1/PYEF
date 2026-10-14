@@ -327,3 +327,195 @@
  .v2-shell .v2-player-compact .v2-arcade-intro{min-height:52px}
 }
 @media(prefers-reduced-motion:reduce){.v2-shell .v2-player-compact .v2-single-step-page{animation:none}}
+
+
+/* CAMPUS V2 ART DIRECTION — narrative game scenes remain compact.
+   The decision controls and fixed submit dock keep viewport priority. */
+.v2-shell.v2-arcade-home{position:relative;isolation:isolate;overflow:hidden;background:#090e21}
+.v2-shell.v2-arcade-home::before{
+  content:"";position:fixed;inset:-24px;z-index:-1;pointer-events:none;
+  background:linear-gradient(105deg,rgba(6,13,35,.91),rgba(7,15,28,.75)),
+    url("./art/hero.webp") center/cover no-repeat;
+  filter:blur(12px);transform:scale(1.07);
+}
+.v2-shell.v2-arcade-home .v2-join-card{position:relative;z-index:1;border-color:#648bb1}
+.v2-shell .v2-join-illustration{
+  float:right;width:min(36%,200px);margin:0 0 10px 16px;
+  aspect-ratio:200/112;overflow:hidden;border-radius:14px;
+  border:1px solid #75c3d1;background:#192f4b;box-shadow:0 10px 26px rgba(0,0,0,.22);
+}
+.v2-shell .v2-join-illustration img{width:100%;height:100%;display:block;object-fit:cover}
+.v2-shell .v2-lobby-wait .v2-lobby-art{
+  display:block;width:min(200px,42vw);height:auto;aspect-ratio:200/112;
+  object-fit:cover;margin:0 auto 8px;border-radius:14px;
+  border:1px solid #72d2d4;box-shadow:0 9px 30px rgba(19,196,211,.16);
+}
+.v2-shell .v2-player-compact .v2-character.v2-character-illustrated{
+  width:132px;min-width:132px;height:74px;aspect-ratio:200/112;
+  padding:0;border:1px solid #6bc1ca;border-radius:12px;
+  overflow:hidden;background:#18273f;transform:none;box-shadow:0 7px 19px rgba(1,6,23,.22);
+}
+.v2-shell .v2-player-compact .v2-character-illustrated img{
+  width:100%;height:100%;display:block;object-fit:cover;
+}
+.v2-shell .v2-arcade-intro>.v2-arcade-scene-art{
+  position:absolute;z-index:0;top:0;right:0;width:min(32%,210px);height:100%;
+  object-fit:cover;opacity:.57;pointer-events:none;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 55%);
+  mask-image:linear-gradient(to right,transparent,#000 55%);
+}
+.v2-shell .v2-arcade-intro .v2-arcade-orbit,
+.v2-shell .v2-arcade-intro .v2-arcade-intro-copy,
+.v2-shell .v2-arcade-intro .v2-arcade-stage-tag{position:relative;z-index:1}
+.v2-shell .v2-arcade-boss-face{font-size:0;flex:none;line-height:1}
+.v2-shell .v2-arcade-boss-face img{
+  display:block;width:120px;max-width:23vw;height:68px;object-fit:cover;
+  border:1px solid rgba(242,183,111,.8);border-radius:12px;
+  box-shadow:0 0 24px rgba(227,147,85,.18);
+}
+.v2-shell .v2-arcade-boss-face>span{right:-6px;top:-8px;font-size:21px;line-height:1}
+.v2-shell .v2-arcade-reveal-medal{flex:none;font-size:0;line-height:1}
+.v2-shell .v2-arcade-reveal-medal img{
+  display:block;width:140px;max-width:27vw;height:auto;aspect-ratio:200/112;
+  object-fit:cover;border:1px solid #e1c18b;border-radius:12px;
+  box-shadow:0 8px 22px rgba(0,0,0,.3);
+}
+@media(max-width:790px){
+ .v2-shell .v2-player-compact .v2-character.v2-character-illustrated{
+   width:96px;min-width:96px;height:54px;border-radius:10px;
+ }
+ .v2-shell .v2-arcade-intro>.v2-arcade-scene-art{width:30%;opacity:.40}
+}
+@media(max-width:480px){
+ .v2-shell .v2-join-illustration{width:min(32%,126px);margin-left:9px;border-radius:10px}
+ .v2-shell .v2-player-compact .v2-character.v2-character-illustrated{
+   width:76px;min-width:76px;height:43px;border-radius:8px;
+ }
+ .v2-shell .v2-arcade-boss-face img{width:82px;max-width:22vw;height:53px}
+ .v2-shell .v2-arcade-reveal-medal img{width:86px;max-width:22vw}
+ .v2-shell .v2-arcade-intro>.v2-arcade-scene-art{opacity:.28}
+}
+@media(prefers-reduced-motion:reduce){
+ .v2-shell .v2-arcade-boss-face,.v2-shell .v2-arcade-reveal-medal{animation:none}
+}
+
+
+/* Projector-ready narrative art; never overlays mission labels or rankings. */
+.v2-shell .v2-wall-phase.compact{position:relative;isolation:isolate;padding-right:clamp(165px,19vw,220px);overflow:hidden}
+.v2-shell .v2-wall-scene{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  display:block;width:clamp(137px,15vw,190px);height:auto;aspect-ratio:200/112;
+  object-fit:cover;border:1px solid #6bd2cf;border-radius:13px;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:.92;
+}
+.v2-shell .v2-wall-wow-cinematic{position:relative;isolation:isolate;overflow:hidden}
+.v2-shell .v2-wall-wow-cinematic>.v2-wall-victory{
+  float:right;display:block;width:min(200px,23vw);height:auto;aspect-ratio:200/112;
+  margin:0 0 8px 15px;object-fit:cover;border-radius:12px;
+  border:1px solid #e6c782;box-shadow:0 7px 23px rgba(0,0,0,.28);
+}
+@media(max-width:760px){
+ .v2-shell .v2-wall-phase.compact{padding-right:13px}
+ .v2-shell .v2-wall-scene{display:none}
+ .v2-shell .v2-wall-wow-cinematic>.v2-wall-victory{width:105px;margin-left:8px}
+}
+
+
+/* QA-round 2: true game-first practice, eliminating the teacher dashboard stack. */
+.v2-shell.v2-immersive-practice{
+  min-height:100dvh;background:
+  radial-gradient(ellipse at 7% 0%,rgba(47,83,135,.21),transparent 44%),
+  radial-gradient(ellipse at 100% 30%,rgba(78,37,119,.15),transparent 48%),#090e1e;
+}
+.v2-shell .v2-immersive-game-bar{
+  position:sticky;top:0;z-index:20;min-height:53px;display:flex;
+  align-items:center;justify-content:space-between;gap:12px;
+  padding:8px clamp(12px,3vw,30px);
+  background:rgba(11,20,40,.94);border-bottom:1px solid #456882;
+  backdrop-filter:blur(10px);
+}
+.v2-shell .v2-immersive-brand{font-size:clamp(14px,1.5vw,20px);font-weight:1000;letter-spacing:.075em;line-height:1.2;color:#f2faff}
+.v2-shell .v2-immersive-brand>span{color:#8fefdc;font-size:.8em}
+.v2-shell .v2-immersive-brand>small{display:block;font-size:10px;letter-spacing:.11em;color:#adcae0;margin-top:2px}
+.v2-shell .v2-immersive-game-bar .v2-secondary{flex:none;min-height:38px;font-size:12px;padding:7px 13px}
+.v2-shell .v2-immersive-canvas{max-width:1160px;width:100%;padding:0 clamp(10px,2vw,20px) 35px;margin:auto}
+.v2-shell .v2-immersive-canvas .v2-arcade-practice{padding:11px 0 20px;gap:11px}
+.v2-shell .v2-immersive-canvas .v2-arcade-practice-ribbon{padding:7px 13px;border-radius:10px;min-height:34px}
+.v2-shell .v2-arcade-mission-stage{
+  position:relative;isolation:isolate;overflow:hidden;min-height:225px;
+  display:flex;align-items:center;border:1px solid rgba(119,206,213,.7);
+  border-radius:22px;background:#16273e;
+  box-shadow:0 16px 40px rgba(0,2,21,.3),inset 0 0 0 1px rgba(140,218,241,.08);
+}
+.v2-shell .v2-arcade-mission-stage-art{
+  position:absolute;z-index:0;inset:0 0 0 auto;height:100%;width:59%;
+  display:block;object-fit:cover;filter:contrast(1.08) saturate(1.16) brightness(.88);
+}
+.v2-shell .v2-arcade-mission-stage:after{
+  content:"";pointer-events:none;position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,#101f38 0%,rgba(13,31,54,.98) 32%,rgba(13,32,52,.7) 59%,rgba(9,19,34,.06) 100%);
+}
+.v2-shell .v2-arcade-mission-stage-copy{z-index:2;position:relative;max-width:750px;width:min(79%,810px);padding:clamp(19px,3vw,32px)}
+.v2-shell .v2-arcade-mission-stage-copy>small{
+  color:#a9f9df;font-size:clamp(11px,1vw,13px);
+  letter-spacing:.13em;font-weight:900;line-height:1.3;
+}
+.v2-shell .v2-arcade-mission-stage-copy h1{
+  color:#fff;font-size:clamp(25px,3.4vw,45px);line-height:1.08;
+  letter-spacing:-.04em;margin:9px 0;
+  text-shadow:0 3px 18px rgba(0,0,0,.5);
+}
+.v2-shell .v2-arcade-mission-stage-copy p{
+  max-width:620px;margin:0 0 17px;color:#e1f1fc;font-size:clamp(14px,1.5vw,19px);line-height:1.45;
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+.v2-shell .v2-arcade-mission-stage-copy>span{
+  display:inline-flex;align-items:center;max-width:100%;
+  padding:8px 13px;border:1px solid #a9ebc8;border-radius:10px;
+  background:rgba(21,72,72,.83);color:#c2ffdf;font-size:clamp(12px,1.25vw,15px);
+  line-height:1.3;font-weight:850;box-shadow:0 5px 18px rgba(0,0,0,.18);
+}
+.v2-shell .v2-arcade-practice-disclaimer{
+  padding:0 4px;font-size:11px;line-height:1.4;color:#a6bbd2;margin:0;
+}
+.v2-shell .v2-immersive-canvas .v2-arcade-agent{
+  background:linear-gradient(153deg,#213b56,#13233a 65%);
+  border-color:#466a8b;border-radius:19px;min-height:268px;
+  box-shadow:0 9px 20px rgba(1,6,26,.13);
+}
+.v2-shell .v2-immersive-canvas .v2-arcade-agent.is-selected{
+  border-color:#a0f9d0;
+  background:linear-gradient(145deg,#2b6058,#183b4d 65%);
+  box-shadow:0 0 0 3px rgba(125,243,218,.12),0 12px 32px rgba(8,25,43,.35);
+}
+.v2-shell .v2-immersive-canvas .v2-arcade-avatar{
+  align-self:center;display:grid;place-items:center;
+  width:76px;height:76px;margin:5px 0 10px;font-size:53px;
+  border-radius:50%;border:1px solid rgba(134,228,234,.54);
+  background:radial-gradient(circle at 40% 20%,#41789a,#213c65 59%,#16233a);
+  box-shadow:inset 0 2px 12px rgba(123,218,250,.14),0 7px 17px rgba(1,12,31,.36);
+}
+.v2-shell .v2-immersive-canvas .v2-arcade-agent.is-selected .v2-arcade-avatar{
+  background:radial-gradient(circle at 30% 20%,#5eaa96,#245c62 65%,#174039);
+  border-color:#a5f7d8;
+}
+.v2-shell .v2-immersive-canvas .v2-arcade-hint{background:#1a334b}
+.v2-shell .v2-immersive-canvas .v2-arcade-practice-footer{margin-top:3px}
+@media(max-width:640px){
+ .v2-shell .v2-immersive-game-bar{gap:8px;padding:7px 10px;min-height:52px}
+ .v2-shell .v2-immersive-brand{font-size:14px}
+ .v2-shell .v2-immersive-brand>small{font-size:9px}
+ .v2-shell .v2-immersive-game-bar .v2-secondary{padding:6px 9px;font-size:11px}
+ .v2-shell .v2-arcade-mission-stage{min-height:268px;align-items:flex-end;border-radius:17px}
+ .v2-shell .v2-arcade-mission-stage-art{height:100%;width:100%;object-position:center 28%;filter:brightness(.83) saturate(1.16)}
+ .v2-shell .v2-arcade-mission-stage:after{
+   background:linear-gradient(0deg,rgba(8,19,37,.98) 0%,rgba(9,22,41,.95) 45%,rgba(9,22,41,.10) 100%);
+ }
+ .v2-shell .v2-arcade-mission-stage-copy{width:100%;padding:14px 15px}
+ .v2-shell .v2-arcade-mission-stage-copy h1{font-size:clamp(24px,6.5vw,32px);margin:5px 0}
+ .v2-shell .v2-arcade-mission-stage-copy p{font-size:13px;line-height:1.37;margin:0 0 8px}
+ .v2-shell .v2-arcade-mission-stage-copy>span{padding:5px 9px;font-size:11px}
+ .v2-shell .v2-immersive-canvas .v2-arcade-avatar{width:61px;height:61px;font-size:43px}
+ .v2-shell .v2-immersive-canvas .v2-arcade-agent{min-height:235px}
+}
+@media(prefers-reduced-motion:reduce){.v2-shell .v2-arcade-mission-stage-art{animation:none;transition:none}}

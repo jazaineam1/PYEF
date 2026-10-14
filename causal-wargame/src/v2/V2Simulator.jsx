@@ -327,6 +327,12 @@ export default function V2Simulator(){
     </>
   }
 
+  // Training is a standalone game, not a form inside the teacher's dashboard.
+  // All teacher views remain available via the small return button.
+  if(view==='practice')return <main className="v2-shell v2-immersive-practice">
+    <header className="v2-immersive-game-bar"><div className="v2-immersive-brand">DOS FUTUROS <span>CAMPUS</span><small>CAMPAÑA LIBRE · SIN SERVIDOR</small></div><button className="v2-secondary" onClick={()=>setView('student')}><Eye size={15}/> Panel docente</button></header>
+    <div className="v2-immersive-canvas"><V2Practice/></div>
+  </main>
   return <main className="v2-shell">
     <div className="v2-fac v2-simulator-journey">
       <div className="v2-wall-top">

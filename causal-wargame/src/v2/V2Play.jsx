@@ -8,6 +8,7 @@ import{Check,ChevronRight,LogOut,Sparkles,Trophy}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound,statusCopy}from'./content'
 import{EvidenceLab}from'./VisualTools'
+import{V2_GAME_ART,artForMission,missionArtAlt}from'./V2Art'
 import{ArenaIntro,CohortArena,DagArena,StrategyArena,ResourceArena,BossArena,TeamArena,RevealArena,ModelBattleResults}from'./V2Arcade'
 
 const jitter=n=>Math.round(n*(.85+Math.random()*.3))
@@ -20,7 +21,7 @@ function Join({onJoined}){
   const[name,setName]=useState('')
   const[busy,setBusy]=useState(false),[err,setErr]=useState('')
   async function go(){setBusy(true);setErr('');try{const r=await invoke('join-game',{game_code:code.trim().toUpperCase(),display_name:name.trim()});savePlayerToken(r.token);savePlayerGameCode(code);onJoined()}catch(e){setErr(e.message)}finally{setBusy(false)}}
-  return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-brand">DOS FUTUROS <span>CAMPUS</span></div><div className="v2-kicker">OPERACIÓN: DOS FUTUROS · SIMULADOR COMPETITIVO</div><h1>UN CAMPUS. DOS FUTUROS. UNA GRAN BATALLA.</h1><p className="v2-lead">Tu escuadrón decidirá qué intervenciones podrían cambiar el rendimiento académico. El facilitador puede activar un taller integrado de 120 minutos o la campaña completa para profundizar.</p><div className="v2-arcade-launch" aria-label="Avatares y misiones del juego"><div className="v2-arcade-launch-avatars" aria-hidden="true"><span>👩🏽‍🚀</span><span>🧑🏻‍🔬</span><span>👨🏾‍🎓</span></div><div className="v2-arcade-launch-levels"><b>5 FASES + GRAN FINAL</b><span>⚗️ Experimentos · 🕸️ DAG · 🧠 DML · 🏆 EconML</span><small>El servidor guarda tus resultados: sin puntos ficticios.</small></div></div><label>Código de sesión<input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="FUTUROS"/></label><label>Tu nombre<input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre visible"/></label>{err&&<div className="v2-alert error">{err}</div>}<button className="v2-primary" disabled={busy||code.trim().length<4||name.trim().length<2} onClick={go}>{busy?'Entrando…':'Entrar al equipo'} <ChevronRight size={18}/></button></section></main>
+  return <main className="v2-shell v2-center v2-arcade-home"><section className="v2-join-card"><div className="v2-join-illustration"><img src={V2_GAME_ART.hero} alt="Equipo de agentes investigando un campus futurista mediante una mesa holográfica" width="200" height="112" decoding="async" fetchPriority="high"/></div><div className="v2-brand">DOS FUTUROS <span>CAMPUS</span></div><div className="v2-kicker">OPERACIÓN: DOS FUTUROS · SIMULADOR COMPETITIVO</div><h1>UN CAMPUS. DOS FUTUROS. UNA GRAN BATALLA.</h1><p className="v2-lead">Tu escuadrón decidirá qué intervenciones podrían cambiar el rendimiento académico. El facilitador puede activar un taller integrado de 120 minutos o la campaña completa para profundizar.</p><div className="v2-arcade-launch" aria-label="Avatares y misiones del juego"><div className="v2-arcade-launch-avatars" aria-hidden="true"><span>👩🏽‍🚀</span><span>🧑🏻‍🔬</span><span>👨🏾‍🎓</span></div><div className="v2-arcade-launch-levels"><b>5 FASES + GRAN FINAL</b><span>⚗️ Experimentos · 🕸️ DAG · 🧠 DML · 🏆 EconML</span><small>El servidor guarda tus resultados: sin puntos ficticios.</small></div></div><label>Código de sesión<input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="FUTUROS"/></label><label>Tu nombre<input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre visible"/></label>{err&&<div className="v2-alert error">{err}</div>}<button className="v2-primary" disabled={busy||code.trim().length<4||name.trim().length<2} onClick={go}>{busy?'Entrando…':'Entrar al equipo'} <ChevronRight size={18}/></button></section></main>
 }
 
 function useV2State(enabled){
@@ -53,7 +54,7 @@ function CampaignMap({round}){
 function MissionStrip({round}){
   const r=V2_ROUNDS[round]
   return <section className="v2-mission compact simple v2-campaign-scene" aria-label={`Misión ${round}: ${r.title}`}>
-    <div className="v2-campaign-head"><div><div className="v2-kicker">NIVEL {String(round).padStart(2,'0')} / 06</div><h1>{r.title}</h1></div><div className="v2-character" aria-label="Tu agente investigador"><span aria-hidden="true">🧑‍🚀</span><small>AGENTE</small></div></div>
+    <div className="v2-campaign-head"><div><div className="v2-kicker">NIVEL {String(round).padStart(2,'0')} / 06</div><h1>{r.title}</h1></div><div className="v2-character v2-character-illustrated"><img src={artForMission(round)} alt={missionArtAlt(round)} width="200" height="112" decoding="async" loading="lazy"/></div></div>
     <div className="v2-campaign-brief"><div className="v2-question-card"><small>🎮 OBJETIVO</small><strong>{r.question}</strong></div><details className="v2-campaign-context"><summary>Leer historia y contexto del caso</summary><p>{r.case}</p></details></div>
     <CampaignMap round={round}/>
   </section>
@@ -66,7 +67,7 @@ function Glossary({round}){
 }
 
 function Lobby({state}){
-  return <div className="v2-main"><section className="v2-big-wait"><div className="v2-pulse"/><div className="v2-kicker">YA ESTÁS DENTRO</div><h1>{state.player.name}</h1><p>Equipo <b>{state.player.team}</b> · asiento {state.player.seat}</p><h2>Espera a que el facilitador inicie.</h2><div className="v2-team-roster">{state.team.roster.map(p=><div key={p.id} className="ready"><span>✓</span>{p.name}</div>)}</div><div className="v2-alert">Todos toman decisiones y ejecutan los mismos laboratorios; no hay roles técnicos ocultos.</div></section></div>
+  return <div className="v2-main"><section className="v2-big-wait v2-lobby-wait"><img className="v2-lobby-art" src={V2_GAME_ART.hero} alt="Equipo del campus preparando su misión" width="200" height="112" decoding="async" loading="lazy"/><div className="v2-pulse"/><div className="v2-kicker">YA ESTÁS DENTRO</div><h1>{state.player.name}</h1><p>Equipo <b>{state.player.team}</b> · asiento {state.player.seat}</p><h2>Espera a que el facilitador inicie.</h2><div className="v2-team-roster">{state.team.roster.map(p=><div key={p.id} className="ready"><span>✓</span>{p.name}</div>)}</div><div className="v2-alert">Todos toman decisiones y ejecutan los mismos laboratorios; no hay roles técnicos ocultos.</div></section></div>
 }
 
 function CohortDecision({state,onSend,busy,revision=false,round,team=false}){

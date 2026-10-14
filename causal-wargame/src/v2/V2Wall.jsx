@@ -5,6 +5,7 @@ import {getWorkshopCue} from './workshop-script.js'
 import{CheckCircle2,Medal,Sparkles,Trophy}from'lucide-react'
 import{invoke}from'../lib/api'
 import{agentFor}from'./V2Arcade'
+import{V2_GAME_ART,artForMission,missionArtAlt}from'./V2Art'
 import{V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound,statusCopy}from'./content'
 
 const jitter=n=>Math.round(n*(.9+Math.random()*.2))
@@ -96,11 +97,11 @@ export default function V2Wall(){
     <WorkshopBanner state={finalQuiz}/>
     {workshopSceneActive?(teachingNow?<WorkshopTeachingWall data={finalQuiz}/>:<WorkshopSceneWall data={finalQuiz}/>):finalQuiz?.quiz?.phase&&finalQuiz.quiz.phase!=='idle'?<QuizWall data={finalQuiz}/>:finalQuiz?.agenda?.active?<WorkshopSceneWall data={finalQuiz}/>:<>{lobby?<div className="v2-wall-lobby"><div className="v2-wall-count"><strong>{data.humans}</strong><span>participantes conectados</span></div><div className="v2-wall-teams compact">{data.teams.map(t=>{const members=data.players.filter(p=>p.team_id===t.id),full=t.humans>=3;return <section className={'v2-wall-team '+(full?'ready':'')} key={t.id}><div className="v2-team-head"><h2>{t.name}</h2>{full&&<CheckCircle2 size={20}/>}</div><div className="v2-wall-member-row">{members.map(p=><span className={(p.online?'':'offline ')+(newIds.has(p.id)?'new':'')} key={p.id}>{p.name}</span>)}{!members.length&&<span className="offline">Esperando…</span>}</div><div className="v2-wall-progress"><i style={{width:Math.min(100,(t.humans/4)*100)+'%'}}/></div><small>{t.humans}/4 {full?'· LISTO':'· entrando'}</small></section>})}</div></div>:
     <div className="v2-wall-stage">
-      <div className="v2-wall-phase compact"><div><div className="v2-kicker">MISIÓN {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
+      <div className="v2-wall-phase compact"><div><div className="v2-kicker">MISIÓN {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div><img className="v2-wall-scene" src={artForMission(g.round)} alt={missionArtAlt(g.round)} width="200" height="112" loading="lazy" decoding="async"/></div>
       <div className="v2-wall-primary-grid"><TopThree rows={topRows} show={rankingVisible} leaderCount={leaderCount} leaderPoints={leaderPoints}/><CheckpointBoard data={data} activeTeams={activeTeams}/></div>
       <RecentScores rows={data.recent_scores||[]}/>
       {reveal&&<><AcademicTruth truth={data.academic_truth}/><WallDecisions round={g.round} decisions={data.decisions||[]}/></>}
-      {g.status==='reveal'&&<section className="v2-wall-wow"><div><Sparkles size={24}/> EFECTO WOW</div><strong>{r?.wow}</strong><p>{r?.reality}</p></section>}
+      {g.status==='reveal'&&<section className="v2-wall-wow v2-wall-wow-cinematic"><img className="v2-wall-victory" src={V2_GAME_ART.victory} alt="Equipo celebrando la misión superada en la arena futurista" width="200" height="112" loading="lazy" decoding="async"/><div><Sparkles size={24}/> EFECTO WOW</div><strong>{r?.wow}</strong><p>{r?.reality}</p></section>}
     </div>}</>}
   </main>
 }
