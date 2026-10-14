@@ -256,3 +256,100 @@ grant execute on function public.cw_v2_quiz_wall(text) to service_role;
 grant execute on function public.cw_v2_quiz_player(text) to service_role;
 grant execute on function public.cw_v2_quiz_submit(text,integer,text) to service_role;
 grant execute on function public.cw_v2_quiz_teacher(text,text,integer) to service_role;
+
+
+-- A participant makes one choice per workshop scene. The five continuous
+-- scenes do NOT depend on the six mandatory checkpoints of the deep game.
+create table if not exists public.cw_v2_workshop_choices (
+ game_id uuid not null references public.cw_games(id) on delete cascade,
+ phase_index integer not null check(phase_index between 0 and 4),
+ player_id uuid not null references public.cw_players(id) on delete cascade,
+ choice text not null check(choice in ('a','b','c','d')),
+ submitted_at timestamptz not null default clock_timestamp(),
+ primary key(game_id,phase_index,player_id)
+);
+create index if not exists cw_v2_workshop_choices_player on public.cw_v2_workshop_choices(game_id,player_id);
+alter table public.cw_v2_workshop_choices enable row level security;
+revoke all on public.cw_v2_workshop_choices from public,anon,authenticated;
+grant select,insert,update,delete on public.cw_v2_workshop_choices to service_role;
+
+create or replace function public.cw_v2_workshop_vote(p_token text,p_phase integer,p_choice text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare
+ player public.cw_players; workshop public.cw_v2_workshop; previously text; stamp timestamptz;
+begin
+ select * into player from public.cw_validate_player_token(p_token);
+ if player.id is null or player.is_bot then raise exception 'Sesión de estudiante inválida'; end if;
+ select * into workshop from public.cw_v2_workshop where game_id=player.game_id for update;
+ if workshop.game_id is null or not workshop.active or workshop.paused
+ or workshop.phase_index<>p_phase or workshop.cue_index<>0 or p_phase>=5 then
+   raise exception 'Esta escena ya no está recibiendo decisiones'; end if;
+ if p_choice not in ('a','b','c','d') then raise exception 'Elección fuera de las alternativas permitidas'; end if;
+ insert into public.cw_v2_workshop_choices(game_id,phase_index,player_id,choice)
+ values(player.game_id,p_phase,player.id,p_choice) on conflict do nothing;
+ select choice,submitted_at into previously,stamp from public.cw_v2_workshop_choices
+ where game_id=player.game_id and phase_index=p_phase and player_id=player.id;
+ if previously is distinct from p_choice then
+   raise exception 'La decisión quedó bloqueada; no se puede cambiar después de enviarla';
+ end if;
+ return jsonb_build_object('accepted',true,'phase_index',p_phase,'choice',previously,
+     'received_at',stamp,'message','Decisión guardada para esta escena del taller');
+end $f$;
+
+create or replace function public.cw_v2_workshop_presence(p_game_code text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare
+ gid uuid; w public.cw_v2_workshop; audience integer:=0; count_submitted integer:=0;
+ by_team jsonb:='[]'::jsonb; distribution jsonb:=null;
+begin
+ select id into gid from public.cw_games where code=upper(trim(p_game_code));
+ if gid is null then raise exception 'Partida inexistente'; end if;
+ select * into w from public.cw_v2_workshop where game_id=gid;
+ if w.game_id is null or not w.active then
+   return jsonb_build_object('active',false,'received',0,'by_team','[]'::jsonb);
+ end if;
+ select count(*) into audience from public.cw_players where game_id=gid and active and not is_bot;
+ select count(*) into count_submitted from public.cw_v2_workshop_choices c
+ join public.cw_players p on p.id=c.player_id
+ where c.game_id=gid and c.phase_index=w.phase_index and p.active and not p.is_bot;
+ select coalesce(jsonb_agg(to_jsonb(t) order by t.team),'[]'::jsonb) into by_team
+ from (select coalesce(tm.name,'Equipo') team,count(*)::int submitted
+    from public.cw_v2_workshop_choices c
+    join public.cw_players p on p.id=c.player_id
+    left join public.cw_teams tm on tm.id=p.team_id
+    where c.game_id=gid and c.phase_index=w.phase_index and p.active and not p.is_bot
+    group by tm.name) t;
+ -- Tallies and the pedagogical preferred choice are hidden until teacher
+ -- explicitly projects the explanation (cue=1) or moves to another phase.
+ if w.cue_index=1 then
+  select jsonb_build_object('a',count(*) filter(where choice='a'),
+    'b',count(*) filter(where choice='b'),
+    'c',count(*) filter(where choice='c'),
+    'd',count(*) filter(where choice='d')) into distribution
+  from public.cw_v2_workshop_choices where game_id=gid and phase_index=w.phase_index;
+ end if;
+ return jsonb_build_object('active',true,'received',count_submitted,'participants',audience,
+   'by_team',by_team,'distribution',distribution,'revealed',w.cue_index=1);
+end $f$;
+
+create or replace function public.cw_v2_workshop_player(p_token text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare p public.cw_players; w public.cw_v2_workshop; own text;
+begin
+ select * into p from public.cw_validate_player_token(p_token);
+ if p.id is null then raise exception 'Sesión inválida'; end if;
+ select * into w from public.cw_v2_workshop where game_id=p.game_id;
+ if w.game_id is null or not w.active then
+   return jsonb_build_object('active',false); end if;
+ select choice into own from public.cw_v2_workshop_choices
+ where game_id=p.game_id and player_id=p.id and phase_index=w.phase_index;
+ return jsonb_build_object('active',true,'phase_index',w.phase_index,
+   'my_choice',own,'teaching',w.cue_index=1,'paused',w.paused);
+end $f$;
+
+revoke all on function public.cw_v2_workshop_vote(text,integer,text) from public,anon,authenticated;
+revoke all on function public.cw_v2_workshop_presence(text) from public,anon,authenticated;
+revoke all on function public.cw_v2_workshop_player(text) from public,anon,authenticated;
+grant execute on function public.cw_v2_workshop_vote(text,integer,text) to service_role;
+grant execute on function public.cw_v2_workshop_presence(text) to service_role;
+grant execute on function public.cw_v2_workshop_player(text) to service_role;

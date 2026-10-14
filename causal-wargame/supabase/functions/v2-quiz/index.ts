@@ -10,11 +10,17 @@ Deno.serve(async req=>{
   if(action==='wall'){
     const code=String(b.game_code||'').trim().toUpperCase()
     if(!code)return json({error:'Código obligatorio'},400)
-    return json(await rpc('cw_v2_quiz_wall',{p_game_code:code}))
+    const [quiz,workshop]=await Promise.all([rpc('cw_v2_quiz_wall',{p_game_code:code}),rpc('cw_v2_workshop_presence',{p_game_code:code})])
+    return json({...quiz,workshop})
   }
   if(action==='student'){
     if(!player)return json({error:'Falta sesión de participante'},401)
-    return json(await rpc('cw_v2_quiz_player',{p_token:player}))
+    const [quiz,workshop]=await Promise.all([rpc('cw_v2_quiz_player',{p_token:player}),rpc('cw_v2_workshop_player',{p_token:player})])
+    return json({...quiz,workshop})
+  }
+  if(action==='workshop_vote'){
+    if(!player)return json({error:'Falta sesión de participante'},401)
+    return json(await rpc('cw_v2_workshop_vote',{p_token:player,p_phase:Number(b.phase_index),p_choice:String(b.choice||'').toLowerCase()}))
   }
   if(action==='submit'){
     if(!player)return json({error:'Falta sesión de participante'},401)
