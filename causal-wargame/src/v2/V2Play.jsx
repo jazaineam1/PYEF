@@ -1,6 +1,7 @@
 import{prewarmPython}from'./PythonEvidenceLab'
 import React,{useEffect,useMemo,useState}from'react'
 import {useV2Quiz,QuizPlayer,WorkshopBanner} from './V2Quiz.jsx'
+import {CausalExplainer} from './CausalExplainer.jsx'
 import{Check,ChevronRight,LogOut,Sparkles,Trophy}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound,statusCopy}from'./content'
@@ -179,7 +180,7 @@ function RoundPlay({state,refresh,analysis}){
   let page=null
   if(phase==='initial')page=chooser(false,false)
   else if(phase==='wait_initial')page=<TeamProgress state={state}/>
-  else if(phase==='lab')page=<><EvidenceLab round={round} labKey={V2_ROUNDS[round]?.evidence} labPoints={state.progress?.challenge?.lab_points??V2_ROUNDS[round]?.points?.lab} state={state} analysis={analysis} onComplete={refresh}/><Glossary round={round}/></>
+  else if(phase==='lab')page=<><CausalExplainer round={round}/><EvidenceLab round={round} labKey={V2_ROUNDS[round]?.evidence} labPoints={state.progress?.challenge?.lab_points??V2_ROUNDS[round]?.points?.lab} state={state} analysis={analysis} onComplete={refresh}/><Glossary round={round}/></>
   else if(phase==='check')page=<CheckpointQuestion round={round} state={state} onDone={refresh}/>
   else if(phase==='revision')page=chooser(true,false)
   else if(phase==='wait_revision')page=<TeamProgress state={state} phase="revision"/>

@@ -299,3 +299,24 @@
 .v2-kahoot-wall{width:100%;max-width:none}
 @media(max-width:720px){.v2-kahoot-answers,.v2-kahoot-guide,.v2-kahoot-rankings{grid-template-columns:1fr}.v2-kahoot-podium{gap:4px}.v2-kahoot-podium article{padding:8px}.v2-kahoot-choice{min-height:78px;padding:10px}.v2-workshop-steps{grid-template-columns:repeat(6,130px)}}
 @media(prefers-reduced-motion:reduce){.v2-kahoot-bar i,.v2-kahoot-live i{transition:none}}
+
+
+.v2-concept-lab{margin:16px 0;border:1px solid #3c6886;background:linear-gradient(110deg,#122543,#193446);border-radius:18px;padding:clamp(16px,2.5vw,28px);color:#f0f8ff}
+.v2-concept-lab h2{font-size:clamp(23px,2.3vw,34px);margin:8px 0 18px;line-height:1.2}
+.v2-concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.v2-concept-story,.v2-concept-try{background:#0f2039;border:1px solid #3e637f;border-radius:15px;padding:17px}
+.v2-concept-story h3,.v2-concept-try h3{font-size:18px;margin:0 0 12px}
+.v2-concept-story p,.v2-concept-try p{font-size:clamp(15px,1.2vw,18px);line-height:1.55}
+.v2-concept-story blockquote{padding:10px 14px;border-left:4px solid #80e7cf;background:#163c46;color:#e4fffb;font-size:clamp(15px,1.25vw,18px)}
+.v2-concept-chain{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 0}
+.v2-concept-chain strong{flex:1;min-width:110px;text-align:center;background:#244864;border:1px solid #6ba8be;border-radius:12px;padding:13px 9px;font-size:15px}
+.v2-concept-chain span{font-size:26px;color:#98ebd9}
+.v2-concept-example{border-top:1px solid #3b6a83;padding-top:12px;color:#cfe4f0}
+.v2-concept-try>button{display:block;text-align:left;min-height:55px;width:100%;border:2px solid #678bab;background:#1b3b5b;border-radius:12px;padding:12px;margin-bottom:9px;color:#f6faff;font-size:16px}
+.v2-concept-try>button.chosen,.v2-concept-try>button.correct{border-color:#8bedce;background:#1d5052}
+.v2-concept-feedback{background:#183e43;padding:13px;border-radius:12px;border:1px solid #72d9bd;margin-top:12px}
+.v2-concept-feedback button,.v2-concept-more{border:1px solid #75c9d1;background:#133954;color:#f2fcff;padding:12px;border-radius:10px;font-size:15px}
+.v2-concept-more{margin-top:16px;width:100%;text-align:left}
+.v2-concept-definition{border:1px solid #537491;border-radius:12px;padding:17px;background:#112c42;margin-top:12px;font-size:16px;line-height:1.55}
+.v2-concept-definition strong{font-size:20px}.v2-concept-definition code{display:block;white-space:normal;padding:12px;background:#09192b;border-radius:9px;color:#adebdc}
+@media(max-width:780px){.v2-concept-grid{grid-template-columns:1fr}}
