@@ -20,9 +20,9 @@ test('Fifteen exams recycle the same eleven subject definitions as the source',(
  assert.match(canonical,/p_exam between 1 and 15/)
 })
 test('Archetype bounds and canonical sliders are identical in SQL and React',()=>{
- for(const s of ['when \\'over\\' then lo_h:=8;hi_h:=14;lo_s:=2;hi_s:=5;lo_b:=0;hi_b:=1.5',
- 'when \\'balanced\\' then lo_h:=4;hi_h:=8;lo_s:=6.5;hi_s:=8.5;lo_b:=1.5;hi_b:=3.5',
- 'when \\'risk\\' then lo_h:=2;hi_h:=5.5;lo_s:=4.5;hi_s:=7;lo_b:=1.5;hi_b:=4',
+ for(const s of ["when 'over' then lo_h:=8;hi_h:=14;lo_s:=2;hi_s:=5;lo_b:=0;hi_b:=1.5',
+ "when 'balanced' then lo_h:=4;hi_h:=8;lo_s:=6.5;hi_s:=8.5;lo_b:=1.5;hi_b:=3.5',
+ "when 'risk' then lo_h:=2;hi_h:=5.5;lo_s:=4.5;hi_s:=7;lo_b:=1.5;hi_b:=4",
  'else lo_h:=0.5;hi_h:=3.5;lo_s:=7;hi_s:=9.5;lo_b:=3.5;hi_b:=6'])assert.ok(canonical.includes(s),s)
  for(const s of ['over:[[8,14,11.5]','balanced:[[4,8,6]','risk:[[2,5.5,3.5]','pragmatic:[[0.5,3.5,1.5]'])assert.ok(jsx.includes(s),s)
  assert.match(jsx,/sourceSubjects\[\(n-1\)%11\]/)
