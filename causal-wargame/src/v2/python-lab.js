@@ -72,7 +72,7 @@ features = ["pga_previo","horas_estudio","horas_sueno","fatiga","complejidad"]
 X_train,X_test,y_train,y_test = train_test_split(
     df[features],df["nota_final"],test_size=.30,random_state=42
 )
-m = RandomForestRegressor(n_estimators=120,min_samples_leaf=5,random_state=42)
+m = RandomForestRegressor(n_estimators=70,min_samples_leaf=5,random_state=42)
 m.fit(X_train,y_train)
 pred = m.predict(X_test)
 
@@ -250,9 +250,9 @@ X = df[["pga_previo","horas_estudio","horas_sueno","fatiga","complejidad"]]
 T = df["recibio_apoyo"].astype(float)
 Y = df["nota_final"].astype(float)
 
-cv = KFold(n_splits=5,shuffle=True,random_state=42)
-mt = RandomForestRegressor(n_estimators=120,min_samples_leaf=12,random_state=42)
-my = RandomForestRegressor(n_estimators=120,min_samples_leaf=12,random_state=7)
+cv = KFold(n_splits=4,shuffle=True,random_state=42)
+mt = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=42)
+my = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=7)
 
 t_hat = np.clip(cross_val_predict(mt,X,T,cv=cv),.02,.98)
 y_hat = cross_val_predict(my,X,Y,cv=cv)
@@ -275,10 +275,10 @@ df = pd.DataFrame(payload["historico"]).copy()
 X = df[["pga_previo","horas_estudio","horas_sueno","fatiga","complejidad"]]
 T = df["recibio_apoyo"].astype(float)
 Y = df["nota_final"].astype(float)
-cv = KFold(n_splits=5,shuffle=True,random_state=42)
+cv = KFold(n_splits=4,shuffle=True,random_state=42)
 
-t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=120,min_samples_leaf=12,random_state=42),X,T,cv=cv),.02,.98)
-y_hat = cross_val_predict(RandomForestRegressor(n_estimators=120,min_samples_leaf=12,random_state=7),X,Y,cv=cv)
+t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=42),X,T,cv=cv),.02,.98)
+y_hat = cross_val_predict(RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=7),X,Y,cv=cv)
 
 t_res = T-t_hat
 y_res = Y-y_hat
@@ -301,10 +301,10 @@ df = pd.DataFrame(payload["historico"]).copy()
 X = df[["pga_previo","horas_estudio","horas_sueno","fatiga","complejidad"]]
 T = df["recibio_apoyo"].astype(float)
 Y = df["nota_final"].astype(float)
-cv = KFold(n_splits=5,shuffle=True,random_state=42)
+cv = KFold(n_splits=4,shuffle=True,random_state=42)
 
-t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=160,min_samples_leaf=12,random_state=42),X,T,cv=cv),.02,.98)
-y_hat = cross_val_predict(RandomForestRegressor(n_estimators=160,min_samples_leaf=12,random_state=7),X,Y,cv=cv)
+t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=70,min_samples_leaf=15,random_state=42),X,T,cv=cv),.02,.98)
+y_hat = cross_val_predict(RandomForestRegressor(n_estimators=70,min_samples_leaf=15,random_state=7),X,Y,cv=cv)
 t_res,y_res = T-t_hat,Y-y_hat
 
 theta = float((t_res*y_res).sum()/(t_res*t_res).sum())
@@ -369,8 +369,8 @@ X = pd.get_dummies(df[["arquetipo","pga_previo","horas_estudio","fatiga","comple
 T = df["recibio_apoyo"]
 Y = df["nota_final"]
 
-m1 = RandomForestRegressor(n_estimators=150,min_samples_leaf=15,random_state=1).fit(X[T],Y[T])
-m0 = RandomForestRegressor(n_estimators=150,min_samples_leaf=15,random_state=2).fit(X[~T],Y[~T])
+m1 = RandomForestRegressor(n_estimators=70,min_samples_leaf=15,random_state=1).fit(X[T],Y[T])
+m0 = RandomForestRegressor(n_estimators=70,min_samples_leaf=15,random_state=2).fit(X[~T],Y[~T])
 
 df["cate_tlearner"] = m1.predict(X)-m0.predict(X)
 print(df.groupby("arquetipo")["cate_tlearner"].mean().sort_values(ascending=False).round(2).to_string())
@@ -406,14 +406,14 @@ Y = df["nota_final"]
 
 # S-Learner: un solo modelo incluye tratamiento
 Xs = base.copy(); Xs["tratamiento"] = T
-s = RandomForestRegressor(n_estimators=140,min_samples_leaf=15,random_state=10).fit(Xs,Y)
+s = RandomForestRegressor(n_estimators=65,min_samples_leaf=15,random_state=10).fit(Xs,Y)
 x1=base.copy();x1["tratamiento"]=1
 x0=base.copy();x0["tratamiento"]=0
 tau_s=s.predict(x1)-s.predict(x0)
 
 # T-Learner: dos modelos
-m1=RandomForestRegressor(n_estimators=140,min_samples_leaf=15,random_state=11).fit(base[T==1],Y[T==1])
-m0=RandomForestRegressor(n_estimators=140,min_samples_leaf=15,random_state=12).fit(base[T==0],Y[T==0])
+m1=RandomForestRegressor(n_estimators=65,min_samples_leaf=15,random_state=11).fit(base[T==1],Y[T==1])
+m0=RandomForestRegressor(n_estimators=65,min_samples_leaf=15,random_state=12).fit(base[T==0],Y[T==0])
 tau_t=m1.predict(base)-m0.predict(base)
 
 print("S-Learner — Single Learner: un modelo para ambos futuros.")
@@ -437,11 +437,11 @@ T = df["recibio_apoyo"].astype(int).to_numpy()
 Y = df["nota_final"].to_numpy()
 
 ps = np.clip(LogisticRegression(max_iter=1000).fit(X,T).predict_proba(X)[:,1],.05,.95)
-mu1 = RandomForestRegressor(n_estimators=120,min_samples_leaf=15,random_state=1).fit(X[T==1],Y[T==1]).predict(X)
-mu0 = RandomForestRegressor(n_estimators=120,min_samples_leaf=15,random_state=2).fit(X[T==0],Y[T==0]).predict(X)
+mu1 = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=1).fit(X[T==1],Y[T==1]).predict(X)
+mu0 = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=2).fit(X[T==0],Y[T==0]).predict(X)
 
 pseudo = (mu1-mu0) + T*(Y-mu1)/ps - (1-T)*(Y-mu0)/(1-ps)
-dr = RandomForestRegressor(n_estimators=120,min_samples_leaf=20,random_state=3).fit(X,pseudo)
+dr = RandomForestRegressor(n_estimators=60,min_samples_leaf=20,random_state=3).fit(X,pseudo)
 tau_dr = dr.predict(X)
 
 print("DR-Learner — Doubly Robust Learner / Aprendiz doblemente robusto.")
