@@ -31,6 +31,6 @@ test('separate score /120, student, facilitator and Wall must all participate',(
 })
 test('causal seven-layer explanations in V2 contain all six topics',()=>{
  const t=read('src/v2/CausalExplainer.jsx')
- for(const n of [1,2,3,4,5,6])assert.match(t,new RegExp('\\\\b'+n+':'))
+ for(const n of [1,2,3,4,5,6])assert.ok(t.includes(' '+n+':{'),'Microlección '+n)
  for(const x of ['Contrafactual','confusor','DML','ATE','CATE','EconML'])assert.match(t,new RegExp(x,'i'))
 })
