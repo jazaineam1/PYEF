@@ -6,3 +6,6 @@ El artefacto src/v2/econml-v2-verified.json incluye modelos, semilla 20261014, v
 No se usa ningún modelo ni dataset bancario de V1; no se modifican tablas ni partidas de producción.
 En V2 el bloque 3 analiza mediante Python local resultados EconML entrenados offline, no vuelve a ajustar EconML en Pyodide.
 El menor error del holdout no demuestra validez causal fuera de este mundo experimental.
+
+## Publicación
+La compilación de Pages para esta entrega se valida junto con npm run check y las pruebas del motor causal V2.
