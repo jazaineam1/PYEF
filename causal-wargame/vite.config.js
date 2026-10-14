@@ -28,7 +28,10 @@ export default defineConfig(({ mode }) => {
           v2Play:'v2-play.html',
           v2Facilitator:'v2-facilitator.html',
           v2Wall:'v2-wall.html',
-          v2Simulator:'v2-simulator.html'
+          v2Simulator:'v2-simulator.html',
+          deanPlay:'dean-play.html',
+          deanTeacher:'dean-teacher.html',
+          deanWall:'dean-wall.html'
         }
       }
     }

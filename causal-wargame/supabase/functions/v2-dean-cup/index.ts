@@ -7,7 +7,7 @@ Deno.serve(async(req)=>{
  if(req.method!=='POST')return json({error:'Solo POST'},405)
  try{
   const b=await body(req),action=String(b.action||'state'),code=String(b.game_code||'').trim().toUpperCase()
-  const student=req.headers.get('x-dean-token')||''
+  const student=req.headers.get('x-game-token')||''
   const teacher=req.headers.get('x-facilitator-token')||''
   const hash=student?await digest(student):null
   if(action==='state'){
