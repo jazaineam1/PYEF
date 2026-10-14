@@ -3,3 +3,10 @@ test('Rector R² and MAE use held-out students, not duplicate exams',()=>{const 
 test('One person with 15 exams is not treated as 15 independent students',()=>{let rows=Array.from({length:15},(_,i)=>({estudiante_id:'one',pga_previo:3.5,complejidad:i+1,horas_bienestar_sem:3,nota_final:i+20}));assert.match(predictiveHoldout(rows,['pga_previo','complejidad','horas_bienestar_sem']).error,/4 estudiantes/)});
 
 test('Missing CSV values are excluded, not silently interpreted as zero',()=>{const rows=Array.from({length:5},(_,i)=>Array.from({length:15},(_,j)=>({estudiante_id:'c'+i,pga_previo:3+i*.2,complejidad:j%4,horas_bienestar_sem:(i+j)%4,nota_final:35+i+j*.3}))).flat();rows[0].horas_bienestar_sem='';const a=predictiveHoldout(rows,['pga_previo','complejidad','horas_bienestar_sem']);assert.equal(a.n,74)});
+
+import {readFileSync as readNotebookFile} from 'node:fs';
+test('ZIP Rector notebook has multivariable OLS and optional SHAP with explicit causal caution',()=>{
+ const d=JSON.parse(readNotebookFile('public/notebooks/causalidad_copa_decano_scaffold.ipynb','utf8'));
+ const s=d.cells.filter(c=>c.cell_type==='code').map(c=>c.source.join('')).join('\n');
+ assert.match(s,/statsmodels\.formula\.api/);assert.match(s,/pga_previo \+ complejidad/);assert.match(s,/shap\.TreeExplainer/);assert.match(s,/NO USES esta figura/)
+});
