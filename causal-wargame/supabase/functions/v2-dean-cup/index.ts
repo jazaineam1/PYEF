@@ -12,12 +12,13 @@ Deno.serve(async(req)=>{
   const hash=student?await digest(student):null
   if(action==='state'){
    if(!code)return json({error:'Código requerido'},400)
+   await rpc('cw_dean_tick_v3',{p_game_code:code})
    return json(await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}))
   }
   if(action==='teacher'){
    if(!teacher)return json({error:'Credencial del docente requerida'},401)
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
-   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_teacher',{p_token:teacher,p_command:b.command})))
+   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_teacher_next_v3',{p_token:teacher})))
   }
   if(action==='quiz_state'){
    if(!code)return json({error:'Código requerido'},400)

@@ -4,14 +4,19 @@ alter table public.cw_dean_tournaments add column if not exists exam_deadline_at
 alter table public.cw_dean_tournaments add column if not exists exam_auto_filled_at timestamptz;
 create or replace function public.cw_dean_teacher_next_v3(p_token text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
-declare gid uuid;stage text;version_name text;code text;ignored jsonb;
+declare gid uuid;stage text;version_name text;code text;ignored jsonb;p record;
 begin
  select public.cw_validate_facilitator_token(p_token) into gid;
  if gid is null then raise exception 'Sesión docente inválida';end if;
  select t.phase,t.dgp_version into stage,version_name from public.cw_dean_tournaments t where t.game_id=gid for update;
  select g.code into code from public.cw_games g where g.id=gid;
  if stage='exams' and version_name='zip_dgp_2026' then
-   perform public.cw_dean_tick_v3(code);
+   -- Instructor can close early; never leave students with incomplete 15-exam transcripts.
+   for p in select token_hash from public.cw_dean_players where game_id=gid loop
+     perform public.cw_dean_auto_finish_v3(p.token_hash);
+   end loop;
+   update public.cw_dean_tournaments set exam_auto_filled_at=clock_timestamp()
+   where game_id=gid;
  end if;
  ignored:=public.cw_dean_teacher(p_token,'next');
  if stage='lobby' and version_name='zip_dgp_2026' then
@@ -45,7 +50,7 @@ returns jsonb language plpgsql security invoker set search_path=public as $f$
 declare original jsonb;ver text;gid uuid;
 begin
  original:=public.cw_dean_state(p_code,p_hash);
- select t.dgp_version into ver from public.cw_dean_tournaments t join public.cw_games g on g.id=t.game_id
+ select t.dgp_version,t.game_id into ver,gid from public.cw_dean_tournaments t join public.cw_games g on g.id=t.game_id
  where g.code=upper(trim(p_code));
  return original||jsonb_build_object('dgp_version',coalesce(ver,'legacy_v1'),
   'canonical_source','chapter-causalidad-master/config/simulation_parameters.toml',

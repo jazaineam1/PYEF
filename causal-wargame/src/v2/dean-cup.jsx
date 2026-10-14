@@ -28,7 +28,7 @@ function useBoard(token='',enabled=true,gameCode=code){
  useEffect(()=>{
   if(!enabled)return;
   let dead=false,t;
-  async function poll(){try{const s=await call('state',{game_code:gameCode},token);if(!dead){setValue(s);setError('')}}catch(e){if(!dead)setError(e.message)}
+  async function poll(){try{const s=await call('state',{game_code:gameCode},token);if(!dead){setValue({...s,_receivedAt:Date.now()});setError('')}}catch(e){if(!dead)setError(e.message)}
   if(!dead)t=setTimeout(poll,2700+Math.random()*1300)}
   poll();return()=>{dead=true;clearTimeout(t)}
  },[token,enabled,gameCode]);
@@ -58,7 +58,19 @@ function Board({groups=[]}){
  </section>;
 }
 function Slider({label,units,min,max,value,onChange}){return <label className="dean-slider"><span><b>{label}</b><strong>{Number(value).toFixed(1)} h</strong></span><input type="range" min={min} max={max} step=".5" value={value} onChange={e=>onChange(Number(e.target.value))}/><small>{min}–{max} h · {units}</small></label>}
-function Exam({person,onSubmit,version}){
+function ExamCountdown({deadline,serverNow,receivedAt}){
+ const [now,setNow]=useState(Date.now());
+ useEffect(()=>{const t=setInterval(()=>setNow(Date.now()),500);return()=>clearInterval(t)},[]);
+ if(!deadline)return null;
+ const secs=Math.max(0,Math.ceil((Date.parse(deadline)-Date.parse(serverNow||new Date(receivedAt||Date.now()).toISOString())-(now-(receivedAt||now)))/1000));
+ const label=Math.floor(secs/60).toString().padStart(2,'0')+':'+(secs%60).toString().padStart(2,'0');
+ return <div className={'dean-exam-clock '+(secs===0?'ended':'')} role="timer">
+   <strong>⏱️ Tiempo de torneo: {label}</strong>
+   <small>{secs===0?'El servidor completa automáticamente los exámenes pendientes al consultar el estado.':'El reloj se calcula a partir de la hora del servidor.'}</small>
+ </div>;
+}
+
+function Exam({person,onSubmit,version,deadline,serverNow,receivedAt}){
  const canonical=version==='zip_dgp_2026';
  const n=Number(person.completed||0)+1,range=(canonical?canonicalLimits:limits)[person.archetype];
  const [s,setS]=useState(range[0][2]),[z,setZ]=useState(range[1][2]),[w,setW]=useState(range[2][2]);
@@ -66,7 +78,7 @@ function Exam({person,onSubmit,version}){
  useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null)},[n,person.archetype,canonical]);
  if(n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Completaste tus 15 exámenes. Tu sala no necesita seis personas para avanzar.</p></section>;
  async function submit(){setBusy(true);setErr('');try{setFlash(await onSubmit({exam:n,study:s,sleep:z,wellness:w}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
- return <section className="dean-exam"><div className="dean-kicker">ASIGNATURA {n} / 15</div><h2>📅 {canonical?sourceSubjects[(n-1)%11]:courses[n-1]}</h2><div className="dean-meter"><i style={{width:(n-1)/15*100+'%'}}/></div>
+ return <section className="dean-exam"><div className="dean-kicker">ASIGNATURA {n} / 15</div><h2>📅 {canonical?sourceSubjects[(n-1)%11]:courses[n-1]}</h2>{canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}<div className="dean-meter"><i style={{width:(n-1)/15*100+'%'}}/></div>
  <h3>Elige tu estrategia</h3>
  <Slider label="📚 Horas de estudio" units="para este parcial" min={range[0][0]} max={range[0][1]} value={s} onChange={setS}/>
  <Slider label="😴 Sueño" units="la noche anterior" min={range[1][0]} max={range[1][1]} value={z} onChange={setZ}/>
@@ -258,7 +270,7 @@ function Player(){
  <DeanGuidance phase={state.phase}/>
  <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Descargar cuaderno Python · Rector, encuesta, Random Forest y A/B</a>
  {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
- {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-big" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
+ {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-big" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
  <DeanCausalLab phase={state.phase} token={token} version={state.dgp_version}/>
  {state.phase==='final'&&<CupQuiz role="student" token={token}/>} 
  {['rector','survey','causal','final','finished'].includes(state.phase)&&<div className="dean-download"><h2>📦 Evidencia del semestre</h2><p>Descarga los datos reales de tu partida sintética para el laboratorio causal. Nunca son datos personales reales.</p><button onClick={()=>download('rector')} disabled={busy}>📥 Archivo del Rector · CSV</button>{['survey','causal','final','finished'].includes(state.phase)&&<button onClick={()=>download('survey')} disabled={busy}>📥 Encuesta de Hábitos · CSV</button>}{state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<button onClick={downloadAB} disabled={busy}>📥 Experimento A/B observado · CSV</button>}</div>}
