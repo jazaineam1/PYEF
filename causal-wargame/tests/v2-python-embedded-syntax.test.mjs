@@ -3,21 +3,18 @@ import assert from'node:assert/strict'
 import{spawnSync}from'node:child_process'
 import{buildPythonLab}from'../src/v2/python-lab.js'
 
-const commonObs=[
+const obs=[
   {pga_prev:3.1,study_hours:8,sleep_hours:6,fatigue:6,complexity:8,treated:true,grade:34,passed:1,segment:'Alta fatiga'},
   {pga_prev:3.7,study_hours:10,sleep_hours:7,fatigue:3,complexity:6,treated:false,grade:39,passed:1,segment:'Equilibrado'}
 ]
-const commonExp=[
-  {...commonObs[0],treated:true},{...commonObs[1],treated:false},
-  {...commonObs[0],pga_prev:3.5,treated:false,grade:31},{...commonObs[1],pga_prev:3.2,treated:true,grade:42}
-]
+const exp=[...obs,{...obs[0],treated:false},{...obs[1],treated:true}]
 const fixtures=[
-  [1,'prediction',{team_pool:[{id:'E01',name:'Estudiante 01',segment:'Equilibrado',score:.8,usage:8,bugs:3,discount:7,tenure:360}]},{team_tools:{ml_training:commonObs}}],
-  [2,'ab-test',{}, {team_tools:{experiment_rows:commonExp}}],
-  [3,'dag',{}, {team_tools:{observational_rows:commonObs}}],
-  [4,'dml',{}, {team_tools:{observational_rows:commonObs}}],
-  [5,'heterogeneity',{}, {team_tools:{experiment_rows:commonExp,segments:[]}}],
-  [6,'model-battle',{}, {team_tools:{experiment_rows:commonExp,econml:[]}}]
+  [1,'prediction',{team_pool:[{id:'E01',name:'Estudiante 01',segment:'Equilibrado',score:.8,usage:8,bugs:3,discount:7,tenure:360}]},{team_tools:{ml_training:obs}}],
+  [2,'ab-test',{}, {team_tools:{experiment_rows:exp}}],
+  [3,'dag',{}, {team_tools:{observational_rows:obs}}],
+  [4,'dml',{}, {team_tools:{observational_rows:obs}}],
+  [5,'heterogeneity',{}, {team_tools:{experiment_rows:exp,segments:[]}}],
+  [6,'model-battle',{}, {team_tools:{experiment_rows:exp,econml:[]}}]
 ]
 
 function compilePython(code,label){
