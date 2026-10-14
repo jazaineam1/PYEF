@@ -3,7 +3,6 @@ import assert from'node:assert/strict'
 import{readFileSync}from'node:fs'
 import{buildPythonLab}from'../src/v2/python-lab.js'
 import{validateChallengeRegistry,CHALLENGE_TEMPLATE,enabledChallenges}from'../src/v2/challenge-registry.js'
-
 const read=p=>readFileSync(p,'utf8')
 
 test('a new mission can reuse a backend data profile with a different Python lab',()=>{
@@ -15,13 +14,12 @@ test('a new mission can reuse a backend data profile with a different Python lab
 })
 
 test('embedded Python receives labKey instead of assuming a round number',()=>{
-  const component=read('src/v2/PythonEvidenceLab.jsx')
-  const visuals=read('src/v2/VisualTools.jsx')
+  const component=read('src/v2/PythonEvidenceLab.jsx'),visuals=read('src/v2/VisualTools.jsx')
   assert.match(component,/buildPythonLab\(round,state,analysis,labKey\)/)
   assert.match(visuals,/labKey=\{labKey\}/)
 })
 
-test('academic runtime separates reusable data profile, interaction template and lab key',()=>{
+test('academic runtime separates data profile, template and lab key',()=>{
   const sql=read('supabase/migrations/202610140001_v2_academic_causal_curriculum.sql')
   assert.match(sql,/profile_round/)
   assert.match(sql,/template/)
@@ -46,7 +44,7 @@ test('player, wall and facilitator prefer runtime max_round',()=>{
   assert.match(fac,/g\.max_round\|\|V2_CHALLENGE_COUNT/)
 })
 
-test('challenge manifests declare 100 learning points and a glossary',()=>{
+test('challenge manifests declare 100 learning points and glossary definitions',()=>{
   for(const c of enabledChallenges()){
     assert.equal(Object.values(c.points).reduce((a,b)=>a+Number(b),0),100)
     assert.ok(c.glossary.length>0)
