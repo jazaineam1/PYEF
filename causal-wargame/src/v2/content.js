@@ -22,7 +22,7 @@ export{V2_CHALLENGE_COUNT}
 
 export const optionsForRound=round=>V2_ROUNDS[round]?.decisionOptions||[]
 
-export const POLICY_ACTIONS=[
+export const RECOMMENDATIONS=[['cancel','Comparación cruda'],['keep','Mantener conclusión inicial'],['redesign','Pedir una comparación causal mejor']]\n\nexport const POLICY_ACTIONS=[
   ['treat','Priorizar apoyo'],
   ['avoid','No priorizar'],
   ['observe','Pedir más evidencia']
