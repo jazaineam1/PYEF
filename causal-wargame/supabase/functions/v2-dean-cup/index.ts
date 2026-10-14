@@ -12,12 +12,13 @@ Deno.serve(async(req)=>{
   const hash=student?await digest(student):null
   if(action==='state'){
    if(!code)return json({error:'Código requerido'},400)
-   return json(await rpc('cw_dean_state',{p_code:code,p_token_hash:hash}))
+   await rpc('cw_dean_tick_v3',{p_game_code:code})
+   return json(await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}))
   }
   if(action==='teacher'){
    if(!teacher)return json({error:'Credencial del docente requerida'},401)
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
-   return json(await rpc('cw_dean_teacher',{p_token:teacher,p_command:b.command}))
+   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_teacher_next_v3',{p_token:teacher})))
   }
   if(action==='quiz_state'){
    if(!code)return json({error:'Código requerido'},400)
@@ -34,16 +35,16 @@ Deno.serve(async(req)=>{
   }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
-   return json(await rpc('cw_dean_join',{p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}))
+   return json(await rpc('cw_dean_join_v3',{p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}))
   }
   if(action==='exam'){
    if(!student)return json({error:'Falta sesión de estudiante'},401)
-   return json(await rpc('cw_dean_exam',{p_token_hash:hash,p_exam:Number(b.exam),
+   return json(await rpc('cw_dean_exam_v3',{p_token_hash:hash,p_exam:Number(b.exam),
     p_study:Number(b.study),p_sleep:Number(b.sleep),p_wellness:Number(b.wellness),p_auto:false}))
   }
   if(action==='auto_finish'){
    if(!student)return json({error:'Falta sesión estudiantil'},401)
-   return json(await rpc('cw_dean_auto_finish',{p_token_hash:hash}))
+   return json(await rpc('cw_dean_auto_finish_v3',{p_token_hash:hash}))
   }
   if(action==='teacher_truth'){
    if(!teacher)return json({error:'Autorización docente requerida'},401)
@@ -52,6 +53,26 @@ Deno.serve(async(req)=>{
    return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
     'content-type':'text/csv; charset=utf-8',
     'content-disposition':'attachment; filename="verdad_sintetica_docente.csv"'}})
+  }
+  if(action==='ab_generate'){
+   if(!teacher)return json({error:'Solo el docente puede iniciar un A/B'},401)
+   return json(await rpc('cw_dean_ab_generate_v3',{p_fac_token:teacher}))
+  }
+  if(action==='ab_download'){
+   if(!student)return json({error:'Sesión de estudiante requerida'},401)
+   const data=await rpc('cw_dean_ab_observed_v3',{p_hash:hash}) as {columns:unknown[],rows:unknown[][]}
+   const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
+   return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
+      'content-type':'text/csv; charset=utf-8',
+      'content-disposition':'attachment; filename="cohorte_ab_test_2026.csv"'}})
+  }
+  if(action==='ab_truth'){
+   if(!teacher)return json({error:'Solo el docente puede ver los contrafactuales'},401)
+   const data=await rpc('cw_dean_ab_teacher_v3',{p_fac_token:teacher}) as {columns:unknown[],rows:unknown[][]}
+   const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
+   return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
+      'content-type':'text/csv; charset=utf-8',
+      'content-disposition':'attachment; filename="cohorte_ab_doctor_strange.csv"'}})
   }
   if(action==='export'){
    if(!student)return json({error:'Falta sesión de estudiante'},401)
