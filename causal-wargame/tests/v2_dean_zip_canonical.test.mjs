@@ -54,7 +54,7 @@ test('15-minute exam deadline is server-governed and auto-completes absentees on
  const sql=read('supabase/migrations/202610140008_dean_timer_auto_finish.sql')
  for(const part of ["interval '15 minutes'",'exam_deadline_at','exam_auto_filled_at','cw_dean_tick_v3',
  'cw_dean_teacher_next_v3',"dgp_version<>'zip_dgp_2026'",
- 'cw_dean_auto_finish_v3','clock_timestamp()>=t.exam_deadline_at'])assert.ok(sql.includes(part),part)
+ 'cw_dean_auto_finish_v3','clock_timestamp()<t.exam_deadline_at'])assert.ok(sql.includes(part),part)
  const api=read('supabase/functions/v2-dean-cup/index.ts')
  assert.match(api,/cw_dean_tick_v3/)
  assert.match(api,/cw_dean_teacher_next_v3/)
