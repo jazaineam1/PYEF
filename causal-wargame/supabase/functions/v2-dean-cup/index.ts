@@ -19,6 +19,19 @@ Deno.serve(async(req)=>{
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
    return json(await rpc('cw_dean_teacher',{p_token:teacher,p_command:b.command}))
   }
+  if(action==='quiz_state'){
+   if(!code)return json({error:'Código requerido'},400)
+   return json(await rpc('cw_dean_quiz_state',{p_code:code,p_hash:hash}))
+  }
+  if(action==='quiz_submit'){
+   if(!student)return json({error:'Sesión de estudiante obligatoria'},401)
+   return json(await rpc('cw_dean_quiz_submit',{p_hash:hash,p_question:Number(b.question),p_choice:String(b.choice||'').toLowerCase()}))
+  }
+  if(action==='quiz_teacher'){
+   if(!teacher)return json({error:'Credencial docente obligatoria'},401)
+   if(!['start','open','lock','reveal','next','finish'].includes(b.command))return json({error:'Acción inválida'},400)
+   return json(await rpc('cw_dean_quiz_teacher',{p_token:teacher,p_action:String(b.command)}))
+  }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
    return json(await rpc('cw_dean_join',{p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}))
