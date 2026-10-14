@@ -21,15 +21,15 @@ async function call(action,payload={},student='',teacher=''){
  if(!r.ok)throw Error(data.error||'Fallo de conexión');
  return data;
 }
-function useBoard(token='',enabled=true){
+function useBoard(token='',enabled=true,gameCode=code){
  const [value,setValue]=useState(null),[error,setError]=useState('');
  useEffect(()=>{
   if(!enabled)return;
   let dead=false,t;
-  async function poll(){try{const s=await call('state',{game_code:code},token);if(!dead){setValue(s);setError('')}}catch(e){if(!dead)setError(e.message)}
+  async function poll(){try{const s=await call('state',{game_code:gameCode},token);if(!dead){setValue(s);setError('')}}catch(e){if(!dead)setError(e.message)}
   if(!dead)t=setTimeout(poll,2700+Math.random()*1300)}
   poll();return()=>{dead=true;clearTimeout(t)}
- },[token,enabled]);
+ },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
 function Banner({kind,phase}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div><div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b><small>5 SALAS · 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
@@ -85,6 +85,63 @@ function CupQuiz({role='student',token='',teacher=''}) {
  </section>
 }
 
+
+const deanGuides={
+  "lobby": {
+    "time": "00–10",
+    "teacher": "Presenta la misión. Cada sala de Teams tendrá seis carnés; no expliques fórmulas antes de que decidan.",
+    "student": "Conoce tu arquetipo y forma tu equipo. Recuerda que los resultados son sintéticos.",
+    "visual": "Cinco salas, seis personas por sala; la primera pregunta es si una nota alta equivale a una intervención exitosa."
+  },
+  "exams": {
+    "time": "10–30",
+    "teacher": "Dales una ronda continua de juego. Mira el ranking sin interrumpir cada examen. Si alguien se retrasa, permite la simulación opcional y etiquetada.",
+    "student": "Elige horas de estudio, sueño y bienestar en 15 exámenes; descubre que hay factores que no observas.",
+    "visual": "Notas individuales, arquetipos ficticios, ruido y fatiga latente. Son registros observacionales de un generador artificial."
+  },
+  "rector": {
+    "time": "30–55",
+    "teacher": "Libera el archivo del Rector. Explica MAE y R² mediante sus notas; pide hallar asociaciones, pero no atribuir causalidad.",
+    "student": "Descarga 90 exámenes de tu sala. Intenta anticipar notas y decide qué variables faltan.",
+    "visual": "El CSV del Rector omite deliberadamente horas de estudio, sueño, arquetipo y fatiga."
+  },
+  "survey": {
+    "time": "55–80",
+    "teacher": "Revela la encuesta y únela por estudiante_id y examen_nro. Proyecta un DAG: confusores previos, mediadores posteriores y posibles colliders.",
+    "student": "Cruza encuesta y Rector; identifica qué hábitos se relacionan con el resultado y cuáles son previos.",
+    "visual": "Aparecen estudio, sueño y arquetipo; todavía faltan resiliencia y fatiga. Una correlación no prueba una flecha causal."
+  },
+  "causal": {
+    "time": "80–105",
+    "teacher": "Revela la fatiga oculta solo al docente. Explica que este torneo NO fue un ensayo aleatorizado; contrasta un A/B sintético independiente con estimadores DML y CATE.",
+    "student": "Reconoce el factor oculto. Decide qué evidencia adicional sería necesaria para recomendar intervenciones.",
+    "visual": "La verdad del generador puede auditarse, pero no prueba causalidad en datos académicos reales. DML y EconML necesitan supuestos."
+  },
+  "final": {
+    "time": "105–120",
+    "teacher": "Conduce ocho preguntas sincronizadas y explica brevemente los errores conceptuales después de cada revelación. Cierra con un podio.",
+    "student": "Responde ocho preguntas A/B/C/D, participa en la revelación y observa el podio.",
+    "visual": "Temporizador en servidor, respuestas bloqueadas y marcador separado /120."
+  },
+  "finished": {
+    "time": "120",
+    "teacher": "Conserva los datos y el podio sin reiniciar la partida hasta que decidas archivarla.",
+    "student": "Repasa lo aprendido en esta simulación sintética.",
+    "visual": "Una buena predicción o un algoritmo complejo no sustituyen un buen diseño causal."
+  }
+}
+function DeanGuidance({phase,role='student'}){
+ const x=deanGuides[phase]
+ if(!x)return null
+ return <section className="dean-guidance" aria-label="Guía causal integrada">
+  <div className="dean-kicker">CAPACITACIÓN · MIN {x.time} · UNA SOLA ESCENA CONTINUA</div>
+  <h2>{role==='teacher'?'Explicación del capacitador':'Descubre el siguiente problema causal'}</h2>
+  <p>{role==='teacher'?x.teacher:x.student}</p>
+  {role==='teacher'&&<p className="dean-guidance-project"><b>Qué proyectar:</b> {x.visual}</p>}
+  <small>Las decisiones ocurren dentro del juego; no hay micro-pasos obligatorios.</small>
+ </section>
+}
+
 function Player(){
  const [token,setToken]=useState(localStorage.getItem(storageKey)||'');
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
@@ -100,6 +157,7 @@ function Player(){
  <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: maria_ds"/></label>
  <div className="dean-rooms">{state.groups.map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
  <main className="dean-player"><div className="dean-carnet"><span>{icons[me.archetype]}</span><div><small>ESTUDIANTE · SALA {me.room} {names[me.room-1]}</small><h2>{me.alias}</h2><p>{profiles[me.archetype]} · PGA: <strong>{Number(me.pga).toFixed(1)}/5,0</strong></p></div></div>
+ <DeanGuidance phase={state.phase}/>
  {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
  {state.phase==='exams'&&<><Exam person={me} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-big" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
  {state.phase==='final'&&<CupQuiz role="student" token={token}/>} 
@@ -107,17 +165,17 @@ function Player(){
  <Board groups={state.groups}/></main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
-function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main><h2>¿Qué sala dominará el semestre?</h2><Board groups={value.groups}/>{value.phase==='final'&&<CupQuiz role="wall"/>}</main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error">{error}</p>}</div>}
+function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main><h2>¿Qué sala dominará el semestre?</h2><Board groups={value.groups}/><DeanGuidance phase={value.phase} role="wall"/>{value.phase==='final'&&<CupQuiz role="wall"/>}</main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error">{error}</p>}</div>}
 function Teacher(){
  const [teacher,setTeacher]=useState(sessionStorage.getItem('df_facilitator_token')||''),[game,setGame]=useState(sessionStorage.getItem('df_facilitator_game_code')||code),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
- const {value:board}=useBoard('',!!teacher);
+ const {value:board}=useBoard('',!!teacher,game);
  useEffect(()=>{if(teacher)setState(board)},[teacher,board]);
  async function login(){setBusy(true);setErr('');try{const base=endpoint.replace(/\/v2-dean-cup$/,'');const r=await fetch(base+'/facilitator-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({game_code:game.toUpperCase(),pin})}),o=await r.json();if(!r.ok)throw Error(o.error||'PIN inválido');sessionStorage.setItem('df_facilitator_token',o.token);sessionStorage.setItem('df_facilitator_game_code',game.toUpperCase());setTeacher(o.token)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
  return <div className="dean-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite 30 jugadores sin consumir cupos del modo anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
- <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><Board groups={state.groups}/>{state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher}/>} {['causal','final','finished'].includes(state.phase)&&<button className="dean-big" disabled={busy} onClick={downloadTruth}>🔒 DESCARGAR FATIGA OCULTA · SOLO DOCENTE</button>} {actions[state.phase]&&<button className="dean-big" disabled={busy} onClick={()=>direct('next')}>{actions[state.phase]}</button>}<div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">Wall</a></div></>:
+ <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><DeanGuidance phase={state.phase} role="teacher"/><Board groups={state.groups}/>{state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher}/>} {['causal','final','finished'].includes(state.phase)&&<button className="dean-big" disabled={busy} onClick={downloadTruth}>🔒 DESCARGAR FATIGA OCULTA · SOLO DOCENTE</button>} {actions[state.phase]&&<button className="dean-big" disabled={busy} onClick={()=>direct('next')}>{actions[state.phase]}</button>}<div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">Wall</a></div></>:
  <div className="dean-hero"><h2>Crear Copa para cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
 }
