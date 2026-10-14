@@ -1,204 +1,184 @@
-# Fase de prueba V2 · DOS FUTUROS
+# Fase de prueba V2 · DOS FUTUROS CAMPUS
 
 ## Objetivo
 
-No basta con verificar que la web cargue. La V2 debe demostrar simultáneamente:
+La V2 académica sólo está lista si demuestra simultáneamente:
 
-1. que el capacitador no puede saltarse la mini-clase;
-2. que cada rol recibe una herramienta útil y una pieza distinta de información;
-3. que las decisiones siguen siendo deterministas;
-4. que reveal/debrief/microcheck funcionan en orden;
-5. que recarga/red corporativa no destruyen el estado;
-6. que 20 participantes y tráfico concurrente siguen siendo soportados.
-
----
+1. seis misiones configuradas y navegables;
+2. Python embebido ejecutable en los seis laboratorios;
+3. ningún acrónimo obligatorio sin nombre completo y definición humana;
+4. respuestas correctas y ground truth protegidos server-side;
+5. puntaje de aprendizaje separado de impacto académico;
+6. reveal oculto hasta acción del facilitador;
+7. recarga y reconexión sin pérdida de identidad;
+8. Wall, participante y facilitador sincronizados.
 
 ## Gate A · Build y seguridad
 
 **PASS si:**
-
-- `npm run test` pasa;
+- tests unitarios pasan;
 - build demo pasa;
 - build secure pasa;
-- marcador de ground truth demo no aparece en `dist` secure;
-- `scenario-private.sql` no está versionado;
-- play/facilitator/wall importan las variantes Learning en build secure.
+- ninguna respuesta correcta se publica en frontend;
+- team score permanece oculto antes del reveal;
+- el contrato público del estudiante no contiene copy legacy de bono/renovación;
+- p0/p1 u otro ground truth individual no aparece antes del reveal.
 
-**FAIL si:** cualquier `p0/p1` privado del escenario vivo queda disponible antes del reveal.
+## Gate B · Arquitectura modular
 
----
+Debe existir:
+- 6 misiones habilitadas;
+- sólo 3 perfiles de datos reutilizables;
+- template separado de profileRound;
+- labKey separado de template.
 
-## Gate B · Estado pedagógico
+Misiones:
+1. prediction / cohort-selection / profile 1;
+2. ab-test / single-choice / profile 3;
+3. dag / multi-select / profile 2;
+4. dml / single-choice / profile 2;
+5. heterogeneity / segment-policy / profile 3;
+6. model-battle / single-choice / profile 3.
 
-Partida limpia en `lobby`.
+**FAIL** si agregar un laboratorio obliga a crear una nueva aplicación o un componente RetoN aislado.
 
-1. Intentar `open` directamente → **debe fallar**.
-2. `lesson` → estado `lesson`.
-3. participante ve mini-clase y nombre de herramienta.
-4. `open` → estado `round`.
-5. cerrar → `closed`.
-6. reveal → `reveal`.
-7. debrief → `teaching`.
-8. microcheck → `microcheck`.
-9. next → `briefing` de la siguiente ronda.
+## Gate C · Python
 
-Repetir 4 veces.
+### Prediction
+- Random Forest predictivo;
+- MAE;
+- R²;
+- no confundir predicción con efecto.
 
-**PASS si:** no existe camino normal `briefing → round` sin `lesson`.
+### A/B
+- ATE;
+- variación muestral;
+- IC 95%.
 
----
+### DAG
+- comparación cruda;
+- confusor;
+- mediador;
+- collider.
 
-## Gate C · Roles y herramientas
+### DML
+- nuisance models;
+- cross-fitting;
+- residual T;
+- residual Y;
+- efecto residual.
 
-Crear un equipo QA de cinco personas y comprobar:
+### Heterogeneity
+- ATE;
+- CATE;
+- T-Learner.
 
-| Rol | Herramienta | Evidencia mínima |
-|---|---|---|
-| Decision Lead | Decision Canvas | población + tratamiento + outcome + horizonte |
-| Model Lead | Model Explorer | distingue propensity de uplift |
-| Causal Analyst | DAG Lab | identifica variable previa que afecta T/Y |
-| Experiment Lead | Experiment Lab | calcula diferencia e IC aproximado |
-| Policy & Risk Lead | Policy Simulator | calcula outcomes incrementales y valor neto |
+### Model battle
+- S-Learner;
+- T-Learner;
+- DR-Learner;
+- comparación con referencia Causal Forest/EconML.
 
-**PASS si:** cada rol puede producir un hallazgo distinto y útil para la decisión.
+**PASS si:** todos los bloques compilan y una excepción Python no marca el bloque como completado.
 
-**FAIL si:** una herramienta sólo repite texto que ya ve todo el equipo.
+**Regla:** EconML no debe fingirse como ejecución Pyodide. Debe etiquetarse como benchmark precomputado.
 
----
+## Gate D · Contrato pedagógico
 
-## Gate D · Decisiones deterministas
+Por misión:
+1. decisión inicial = 0 puntos;
+2. laboratorio = +20;
+3. pregunta = hasta +30;
+4. revisión = +20;
+5. equipo = hasta +30;
+6. reveal = expone resultado y concepto.
 
-### R1
+Total: 100 puntos por misión; 600 máximo.
 
-- exactamente 10 clientes;
-- sin duplicados;
-- score por impacto usa ground truth server-side.
+**PASS si:** el estudiante ve primero el problema y sólo después el nombre técnico.
 
-### R2
+## Gate E · Acrónimos
 
-- recomendación cerrada;
-- confusor cerrado;
-- razón cerrada;
-- sin textarea puntuable.
+Toda sigla visible debe tener:
+- sigla;
+- nombre completo;
+- traducción si aplica;
+- definición humana.
 
-### R3
+Verificar como mínimo:
+MAE, R², A/B, RCT, ATE, IC, DAG, DML, T, Y, X, CATE, S-Learner, T-Learner, DR-Learner, EconML y overlap.
 
-- asignación cerrada;
-- outcome cerrado;
-- horizonte cerrado.
+## Gate F · Wall
 
-### R4
+Durante misión:
+- Top 3;
+- fase;
+- inicial X/N;
+- lab X/N;
+- check X/N;
+- revisión X/N;
+- equipo X/N;
+- puntos recientes.
 
-- cinco segmentos exactamente una vez entre tratar/no tratar/más evidencia.
+Tras reveal:
+- decisión final de cada equipo;
+- WOW;
+- impacto académico cuando aplique.
 
-**PASS si:** dos ejecuciones con las mismas decisiones producen el mismo score.
+**FAIL** si el Wall vuelve a mostrar COP como métrica principal.
 
----
+## Gate G · Recorrido live smoke
 
-## Gate E · Irreversibilidad e idempotencia
+El script scripts/v2_simple_flow_smoke.mjs debe recorrer:
+- 4 humanos QA;
+- 6 misiones;
+- todos los bloques Python registrados;
+- checks correctos;
+- revisiones;
+- decisiones de equipo;
+- 6 reveals;
+- final finished;
+- reset al terminar.
 
-1. enviar una decisión;
-2. repetir exactamente el mismo request con el mismo `idempotency_key` → debe ser idempotente;
-3. enviar otra decisión con otra llave → debe fallar;
-4. recargar navegador → decisión sigue bloqueada.
+## Gate H · Recuperación
 
----
-
-## Gate F · Recuperación
-
-Durante una ronda:
-
+Durante una misión:
 - F5;
 - cerrar/abrir pestaña;
-- perder red 20–30 s;
-- pausar y recargar;
-- +60 s;
+- perder red temporalmente;
+- pausar;
+- recargar;
 - reanudar.
 
-**PASS si:** identidad, rol, equipo, ronda y decisión bloqueada se recuperan desde servidor.
+**PASS si:** identidad, equipo, misión, puntos y decisiones permanecen consistentes.
 
----
+## Gate I · Prueba pedagógica humana
 
-## Gate G · Carga
-
-### Escenario real
-
-20 jugadores + facilitador + wall.
-
-### Burst
-
-50 requests alternando health/leaderboard.
-
-Objetivo operativo:
-
-- 0 decisiones perdidas;
-- 0 duplicados;
-- 0 leaks;
-- p95 < 5 s desde runner remoto;
-- UI continúa funcional durante polling.
-
----
-
-## Gate H · Prueba pedagógica con 5 humanos
-
-Después de cada mini-clase, pedir a cada rol una frase de salida:
-
-- Decision: “La decisión que estamos soportando es…”
-- Model: “El score no responde…”
-- Causal: “La relación que puede sesgar es…”
-- Experiment: “La comparación defendible sería…”
-- Policy: “La intervención vale/no vale cuando…”
-
-No puntuar la calidad de la redacción. Sólo verificar si la herramienta produjo el concepto esperado.
-
----
-
-## Gate I · Cronometría
-
-Objetivo de ensayo de 120 min:
-
-- 0–12: apertura + lección 1;
-- 12–27: lab 1 + reveal;
-- 27–48: lección/lab 2;
-- 48–58: pausa/recap;
-- 58–82: lección/lab 3;
-- 82–105: lección/lab 4;
-- 105–116: reto integrador;
-- 116–120: cierre.
-
-Si un equipo termina una decisión en 3 minutos, el tiempo restante se usa para comparar hallazgos de herramientas, no para esperar en silencio.
-
----
-
-## Automatización
-
-`scripts/learning_flow_smoke.mjs` debe recorrer:
-
-- 1 humano QA;
-- 19 bots;
-- 4 mini-clases;
-- 4 laboratorios;
-- 4 decisiones humanas;
-- 4 reveals;
-- 4 debriefs;
-- 4 microchecks;
-- final `finished`;
-- reset de limpieza.
-
-Este script es el gate de CI de la V2.
-
----
+Después de la sesión, una persona debe poder responder sin mirar:
+1. ¿qué diferencia predicción de causalidad?
+2. ¿qué significa ATE?
+3. ¿por qué la aleatorización ayuda?
+4. ¿para qué sirve un DAG?
+5. ¿qué es confusor, mediador y collider?
+6. ¿qué hace DML de forma intuitiva?
+7. ¿qué diferencia ATE de CATE?
+8. ¿por qué no existe un estimador universalmente ganador?
 
 ## Go / No-Go
 
-**GO** sólo si pasan A–G y un ensayo humano pasa H sin confusión operativa.
+**GO** sólo si:
+- CI verde;
+- migración aplicada;
+- Edge Functions actualizadas;
+- live smoke verde;
+- Pages publicado;
+- prueba manual Facilitador + Participante + Wall + Python completada.
 
-**NO-GO** si ocurre cualquiera:
-
-- se puede abrir laboratorio sin mini-clase;
-- un rol no tiene herramienta funcional;
-- el textarea vuelve a afectar score;
-- un segundo submit cambia la decisión;
-- reveal expone información antes de cerrar;
-- F5 pierde sesión;
-- scoring cambia entre ejecuciones idénticas.
+**NO-GO** si:
+- aparece ground truth antes de reveal;
+- Python falla y aun así concede puntos;
+- alguna sigla obligatoria carece de definición;
+- DML se presenta sólo como API;
+- EconML se muestra como ejecutado cuando fue precomputado;
+- Wall mezcla puntos con impacto;
+- el backend sólo soporta 3 misiones.
