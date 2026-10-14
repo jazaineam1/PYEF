@@ -42,7 +42,7 @@ test('AB teacher truth never leaks via public observed CSV and only service role
  for(const s of ["action==='ab_generate'","action==='ab_download'","action==='ab_truth'","cw_dean_score_v3","cw_dean_exam_v3","cw_dean_join_v3","cw_dean_create_v3"])assert.ok((edge+canonical).includes(s),s)
 })
 test('Live game keeps all five phases plus final and notebook is bundled in Pages',()=>{
- for(const s of ['DeanCausalLab','ABFromObserved','Capa','cohorte_ab_test_2026.csv','sourceSubjects','dgp_version','DGP canónico'])assert.ok(jsx.includes(s)||read('src/v2/dean-cup.css').includes(s),s)
+ for(const s of ['DeanCausalLab','ABFromObserved','Rector','cohorte_ab_test_2026.csv','sourceSubjects','dgp_version','DGP canónico'])assert.ok(jsx.includes(s)||read('src/v2/dean-cup.css').includes(s),s)
  const notebook=JSON.parse(read('public/notebooks/causalidad_copa_decano_scaffold.ipynb'))
  assert.equal(notebook.nbformat,4)
  assert.ok(notebook.cells.length>=10)
