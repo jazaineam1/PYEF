@@ -49,11 +49,11 @@ begin
   end case;
   seed:=gid::text||':ab:student:'||i;
   pga:=round((case arch
-    when 'over' then 3.8+0.5*(1+erf(public.cw_dean_normal_v3(seed||':pga')/sqrt(2.0)))*1.0
-    when 'balanced' then 3.4+0.5*(1+erf(public.cw_dean_normal_v3(seed||':pga')/sqrt(2.0)))*0.9
-    when 'risk' then 2.0+0.5*(1+erf(public.cw_dean_normal_v3(seed||':pga')/sqrt(2.0)))*1.0
-    else 3.0+0.5*(1+erf(public.cw_dean_normal_v3(seed||':pga')/sqrt(2.0)))*0.6 end)::numeric,2);
-  treated:=case when public.cw_dean_normal_v3(seed||':T')>0 then 1 else 0 end;
+    when 'over' then 3.8+public.cw_dean_uniform_v3(seed||':pga')*1.0
+    when 'balanced' then 3.4+public.cw_dean_uniform_v3(seed||':pga')*0.9
+    when 'risk' then 2.0+public.cw_dean_uniform_v3(seed||':pga')*1.0
+    else 3.0+public.cw_dean_uniform_v3(seed||':pga')*0.6 end)::numeric,2);
+  treated:=case when public.cw_dean_uniform_v3(seed||':T')<0.5 then 1 else 0 end;
   for j in 1..15 loop
    subj:=public.cw_dean_subject_v3(j);
    d:=(subj->>'complexity')::numeric;

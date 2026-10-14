@@ -28,6 +28,11 @@ returns double precision language sql immutable as $f$
  *cos(2.0*pi()*((('x'||substr(md5(p_key||':u2'),1,8))::bit(32)::bigint+0.5)/4294967296.0))
 $f$;
 
+create or replace function public.cw_dean_uniform_v3(p_key text)
+returns double precision language sql immutable as $f$
+ select ((('x'||substr(md5(p_key),1,8))::bit(32)::bigint+0.5)/4294967296.0)
+$f$;
+
 create or replace function public.cw_dean_score_v3(
  p_pga numeric,p_complexity numeric,p_study numeric,p_sleep numeric,
  p_wellness numeric,p_seed text)
@@ -70,7 +75,7 @@ begin
  end if;
  insert into public.cw_dean_tournaments(game_id,dgp_version)
  values(gid,'zip_dgp_2026');
- select code into code from public.cw_games where id=gid;
+ select g.code into code from public.cw_games g where g.id=gid;
  return public.cw_dean_state_v3(code,null);
 end $f$;
 
@@ -179,6 +184,7 @@ end $f$;
 
 revoke all on function public.cw_dean_subject_v3(integer) from public,anon,authenticated;
 revoke all on function public.cw_dean_normal_v3(text) from public,anon,authenticated;
+revoke all on function public.cw_dean_uniform_v3(text) from public,anon,authenticated;
 revoke all on function public.cw_dean_score_v3(numeric,numeric,numeric,numeric,numeric,text) from public,anon,authenticated;
 revoke all on function public.cw_dean_create_v3(text) from public,anon,authenticated;
 revoke all on function public.cw_dean_state_v3(text,text) from public,anon,authenticated;
@@ -187,6 +193,7 @@ revoke all on function public.cw_dean_exam_v3(text,integer,numeric,numeric,numer
 revoke all on function public.cw_dean_auto_finish_v3(text) from public,anon,authenticated;
 grant execute on function public.cw_dean_subject_v3(integer) to service_role;
 grant execute on function public.cw_dean_normal_v3(text) to service_role;
+grant execute on function public.cw_dean_uniform_v3(text) to service_role;
 grant execute on function public.cw_dean_score_v3(numeric,numeric,numeric,numeric,numeric,text) to service_role;
 grant execute on function public.cw_dean_create_v3(text) to service_role;
 grant execute on function public.cw_dean_state_v3(text,text) to service_role;
