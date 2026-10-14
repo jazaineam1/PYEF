@@ -3,7 +3,7 @@ import{Check,LoaderCircle,Play,RotateCcw,Terminal}from'lucide-react'
 import{invoke}from'../lib/api'
 import{buildPythonLab}from'./python-lab'
 
-const TIMEOUT_MS=20000
+const TIMEOUT_MS=45000
 
 export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onComplete,simulation=false}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis,labKey),[round,state,analysis,labKey])
@@ -38,25 +38,29 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
   function ensureWorker(){
     if(workerRef.current)return workerRef.current
     const worker=new Worker(new URL('./pyodide.worker.js',import.meta.url))
-    worker.onmessage=e=>{
+    worker.onmessage=async e=>{
       const msg=e.data||{}
       if(msg.type==='ready'){setStatus('ready');setError('')}
       if(msg.type==='result'){
         clearTimeout(timerRef.current)
         const pending=pendingRef.current
-        const stepId=pending?.stepId||msg.requestId
-        setResults(v=>({...v,[stepId]:{output:msg.output||'',image:msg.image||null}}))
-        setStepErrors(v=>({...v,[stepId]:''}))
-        setStatus('ready')
-        setError('')
-        if(pending&&!simulation){
-          const duration=Math.round(performance.now()-pending.started)
-          invoke('v2-submit',{
-            action:'learning_event',round,event_type:'python_run',
-            payload:{step_id:stepId,code_changed:pending.codeChanged,duration_ms:duration,mode:'guided'}
-          }).catch(()=>{})
-        }
-        pendingRef.current=null
+        if(!pending||pending.stepId!==msg.requestId)return
+        const stepId=pending.stepId
+        try{
+          if(!simulation){
+            const duration=Math.round(performance.now()-pending.started)
+            await invoke('v2-submit',{action:'learning_event',round,event_type:'python_run',
+              payload:{step_id:stepId,code_changed:pending.codeChanged,duration_ms:duration,mode:'guided'}})
+          }
+          setResults(v=>({...v,[stepId]:{output:msg.output||'',image:msg.image||null}}))
+          setStepErrors(v=>({...v,[stepId]:''}))
+          setStatus('ready')
+          setError('')
+        }catch(err){
+          setResults(v=>{const next={...v};delete next[stepId];return next})
+          setStepErrors(v=>({...v,[stepId]:'Python terminó, pero el servidor no confirmó la evidencia: '+err.message}))
+          setStatus('ready')
+        }finally{pendingRef.current=null}
       }
       if(msg.type==='execution_error'){
         clearTimeout(timerRef.current)
@@ -97,6 +101,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
     setStatus('running')
     setError('')
     setStepErrors(v=>({...v,[step.id]:''}))
+    setResults(v=>{const next={...v};delete next[step.id];return next})
     pendingRef.current={stepId:step.id,started:performance.now(),codeChanged:code!==baseCode}
     worker.postMessage({type:'run',requestId:step.id,code,context:lab?.context||{}})
     clearTimeout(timerRef.current)
@@ -105,7 +110,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
       workerRef.current=null
       pendingRef.current=null
       setStatus('error')
-      setError('La ejecución superó 20 segundos y fue detenida. Restaura el ejemplo e inténtalo otra vez.')
+      setError('La ejecución superó 45 segundos y fue detenida. Restaura el ejemplo e inténtalo otra vez.')
     },TIMEOUT_MS)
   }
 
@@ -153,7 +158,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
           <div className="v2-python-step-title"><b>{i+1}</b><div><strong>{step.question}</strong><span>{step.instruction}</span></div>{result&&<Check size={18}/>}</div>
           <div className="v2-python-editor">
             <div className="v2-python-editorbar"><span>{step.id}.py</span><button type="button" onClick={()=>setCodes(v=>({...v,[step.id]:base}))}><RotateCcw size={14}/> Restaurar</button></div>
-            <textarea aria-label={`Código Python: ${step.question}`} value={codes[step.id]??base} onChange={e=>setCodes(v=>({...v,[step.id]:e.target.value}))} spellCheck="false"/>
+            <textarea aria-label={`Código Python: ${step.question}`} value={codes[step.id]??base} onChange={e=>{setCodes(v=>({...v,[step.id]:e.target.value}));setResults(v=>{const next={...v};delete next[step.id];return next})}} spellCheck="false"/>
           </div>
           <button type="button" className="v2-secondary" disabled={!ready||busy} onClick={()=>run(step)}>{busy&&pendingRef.current?.stepId===step.id?<LoaderCircle className="spin" size={16}/>:<Play size={16}/>} {result?'Ejecutar de nuevo':'Ejecutar'}</button>
           {stepError&&<div className="v2-python-output error"><div><Terminal size={14}/> error de Python</div><pre>{stepError}</pre><small>Este bloque todavía no cuenta como completado. Corrige el código o pulsa “Restaurar” y ejecútalo de nuevo.</small></div>}

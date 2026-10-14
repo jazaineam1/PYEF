@@ -51,9 +51,13 @@ function ImpactBoard({teams=[]}){
 
 function WallDecisions({round,decisions=[]}){
   if(!decisions.length)return null
-  return <section className="v2-wall-decisions"><div className="v2-wall-section-title"><b>DECISIONES FINALES</b><span>Compara razonamientos, no sólo quién obtuvo más puntos.</span></div><div className="v2-wall-decision-grid">{decisions.map(d=><article key={d.team_id}><div><strong>{d.team}</strong><span>impacto {fmt(d.value_cop)}</span></div><p>{decisionText(round,d.payload)}</p></article>)}</div></section>
+  return <section className="v2-wall-decisions"><div className="v2-wall-section-title"><b>DECISIONES FINALES</b><span>Compara razonamientos, no sólo quién obtuvo más puntos.</span></div><div className="v2-wall-decision-grid">{decisions.map(d=><article key={d.team_id}><div><strong>{d.team}</strong><span>Decisión colectiva · mundo sintético</span></div><p>{decisionText(round,d.payload)}</p></article>)}</div></section>
 }
 
+function AcademicTruth({truth}){
+  if(!truth||truth.true_effect_points==null)return null
+  return <section className="v2-wall-wow academic-truth"><div><Sparkles size={18}/> RESULTADO CAUSAL SINTÉTICO</div><strong>ATE verdadero: {fmt(truth.true_effect_points)} puntos</strong>{truth.estimated_effect_points!=null&&<p>Diferencia observada A/B: {fmt(truth.estimated_effect_points)} puntos</p>}{truth.ci95_low!=null&&<p>IC 95 %: [{fmt(truth.ci95_low)}, {fmt(truth.ci95_high)}]</p>}<p>Comparación reconstruida del modelo de resultados potenciales; no son datos reales.</p></section>
+}
 export default function V2Wall(){
   const params=new URLSearchParams(location.search)
   const[code,setCode]=useState((params.get('game')||'').toUpperCase())
@@ -87,7 +91,7 @@ export default function V2Wall(){
       <div className="v2-wall-phase compact"><div><div className="v2-kicker">MISIÓN {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
       <div className="v2-wall-primary-grid"><TopThree rows={topRows} show={rankingVisible} leaderCount={leaderCount} leaderPoints={leaderPoints}/><CheckpointBoard data={data} activeTeams={activeTeams}/></div>
       <RecentScores rows={data.recent_scores||[]}/>
-      {reveal&&<><ImpactBoard teams={data.teams}/><WallDecisions round={g.round} decisions={data.decisions||[]}/></>}
+      {reveal&&<><AcademicTruth truth={data.academic_truth}/><WallDecisions round={g.round} decisions={data.decisions||[]}/></>}
       {g.status==='reveal'&&<section className="v2-wall-wow"><div><Sparkles size={24}/> EFECTO WOW</div><strong>{r?.wow}</strong><p>{r?.reality}</p></section>}
     </div>}
   </main>

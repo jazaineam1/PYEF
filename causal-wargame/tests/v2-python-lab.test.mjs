@@ -30,7 +30,8 @@ test('A/B lab defines ATE and uncertainty',()=>{
 test('DAG lab teaches confounder mediator and collider',()=>{
   const lab=buildPythonLab(3,{}, {team_tools:{observational_rows:obs}},'dag')
   const guided=lab.steps.map(s=>s.guidedCode).join('\n')
-  for(const term of ['Confusor','MEDIADOR','COLLIDER','Directed Acyclic Graph'])assert.match(guided,new RegExp(term))
+  for(const term of ['Confusor','mediador','collider','Directed Acyclic Graph'])assert.match(guided,new RegExp(term,'i'))
+  assert.match(guided,/np\.linalg\.lstsq/)
 })
 
 test('DML lab constructs nuisance models residuals and effect',()=>{

@@ -164,7 +164,7 @@ export const SIM_TEAM_DECISIONS={
 
 export const SIM_REVEALS={
   1:{impact_students:86,best_impact_students:104},
-  2:{true_effect_points:4.8},
+  2:{true_effect_points:5.704},
   3:{adjustment_set:['pga_previo','complejidad']},
   4:{true_effect_points:4.8,dml_estimate:4.9},
   5:{impact_students:135,best_impact_students:135},

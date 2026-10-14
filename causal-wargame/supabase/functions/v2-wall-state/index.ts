@@ -9,6 +9,9 @@ Deno.serve(async req=>{
     if(!game)return json({error:'Código de partida obligatorio'},400)
     const out:any=await rpc('cw_v2_wall_state',{p_game_code:game})
     const score:any=await rpc('cw_v2_wall_score_state',{p_game_code:game})
-    return json({...out,...score})
+    const status=String(out?.game?.status||'')
+    const academic_truth=['reveal','teaching','microcheck','finished'].includes(status)
+      ? await rpc('cw_v2_academic_truth',{p_round:Number(out?.game?.round||0)}) : null
+    return json({...out,...score,academic_truth})
   }catch(e){return json({error:e.message},404)}
 })
