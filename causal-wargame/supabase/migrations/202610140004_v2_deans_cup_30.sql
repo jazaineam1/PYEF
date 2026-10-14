@@ -226,3 +226,94 @@ grant execute on function public.cw_dean_join(text,text,integer,text) to service
 grant execute on function public.cw_dean_exam(text,integer,numeric,numeric,numeric,boolean) to service_role;
 grant execute on function public.cw_dean_state(text,text) to service_role;
 grant execute on function public.cw_dean_export(text,text) to service_role;
+
+-- Final Kahoot isolated from legacy cw_players (maximum 28).
+create or replace function public.cw_dean_quiz_teacher(p_token text,p_action text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare gid uuid; old public.cw_dean_quiz_sessions; secs integer;
+begin
+ select public.cw_validate_facilitator_token(p_token) into gid;
+ if gid is null or (select phase from public.cw_dean_tournaments where game_id=gid)<>'final' then
+ raise exception 'Final docente no autorizada';end if;
+ insert into public.cw_dean_quiz_sessions(game_id) values(gid) on conflict do nothing;
+ select * into old from public.cw_dean_quiz_sessions where game_id=gid for update;
+ if p_action='start' and old.phase='idle' then
+   update public.cw_dean_quiz_sessions set question_no=1,phase='preview',version=version+1 where game_id=gid;
+ elsif p_action='open' and old.phase='preview' then
+   select seconds into secs from public.cw_v2_quiz_questions where question_no=old.question_no;
+   update public.cw_dean_quiz_sessions set phase='open',deadline_at=clock_timestamp()+make_interval(secs=>secs),version=version+1 where game_id=gid;
+ elsif p_action='lock' and old.phase='open' then
+   update public.cw_dean_quiz_sessions set phase='locked',deadline_at=null,version=version+1 where game_id=gid;
+ elsif p_action='reveal' and (old.phase='locked' or (old.phase='open' and old.deadline_at<=clock_timestamp())) then
+   update public.cw_dean_quiz_sessions set phase='reveal',deadline_at=null,version=version+1 where game_id=gid;
+ elsif p_action='next' and old.phase='reveal' then
+   update public.cw_dean_quiz_sessions set phase=case when old.question_no=8 then 'podium' else 'preview' end,
+   question_no=least(8,old.question_no+1),deadline_at=null,version=version+1 where game_id=gid;
+ elsif p_action='finish' and old.phase='podium' then
+   update public.cw_dean_quiz_sessions set phase='finished',version=version+1 where game_id=gid;
+ else raise exception 'Transición inválida % → %',old.phase,p_action; end if;
+ return public.cw_dean_quiz_state((select code from public.cw_games where id=gid),null);
+end $f$;
+create or replace function public.cw_dean_quiz_submit(p_hash text,p_question integer,p_choice text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare p public.cw_dean_players;s public.cw_dean_quiz_sessions;old_choice text;
+begin
+ select * into p from public.cw_dean_players where token_hash=p_hash;
+ if p.id is null then raise exception 'Sesión inválida';end if;
+ select * into s from public.cw_dean_quiz_sessions where game_id=p.game_id for update;
+ if s.phase<>'open' or s.deadline_at<=clock_timestamp() or s.question_no<>p_question
+ or p_choice not in ('a','b','c','d') then raise exception 'Pregunta cerrada';end if;
+ insert into public.cw_dean_quiz_answers(game_id,player_id,question_no,choice)
+ values(p.game_id,p.id,p_question,p_choice) on conflict do nothing;
+ select choice into old_choice from public.cw_dean_quiz_answers where player_id=p.id and question_no=p_question;
+ if old_choice is distinct from p_choice then raise exception 'Respuesta ya bloqueada';end if;
+ return jsonb_build_object('accepted',true,'choice',old_choice);
+end $f$;
+create or replace function public.cw_dean_quiz_state(p_code text,p_hash text default null)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare gid uuid;s public.cw_dean_quiz_sessions;task public.cw_v2_quiz_questions;
+ effective text;shown integer;answered int;detail jsonb:=null;counts jsonb:=null;
+ rank jsonb:='[]'::jsonb;mine text:=null;mine_points integer:=null;pid uuid;
+begin
+ select id into gid from public.cw_games where code=upper(btrim(p_code));
+ if gid is null then raise exception 'Partida desconocida';end if;
+ select * into s from public.cw_dean_quiz_sessions where game_id=gid;
+ if s.game_id is null then return jsonb_build_object('phase','idle','question_no',0,'server_now',clock_timestamp());end if;
+ effective:=case when s.phase='open' and s.deadline_at<=clock_timestamp() then 'locked' else s.phase end;
+ shown:=case when effective in ('reveal','podium','finished') then s.question_no else greatest(0,s.question_no-1) end;
+ if s.question_no>0 then
+ select * into task from public.cw_v2_quiz_questions where question_no=s.question_no;
+ detail:=jsonb_build_object('text',task.question,'options',task.options,'concept',task.concept);
+ if effective in ('reveal','podium','finished') then
+ detail:=detail||jsonb_build_object('correct',task.correct_choice,'explanation',task.explanation);
+ select jsonb_build_object('a',count(*) filter(where choice='a'),'b',count(*) filter(where choice='b'),
+  'c',count(*) filter(where choice='c'),'d',count(*) filter(where choice='d')) into counts
+ from public.cw_dean_quiz_answers where game_id=gid and question_no=s.question_no;
+ end if;
+ end if;
+ select count(*) into answered from public.cw_dean_quiz_answers where game_id=gid and question_no=s.question_no;
+ select coalesce(jsonb_agg(to_jsonb(t) order by t.points desc,t.alias),'[]'::jsonb) into rank from (
+ select p.alias,p.room_no,coalesce(sum(case when a.choice=q.correct_choice then 15 else 0 end),0)::int points
+ from public.cw_dean_players p
+ left join public.cw_dean_quiz_answers a on a.player_id=p.id and a.question_no<=shown
+ left join public.cw_v2_quiz_questions q on q.question_no=a.question_no
+ where p.game_id=gid group by p.id order by points desc,p.alias limit 30
+ ) t;
+ if p_hash is not null then
+ select id into pid from public.cw_dean_players where game_id=gid and token_hash=p_hash;
+ if pid is null then raise exception 'Sesión inválida';end if;
+ select choice into mine from public.cw_dean_quiz_answers where player_id=pid and question_no=s.question_no;
+ select coalesce(sum(q.points),0) into mine_points from public.cw_dean_quiz_answers a
+ join public.cw_v2_quiz_questions q on q.question_no=a.question_no and q.correct_choice=a.choice
+ where a.player_id=pid and a.question_no<=shown;
+ end if;
+ return jsonb_build_object('phase',effective,'question_no',s.question_no,'question',detail,
+ 'deadline_at',s.deadline_at,'server_now',clock_timestamp(),'received',answered,
+ 'counts',counts,'leaderboard',rank,'mine',mine,'my_points',mine_points);
+end $f$;
+revoke all on function public.cw_dean_quiz_teacher(text,text) from public,anon,authenticated;
+revoke all on function public.cw_dean_quiz_submit(text,integer,text) from public,anon,authenticated;
+revoke all on function public.cw_dean_quiz_state(text,text) from public,anon,authenticated;
+grant execute on function public.cw_dean_quiz_teacher(text,text) to service_role;
+grant execute on function public.cw_dean_quiz_submit(text,integer,text) to service_role;
+grant execute on function public.cw_dean_quiz_state(text,text) to service_role;
