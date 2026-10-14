@@ -14,7 +14,7 @@ test('evidence is integrated between initial decision revision and team lock',()
   assert.match(src,/EvidenceLab round=\{round\}/)
   assert.match(src,/chooser\(true,false\)/)
   assert.match(src,/chooser\(false,true\)/)
-  assert.match(src,/PolicyMeter segments=\{segs\}/)
+  assert.match(src,/ResourceArena segments=\{segs\}/)
   assert.match(src,/function Glossary/)
 })
 

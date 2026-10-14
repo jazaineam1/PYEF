@@ -3,7 +3,8 @@ import React,{useEffect,useMemo,useState}from'react'
 import{Check,ChevronRight,LogOut,Sparkles,Trophy}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound,statusCopy}from'./content'
-import{EvidenceLab,PolicyMeter}from'./VisualTools'
+import{EvidenceLab}from'./VisualTools'
+import{ArenaIntro,CohortArena,DagArena,StrategyArena,ResourceArena,BossArena,TeamArena,RevealArena,ModelBattleResults}from'./V2Arcade'
 
 const jitter=n=>Math.round(n*(.85+Math.random()*.3))
 const pct=n=>`${Math.round(Number(n||0)*100)}%`
@@ -15,7 +16,7 @@ function Join({onJoined}){
   const[name,setName]=useState('')
   const[busy,setBusy]=useState(false),[err,setErr]=useState('')
   async function go(){setBusy(true);setErr('');try{const r=await invoke('join-game',{game_code:code.trim().toUpperCase(),display_name:name.trim()});savePlayerToken(r.token);savePlayerGameCode(code);onJoined()}catch(e){setErr(e.message)}finally{setBusy(false)}}
-  return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-brand">DOS FUTUROS <span>CAMPUS</span></div><div className="v2-kicker">LABORATORIO DE INFERENCIA CAUSAL</div><h1>Decide. Ejecuta. Sorpréndete. Vuelve a decidir.</h1><p className="v2-lead">Vas a investigar qué acciones realmente cambian el desempeño académico, no sólo qué variables lo predicen.</p><div className="v2-rule-row">{V2_MISSION.rules.map((x,i)=><div key={x}><b>{i+1}</b><span>{x}</span></div>)}</div><label>Código de sesión<input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="FUTUROS"/></label><label>Tu nombre<input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre visible"/></label>{err&&<div className="v2-alert error">{err}</div>}<button className="v2-primary" disabled={busy||code.trim().length<4||name.trim().length<2} onClick={go}>{busy?'Entrando…':'Entrar al equipo'} <ChevronRight size={18}/></button></section></main>
+  return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-brand">DOS FUTUROS <span>CAMPUS</span></div><div className="v2-kicker">OPERACIÓN: DOS FUTUROS · SIMULADOR COMPETITIVO</div><h1>SEIS MISIONES. UN CAMPUS. DOS FUTUROS.</h1><p className="v2-lead">Tu escuadrón decidirá qué intervenciones cambian de verdad el rendimiento académico. Elige, experimenta, enfrenta retos y conquista el ranking.</p><div className="v2-arcade-launch" aria-label="Avatares y misiones del juego"><div className="v2-arcade-launch-avatars" aria-hidden="true"><span>👩🏽‍🚀</span><span>🧑🏻‍🔬</span><span>👨🏾‍🎓</span></div><div className="v2-arcade-launch-levels"><b>6 NIVELES</b><span>⚗️ Experimentos · 🕸️ DAG · 🧠 DML · 🏆 EconML</span><small>El servidor guarda tus resultados: sin puntos ficticios.</small></div></div><label>Código de sesión<input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="FUTUROS"/></label><label>Tu nombre<input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre visible"/></label>{err&&<div className="v2-alert error">{err}</div>}<button className="v2-primary" disabled={busy||code.trim().length<4||name.trim().length<2} onClick={go}>{busy?'Entrando…':'Entrar al equipo'} <ChevronRight size={18}/></button></section></main>
 }
 
 function useV2State(enabled){
@@ -63,36 +64,34 @@ function Lobby({state}){
   return <div className="v2-main"><section className="v2-big-wait"><div className="v2-pulse"/><div className="v2-kicker">YA ESTÁS DENTRO</div><h1>{state.player.name}</h1><p>Equipo <b>{state.player.team}</b> · asiento {state.player.seat}</p><h2>Espera a que el facilitador inicie.</h2><div className="v2-team-roster">{state.team.roster.map(p=><div key={p.id} className="ready"><span>✓</span>{p.name}</div>)}</div><div className="v2-alert">Todos toman decisiones y ejecutan los mismos laboratorios; no hay roles técnicos ocultos.</div></section></div>
 }
 
-function AcademicCard({c,selected,onClick}){
-  const pga=Number(c.tenure||0)>10?Number(c.tenure||0)/100:Number(c.tenure||0)
-  return <button type="button" className={`v2-customer ${selected?'selected':''}`} onClick={onClick}><div className="v2-card-top"><span>{c.id}</span>{selected&&<Check size={17}/>}</div><h3>{c.name}</h3><small>{c.segment}</small><div className="v2-score">{pct(c.score)}</div><small>probabilidad estimada de aprobar</small><div className="v2-history"><span>PGA previo <b>{pga.toFixed(2)}</b></span><span>Estudio <b>{Number(c.usage||0)} h</b></span><span>Fatiga <b>{Number(c.bugs||0)}/10</b></span></div></button>
-}
-
-function SegmentCard({s,value,onChange,showSelect=true}){
-  return <article><div><h3>{s.name}</h3><small>{Number(s.audience||0).toLocaleString()} estudiantes · riesgo {s.risk}</small></div><div><b>Perfil académico</b><small>prioriza según efecto, incertidumbre y cupos</small></div>{showSelect&&<select value={value||'observe'} onChange={e=>onChange?.(e.target.value)}>{POLICY_ACTIONS.map(([v,l])=><option value={v} key={v}>{l}</option>)}</select>}</article>
-}
-
 function CohortDecision({state,onSend,busy,revision=false,round,team=false}){
-  const rows=revision||team?(state.team_pool||[]):state.packet
+  const rows=revision||team?(state.team_pool||[]):(state.packet||[])
   const max=team?10:3
   const[sel,setSel]=useState([])
   const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):v.length<max?[...v,id]:v)
-  return <><div className="v2-step"><b>{team?'DECIDAN JUNTOS':revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-grid customers">{rows.map(c=><AcademicCard key={c.id} c={c} selected={sel.includes(c.id)} onClick={()=>toggle(c.id)}/>)}</div><div className="v2-sticky"><span>{sel.length}/{max} perfiles</span><button className="v2-primary" disabled={busy||sel.length<1||(team&&sel.length!==10)} onClick={()=>onSend({selected:sel})}>{team?'Bloquear decisión del equipo':revision?'Guardar decisión revisada':'Enviar decisión inicial'}</button></div></>
+  const label=team?'Bloquear estrategia del escuadrón':revision?'Guardar estrategia corregida':'Lanzar estrategia inicial'
+  return <><div className="v2-step"><b>{team?'MISIÓN COOPERATIVA':revision?'SEGUNDO INTENTO · REVISA TU DECISIÓN':'ELIGE A TU ESCUADRÓN'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+    <CohortArena rows={rows} selected={sel} max={max} onToggle={toggle}/>
+    <div className="v2-sticky"><span>🎯 {sel.length}/{max} perfiles seleccionados</span><button className="v2-primary" disabled={busy||sel.length<1||(team&&sel.length!==10)} onClick={()=>onSend({selected:sel})}>{busy?'Transmitiendo…':label} →</button></div>
+  </>
 }
-
 function SingleChoice({round,onSend,busy,revision=false,team=false}){
   const opts=optionsForRound(round),[choice,setChoice]=useState('')
-  return <><div className="v2-step"><b>{team?'DECIDAN JUNTOS':revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-check-options">{opts.map(([v,l])=><button type="button" key={v} className={choice===v?'selected':''} onClick={()=>setChoice(v)}><span>{l}</span></button>)}</div><button className="v2-primary wide" disabled={busy||!choice} onClick={()=>onSend({choice})}>{team?'Confirmar decisión del equipo':revision?'Guardar decisión revisada':'Enviar decisión inicial'}</button></>
+  return <><div className="v2-step"><b>{team?'LA DECISIÓN DEL ESCUADRÓN':revision?'SEGUNDO INTENTO · REVISA TU DECISIÓN':'ELIGE TU JUGADA'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+    <StrategyArena round={round} options={opts} choice={choice} onChoose={setChoice}/>
+    <button className="v2-primary wide" disabled={busy||!choice} onClick={()=>onSend({choice})}>{busy?'Transmitiendo…':team?'Confirmar jugada del equipo':revision?'Guardar la nueva jugada':'Activar estrategia'} →</button>
+  </>
 }
-
 function MultiSelect({round,onSend,busy,revision=false,team=false}){
-  const opts=optionsForRound(round),[sel,setSel]=useState([])
+  const[sel,setSel]=useState([])
   const toggle=v=>setSel(xs=>xs.includes(v)?xs.filter(x=>x!==v):[...xs,v])
-  return <><div className="v2-step"><b>{team?'DECIDAN JUNTOS':revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div><div className="v2-check-options">{opts.map(([v,l])=><button type="button" key={v} className={sel.includes(v)?'selected':''} onClick={()=>toggle(v)}><b>{sel.includes(v)?'✓':'+'}</b><span>{l}</span></button>)}</div><button className="v2-primary wide" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{team?'Bloquear conjunto de ajuste':revision?'Guardar selección revisada':'Enviar selección inicial'}</button></>
+  return <><div className="v2-step"><b>{team?'HACK COOPERATIVO · DECIDAN JUNTOS':revision?'RECONFIGURA EL GRAFO · REVISA TU DECISIÓN':'HACKEA EL MAPA CAUSAL'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+   <DagArena selected={sel} onToggle={toggle}/>
+   <button className="v2-primary wide" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{busy?'Transmitiendo…':team?'Bloquear grafo del equipo':revision?'Guardar nuevo conjunto de ajuste':'Enviar mapa causal'} →</button>
+  </>
 }
-
 function PolicyChoice({state,onSend,busy,revision=false,team=false,round}){
-  const segs=revision||team?(state.team_pool||[]):state.packet
+  const segs=revision||team?(state.team_pool||[]):(state.packet||[])
   const[choices,setChoices]=useState(Object.fromEntries(segs.map(s=>[s.id,'observe'])))
   const used=segs.filter(s=>choices[s.id]==='treat').reduce((a,s)=>a+Number(s.audience||0),0)
   const capacity=Number(state.economy?.capacity||15000)
@@ -101,22 +100,26 @@ function PolicyChoice({state,onSend,busy,revision=false,team=false,round}){
     avoid:segs.filter(s=>choices[s.id]==='avoid').map(s=>s.id),
     observe:segs.filter(s=>choices[s.id]==='observe').map(s=>s.id)
   }:{choices}
-  return <><div className="v2-step"><b>{team?'DECIDAN JUNTOS':revision?'REVISA TU DECISIÓN':'DECIDE TÚ'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>{(revision||team)&&<PolicyMeter segments={segs} choices={choices} capacity={capacity}/>}<div className="v2-segments">{segs.map(s=><SegmentCard key={s.id} s={s} value={choices[s.id]} onChange={v=>setChoices({...choices,[s.id]:v})}/>)}</div><button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{team?(used>capacity?'Superan los cupos':'Confirmar política del equipo'):revision?'Guardar política revisada':'Enviar propuesta inicial'}</button></>
+  return <><div className="v2-step"><b>{team?'REPARTO FINAL DEL EQUIPO · DECIDAN JUNTOS':revision?'SEGUNDO REPARTO · REVISA TU DECISIÓN':'ADMINISTRA EL CAMPUS'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+    <ResourceArena segments={segs} choices={choices} capacity={capacity} onChoose={(id,v)=>setChoices(x=>({...x,[id]:v}))}/>
+    <button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{busy?'Transmitiendo…':team?(used>capacity?'Sin recursos suficientes':'Ejecutar política del equipo'):revision?'Guardar política corregida':'Desplegar propuesta'} →</button>
+  </>
 }
-
 function TeamProgress({state,phase='initial'}){
   const p=state.progress?.team||{},revision=phase==='revision'
   const value=revision?(p.revision??state.team.revised):(p.initial??state.team.submitted)
-  return <section className="v2-team-progress"><div className="v2-step"><b>{revision?'ESPERANDO REVISIONES':'ESPERANDO AL EQUIPO'}</b><span>{revision?'Cuando todos revisen, se abre la decisión final.':'Cuando todos respondan, se abre el laboratorio.'}</span></div><div className="v2-team-roster">{state.team.roster.map(x=>{const done=revision?x.revised:x.submitted;return <div key={x.id} className={done?'ready':'waiting'}><span>{done?'✓':'…'}</span>{x.name}</div>})}</div><h2>{value}/{p.humans??state.team.size}</h2></section>
+  return <section className="v2-team-progress"><div className="v2-step"><b>{revision?'ESCUADRÓN EN SEGUNDA RONDA':'ESPERANDO A TU ESCUADRÓN'}</b><span>{revision?'Cuando todos revisen, se desbloquea la estrategia del equipo.':'Cuando todos completen su jugada, se abre el laboratorio.'}</span></div>
+   <TeamArena roster={state.team.roster} revision={revision} value={value} total={p.humans??state.team.size}/>
+  </section>
 }
 
-const PHASES=[['initial','Decide'],['lab','Laboratorio'],['check','Pregunta'],['revision','Revisa'],['team','Equipo'],['reveal','Resultado']]
+const PHASES=[['initial','Desafío'],['lab','Experimento'],['check','Jefe'],['revision','Reintenta'],['team','Escuadrón'],['reveal','Revelación']]
 
 function StudentProgress({state}){
   const progress=state.progress||{},phase=progress.phase||'initial'
   const normalize=x=>x==='wait_initial'?'initial':x==='wait_revision'?'revision':x==='wait_reveal'?'team':x
   const idx=Math.max(0,PHASES.findIndex(x=>x[0]===normalize(phase))),me=progress.my||{}
-  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>ESTA MISIÓN</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>POSICIÓN</small><strong>#{me.rank??'—'}</strong><span>ranking en vivo</span></div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
+  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE · XP ACUMULADA</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>XP DEL NIVEL</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>POSICIÓN · RANKING</small><strong>#{me.rank??'—'}</strong><span>ranking en vivo</span></div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
 }
 
 function PhasePoints({phase,state,round}){
@@ -128,10 +131,17 @@ function PhasePoints({phase,state,round}){
 }
 
 function CheckpointQuestion({round,state,onDone}){
-  const r=V2_ROUNDS[round],maxPoints=Number(state?.progress?.challenge?.check_points??r?.points?.check??30)
-  const[answer,setAnswer]=useState(''),[result,setResult]=useState(null),[busy,setBusy]=useState(false),[err,setErr]=useState('')
-  async function submit(){setBusy(true);setErr('');try{setResult(await invoke('v2-submit',{action:'check',round,answer}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
-  return <section className="v2-check-page"><div className="v2-step"><b>PREGUNTA DE CIERRE · {maxPoints} PUNTOS</b><span>Comprueba que entendiste la idea antes de revisar tu decisión.</span></div><h2>{r.checkQuestion}</h2><div className="v2-check-options">{(r.checkOptions||[]).map(([v,label])=><button type="button" key={v} className={answer===v?'selected':''} disabled={Boolean(result)} onClick={()=>setAnswer(v)}><b>{v.toUpperCase()}</b><span>{label}</span></button>)}</div>{err&&<div className="v2-alert error">{err}</div>}{!result?<button className="v2-primary wide" disabled={!answer||busy} onClick={submit}>{busy?'Enviando…':'Cerrar pregunta'}</button>:<><div className={`v2-check-result ${result.correct?'correct':'wrong'}`}><strong>{result.points}/{result.max_points} puntos</strong><span>{result.correct?'Correcto.':'No suma puntos esta vez; usa la revisión para corregir el razonamiento.'}</span></div><button className="v2-primary wide" onClick={onDone}>Continuar</button></>}</section>
+ const r=V2_ROUNDS[round],maxPoints=Number(state?.progress?.challenge?.check_points??r?.points?.check??30)
+ const[answer,setAnswer]=useState(''),[result,setResult]=useState(null),[busy,setBusy]=useState(false),[err,setErr]=useState('')
+ async function submit(){setBusy(true);setErr('');try{setResult(await invoke('v2-submit',{action:'check',round,answer}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ return <section className="v2-check-page"><div className="v2-step"><b>JEFE DE NIVEL · HASTA {maxPoints} XP</b><span>{r.checkQuestion}</span></div>
+  <BossArena round={round} question={r.checkQuestion} options={r.checkOptions||[]} answer={answer} onChange={setAnswer} result={result} disabled={busy}/>
+  {err&&<div className="v2-alert error">{err}</div>}
+  {!result?<button className="v2-primary wide" disabled={!answer||busy} onClick={submit}>{busy?'Validando jugada…':'Enfrentar al guardián'} ⚡</button>:<>
+   <div className={'v2-check-result '+(result.correct?'correct':'wrong')}><strong>{result.points}/{result.max_points} XP confirmados</strong><span>{result.correct?'¡Guardián superado!': 'El guardián resistió: usa la próxima revisión para mejorar tu hipótesis.'}</span></div>
+   <button className="v2-primary wide" onClick={onDone}>Continuar a la siguiente pantalla →</button>
+  </>}
+ </section>
 }
 
 function decisionText(round,payload={}){
@@ -158,7 +168,7 @@ function ImpactBoard({teams=[],currentTeamId}){
 
 function Reveal({state}){
   const r=V2_ROUNDS[state.game.round],x=state.reveal||{}
-  return <div className="v2-main v2-player-compact"><MissionStrip round={state.game.round}/><StudentProgress state={state}/><section className="v2-reveal compact"><div className="v2-kicker">REVEAL · LO QUE AHORA PUEDES NOMBRAR</div><h1>{r.takeaway}</h1><div className="v2-concept plain">{r.plainConcept}</div>{x.true_effect_points!=null&&<div className="v2-metrics academic-truth"><div><span>Efecto verdadero del simulador</span><strong>{num(x.true_effect_points)} puntos</strong></div>{x.estimated_effect_points!=null&&<div><span>Diferencia A/B observada</span><strong>{num(x.estimated_effect_points)} puntos</strong></div>}{x.ci95_low!=null&&x.ci95_high!=null&&<div><span>IC 95 %</span><strong>[{num(x.ci95_low)}, {num(x.ci95_high)}]</strong></div>}<p>Estos resultados pertenecen al simulador sintético, no a estudiantes reales.</p></div>}<section className="v2-wow"><div className="v2-wow-badge"><Sparkles size={16}/> WOW</div><strong>{r.wow}</strong><p>{r.reality}</p></section><div className="v2-teach"><div className="v2-kicker">NOMBRE TÉCNICO</div><h2>{r.concept}</h2><p>{r.takeaway}</p></div><Glossary round={state.game.round}/>{state.game.status==='finished'?<div className="v2-finished">Fin. Ahora debes poder separar predicción, identificación, estimación, heterogeneidad y decisión causal.</div>:<p className="v2-wait-note">Espera al facilitador para continuar.</p>}</section></div>
+  return <div className="v2-main v2-player-compact"><MissionStrip round={state.game.round}/><StudentProgress state={state}/><RevealArena round={state.game.round} truth={x.true_effect_points} observed={x.estimated_effect_points}/>{state.game.round===6&&<ModelBattleResults/>}<section className="v2-reveal compact"><div className="v2-kicker">REVEAL · LO QUE AHORA PUEDES NOMBRAR</div><h1>{r.takeaway}</h1><div className="v2-concept plain">{r.plainConcept}</div>{x.true_effect_points!=null&&<div className="v2-metrics academic-truth"><div><span>Efecto verdadero del simulador</span><strong>{num(x.true_effect_points)} puntos</strong></div>{x.estimated_effect_points!=null&&<div><span>Diferencia A/B observada</span><strong>{num(x.estimated_effect_points)} puntos</strong></div>}{x.ci95_low!=null&&x.ci95_high!=null&&<div><span>IC 95 %</span><strong>[{num(x.ci95_low)}, {num(x.ci95_high)}]</strong></div>}<p>Estos resultados pertenecen al simulador sintético, no a estudiantes reales.</p></div>}<section className="v2-wow"><div className="v2-wow-badge"><Sparkles size={16}/> WOW</div><strong>{r.wow}</strong><p>{r.reality}</p></section><div className="v2-teach"><div className="v2-kicker">NOMBRE TÉCNICO</div><h2>{r.concept}</h2><p>{r.takeaway}</p></div><Glossary round={state.game.round}/>{state.game.status==='finished'?<div className="v2-finished">Fin. Ahora debes poder separar predicción, identificación, estimación, heterogeneidad y decisión causal.</div>:<p className="v2-wait-note">Espera al facilitador para continuar.</p>}</section></div>
 }
 
 function RoundPlay({state,refresh,analysis}){
@@ -169,10 +179,8 @@ function RoundPlay({state,refresh,analysis}){
 
   const chooser=(revision=false,team=false)=>{
     const props={round,state,busy,revision,team,onSend:p=>send(team?'team':revision?'revision':'individual',p)}
-    if(template==='cohort-selection')return <CohortDecision {...props}/>
-    if(template==='single-choice')return <SingleChoice {...props}/>
-    if(template==='multi-select')return <MultiSelect {...props}/>
-    return <PolicyChoice {...props}/>
+    const scene=template==='cohort-selection'?<CohortDecision {...props}/>:template==='single-choice'?<SingleChoice {...props}/>:template==='multi-select'?<MultiSelect {...props}/>:<PolicyChoice {...props}/>
+    return <><ArenaIntro round={round} mode={team?'team':revision?'revision':'decision'}/>{scene}</>
   }
 
   let page=null
@@ -195,7 +203,7 @@ export default function V2Play(){
   useEffect(()=>{if(joined&&state&&['lobby','briefing','lesson'].includes(state.game?.status))prewarmPython()},[joined,state?.game?.status])
   function exit(){clearPlayerSession();setJoined(false);location.reload()}
   if(!joined)return <Join onJoined={()=>setJoined(true)}/>
-  if(error&&!state)return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-kicker">MODO CONTINGENCIA</div><h1>La partida no responde</h1><p>Tu progreso no se ha reiniciado. Puedes reintentar sin salir. Si el servidor continúa sin responder, usa el simulador de práctica: funciona sin Supabase, pero no registra puntos ni reemplaza la partida competitiva.</p><div className="v2-alert error">{error}</div><button className="v2-primary wide" onClick={refresh}>Reintentar conexión</button><a className="v2-secondary wide" href="./v2-simulator.html">Abrir simulador de práctica</a><button className="v2-secondary wide" onClick={exit}>Cerrar sesión en este dispositivo</button></section></main>
+  if(error&&!state)return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-kicker">MODO CONTINGENCIA</div><h1>La partida no responde</h1><p>Tu progreso no se ha reiniciado. Puedes reintentar sin salir. Si el servidor continúa sin responder, usa el simulador de práctica: funciona sin Supabase, pero no registra puntos ni reemplaza la partida competitiva.</p><div className="v2-alert error">{error}</div><button className="v2-primary wide" onClick={refresh}>Reintentar conexión</button><a className="v2-secondary wide" href="./v2-simulator.html?practice=1">Jugar entrenamiento independiente</a><button className="v2-secondary wide" onClick={exit}>Cerrar sesión en este dispositivo</button></section></main>
   if(!state)return <main className="v2-shell v2-center"><div className="v2-loader">Conectando…</div></main>
   const waiting=['lobby','briefing','lesson'].includes(state.game.status)
   const reveal=['reveal','teaching','microcheck','finished'].includes(state.game.status)

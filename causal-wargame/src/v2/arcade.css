@@ -1,0 +1,183 @@
+/* CAMPUS V2 ARCADE · isolated from V1 · decision semantics remain server-owned */
+.v2-shell .v2-arcade-game,.v2-shell .v2-arcade-intro,.v2-shell .v2-arcade-reveal,.v2-shell .v2-arcade-model-results{--arcade-cyan:#7ce8e3;--arcade-gold:#f8d579;--arcade-purple:#bc9aff;--arcade-edge:#3e6b88}
+.v2-shell .v2-arcade-intro{position:relative;display:grid;grid-template-columns:84px minmax(0,1fr) auto;align-items:center;gap:17px;margin:0 0 18px;padding:16px 21px;border-radius:21px;border:1px solid rgba(137,226,221,.47);background:radial-gradient(ellipse at 13% 50%,rgba(48,111,128,.32),transparent 45%),linear-gradient(123deg,#142943,#0d1b32);box-shadow:0 17px 36px rgba(0,7,22,.2);overflow:hidden}
+.v2-shell .v2-arcade-intro::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0px,transparent 18px,rgba(140,201,225,.025) 19px);opacity:.7}
+.v2-shell .v2-arcade-intro-copy{position:relative;min-width:0;display:grid;gap:5px}
+.v2-shell .v2-arcade-intro-copy small{font-weight:900;letter-spacing:.15em;color:#9ef4dc;font-size:11px}
+.v2-shell .v2-arcade-intro-copy strong{font-size:clamp(21px,2.8vw,33px);line-height:1.12;letter-spacing:.015em;color:#f2faff}
+.v2-shell .v2-arcade-intro-copy p{margin:0;color:#c7d6ed;line-height:1.4;font-size:clamp(13px,1.25vw,16px)}
+.v2-shell .v2-arcade-orbit{position:relative;display:grid;place-items:center;height:72px;width:72px;border-radius:50%;border:2px solid rgba(134,236,217,.7);background:radial-gradient(circle at 30% 25%,#327d88,#193d57 56%,#091a30);box-shadow:0 0 0 6px rgba(120,237,215,.055),0 0 26px rgba(78,221,214,.14)}
+.v2-shell .v2-arcade-orbit>span{position:relative;z-index:2;font-size:36px;animation:v2-arcade-float 3s ease-in-out infinite}
+.v2-shell .v2-arcade-orbit i{position:absolute;border:1px dashed rgba(140,247,223,.22);inset:-10px;border-radius:50%;animation:v2-arcade-orbit 18s linear infinite}
+.v2-shell .v2-arcade-orbit i:last-child{inset:-5px;animation-direction:reverse}
+.v2-shell .v2-arcade-stage-tag{white-space:nowrap;color:#e9fdff;letter-spacing:.075em;font-size:11px;font-weight:900;background:#13253c;border:1px solid #4c738d;border-radius:999px;padding:9px 12px;align-self:start;position:relative}
+.v2-shell .v2-arcade-led{width:8px;height:8px;display:inline-block;background:#75f0ba;box-shadow:0 0 9px #75f0ba;border-radius:50%;margin-right:5px}
+.v2-shell .v2-arcade-intro.mode-boss{border-color:#d2a76b;background:radial-gradient(circle at 15% 50%,rgba(197,96,46,.18),transparent 40%),linear-gradient(120deg,#312632,#0f2034)}
+.v2-shell .v2-arcade-intro.mode-boss .v2-arcade-orbit{border-color:#f3c47b;background:radial-gradient(circle,#8d5135,#301f30)}
+.v2-shell .v2-arcade-game{display:grid;gap:16px;min-width:0}
+.v2-shell .v2-arcade-hint{display:flex;align-items:center;gap:11px;min-width:0;padding:13px 15px;border-radius:15px;border:1px solid #446580;background:#132740;line-height:1.48;font-size:clamp(13px,1.2vw,15px);color:#deeffc}
+.v2-shell .v2-arcade-hint svg{color:var(--arcade-cyan);flex-shrink:0}
+.v2-shell .v2-arcade-hint span{flex:1;min-width:0}
+.v2-shell .v2-arcade-hint strong{flex-shrink:0;padding:6px 11px;background:#0e3d48;border:1px solid #4ba5a9;border-radius:30px;color:#a5fff0;font-size:12px;font-variant-numeric:tabular-nums}
+.v2-shell .v2-arcade-agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:13px}
+.v2-shell .v2-arcade-agent{appearance:none;position:relative;display:flex;flex-direction:column;align-items:stretch;text-align:left;min-width:0;min-height:262px;padding:13px 14px;border-radius:18px;background:linear-gradient(158deg,#1c3550 0%,#101f35 79%);color:#eaf6ff;border:2px solid #3b5978;cursor:pointer;transition:transform .19s ease,border-color .19s ease,box-shadow .19s ease,background .19s ease;animation:v2-arcade-card-in .34s both;animation-delay:var(--agent-delay,0ms)}
+.v2-shell .v2-arcade-agent:not(:disabled):hover{transform:translateY(-4px);border-color:#70ced4;box-shadow:0 14px 32px rgba(0,6,22,.35)}
+.v2-shell .v2-arcade-agent.is-selected{background:linear-gradient(157deg,#1d5253,#16334b 78%);border-color:#92f4d4;box-shadow:inset 0 0 0 1px rgba(158,255,228,.26),0 0 0 3px rgba(108,240,220,.075)}
+.v2-shell .v2-arcade-agent-top{display:flex;align-items:center;justify-content:space-between;color:#b4cee5;letter-spacing:.1em;font-weight:800}
+.v2-shell .v2-arcade-agent-top i{display:grid;place-items:center;width:25px;height:25px;background:#233e59;border-radius:50%;font-style:normal;color:#d6f3fc}
+.v2-shell .v2-arcade-agent.is-selected .v2-arcade-agent-top i{background:#90f2d6;color:#07383b}
+.v2-shell .v2-arcade-avatar{align-self:center;margin:5px 0 8px;font-size:48px;line-height:1.3;filter:drop-shadow(0 6px 9px rgba(0,0,0,.25))}
+.v2-shell .v2-arcade-agent>b{font-size:clamp(15px,1.3vw,18px);overflow-wrap:anywhere;line-height:1.2}
+.v2-shell .v2-arcade-segment{font-size:12px;color:#aecde5;margin:3px 0 12px}
+.v2-shell .v2-arcade-gauge{height:9px;display:block;overflow:hidden;border:1px solid #3c6683;background:#07162b;border-radius:15px;margin:0 0 5px}
+.v2-shell .v2-arcade-gauge>span{display:block;height:100%;border-radius:15px;background:linear-gradient(90deg,#71c1f1,#84edc6);transition:width .25s}
+.v2-shell .v2-arcade-prob{display:flex;align-items:baseline;gap:6px;font-weight:900;color:#c8f9ea;font-size:20px}
+.v2-shell .v2-arcade-prob small{font-size:10px;color:#c0d6e7;font-weight:600}
+.v2-shell .v2-arcade-statline{font-size:11px;color:#cad9eb;margin-top:8px}
+.v2-shell .v2-arcade-agent-action{font-size:10px;font-weight:900;letter-spacing:.07em;text-align:center;margin-top:auto;padding-top:10px;color:#83cbd8}
+.v2-shell .v2-arcade-agent.is-selected .v2-arcade-agent-action{color:#abfcdc}
+.v2-shell .v2-arcade-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border-radius:18px;box-shadow:0 12px 28px rgba(0,3,16,.18)}
+.v2-shell .v2-arcade-dag{position:relative;min-width:680px;min-height:360px;aspect-ratio:1000/440;background:radial-gradient(circle at 50% 47%,#1a4a57,#10253f 50%,#0d1b32 90%);border:1px solid #51788a;border-radius:18px;overflow:hidden;background-image:radial-gradient(#406f7c 1px,transparent 1px),radial-gradient(circle at 50% 47%,#1a4a57,#10253f 50%,#0d1b32 90%);background-size:22px 22px,cover}
+.v2-shell .v2-arcade-dag-lines{position:absolute;inset:0;height:100%;width:100%;overflow:visible}
+.v2-shell .v2-arcade-dag-lines line{stroke:#5eb4ca;stroke-width:2;opacity:.65;stroke-dasharray:8 6;transition:stroke .2s,opacity .2s}
+.v2-shell .v2-arcade-dag-lines line.selected{stroke:#a3f5ce;stroke-width:3;opacity:1;stroke-dasharray:none}
+.v2-shell .v2-arcade-dag-node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;justify-content:center;text-align:center;padding:8px 10px;width:clamp(105px,15%,165px);min-height:84px;line-height:1.17;white-space:normal;border:2px solid #7da0c1;border-radius:14px;background:#152b49;color:#e7f6ff;box-shadow:0 7px 20px rgba(0,0,0,.35);cursor:pointer;transition:transform .16s,border-color .16s,background .16s}
+.v2-shell .v2-arcade-dag-node:not(:disabled):hover{transform:translate(-50%,-50%) scale(1.06);border-color:#9ef2d8}
+.v2-shell .v2-arcade-dag-node.selected{border-color:#b5f8c9;background:#205d58;box-shadow:0 0 0 3px rgba(146,255,213,.15),0 10px 25px rgba(0,8,14,.4)}
+.v2-shell .v2-arcade-dag-node.core{cursor:default;border-color:#ddb96d;background:#40362d}
+.v2-shell .v2-arcade-dag-node small{font-size:9px;letter-spacing:.1em;color:#a7d8e7;font-weight:800}
+.v2-shell .v2-arcade-dag-node strong{font-size:13px;line-height:1.2}
+.v2-shell .v2-arcade-dag-node span{font-size:10px;color:#c4efee;font-weight:800}
+.v2-shell .v2-arcade-explain{border-left:3px solid #78dfc5;padding:9px 12px;background:#133448;color:#d4e6f4;line-height:1.5;font-size:13px;border-radius:0 10px 10px 0}
+.v2-shell .v2-arcade-beacon{display:inline-block;width:8px;height:8px;border-radius:50%;background:#9dede2;margin-right:6px}
+.v2-shell .v2-arcade-visual{min-height:126px;display:flex;justify-content:center;align-items:center;gap:16px;padding:20px 15px;border:1px solid #4a6b85;border-radius:18px;background:radial-gradient(ellipse at 50% 70%,rgba(63,132,158,.25),transparent 70%),repeating-linear-gradient(0deg,transparent 0 23px,rgba(135,216,222,.045) 24px),#10213a;overflow:hidden}
+.v2-shell .v2-arcade-test-lane{display:grid;justify-items:center;gap:4px;flex:1;color:#cfe6fb}
+.v2-shell .v2-arcade-test-lane b{font-size:13px;letter-spacing:.14em;color:#b5e8eb}
+.v2-shell .v2-arcade-test-lane>span{font-size:clamp(23px,3vw,41px);white-space:nowrap;letter-spacing:0;animation:v2-arcade-float 3.4s ease-in-out infinite}
+.v2-shell .v2-arcade-test-lane small{font-size:12px;color:#bdcfe3}
+.v2-shell .v2-arcade-center-orb{display:grid;place-items:center;width:61px;height:61px;border-radius:50%;background:#f7d78a;color:#2e2231;font-size:20px;font-weight:1000;box-shadow:0 0 32px rgba(242,209,113,.34);animation:v2-arcade-pulse 3s ease-in-out infinite}
+.v2-shell .v2-arcade-flow-cell{padding:14px;display:grid;gap:5px;place-items:center;min-width:90px;border:1px solid #679aaf;background:#1a3a53;border-radius:14px;font-size:11px;font-weight:800;letter-spacing:.06em}
+.v2-shell .v2-arcade-flow-cell>b{font-size:23px;color:#93f3d1}
+.v2-shell .v2-arcade-fighter{display:grid;justify-items:center;gap:3px;font-size:47px}
+.v2-shell .v2-arcade-fighter small{font-size:11px;color:#c6d9eb}
+.v2-shell .v2-arcade-versus{color:#ffe8a6;font-weight:1000;font-style:italic;font-size:34px;animation:v2-arcade-pulse 2.8s infinite}
+.v2-shell .v2-arcade-moves{display:grid;gap:11px}
+.v2-shell .v2-arcade-move{width:100%;min-width:0;appearance:none;display:flex;align-items:center;gap:14px;min-height:88px;padding:12px 17px;text-align:left;border:2px solid #426282;border-radius:17px;background:linear-gradient(95deg,#182e49,#10213b);color:#eaf5ff;cursor:pointer;transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.v2-shell .v2-arcade-move:not(:disabled):hover{border-color:#8fd7df;transform:translateX(4px)}
+.v2-shell .v2-arcade-move.selected{border-color:#92f4d7;background:linear-gradient(95deg,#1d514f,#173749);box-shadow:inset 4px 0 0 #afffe2,0 10px 26px rgba(0,0,0,.16)}
+.v2-shell .v2-arcade-move-icon{font-size:31px;flex:0 0 51px;display:grid;place-items:center;width:51px;height:51px;border-radius:13px;background:#22425e}
+.v2-shell .v2-arcade-move-body{min-width:0;display:grid;gap:4px;flex:1}
+.v2-shell .v2-arcade-move-body small{font-size:11px;letter-spacing:.09em;color:#8ee9d9;font-weight:800}
+.v2-shell .v2-arcade-move-body strong{font-size:clamp(14px,1.25vw,17px);line-height:1.4;color:#f1f9ff}
+.v2-shell .v2-arcade-move-tick{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:50%;background:#2b4c65;color:#d2eefa;font-weight:900}
+.v2-shell .v2-arcade-move.selected .v2-arcade-move-tick{background:#abf9d9;color:#114245}
+.v2-shell .v2-arcade-resource-hud{border:1px solid #679fac;padding:18px;border-radius:18px;background:linear-gradient(110deg,#173a47,#152743)}
+.v2-shell .v2-arcade-resource-title{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.v2-shell .v2-arcade-resource-title>span{font-weight:850;letter-spacing:.1em;font-size:13px;color:#bcf9e2}
+.v2-shell .v2-arcade-resource-title>strong{font-size:clamp(16px,2vw,23px);font-variant-numeric:tabular-nums}
+.v2-shell .v2-arcade-resource-track{height:20px;background:#061626;border:1px solid #557c94;border-radius:30px;overflow:hidden;margin:13px 0 8px}
+.v2-shell .v2-arcade-resource-track div{height:100%;border-radius:inherit;background:linear-gradient(90deg,#69bbd8,#8df2bc);transition:width .24s}
+.v2-shell .v2-arcade-resource-track.over div{background:linear-gradient(90deg,#ecae57,#ef7072)}
+.v2-shell .v2-arcade-resource-hud p{margin:0;font-size:13px;color:#d3e7f6;line-height:1.5}
+.v2-shell .v2-arcade-resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:13px}
+.v2-shell .v2-arcade-resource-card{min-width:0;padding:16px;border-radius:16px;background:#142941;border:1px solid #436482;display:grid;gap:14px;transition:background .16s,border-color .16s}
+.v2-shell .v2-arcade-resource-card.funded{background:#1a4248;border-color:#71ccaa}
+.v2-shell .v2-arcade-resource-heading{display:flex;align-items:center;gap:10px}
+.v2-shell .v2-arcade-resource-heading>span{font-size:35px}
+.v2-shell .v2-arcade-resource-heading>div{display:grid;gap:3px;min-width:0}
+.v2-shell .v2-arcade-resource-heading strong{font-size:16px;line-height:1.32}
+.v2-shell .v2-arcade-resource-heading small{font-size:12px;line-height:1.4;color:#c2d6ec}
+.v2-shell .v2-arcade-action-rail{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.v2-shell .v2-arcade-action-rail button{min-height:62px;display:grid;gap:4px;place-items:center;padding:9px 4px;font-size:12px;font-weight:800;border-radius:11px;border:1px solid #506b88;background:#192f4a;color:#d8ecfb;cursor:pointer}
+.v2-shell .v2-arcade-action-rail button>span{font-size:20px}
+.v2-shell .v2-arcade-action-rail button.selected{border-color:#a1f3c8;background:#245753;color:#f5fff7;box-shadow:inset 0 0 0 1px rgba(170,255,209,.15)}
+.v2-shell .v2-arcade-boss{display:flex;gap:15px;align-items:center;border:1px solid #b9885b;background:linear-gradient(110deg,#3d3033,#17253b);border-radius:17px;padding:15px}
+.v2-shell .v2-arcade-boss-face{font-size:48px;position:relative;animation:v2-arcade-float 3.4s infinite}
+.v2-shell .v2-arcade-boss-face>span{font-size:18px;position:absolute;right:-6px;top:0}
+.v2-shell .v2-arcade-boss>div:nth-child(2){display:grid;gap:4px}
+.v2-shell .v2-arcade-boss small{font-size:11px;letter-spacing:.13em;color:#f7d79d;font-weight:900}
+.v2-shell .v2-arcade-boss strong{font-size:clamp(16px,1.7vw,21px)}
+.v2-shell .v2-arcade-boss span{color:#d7ddea;font-size:12px}
+.v2-shell .v2-arcade-squad{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px}
+.v2-shell .v2-arcade-squad-card{display:grid;justify-items:center;gap:8px;text-align:center;background:#132740;border:1px solid #55718f;border-radius:17px;padding:18px 11px;opacity:.75}
+.v2-shell .v2-arcade-squad-card.ready{background:#1d494b;border-color:#91efcd;opacity:1;box-shadow:0 9px 24px rgba(0,0,0,.13)}
+.v2-shell .v2-arcade-squad-card>span{font-size:42px}
+.v2-shell .v2-arcade-squad-card strong{font-size:15px}
+.v2-shell .v2-arcade-squad-card small{font-size:11px;font-weight:900;letter-spacing:.06em;color:#adf1d2}
+.v2-shell .v2-arcade-reveal{position:relative;overflow:hidden;display:flex;align-items:center;gap:19px;margin:12px 0 21px;padding:23px;border-radius:19px;border:1px solid #d7bc77;background:radial-gradient(circle at 11% 50%,rgba(241,189,80,.23),transparent 44%),linear-gradient(115deg,#3e3632,#182942 75%)}
+.v2-shell .v2-arcade-reveal-medal{font-size:58px;animation:v2-arcade-float 3s ease-in-out infinite}
+.v2-shell .v2-arcade-reveal>div:nth-child(2){display:grid;gap:6px;min-width:0}
+.v2-shell .v2-arcade-reveal small{font-size:11px;font-weight:900;letter-spacing:.1em;color:#ffe3ac}
+.v2-shell .v2-arcade-reveal strong{font-size:clamp(21px,2.8vw,35px);line-height:1.12}
+.v2-shell .v2-arcade-reveal p{margin:0;color:#e0dfe6;line-height:1.5;font-size:14px}
+.v2-shell .v2-arcade-reveal>div:nth-child(2)>span{font-size:12px;color:#d9e6f5}
+.v2-shell .v2-arcade-model-results{margin:16px 0;padding:20px;border-radius:17px;border:1px solid #619f9e;background:#132d41}
+.v2-shell .v2-arcade-model-results h3{font-size:clamp(19px,2vw,25px);margin:0 0 8px}
+.v2-shell .v2-arcade-model-results p{line-height:1.5;color:#c9e2f0;font-size:14px}
+.v2-shell .v2-arcade-model-row{display:grid;grid-template-columns:minmax(100px,1.1fr) minmax(80px,2fr) auto;gap:12px;align-items:center;margin:16px 0;font-size:13px;font-weight:750}
+.v2-shell .v2-arcade-model-row strong{font-variant-numeric:tabular-nums;white-space:nowrap;color:#d8ffed}
+.v2-shell .v2-arcade-model-track{height:12px;border-radius:10px;background:#0a192f;overflow:hidden}
+.v2-shell .v2-arcade-model-track i{display:block;height:100%;background:linear-gradient(90deg,#8accf2,#a3efba);border-radius:10px}
+.v2-shell .v2-arcade-model-results>small{font-size:11px;color:#abcad9}
+.v2-shell .v2-arcade-game :where(button):focus-visible{outline:3px solid #f4d983;outline-offset:3px}
+@keyframes v2-arcade-float{0%,100%{transform:translateY(2px)}50%{transform:translateY(-4px)}}
+@keyframes v2-arcade-orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes v2-arcade-card-in{from{opacity:.3;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes v2-arcade-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@media(max-width:700px){
+ .v2-shell .v2-arcade-intro{grid-template-columns:61px minmax(0,1fr);gap:12px;padding:13px 14px}
+ .v2-shell .v2-arcade-orbit{width:58px;height:58px}
+ .v2-shell .v2-arcade-orbit>span{font-size:29px}
+ .v2-shell .v2-arcade-stage-tag{grid-column:1/-1;width:max-content;font-size:10px;padding:6px 10px}
+ .v2-shell .v2-arcade-hint{flex-wrap:wrap}
+ .v2-shell .v2-arcade-hint span{flex-basis:calc(100% - 40px)}
+ .v2-shell .v2-arcade-hint strong{margin-left:28px}
+ .v2-shell .v2-arcade-agents{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .v2-shell .v2-arcade-agent{min-height:247px;padding:11px}
+ .v2-shell .v2-arcade-avatar{font-size:39px}
+ .v2-shell .v2-arcade-statline{font-size:10px}
+ .v2-shell .v2-arcade-visual{padding:12px 9px;gap:7px;min-height:99px}
+ .v2-shell .v2-arcade-test-lane>span{font-size:22px}
+ .v2-shell .v2-arcade-center-orb{width:46px;height:46px;font-size:17px}
+ .v2-shell .v2-arcade-flow-cell{padding:9px 5px;min-width:0;font-size:9px}
+ .v2-shell .v2-arcade-flow-cell>b{font-size:19px}
+ .v2-shell .v2-arcade-visual svg{width:17px}
+ .v2-shell .v2-arcade-move{min-height:79px;padding:11px;gap:9px}
+ .v2-shell .v2-arcade-move-icon{width:41px;height:41px;flex-basis:41px;font-size:25px}
+ .v2-shell .v2-arcade-resource-grid{grid-template-columns:1fr}
+ .v2-shell .v2-arcade-reveal{padding:15px;gap:12px}
+ .v2-shell .v2-arcade-reveal-medal{font-size:41px}
+ .v2-shell .v2-arcade-model-row{grid-template-columns:minmax(85px,1.3fr) minmax(55px,1fr) auto;gap:6px;font-size:11px}
+}
+@media(max-width:370px){.v2-shell .v2-arcade-agents{grid-template-columns:1fr}.v2-shell .v2-arcade-agent{min-height:205px}.v2-shell .v2-arcade-avatar{font-size:35px}}
+@media(prefers-reduced-motion:reduce){.v2-shell .v2-arcade-game *, .v2-shell .v2-arcade-intro *, .v2-shell .v2-arcade-reveal *, .v2-shell .v2-arcade-intro i{animation:none!important;transition:none!important}}
+
+
+/* One-tap game lobby */
+.v2-shell .v2-arcade-launch{display:flex;gap:18px;align-items:center;padding:18px;margin:23px 0;border:1px solid #4d8e95;border-radius:20px;background:linear-gradient(112deg,#1a4553,#172741);box-shadow:0 14px 32px rgba(0,3,20,.18)}
+.v2-shell .v2-arcade-launch-avatars{display:flex;align-items:center;padding-left:9px}
+.v2-shell .v2-arcade-launch-avatars span{position:relative;font-size:clamp(31px,4vw,49px);display:grid;place-items:center;width:clamp(44px,5vw,65px);height:clamp(44px,5vw,65px);margin-left:-9px;background:radial-gradient(circle at 30% 20%,#2d7a83,#122f45);border:2px solid #a0f4d6;border-radius:50%;box-shadow:0 5px 20px rgba(0,0,0,.2)}
+.v2-shell .v2-arcade-launch-avatars span:nth-child(2){transform:translateY(-8px);border-color:#f4d48c}
+.v2-shell .v2-arcade-launch-levels{display:grid;gap:6px;min-width:0}
+.v2-shell .v2-arcade-launch-levels b{letter-spacing:.11em;color:#b7f5e6;font-size:15px}
+.v2-shell .v2-arcade-launch-levels span{font-size:clamp(13px,1.4vw,17px);line-height:1.4}
+.v2-shell .v2-arcade-launch-levels small{color:#b5d3e5;font-size:12px;line-height:1.4}
+/* Standalone arcade practice is the zero-backend contingency */
+.v2-shell .v2-arcade-practice{padding:clamp(11px,2vw,23px) 0;display:grid;gap:16px}
+.v2-shell .v2-arcade-practice-ribbon{padding:12px 15px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-radius:14px;border:1px solid #71c0b4;background:#173d47;color:#b9ffdf;font-size:12px;font-weight:900;letter-spacing:.08em}
+.v2-shell .v2-arcade-practice-ribbon b{color:#fff;font-variant-numeric:tabular-nums}
+.v2-shell .v2-arcade-practice .v2-alert{font-size:14px;line-height:1.5}
+.v2-shell .v2-arcade-practice-question{padding:17px 20px;border-radius:16px;background:#15283f;border:1px solid #466c8e}
+.v2-shell .v2-arcade-practice-question small,.v2-shell .v2-arcade-practice-learn small{font-size:11px;color:#9df0d5;font-weight:900;letter-spacing:.13em}
+.v2-shell .v2-arcade-practice-question h2{font-size:clamp(21px,2.5vw,30px);margin:5px 0}
+.v2-shell .v2-arcade-practice-question p{font-size:clamp(14px,1.3vw,17px);line-height:1.5;color:#dce8f7;margin:0}
+.v2-shell .v2-arcade-practice-objective{font-size:clamp(17px,1.9vw,22px);line-height:1.2;margin:3px 0}
+.v2-shell .v2-arcade-practice-learn{display:grid;gap:8px;padding:22px;border:1px solid #8eaa80;border-radius:18px;background:linear-gradient(130deg,#263f37,#142942)}
+.v2-shell .v2-arcade-practice-learn strong{font-size:clamp(18px,2vw,26px);line-height:1.3}
+.v2-shell .v2-arcade-practice-learn p{line-height:1.5;color:#d1e6ed;margin:0;font-size:15px}
+.v2-shell .v2-arcade-practice-footer{display:flex;flex-wrap:wrap;gap:9px;justify-content:space-between}
+.v2-shell .v2-arcade-practice-footer button{min-height:46px}
+.v2-shell .v2-arcade-podium-avatar{font-size:clamp(34px,4vw,53px);line-height:1.2;filter:drop-shadow(0 7px 5px rgba(0,0,0,.2));animation:v2-arcade-float 3s ease-in-out infinite}
+.v2-shell .v2-podium article.rank-1 .v2-arcade-podium-avatar{font-size:clamp(47px,5vw,68px)}
+@media(max-width:600px){.v2-shell .v2-arcade-launch{gap:11px;padding:12px}.v2-shell .v2-arcade-launch-avatars span{width:41px;height:41px;font-size:30px}.v2-shell .v2-arcade-launch-levels b{font-size:12px}.v2-shell .v2-arcade-practice-footer button{width:100%;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.v2-shell .v2-arcade-podium-avatar{animation:none}}
