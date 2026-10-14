@@ -55,7 +55,8 @@ begin
     else 3.0+public.cw_dean_uniform_v3(seed||':pga')*0.6 end)::numeric,2);
   treated:=case when public.cw_dean_uniform_v3(seed||':T')<0.5 then 1 else 0 end;
   for j in 1..15 loop
-   subj:=public.cw_dean_subject_v3(j);
+   -- Match Python ABExperimentSimulator: subjects[(s_idx + round_num) % len(subjects)]
+   subj:=public.cw_dean_subject_v3(1+((i+j-1)%11));
    d:=(subj->>'complexity')::numeric;
    seed:='2026:ab:student:'||i||':exam:'||j;
    noise_h:=0.5*public.cw_dean_normal_v3(seed||':study');
