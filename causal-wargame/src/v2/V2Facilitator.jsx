@@ -1,4 +1,5 @@
 import React,{useEffect,useState}from'react'
+import {useV2Quiz,WorkshopDirector,QuizTeacher} from './V2Quiz.jsx'
 import{ExternalLink,Play,RefreshCw,RotateCcw,Unlock,Users}from'lucide-react'
 import{bootstrapGame,invoke,saveFacilitatorToken,saveFacilitatorGameCode,getFacilitatorToken,clearFacilitatorSession}from'../lib/api'
 import{V2_ROUNDS,V2_CHALLENGE_COUNT,statusCopy}from'./content'
@@ -51,6 +52,9 @@ export default function V2Facilitator(){
   const[logged,setLogged]=useState(Boolean(getFacilitatorToken()))
   const{state,error,refresh}=useFacState(logged)
   const[busy,setBusy]=useState(false)
+  const {quiz:finalQuiz,setQuiz:setFinalQuiz,error:quizError}=useV2Quiz(state?.game?.code,'teacher',logged&&Boolean(state))
+  const [quizBusy,setQuizBusy]=useState(false)
+  async function quizAction(command){setQuizBusy(true);try{const out=await invoke('v2-quiz',{action:'teacher',command},'facilitator');setFinalQuiz({...out,received_at:Date.now()})}catch(e){alert(e.message)}finally{setQuizBusy(false)}}
   async function act(action,seconds){setBusy(true);try{await invoke('v2-facilitator',{action,seconds},'facilitator');await refresh()}catch(e){alert(e.message)}finally{setBusy(false)}}
   function exit(){clearFacilitatorSession();setLogged(false);location.reload()}
 
@@ -67,5 +71,5 @@ export default function V2Facilitator(){
     <section className="v2-panel"><div className="v2-kicker">CONTROL DE CLASE · MISIÓN {Math.min(g.round,g.max_round||V2_CHALLENGE_COUNT)} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h2>{r?.title||'Experiencia finalizada'}</h2><p>{r?.case}</p>{r?.evidence&&<div className="v2-alert hint"><span><b>Laboratorio:</b> una página de Python guiado</span></div>}<div className="v2-fac-actions">{['lobby','briefing'].includes(g.status)&&<button className="v2-primary" disabled={busy||state.humans<1} onClick={()=>act('start')}><Play size={17}/> Iniciar misión {g.round}</button>}{g.status==='round'&&<button className="v2-primary" disabled={busy} onClick={()=>act('reveal')}><Unlock size={17}/> Cerrar misión y revelar</button>}{g.status==='paused'&&<button className="v2-primary" disabled={busy} onClick={()=>act('resume')}><Play size={17}/> Reanudar</button>}{g.status==='round'&&<button className="v2-secondary" disabled={busy} onClick={()=>act('pause')}>Pausar</button>}{['reveal','teaching'].includes(g.status)&&<button className="v2-primary" disabled={busy} onClick={()=>act('next')}><Play size={17}/> {g.round>=(g.max_round||V2_CHALLENGE_COUNT)?'Finalizar experiencia':'Preparar misión siguiente'}</button>}<button className="v2-secondary" disabled={busy} onClick={()=>act('rebalance')}><RefreshCw size={16}/> Rebalancear lobby</button><button className="v2-secondary" disabled={busy} onClick={()=>{if(confirm('¿Reiniciar esta sesión V2? Se borran jugadores, decisiones y trazas de aprendizaje.'))act('reset')}}><RotateCcw size={16}/> Reiniciar</button></div><div className="v2-links"><a href={play} target="_blank" rel="noreferrer">Participante V2 <ExternalLink size={13}/></a><a href={wall} target="_blank" rel="noreferrer">Wall V2 <ExternalLink size={13}/></a><a href={sim} target="_blank" rel="noreferrer">Simulador docente V2 <ExternalLink size={13}/></a></div></section>
 
     <section className="v2-panel"><div className="v2-kicker">LOBBY / PROGRESO</div><h2><Users size={20}/> {state.humans} participantes</h2><p>Todos siguen la misma ruta: deciden, ejecutan Python, comprueban la idea, revisan y deciden en equipo. El Wall muestra aprendizaje; el impacto académico se revela aparte.</p><ClassProgress state={state}/><FacilitatorTop3 rows={state.top3||[]}/>{state.teams.map(t=><TeamCard key={t.id} team={t} players={state.players}/>)}</section>
-  </div><button className="v2-secondary" style={{marginTop:18}} onClick={exit}>Cerrar sesión del facilitador</button></div></main>
+  </div><WorkshopDirector data={finalQuiz} onAction={quizAction} busy={quizBusy}/><QuizTeacher data={finalQuiz} onAction={quizAction} busy={quizBusy}/>{quizError&&<div className="v2-alert error">{quizError}</div>}<button className="v2-secondary" style={{marginTop:18}} onClick={exit}>Cerrar sesión del facilitador</button></div></main>
 }

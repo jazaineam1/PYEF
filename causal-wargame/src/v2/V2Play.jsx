@@ -1,5 +1,6 @@
 import{prewarmPython}from'./PythonEvidenceLab'
 import React,{useEffect,useMemo,useState}from'react'
+import {useV2Quiz,QuizPlayer,WorkshopBanner} from './V2Quiz.jsx'
 import{Check,ChevronRight,LogOut,Sparkles,Trophy}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound,statusCopy}from'./content'
@@ -192,12 +193,14 @@ export default function V2Play(){
   const[joined,setJoined]=useState(Boolean(getPlayerToken()))
   const{state,error,refresh}=useV2State(joined)
   const analysis=useV2Analysis(state)
+  const {quiz:finalQuiz}=useV2Quiz(state?.game?.code,'student',joined&&Boolean(state))
   useEffect(()=>{if(joined&&state&&['lobby','briefing','lesson'].includes(state.game?.status))prewarmPython()},[joined,state?.game?.status])
   function exit(){clearPlayerSession();setJoined(false);location.reload()}
   if(!joined)return <Join onJoined={()=>setJoined(true)}/>
   if(error&&!state)return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-kicker">MODO CONTINGENCIA</div><h1>La partida no responde</h1><p>Tu progreso no se ha reiniciado. Puedes reintentar sin salir. Si el servidor continúa sin responder, usa el simulador de práctica: funciona sin Supabase, pero no registra puntos ni reemplaza la partida competitiva.</p><div className="v2-alert error">{error}</div><button className="v2-primary wide" onClick={refresh}>Reintentar conexión</button><a className="v2-secondary wide" href="./v2-simulator.html">Abrir simulador de práctica</a><button className="v2-secondary wide" onClick={exit}>Cerrar sesión en este dispositivo</button></section></main>
   if(!state)return <main className="v2-shell v2-center"><div className="v2-loader">Conectando…</div></main>
+  const inFinalBattle=finalQuiz?.quiz?.phase&&finalQuiz.quiz.phase!=='idle'
   const waiting=['lobby','briefing','lesson'].includes(state.game.status)
   const reveal=['reveal','teaching','microcheck','finished'].includes(state.game.status)
-  return <div className="v2-shell"><Header state={state} onExit={exit}/>{waiting&&<Lobby state={state}/>} {state.game.status==='round'&&<RoundPlay state={state} refresh={refresh} analysis={analysis}/>} {state.game.status==='paused'&&<div className="v2-main"><MissionStrip round={state.game.round}/><section className="v2-big-wait"><h2>Misión pausada</h2><p>Conserven su discusión; el facilitador la reanudará.</p></section></div>} {state.game.status==='closed'&&<div className="v2-main v2-player-compact"><MissionStrip round={state.game.round}/><section className="v2-big-wait small"><h2>Decisiones cerradas</h2><p>El resultado y el puntaje final se mostrarán al revelar.</p></section></div>} {reveal&&<Reveal state={state}/>}<footer className="v2-footer"><span>{statusCopy(state.game.status)}</span><span>{state.player.team} · {state.player.name}</span></footer></div>
+  return <div className="v2-shell"><Header state={state} onExit={exit}/><WorkshopBanner state={finalQuiz}/>{inFinalBattle?<QuizPlayer data={finalQuiz}/>:<>{waiting&&<Lobby state={state}/>} {state.game.status==='round'&&<RoundPlay state={state} refresh={refresh} analysis={analysis}/>} {state.game.status==='paused'&&<div className="v2-main"><MissionStrip round={state.game.round}/><section className="v2-big-wait"><h2>Misión pausada</h2><p>Conserven su discusión; el facilitador la reanudará.</p></section></div>} {state.game.status==='closed'&&<div className="v2-main v2-player-compact"><MissionStrip round={state.game.round}/><section className="v2-big-wait small"><h2>Decisiones cerradas</h2><p>El resultado y el puntaje final se mostrarán al revelar.</p></section></div>} {reveal&&<Reveal state={state}/>}</>}<footer className="v2-footer"><span>{statusCopy(state.game.status)}</span><span>{state.player.team} · {state.player.name}</span></footer></div>
 }

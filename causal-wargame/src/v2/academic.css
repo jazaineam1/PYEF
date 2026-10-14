@@ -257,3 +257,45 @@
 .v2-econml-track{height:6px;background:#263952;overflow:hidden;border-radius:5px}
 .v2-econml-track i{display:block;height:100%;background:#76c8df}
 .v2-econml-note{margin-top:16px}
+
+
+/* Workshop 120 and authoritative Kahoot only in V2 */
+.v2-agenda-bar{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 15px;border-radius:13px;border:1px solid #446987;background:#122441;color:#f3f9ff;font-size:15px}
+.v2-agenda-bar span{color:#b8d6e9}
+.v2-workshop-director{display:grid;gap:10px}
+.v2-workshop-director p{margin:2px 0;font-size:clamp(14px,1.15vw,17px);color:#d9e9f6;line-height:1.55}
+.v2-workshop-steps{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:7px;overflow-x:auto}
+.v2-workshop-steps>div{padding:10px;border:1px solid #416081;border-radius:10px;background:#14253f;color:#d2e7f8;min-height:74px}
+.v2-workshop-steps>div.active{outline:2px solid #7defd5;background:#174044}
+.v2-workshop-steps b{display:block;font-size:15px;color:#e6f8fd}.v2-workshop-steps span{font-size:12px}
+.v2-kahoot-screen{background:linear-gradient(130deg,#111d3a,#182646 65%,#103646);color:#f4faff;border:1px solid #38627e;border-radius:24px;padding:clamp(16px,3vw,40px);max-width:1300px;margin:12px auto;display:grid;gap:18px;min-height:410px}
+.v2-kahoot-screen h1{font-size:clamp(25px,3.2vw,48px);line-height:1.16;margin:5px 0;text-wrap:balance}
+.v2-kahoot-screen p{font-size:clamp(16px,1.6vw,23px);line-height:1.45}
+.v2-kahoot-scoreline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center;font-size:clamp(15px,1.5vw,22px)}
+.v2-kahoot-timer{justify-self:center;font-size:clamp(23px,4vw,50px);font-variant-numeric:tabular-nums;font-weight:800;color:#95f4db}
+.v2-kahoot-timer.urgent{color:#ffbf8d}
+.v2-kahoot-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.v2-kahoot-choice{min-height:92px;display:flex;align-items:center;gap:18px;padding:16px;border:2px solid #6e92b2;border-radius:15px;background:#1d3a5c;color:#fff;text-align:left;font-size:clamp(16px,1.6vw,23px);line-height:1.35;cursor:pointer}
+.v2-kahoot-choice b{flex:none;border:2px solid #e8f2ff;border-radius:10px;width:52px;height:52px;display:grid;place-items:center;font-size:24px}
+.v2-kahoot-choice:hover:not(:disabled),.v2-kahoot-choice.selected{border-color:#8df7d4;background:#1d5b60}
+.v2-kahoot-choice:disabled{cursor:default;opacity:.92}
+.v2-kahoot-choice:focus-visible{outline:4px solid #fbdf8a;outline-offset:3px}
+.v2-kahoot-receipt{border-left:5px solid #78f2ce;padding:14px;background:#143b40;border-radius:8px}
+.v2-kahoot-explain{background:#132e46;border:1px solid #71c4d5;border-radius:16px;padding:20px}
+.v2-kahoot-explain h2{font-size:clamp(19px,2vw,27px)}
+.v2-kahoot-live>div{background:#314965;border-radius:12px;height:18px;overflow:hidden}
+.v2-kahoot-live i{display:block;background:#7beccf;height:100%;transition:width .25s}
+.v2-kahoot-live span{display:block;margin-top:8px;color:#c2d8e8}
+.v2-kahoot-bars{display:grid;gap:8px}.v2-kahoot-bars>div{display:grid;grid-template-columns:40px 1fr 40px;gap:10px;align-items:center}
+.v2-kahoot-bar{height:18px;background:#29435e;border-radius:8px;overflow:hidden}.v2-kahoot-bar i{display:block;height:100%;background:#74b8db;transition:width .3s}
+.v2-kahoot-bars>div.correct .v2-kahoot-bar i{background:#7defd5}
+.v2-kahoot-rankings{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+.v2-kahoot-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.v2-kahoot-podium article{background:#213b5e;border:1px solid #6b9bb7;padding:13px;border-radius:14px;display:grid;gap:5px}
+.v2-kahoot-podium strong{font-size:clamp(16px,1.6vw,23px);overflow-wrap:anywhere}
+.v2-kahoot-team-rank{display:flex;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid #385774}
+.v2-kahoot-guide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;color:#edf7ff}
+.v2-kahoot-guide>div{border:1px solid #456583;background:#16263f;border-radius:9px;padding:12px}
+.v2-kahoot-wall{width:100%;max-width:none}
+@media(max-width:720px){.v2-kahoot-answers,.v2-kahoot-guide,.v2-kahoot-rankings{grid-template-columns:1fr}.v2-kahoot-podium{gap:4px}.v2-kahoot-podium article{padding:8px}.v2-kahoot-choice{min-height:78px;padding:10px}.v2-workshop-steps{grid-template-columns:repeat(6,130px)}}
+@media(prefers-reduced-motion:reduce){.v2-kahoot-bar i,.v2-kahoot-live i{transition:none}}
