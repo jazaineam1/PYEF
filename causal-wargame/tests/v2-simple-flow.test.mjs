@@ -3,45 +3,37 @@ import assert from'node:assert/strict'
 import{V2_MISSION,V2_ROUNDS,V2_CHALLENGE_COUNT}from'../src/v2/content.js'
 import{enabledChallenges,validateChallengeRegistry,CHALLENGE_TEMPLATE}from'../src/v2/challenge-registry.js'
 
-test('V2 teaches a simple three-retos causal arc from one registry',()=>{
-  assert.equal(V2_CHALLENGE_COUNT,3)
-  assert.equal(Object.keys(V2_ROUNDS).length,3)
-  assert.equal(enabledChallenges().length,3)
+test('V2 teaches a six-mission causal arc from one registry',()=>{
+  assert.equal(V2_CHALLENGE_COUNT,6)
+  assert.equal(Object.keys(V2_ROUNDS).length,6)
+  assert.equal(enabledChallenges().length,6)
   assert.deepEqual(validateChallengeRegistry(),[])
-  assert.match(V2_MISSION.rules.join(' · '),/Prueba tu idea con datos/)
-  assert.match(V2_MISSION.rules.join(' · '),/Revisa tu decisión/)
-  assert.match(V2_ROUNDS[1].plainConcept,/probablemente renovará/)
-  assert.match(V2_ROUNDS[2].plainConcept,/grupos/)
-  assert.match(V2_ROUNDS[3].plainConcept,/promedio/)
+  assert.match(V2_MISSION.title,/CAMPUS/)
+  assert.match(V2_ROUNDS[1].plainConcept,/Predecir/)
+  assert.match(V2_ROUNDS[2].concept,/ATE/)
+  assert.match(V2_ROUNDS[3].concept,/DAG/)
+  assert.match(V2_ROUNDS[4].concept,/DML/)
+  assert.match(V2_ROUNDS[5].concept,/CATE/)
+  assert.match(V2_ROUNDS[6].concept,/Causal Forest|EconML/)
 })
 
-test('V2 participant flow is driven by reusable challenge templates',async()=>{
-  const fs=await import('node:fs')
-  const play=fs.readFileSync(new URL('../src/v2/V2Play.jsx',import.meta.url),'utf8')
-  assert.doesNotMatch(play,/Líder de Modelos|Analista Causal|Líder de Experimentos|mercado de apoyo/i)
-  assert.match(play,/V2_CHALLENGE_COUNT/)
-  assert.match(play,/template==='cohort-selection'/)
-  assert.match(play,/template==='recommendation'/)
-  assert.match(play,/template==='segment-policy'/)
-  assert.match(play,/EvidenceLab/)
-  assert.match(play,/REVISA TU DECISIÓN/)
-  assert.match(play,/DECIDAN JUNTOS/)
+test('participant flow supports every reusable interaction template',async()=>{
+  const fs=await import('node:fs'),play=fs.readFileSync(new URL('../src/v2/V2Play.jsx',import.meta.url),'utf8')
+  for(const x of ["template==='cohort-selection'","template==='single-choice'","template==='multi-select'","PolicyChoice","EvidenceLab","REVISA TU DECISIÓN","DECIDAN JUNTOS"])assert.match(play,new RegExp(x))
+  assert.doesNotMatch(play,/mes gratis|renovaci[oó]n/i)
 })
 
-test('challenge template makes a new reto declarative and validates required fields',()=>{
+test('challenge template is declarative and requires human definitions',()=>{
   const candidate={...CHALLENGE_TEMPLATE,id:'demo',enabled:true}
   assert.deepEqual(validateChallengeRegistry([candidate]),[])
-  assert.equal(candidate.journey.length>=6,true)
-  assert.ok(candidate.template)
-  assert.ok(candidate.labKey)
+  assert.ok(candidate.journey.length>=8)
+  assert.ok(candidate.glossary[0].definition)
 })
 
-test('V2 separates learning points from economic reveal value',async()=>{
-  const fs=await import('node:fs')
-  const play=fs.readFileSync(new URL('../src/v2/V2Play.jsx',import.meta.url),'utf8')
+test('learning points stay separate from academic impact',async()=>{
+  const fs=await import('node:fs'),play=fs.readFileSync(new URL('../src/v2/V2Play.jsx',import.meta.url),'utf8')
   assert.match(play,/TU PUNTAJE/)
   assert.match(play,/round_points/)
-  assert.match(play,/incremental_value_cop/)
-  assert.match(play,/currency:'COP'/)
-  assert.doesNotMatch(play,/>SCORE</)
+  assert.match(play,/IMPACTO ACADÉMICO/)
+  assert.doesNotMatch(play,/currency:'COP'/)
 })

@@ -5,179 +5,170 @@ export const SIM_PLAYERS=[
   {id:'juan',name:'Juan'}
 ]
 
-export const SIM_ECONOMY={
-  renewal_value_cop:200000,
-  intervention_cost_cop:8000,
-  cohort_size:1000,
-  capacity:15000
-}
+export const SIM_ECONOMY={capacity:1500}
+
+const archetypes=['Sobreexigido','Equilibrado','Sueño insuficiente','Alta fatiga']
 
 export const SIM_CUSTOMERS=Array.from({length:24},(_,i)=>{
-  const n=i+1,score=Math.min(.93,.34+((n*11)%56)/100)
+  const n=i+1
   return{
-    id:`S${String(n).padStart(2,'0')}`,
-    name:`Cohorte ${String(n).padStart(2,'0')}`,
-    segment:['Digital','Mixto','Tradicional','Premium'][n%4],
-    score,
-    usage:20+((n*13)%76),
-    bugs:(n*3)%8,
-    discount:(n*7)%31,
-    tenure:6+((n*5)%48),
-    cohort_size:1000,
-    shap:[
-      {feature:'Uso',impact:((n*3)%8)-2},
-      {feature:'Incidentes',impact:((n*5)%7)-2},
-      {feature:'Descuento',impact:2-((n*4)%6)}
-    ]
+    id:`E${String(n).padStart(2,'0')}`,
+    name:`Estudiante ${String(n).padStart(2,'0')}`,
+    segment:archetypes[(n-1)%4],
+    score:Math.min(.94,.43+((n*11)%49)/100),
+    usage:5+((n*7)%10),
+    bugs:1+((n*5)%9),
+    discount:4+((n*3)%5),
+    tenure:280+((n*13)%151),
+    cohort_size:100
   }
 })
 
 export const SIM_SEGMENTS=[
-  {id:'digital',name:'Digitales',audience:7000,risk:'Bajo',value:200000,cost:8000},
-  {id:'middle',name:'Ingreso medio',audience:8000,risk:'Medio',value:200000,cost:8000},
-  {id:'traditional',name:'Tradicionales',audience:5000,risk:'Medio',value:200000,cost:8000},
-  {id:'wealth',name:'Patrimonio alto',audience:2500,risk:'Bajo',value:200000,cost:8000},
-  {id:'arrears',name:'Mora alta',audience:4000,risk:'Alto',value:200000,cost:8000}
+  {id:'digital',name:'Alta fatiga',audience:700,risk:'Alto',effect_pp:10.4,ci_low:7.2,ci_high:13.6},
+  {id:'middle',name:'Equilibrado',audience:800,risk:'Medio',effect_pp:7.8,ci_low:5.0,ci_high:10.6},
+  {id:'traditional',name:'Sueño insuficiente',audience:600,risk:'Medio',effect_pp:3.1,ci_low:.4,ci_high:5.8},
+  {id:'wealth',name:'Sobreexigido',audience:400,risk:'Bajo',effect_pp:1.2,ci_low:-1.1,ci_high:3.5},
+  {id:'arrears',name:'Sin señal clara',audience:500,risk:'Alto',effect_pp:-1.5,ci_low:-4.3,ci_high:1.3}
 ]
 
-const trueSegments=[
-  {...SIM_SEGMENTS[0],effect_pp:13.5,ci_low:9,ci_high:18,incremental_value_cop:133000000},
-  {...SIM_SEGMENTS[1],effect_pp:9,ci_low:5,ci_high:13,incremental_value_cop:80000000},
-  {...SIM_SEGMENTS[2],effect_pp:3,ci_low:-2,ci_high:8,incremental_value_cop:-10000000},
-  {...SIM_SEGMENTS[3],effect_pp:1,ci_low:-3,ci_high:4,incremental_value_cop:-15000000},
-  {...SIM_SEGMENTS[4],effect_pp:-5,ci_low:-9,ci_high:-1,incremental_value_cop:-72000000}
-]
+const gradeRow=(i,treated=false,segment='Equilibrado')=>{
+  const pga=2.7+((i*13)%150)/100
+  const study=5+((i*7)%10)
+  const sleep=4+((i*3)%5)
+  const fatigue=1+((i*5)%8)
+  const complexity=4+((i*11)%6)
+  const effect={Sobreexigido:1.2,Equilibrado:7.8,'Sueño insuficiente':3.1,'Alta fatiga':10.4,'Sin señal clara':-1.5}[segment]||4.8
+  const grade=Math.max(0,Math.min(50,15+4*pga+.70*study+.45*sleep-.70*fatigue-.55*complexity+(treated?effect:0)+((i*19)%7-3)))
+  return{pga_prev:pga,study_hours:study,sleep_hours:sleep,fatigue,complexity,treated,grade,passed:grade>=30?1:0,segment}
+}
 
-const mlTraining=Array.from({length:300},(_,k)=>{
-  const i=k+1,usage=10+((i*37)%86),bugs=(i*7)%9,discount=(i*11)%31,tenure=3+((i*13)%60)
-  const z=-3.4+.045*usage-.16*bugs+.035*discount+.025*tenure
-  const p=1/(1+Math.exp(-z)),u=((i*97+31)%991)/991
-  return{usage,bugs,discount,tenure,renewed:u<p?1:0}
-})
+const mlTraining=Array.from({length:500},(_,k)=>gradeRow(k+1,(k%2)===0,archetypes[k%4]))
 
 const observational=Array.from({length:800},(_,k)=>{
-  const i=k+1,risk=1+((i*7)%4),usage=15+((i*19)%80),tenure=4+((i*23)%55)
-  const tp=[0,.18,.35,.72,.90][risk],treated=((i*37+17)%997)/997<tp
-  const p0=Math.max(.08,Math.min(.82,.68-.12*risk+.0015*usage+.001*tenure))
-  const y=((i*101+53)%991)/991<Math.min(.95,p0+(treated?.10:0))
-  return{risk,usage,tenure,treated,renewed:y?1:0}
+  const i=k+1,base=gradeRow(i,false,archetypes[i%4])
+  const treated=base.pga_prev<3.2||base.fatigue>=6
+  const row=gradeRow(i,treated,archetypes[i%4])
+  return{...row,treated,risk:Math.min(4,Math.max(1,Math.round(row.fatigue/2)))}
 })
 
 const experiment=Array.from({length:900},(_,k)=>{
-  const i=k+1,z=(i%100)/100
-  let segment,effect,pbase
-  if(z<.28){segment='digital';effect=.135;pbase=.38}
-  else if(z<.58){segment='middle';effect=.09;pbase=.43}
-  else if(z<.76){segment='traditional';effect=.03;pbase=.49}
-  else if(z<.85){segment='wealth';effect=.01;pbase=.62}
-  else{segment='arrears';effect=-.05;pbase=.25}
-  const usage=15+((i*17)%80),tenure=4+((i*23)%55)
-  const p0=Math.max(.05,Math.min(.9,pbase+.0007*(usage-50)+.0005*(tenure-25)))
+  const i=k+1
+  const seg=SIM_SEGMENTS[i%SIM_SEGMENTS.length]
   const treated=((i*43+11)%997)/997<.5
-  const y=((i*137+71)%991)/991<Math.min(.95,Math.max(.02,p0+(treated?effect:0)))
-  return{segment,usage,tenure,treated,renewed:y?1:0}
+  const row=gradeRow(i,treated,seg.name)
+  return{...row,segment:seg.name,treated}
 })
 
 export const SIM_ANALYSIS={
-  1:{
-    team_tools:{
-      feature_summary:[
-        {feature:'Uso',mean_abs:2.6},
-        {feature:'Incidentes reportados',mean_abs:1.7},
-        {feature:'Descuento',mean_abs:1.2}
+  1:{team_tools:{ml_training:mlTraining}},
+  2:{team_tools:{
+    observational_rows:observational,
+    dag:{
+      nodes:[
+        {id:'risk',label:'PGA previo'},
+        {id:'treat',label:'Apoyo académico'},
+        {id:'outcome',label:'Nota final'},
+        {id:'mediator',label:'Estudio posterior'},
+        {id:'collider',label:'Tutorías posteriores'}
       ],
-      ml_training:mlTraining
-    },
-    reveal_tools:{
-      score_uplift:SIM_CUSTOMERS.map((c,i)=>{
-        const uplift=[.14,.04,.20,-.05,.09,.02,.12,.01][i%8]
-        const p0=Math.min(.76,.25+((i*7)%40)/100)
-        return{...c,p0,p1:Math.max(.02,Math.min(.96,p0+uplift)),uplift_pp:uplift*100,incremental_value_cop:(uplift*200000-8000)*1000}
-      })
-    }
-  },
-  2:{
-    team_tools:{
-      observational_rows:observational,
-      dag:{
-        nodes:[
-          {id:'risk',label:'Riesgo previo'},
-          {id:'treat',label:'Bono'},
-          {id:'outcome',label:'Renovación'}
-        ],
-        edges:[
-          {from:'risk',to:'treat',kind:'confounding'},
-          {from:'risk',to:'outcome',kind:'confounding'},
-          {from:'treat',to:'outcome',kind:'causal'}
-        ],
-        adjust_options:[
-          {id:'none',label:'No separar por riesgo',good:false,highlights:[],explanation:'La comparación mezcla perfiles distintos.'},
-          {id:'risk',label:'Comparar dentro del mismo riesgo',good:true,highlights:['risk'],explanation:'Compara perfiles más parecidos antes de interpretar el resultado.'}
-        ]
-      }
-    }
-  },
-  3:{
-    team_tools:{
-      experiment_rows:experiment,
-      segments:SIM_SEGMENTS.map(s=>({id:s.id,name:s.name,audience:s.audience,risk:s.risk,value_per_result:200000,unit_cost:8000})),
-      economy:SIM_ECONOMY,
-      precision_curve:[
-        {n:200,mde_pp:12.2,ci_half_pp:8.6},
-        {n:500,mde_pp:7.7,ci_half_pp:5.5},
-        {n:1000,mde_pp:5.5,ci_half_pp:3.9},
-        {n:2000,mde_pp:3.9,ci_half_pp:2.8},
-        {n:5000,mde_pp:2.5,ci_half_pp:1.8}
+      edges:[
+        {from:'risk',to:'treat',kind:'confounding'},
+        {from:'risk',to:'outcome',kind:'confounding'},
+        {from:'treat',to:'outcome',kind:'causal'},
+        {from:'treat',to:'mediator',kind:'causal'},
+        {from:'mediator',to:'outcome',kind:'causal'},
+        {from:'treat',to:'collider',kind:'warning'}
       ],
-      econml:[
-        {segment:'digital',name:'Digitales',t_learner:12.8,dr_learner:13.4,causal_forest:13.7},
-        {segment:'middle',name:'Ingreso medio',t_learner:8.4,dr_learner:9.1,causal_forest:9.5},
-        {segment:'traditional',name:'Tradicionales',t_learner:2.1,dr_learner:3.2,causal_forest:4.0},
-        {segment:'wealth',name:'Patrimonio alto',t_learner:.5,dr_learner:1.2,causal_forest:1.5},
-        {segment:'arrears',name:'Mora alta',t_learner:-4.2,dr_learner:-5.1,causal_forest:-5.6}
-      ],
-      placebo:{effect_pp:4.7,ci_low:1.5,ci_high:7.9,message:'Un resultado medido antes de la campaña no debería responder a una intervención futura.'}
-    },
-    reveal_tools:{
-      experiment:{treatment_rate:49,control_rate:43,ate_pp:6},
-      segments:trueSegments
+      adjust_options:[
+        {id:'none',label:'No ajustar',good:false,highlights:[],explanation:'La comparación conserva confusión.'},
+        {id:'risk',label:'PGA previo + complejidad',good:true,highlights:['risk'],explanation:'Bloquea causas previas sin controlar el mecanismo posterior.'},
+        {id:'post',label:'Variables posteriores',good:false,highlights:['mediator','collider'],explanation:'Puede borrar efecto o introducir sesgo.'}
+      ]
     }
-  }
+  }},
+  3:{team_tools:{
+    experiment_rows:experiment,
+    segments:SIM_SEGMENTS,
+    economy:SIM_ECONOMY,
+    econml:[
+      {segment:'digital',name:'Alta fatiga',t_learner:9.6,dr_learner:10.1,causal_forest:10.5},
+      {segment:'middle',name:'Equilibrado',t_learner:7.0,dr_learner:7.7,causal_forest:7.9},
+      {segment:'traditional',name:'Sueño insuficiente',t_learner:2.4,dr_learner:3.0,causal_forest:3.3},
+      {segment:'wealth',name:'Sobreexigido',t_learner:.8,dr_learner:1.1,causal_forest:1.4},
+      {segment:'arrears',name:'Sin señal clara',t_learner:-1.0,dr_learner:-1.4,causal_forest:-1.6}
+    ]
+  }}
 }
 
-export const SIM_PATHS={
-  ana:{
-    1:{initial:{selected:['S05','S10']},revision:{selected:['S03','S09']},checkAnswer:'b',checkPoints:30,noteInitial:'Elegí quienes parecían más probables de renovar.',noteRevision:'Después del laboratorio dejé de tratar la probabilidad como si fuera impacto.'},
-    2:{initial:{recommendation:'cancel'},revision:{recommendation:'redesign'},checkAnswer:'a',checkPoints:30,noteInitial:'Con bono renovaron menos; cancelaría.',noteRevision:'Ahora veo que los grupos eran distintos desde antes. Pediría una comparación mejor.'},
-    3:{initial:{choices:{digital:'treat',middle:'treat',traditional:'treat',wealth:'observe',arrears:'observe'}},checkAnswer:'b',checkPoints:30,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Si funciona en promedio, traté varios grupos.',noteRevision:'Después de mirar el cambio por grupo y el costo, concentré el presupuesto.'}
+const pathsFor=(variant=0)=>({
+  1:{
+    initial:{selected:[`E0${1+variant}`,`E0${5+variant}`]},
+    revision:{selected:['E03','E08']},
+    checkAnswer:'b',checkPoints:30,
+    noteInitial:'Priorizó a quienes parecían más probables de aprobar.',
+    noteRevision:'Separó probabilidad de aprobar de cambio causado por el apoyo.'
   },
-  luis:{
-    1:{initial:{selected:['S02','S07']},revision:{selected:['S01','S03']},checkAnswer:'a',checkPoints:0,noteInitial:'Seguí el ranking del modelo.',noteRevision:'Busqué señales de cambio, no sólo nivel esperado.'},
-    2:{initial:{recommendation:'keep'},revision:{recommendation:'redesign'},checkAnswer:'a',checkPoints:30,noteInitial:'Pensé que el histórico era suficiente.',noteRevision:'La asignación del bono estaba sesgada hacia alto riesgo.'},
-    3:{initial:{choices:{digital:'treat',middle:'observe',traditional:'treat',wealth:'treat',arrears:'avoid'}},checkAnswer:'b',checkPoints:30,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Usé intuición comercial.',noteRevision:'La política final usa efecto y valor, no sólo segmento.'}
+  2:{
+    initial:{choice:variant%2?'prediction':'randomized'},
+    revision:{choice:'randomized'},
+    checkAnswer:'a',checkPoints:30,
+    noteInitial:'Todavía mezclaba predicción con diseño experimental.',
+    noteRevision:'Reconoció que la aleatorización permite interpretar causalmente la diferencia media.'
   },
-  camila:{
-    1:{initial:{selected:['S06','S14']},revision:{selected:['S03','S17']},checkAnswer:'b',checkPoints:30,noteInitial:'Priorizaba probabilidad alta.',noteRevision:'Entendí que renovar de todas formas no crea valor incremental.'},
-    2:{initial:{recommendation:'cancel'},revision:{recommendation:'redesign'},checkAnswer:'c',checkPoints:0,noteInitial:'La diferencia cruda parecía negativa.',noteRevision:'Comparé dentro de niveles de riesgo antes de concluir.'},
-    3:{initial:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'observe',arrears:'treat'}},checkAnswer:'b',checkPoints:30,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'No esperaba daño en mora alta.',noteRevision:'El promedio escondía respuestas distintas.'}
+  3:{
+    initial:{selected:['pga_previo','horas_estudio_post','tutorias_post']},
+    revision:{selected:['pga_previo','complejidad']},
+    checkAnswer:'b',checkPoints:30,
+    noteInitial:'Quería controlar todas las variables disponibles.',
+    noteRevision:'Bloqueó confusión previa y evitó mediador y collider.'
   },
-  juan:{
-    1:{initial:{selected:['S12','S21']},revision:{selected:['S03','S11']},checkAnswer:'b',checkPoints:30,noteInitial:'Tomé los scores literalmente.',noteRevision:'Ahora separo predicción y efecto.'},
-    2:{initial:{recommendation:'keep'},revision:{recommendation:'redesign'},checkAnswer:'a',checkPoints:30,noteInitial:'Preferí no cambiar la campaña.',noteRevision:'La comparación necesita grupos parecidos.'},
-    3:{initial:{choices:{digital:'observe',middle:'treat',traditional:'treat',wealth:'treat',arrears:'avoid'}},checkAnswer:'a',checkPoints:0,revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},noteInitial:'Priorizaba tamaño y valor bruto.',noteRevision:'Usé el cambio atribuible al bono y su costo.'}
+  4:{
+    initial:{choice:variant%2?'predict-y':'raw'},
+    revision:{choice:'dml'},
+    checkAnswer:'b',checkPoints:30,
+    noteInitial:'Pensaba que el mejor predictor bastaba para causalidad.',
+    noteRevision:'Entendió los dos modelos auxiliares, residuos y efecto residual de DML.'
+  },
+  5:{
+    initial:{choices:{digital:'treat',middle:'observe',traditional:'treat',wealth:'treat',arrears:'observe'}},
+    revision:{choices:{digital:'treat',middle:'treat',traditional:'observe',wealth:'avoid',arrears:'avoid'}},
+    checkAnswer:'b',checkPoints:30,
+    noteInitial:'Partió del efecto promedio.',
+    noteRevision:'Usó CATE y heterogeneidad para priorizar perfiles.'
+  },
+  6:{
+    initial:{choice:['t-learner','causal-forest','dr-learner'][variant%3]},
+    revision:{choice:'depends'},
+    checkAnswer:'c',checkPoints:30,
+    noteInitial:'Buscó un algoritmo ganador.',
+    noteRevision:'Terminó escogiendo según diseño, identificación, datos, objetivo y supuestos.'
   }
+})
+
+export const SIM_PATHS={
+  ana:pathsFor(0),
+  luis:pathsFor(1),
+  camila:pathsFor(2),
+  juan:pathsFor(3)
 }
 
 export const SIM_TEAM_DECISIONS={
-  1:{selected:['S01','S03','S04','S09','S11','S12','S17','S18','S20','S23']},
-  2:{recommendation:'redesign'},
-  3:{treat:['digital','middle'],avoid:['wealth','arrears'],observe:['traditional']}
+  1:{selected:['E01','E03','E04','E08','E09','E11','E14','E17','E20','E23']},
+  2:{choice:'randomized'},
+  3:{selected:['pga_previo','complejidad']},
+  4:{choice:'dml'},
+  5:{treat:['digital','middle'],avoid:['wealth','arrears'],observe:['traditional']},
+  6:{choice:'depends'}
 }
 
 export const SIM_REVEALS={
-  1:{incremental_value_cop:188000000,best_possible_value_cop:226000000,value_gap_cop:38000000},
-  2:{true_effect_pp:10,campaign_potential_value_cop:120000000},
-  3:{incremental_value_cop:213000000,treated_audience:15000,capacity:15000}
+  1:{impact_students:86,best_impact_students:104},
+  2:{true_effect_points:4.8},
+  3:{adjustment_set:['pga_previo','complejidad']},
+  4:{true_effect_points:4.8,dml_estimate:4.9},
+  5:{impact_students:135,best_impact_students:135},
+  6:{message:'Primero identifica; después estima; luego valida; al final decide.'}
 }
 
-export const SIM_TEAM_POINTS={1:25,2:30,3:30}
+export const SIM_TEAM_POINTS={1:25,2:30,3:30,4:30,5:30,6:30}

@@ -1,106 +1,236 @@
 const STANDARD_JOURNEY=[
-  {id:'brief',label:'Contexto',student:'Entiende una situación cotidiana y una sola pregunta.',evidence:false},
+  {id:'brief',label:'Contexto',student:'Entiende una situación académica y una sola pregunta.',evidence:false},
   {id:'initial',label:'Tu decisión',student:'Responde con su intuición antes de abrir datos nuevos.',evidence:false},
   {id:'wait_initial',label:'Equipo',student:'Espera a que todos hayan tomado una primera decisión.',evidence:false},
-  {id:'lab',label:'Laboratorio',student:'Ve todo el laboratorio en una sola página y ejecuta el código guiado.',evidence:true},
+  {id:'lab',label:'Laboratorio',student:'Ejecuta Python guiado y observa evidencia causal paso a paso.',evidence:true},
   {id:'check',label:'Pregunta',student:'Responde una pregunta corta de comprensión y recibe puntaje.',evidence:true},
   {id:'revision',label:'Revisión',student:'Vuelve a decidir después de observar los datos.',evidence:true},
   {id:'wait_revision',label:'Equipo',student:'Espera las revisiones de sus compañeros.',evidence:true},
   {id:'team',label:'Decisión final',student:'El equipo toma una decisión común.',evidence:true},
   {id:'reveal',label:'Resultado',student:'Ve el resultado, el puntaje del equipo y lo que estaba oculto.',evidence:true},
-  {id:'debrief',label:'Qué aprendí',student:'Primero explica la idea en palabras simples y luego conoce su nombre técnico.',evidence:true}
+  {id:'debrief',label:'Qué aprendí',student:'Explica la idea en palabras simples y luego conoce su nombre técnico.',evidence:true}
 ]
+
+const glossary=(...rows)=>rows.map(([term,full,definition])=>({term,full,definition}))
 
 export const V2_CHALLENGES=[
   {
-    id:'prediction-vs-effect',
-    order:1,
-    enabled:true,
-    template:'cohort-selection',
-    profileRound:1,
-    labKey:'prediction',
+    id:'prediction-vs-intervention',order:1,enabled:true,
+    template:'cohort-selection',profileRound:1,labKey:'prediction',
     points:{lab:20,check:30,revision:20,team:30},
-    kicker:'RETO 1',
-    title:'¿A quién le darías un mes gratis?',
-    simpleQuestion:'Una app no puede regalar un mes a todos. ¿A qué grupos se lo darías para lograr más renovaciones?',
-    scenario:'Una app cobra una suscripción mensual. Algunos usuarios pueden recibir el próximo mes gratis para que no se vayan. Un modelo ya estima quién probablemente renovará.',
-    decisionUnit:'cohort',
-    initialDecision:'Elige entre 1 y 3 grupos usando sólo lo que ves.',
+    kicker:'MISIÓN 1 · LA TRAMPA PREDICTIVA',
+    title:'¿Predecir una nota es saber cómo mejorarla?',
+    simpleQuestion:'Un modelo predice quién aprobará el próximo examen. ¿Eso también nos dice quién mejoraría si recibe apoyo académico?',
+    scenario:'La universidad quiere priorizar acompañamiento. Tiene historial académico, hábitos de estudio, sueño, fatiga y complejidad de asignaturas. Un modelo ya predice la probabilidad de aprobar el próximo examen.',
+    decisionUnit:'student-group',
+    initialDecision:'Elige entre 1 y 3 perfiles a los que darías el apoyo usando sólo la predicción.',
     revisedDecision:'Después del laboratorio, vuelve a elegir. Puedes mantener o cambiar tu decisión.',
-    teamDecision:'Entre todos, elijan 10 grupos.',
-    plainConcept:'Saber quién probablemente renovará no dice quién renovará gracias al mes gratis.',
+    teamDecision:'Entre todos, elijan 10 perfiles que priorizarían.',
+    plainConcept:'Predecir quién aprobará no dice quién mejorará gracias a una intervención.',
     technicalTerm:'Predicción vs. efecto causal',
-    advancedTerms:['contrafactual','uplift'],
-    wow:'Un grupo con alta probabilidad de renovar puede generar poco cambio porque quizá renovaría de todas formas.',
-    takeaway:'Para decidir una intervención importa el cambio que produce, no sólo el resultado que predice.',
-    checkQuestion:'Si un grupo tiene 90% de probabilidad de renovar, ¿qué puedes concluir?',
+    advancedTerms:['Contrafactual','Uplift'],
+    wow:'El estudiante con mayor probabilidad de aprobar puede ser quien menos cambie con el apoyo porque quizá aprobaría de todas formas.',
+    takeaway:'Una buena predicción responde qué probablemente ocurrirá; una pregunta causal responde qué cambiaría si actuamos.',
+    checkQuestion:'Si un estudiante tiene 90% de probabilidad de aprobar, ¿qué puedes concluir?',
     checkOptions:[
-      ['a','Que el mes gratis tendrá un efecto grande.'],
-      ['b','Que probablemente renovará; todavía no sé cuánto cambia por el mes gratis.'],
-      ['c','Que no debería recibir ningún incentivo.']
+      ['a','Que el apoyo académico le aumentará mucho la nota.'],
+      ['b','Que probablemente aprobará; todavía no sé cuánto cambiaría por recibir apoyo.'],
+      ['c','Que no debería recibir ninguna intervención.']
     ],
-    timeMinutes:16,
-    journey:STANDARD_JOURNEY
+    glossary:glossary(
+      ['ML','Machine Learning · aprendizaje automático','Modelos que aprenden patrones de datos para predecir o clasificar.'],
+      ['Contrafactual','Counterfactual','El resultado que habría ocurrido bajo la alternativa que no observamos.'],
+      ['Uplift','Cambio incremental','Diferencia esperada entre el resultado con intervención y sin intervención para un perfil.']
+    ),
+    timeMinutes:12,journey:STANDARD_JOURNEY
   },
   {
-    id:'fair-comparison',
-    order:2,
-    enabled:true,
-    template:'recommendation',
-    profileRound:2,
-    labKey:'comparison',
+    id:'randomized-experiment',order:2,enabled:true,
+    template:'single-choice',profileRound:3,labKey:'ab-test',
     points:{lab:20,check:30,revision:20,team:30},
-    kicker:'RETO 2',
-    title:'¿El mes gratis está funcionando?',
-    simpleQuestion:'En el histórico, quienes recibieron el mes gratis renovaron menos. ¿Eso prueba que el incentivo empeoró las renovaciones?',
-    scenario:'La empresa solía regalar el mes sobre todo a usuarios que parecían estar a punto de irse. Al mirar el histórico, el grupo con incentivo renovó menos.',
-    decisionUnit:'recommendation',
-    initialDecision:'Decide si cancelarías el incentivo, lo mantendrías o pedirías una comparación mejor.',
-    revisedDecision:'Después de comparar usuarios parecidos, revisa tu decisión.',
-    teamDecision:'El equipo debe acordar una sola recomendación.',
-    plainConcept:'Antes de comparar resultados, revisa si los grupos ya eran diferentes desde antes.',
-    technicalTerm:'Confusión y comparabilidad',
-    advancedTerms:['propensity score','IPW','overlap'],
-    wow:'Una comparación simple puede verse negativa aunque el incentivo realmente ayude.',
-    takeaway:'Una diferencia entre dos grupos no siempre es causada por el incentivo.',
-    checkQuestion:'Antes de decir que el incentivo causó la diferencia, ¿qué es lo más importante revisar?',
-    checkOptions:[
-      ['a','Si los grupos eran comparables antes de recibir el incentivo.'],
-      ['b','Cuál grupo tiene más filas en la base.'],
-      ['c','Si el promedio general es mayor a 50%.']
+    kicker:'MISIÓN 2 · EXPERIMENTO A/B',
+    title:'¿El plan de estudio realmente mejora la nota?',
+    simpleQuestion:'La universidad asignó al azar un plan de estudio estructurado. ¿Cómo estimamos cuánto cambió la nota?',
+    scenario:'A una parte de los estudiantes se les ofrece aleatoriamente un plan de estudio con planificación semanal y bloques guiados; al resto no. Como la asignación fue aleatoria, los grupos son comparables por diseño.',
+    decisionUnit:'choice',
+    initialDecision:'Decide qué comparación considerarías más defendible.',
+    revisedDecision:'Después de ejecutar varias muestras del experimento, revisa tu conclusión.',
+    teamDecision:'El equipo debe acordar cómo reportaría el efecto y su incertidumbre.',
+    decisionOptions:[
+      ['randomized','Comparar tratamiento vs. control porque la asignación fue aleatoria.'],
+      ['prediction','Entrenar primero el mejor predictor de nota.'],
+      ['raw-correlation','Mirar sólo la correlación entre horas de estudio y nota.']
     ],
-    timeMinutes:16,
-    journey:STANDARD_JOURNEY
+    plainConcept:'La aleatorización ayuda a que tratados y controles sean comparables antes de intervenir.',
+    technicalTerm:'Experimento aleatorizado, ATE e intervalo de confianza',
+    advancedTerms:['RCT','ATE','IC'],
+    wow:'Equipos que simulan el mismo efecto verdadero pueden obtener estimaciones distintas sólo por azar muestral.',
+    takeaway:'Un experimento bien aleatorizado identifica un efecto promedio; la estimación todavía tiene incertidumbre.',
+    checkQuestion:'El plan se asignó al azar y la nota media fue 4.8 puntos mayor en tratamiento. ¿Qué interpretación es correcta?',
+    checkOptions:[
+      ['a','La diferencia es una estimación del efecto promedio y debe acompañarse de incertidumbre.'],
+      ['b','Cada estudiante mejoró exactamente 4.8 puntos.'],
+      ['c','Un modelo predictivo es obligatorio para que la comparación sea causal.']
+    ],
+    glossary:glossary(
+      ['A/B','Experimento A/B','Comparación aleatoria entre una alternativa A y una B.'],
+      ['RCT','Randomized Controlled Trial · ensayo controlado aleatorizado','Experimento donde la intervención se asigna al azar.'],
+      ['ATE','Average Treatment Effect · efecto promedio del tratamiento','Cambio promedio causado por la intervención frente a no intervenir.'],
+      ['IC','Intervalo de confianza','Rango que resume la incertidumbre de la estimación.']
+    ),
+    timeMinutes:14,journey:STANDARD_JOURNEY
   },
   {
-    id:'experiment-to-policy',
-    order:3,
-    enabled:true,
-    template:'segment-policy',
-    profileRound:3,
-    labKey:'experiment',
+    id:'dag-adjustment',order:3,enabled:true,
+    template:'multi-select',profileRound:2,labKey:'dag',
     points:{lab:20,check:30,revision:20,team:30},
-    kicker:'RETO 3',
-    title:'¿A quién se lo darías ahora?',
-    simpleQuestion:'En una prueba aleatoria el mes gratis ayudó en promedio. ¿Eso significa que debemos ofrecérselo a todos los grupos?',
-    scenario:'Esta vez el incentivo se asignó al azar. En promedio ayudó, pero la empresa sólo puede cubrir a 15.000 usuarios y algunos grupos responden distinto.',
+    kicker:'MISIÓN 3 · DAG DETECTIVE',
+    title:'¿Qué variables controlarías?',
+    simpleQuestion:'En datos observacionales, ¿qué variables debes ajustar para estimar el efecto total de un programa de apoyo sobre la nota?',
+    scenario:'Fuera del experimento, los estudiantes no reciben apoyo al azar. El historial, la complejidad y otros factores previos influyen en quién recibe apoyo y también en su desempeño.',
+    decisionUnit:'variables',
+    initialDecision:'Selecciona las variables que controlarías antes de ver el mapa causal.',
+    revisedDecision:'Después del DAG, vuelve a seleccionar qué ajustarías y qué evitarías.',
+    teamDecision:'El equipo debe acordar un conjunto final de ajuste.',
+    decisionOptions:[
+      ['pga_previo','PGA previo'],
+      ['complejidad','Complejidad de la asignatura'],
+      ['horas_estudio_post','Horas de estudio después del apoyo'],
+      ['tutorias_post','Uso de tutorías después del apoyo']
+    ],
+    plainConcept:'No se trata de controlar todas las variables: se trata de bloquear confusión sin borrar mecanismos ni abrir sesgos.',
+    technicalTerm:'DAG, backdoor, confusor, mediador y collider',
+    advancedTerms:['d-separation','Adjustment set'],
+    wow:'Agregar una variable al modelo puede empeorar una estimación causal si es mediador o collider.',
+    takeaway:'Antes de ajustar un modelo, dibuja qué causa qué y decide qué variables son previas al tratamiento.',
+    checkQuestion:'Quieres estimar el efecto TOTAL del apoyo. ¿Qué estrategia es más defendible?',
+    checkOptions:[
+      ['a','Controlar absolutamente todas las variables disponibles.'],
+      ['b','Ajustar por causas previas del tratamiento y del resultado, evitando mediadores y colliders.'],
+      ['c','Controlar sólo variables medidas después del tratamiento.']
+    ],
+    glossary:glossary(
+      ['DAG','Directed Acyclic Graph · grafo acíclico dirigido','Mapa de hipótesis sobre qué variables causan cuáles.'],
+      ['Backdoor','Camino de puerta trasera','Camino no causal que puede crear asociación entre tratamiento y resultado.'],
+      ['Confusor','Confounder','Causa previa relacionada con tratamiento y resultado.'],
+      ['Mediador','Mediator','Variable por la que pasa parte del efecto del tratamiento.'],
+      ['Collider','Collider','Variable que recibe flechas de dos causas; condicionarla puede introducir sesgo.'],
+      ['d-separation','Separación gráfica en un DAG','Regla gráfica para razonar cuándo dos variables quedan independientes al condicionar otras.'],
+      ['Adjustment set','Conjunto de ajuste','Variables por las que se condiciona para bloquear caminos de confusión sin abrir caminos indebidos.']
+    ),
+    timeMinutes:16,journey:STANDARD_JOURNEY
+  },
+  {
+    id:'double-machine-learning',order:4,enabled:true,
+    template:'single-choice',profileRound:2,labKey:'dml',
+    points:{lab:20,check:30,revision:20,team:30},
+    kicker:'MISIÓN 4 · RESIDUOS',
+    title:'¿Cómo aislamos el efecto con muchas variables previas?',
+    simpleQuestion:'Si muchas características explican tanto recibir apoyo como la nota, ¿cómo usamos ML sin convertir la causalidad en una caja negra?',
+    scenario:'Tenemos muchas covariables previas: PGA, asignatura, complejidad, sueño y hábitos. Queremos ajustar relaciones complejas sin confundir capacidad predictiva con efecto causal.',
+    decisionUnit:'choice',
+    initialDecision:'Elige qué estrategia usarías para aislar el efecto.',
+    revisedDecision:'Después de construir DML por etapas, vuelve a elegir y explica qué eliminó cada modelo auxiliar.',
+    teamDecision:'El equipo debe acordar la interpretación correcta del efecto residual.',
+    decisionOptions:[
+      ['predict-y','Usar el mejor modelo para predecir nota y leer su importancia de variables.'],
+      ['dml','Modelar tratamiento y resultado con X, residualizar y estimar la relación entre residuos.'],
+      ['raw','Comparar directamente tratados y no tratados sin ajustar.']
+    ],
+    plainConcept:'DML usa ML para quitar de tratamiento y resultado la parte explicada por covariables previas y estima el efecto sobre lo que queda.',
+    technicalTerm:'DML · Double Machine Learning',
+    advancedTerms:['Nuisance models','Residualización','Ortogonalización','Cross-fitting'],
+    wow:'El modelo con mejor predicción de nota no necesariamente produce la mejor estimación causal.',
+    takeaway:'En DML, machine learning es una herramienta de ajuste; la pregunta causal y la identificación siguen mandando.',
+    checkQuestion:'¿Qué describe mejor la idea central de DML?',
+    checkOptions:[
+      ['a','Predecir Y con el mayor R² posible y usar la variable más importante como causa.'],
+      ['b','Modelar T y Y usando X, trabajar con residuos y estimar el efecto en esa variación residual.'],
+      ['c','Usar dos Random Forest y promediar sus predicciones.']
+    ],
+    glossary:glossary(
+      ['DML','Double Machine Learning · aprendizaje automático doble','Método que usa ML para ajustar tratamiento y resultado antes de estimar el efecto.'],
+      ['Nuisance models','Modelos auxiliares','Modelos usados para estimar componentes como tratamiento o resultado; ayudan al ajuste pero no son el efecto causal final.'],
+      ['T','Treatment · tratamiento','Intervención cuyo efecto queremos estimar.'],
+      ['Y','Outcome · resultado','Variable que queremos explicar causalmente; aquí, la nota.'],
+      ['X','Covariables','Características previas usadas para hacer la comparación más defendible.'],
+      ['R²','Coeficiente de determinación','Medida predictiva de cuánto de la variación de Y explica un modelo; no prueba causalidad.'],
+      ['Residualización','Residualization','Quitar de una variable la parte que un modelo puede explicar con X y trabajar con lo que queda.'],
+      ['Ortogonalización','Orthogonalization','Construcción del estimador para reducir sensibilidad a pequeños errores de los modelos auxiliares.'],
+      ['Cross-fitting','Predicción cruzada fuera de muestra','Entrenar modelos auxiliares en unas filas y predecir otras para reducir sesgo por sobreajuste.']
+    ),
+    timeMinutes:18,journey:STANDARD_JOURNEY
+  },
+  {
+    id:'heterogeneous-effects',order:5,enabled:true,
+    template:'segment-policy',profileRound:3,labKey:'heterogeneity',
+    points:{lab:20,check:30,revision:20,team:30},
+    kicker:'MISIÓN 5 · NO FUNCIONA IGUAL PARA TODOS',
+    title:'¿Para quién funciona el apoyo?',
+    simpleQuestion:'El programa mejora la nota en promedio. ¿Qué perfiles se benefician más y a quién priorizarías con cupos limitados?',
+    scenario:'El experimento muestra un efecto promedio positivo, pero hay arquetipos académicos con respuestas distintas. La universidad sólo puede ofrecer acompañamiento intensivo a una parte de los estudiantes.',
     decisionUnit:'policy',
-    initialDecision:'Para cada grupo, elige ofrecer, no ofrecer o pedir más evidencia.',
-    revisedDecision:'Después de comparar el cambio por grupo y el costo, revisa tu política.',
-    teamDecision:'Construyan una política para los cinco grupos sin superar 15.000 usuarios.',
-    plainConcept:'Que algo funcione en promedio no significa que funcione igual para todos.',
-    technicalTerm:'Efecto promedio y heterogeneidad',
-    advancedTerms:['ATE','CATE','T-Learner'],
-    wow:'Una intervención positiva en promedio puede perder dinero en algunos grupos.',
-    takeaway:'Primero pregunta si funciona; después, para quién y a qué costo.',
-    checkQuestion:'El incentivo mejora la renovación 6 puntos en promedio. ¿Qué conclusión es correcta?',
+    initialDecision:'Para cada arquetipo, elige priorizar, no priorizar o pedir más evidencia.',
+    revisedDecision:'Después de estimar efectos por perfil, revisa tu política.',
+    teamDecision:'Construyan una política sin superar la capacidad disponible.',
+    plainConcept:'Un efecto promedio puede esconder estudiantes que ganan mucho, poco o incluso nada con la misma intervención.',
+    technicalTerm:'CATE y heterogeneidad del efecto',
+    advancedTerms:['S-Learner','T-Learner','Uplift'],
+    wow:'Dos estudiantes con notas esperadas parecidas pueden tener efectos causales completamente distintos.',
+    takeaway:'ATE pregunta si funciona en promedio; CATE pregunta para quién funciona.',
+    checkQuestion:'Si ATE = +5 puntos, ¿qué conclusión es correcta?',
     checkOptions:[
-      ['a','Que mejora exactamente 6 puntos en todos los grupos.'],
-      ['b','Que hay una mejora promedio; todavía falta mirar grupos y costos.'],
-      ['c','Que debemos ofrecérselo a todos.']
+      ['a','Todos los estudiantes mejoraron exactamente 5 puntos.'],
+      ['b','La mejora promedio es 5; todavía debemos estudiar heterogeneidad para decidir a quién priorizar.'],
+      ['c','El programa funciona igual en todos los arquetipos.']
     ],
-    timeMinutes:18,
-    journey:STANDARD_JOURNEY
+    glossary:glossary(
+      ['CATE','Conditional Average Treatment Effect · efecto promedio condicional del tratamiento','Efecto promedio para personas con determinadas características.'],
+      ['S-Learner','Single Learner · aprendiz único','Un modelo predice Y usando X y T; se compara la predicción con T=1 y T=0.'],
+      ['T-Learner','Two Learners · dos aprendices','Un modelo aprende el resultado tratado y otro el resultado control; su diferencia estima efecto.'],
+      ['Uplift','Cambio incremental','Cuánto cambia el resultado esperado por aplicar la intervención a un perfil.']
+    ),
+    timeMinutes:16,journey:STANDARD_JOURNEY
+  },
+  {
+    id:'causal-model-battle',order:6,enabled:true,
+    template:'single-choice',profileRound:3,labKey:'model-battle',
+    points:{lab:20,check:30,revision:20,team:30},
+    kicker:'MISIÓN 6 · BOSS FINAL',
+    title:'¿Qué estimador causal usarías?',
+    simpleQuestion:'Tienes varias herramientas causales. ¿Cómo eliges sin convertir la sesión en una carrera de APIs?',
+    scenario:'Los equipos comparan estimadores sobre el mismo mundo sintético y deben defender qué método usarían según identificación, tamaño muestral, heterogeneidad y objetivo de decisión.',
+    decisionUnit:'choice',
+    initialDecision:'Elige el método que usarías para estimar heterogeneidad en un problema con muchas covariables.',
+    revisedDecision:'Después de comparar estimadores, revisa tu respuesta y reconoce qué supuestos siguen importando.',
+    teamDecision:'El equipo debe acordar una recomendación metodológica y justificarla.',
+    decisionOptions:[
+      ['t-learner','T-Learner'],
+      ['dr-learner','DR-Learner'],
+      ['causal-forest','Causal Forest / CausalForestDML'],
+      ['depends','Depende del diseño, objetivo, overlap, tamaño muestral y supuestos.']
+    ],
+    plainConcept:'No existe un estimador causal universalmente ganador; el método debe responder a la pregunta y a la estrategia de identificación.',
+    technicalTerm:'DR-Learner, Causal Forest y EconML',
+    advancedTerms:['CausalForestDML','Doubly robust','Policy learning'],
+    wow:'Dos modelos pueden predecir casi igual y estimar efectos diferentes; incluso el acuerdo entre modelos no arregla una mala identificación.',
+    takeaway:'Primero identifica; después estima; luego valida; al final decide.',
+    checkQuestion:'¿Cuál es la regla más importante al escoger entre T-Learner, DR-Learner y Causal Forest?',
+    checkOptions:[
+      ['a','Elegir siempre el modelo con mayor R² predictivo.'],
+      ['b','Elegir siempre Causal Forest porque es el más avanzado.'],
+      ['c','Elegir según diseño, identificación, objetivo, datos y supuestos; comparar estimadores como diagnóstico.']
+    ],
+    glossary:glossary(
+      ['DR-Learner','Doubly Robust Learner · aprendiz doblemente robusto','Combina modelos de tratamiento y resultado para estimar efectos con mayor robustez bajo ciertos supuestos.'],
+      ['Doubly robust','Doblemente robusto','Propiedad por la que ciertos estimadores pueden seguir siendo consistentes si al menos uno de dos modelos auxiliares está bien especificado.'],
+      ['Causal Forest','Bosque causal','Familia de árboles diseñada para aprender heterogeneidad del efecto.'],
+      ['EconML','Econometric Machine Learning','Librería de Microsoft con estimadores de inferencia causal basados en ML.'],
+      ['Overlap','Soporte común','Existencia de perfiles comparables con y sin tratamiento.'],
+      ['CausalForestDML','Causal Forest con Double Machine Learning','Estimador de EconML que combina bosque causal con una estrategia DML para aprender efectos heterogéneos.'],
+      ['Policy learning','Aprendizaje de política','Uso de efectos causales estimados para decidir a quién intervenir bajo una regla u objetivo.']
+    ),
+    timeMinutes:14,journey:STANDARD_JOURNEY
   }
 ]
 
@@ -112,6 +242,7 @@ export const V2_CHALLENGE_COUNT=enabledChallenges().length
 export function validateChallengeRegistry(challenges=V2_CHALLENGES){
   const errors=[]
   const ids=new Set()
+  const allowedTemplates=new Set(['cohort-selection','single-choice','multi-select','segment-policy'])
   for(const c of challenges){
     if(!c.id)errors.push('Cada reto necesita id.')
     if(ids.has(c.id))errors.push(`ID duplicado: ${c.id}`)
@@ -119,37 +250,25 @@ export function validateChallengeRegistry(challenges=V2_CHALLENGES){
     for(const key of ['title','scenario','simpleQuestion','plainConcept','technicalTerm','template','profileRound','labKey','checkQuestion']){
       if(!c[key])errors.push(`${c.id||'reto'}: falta ${key}`)
     }
-    if(![1,2,3].includes(Number(c.profileRound)))errors.push(`${c.id||'reto'}: profileRound debe ser 1, 2 o 3`)
+    if(![1,2,3].includes(Number(c.profileRound)))errors.push(`${c.id||'reto'}: profileRound debe reutilizar 1, 2 o 3`)
+    if(!allowedTemplates.has(c.template))errors.push(`${c.id||'reto'}: template no soportado`)
+    if(['single-choice','multi-select'].includes(c.template)&&(!Array.isArray(c.decisionOptions)||c.decisionOptions.length<2))errors.push(`${c.id||'reto'}: faltan decisionOptions`)
     if(!c.points||['lab','check','revision','team'].some(k=>!Number.isFinite(Number(c.points[k]))))errors.push(`${c.id||'reto'}: falta configuración de puntos`)
     if(!Array.isArray(c.checkOptions)||c.checkOptions.length<2)errors.push(`${c.id||'reto'}: faltan opciones de la pregunta de cierre`)
+    if(!Array.isArray(c.glossary)||c.glossary.length<1)errors.push(`${c.id||'reto'}: falta glosario`)
     if(!Array.isArray(c.journey)||c.journey.length<8)errors.push(`${c.id||'reto'}: journey incompleto`)
   }
   return errors
 }
 
 export const CHALLENGE_TEMPLATE={
-  id:'nuevo-reto',
-  order:4,
-  enabled:false,
-  template:'recommendation',
-  profileRound:2,
-  labKey:'comparison',
-  points:{lab:20,check:30,revision:20,team:30},
-  kicker:'RETO 4',
-  title:'Pregunta corta del reto',
-  simpleQuestion:'La pregunta que el estudiante debe poder responder.',
-  scenario:'Contexto de dos frases, con una sola decisión.',
-  decisionUnit:'recommendation',
-  initialDecision:'Qué decide antes de ver nueva evidencia.',
-  revisedDecision:'Qué vuelve a decidir después del laboratorio.',
-  teamDecision:'Qué bloquea el equipo.',
-  plainConcept:'La idea en lenguaje cotidiano.',
-  technicalTerm:'El nombre técnico que se presenta después.',
-  advancedTerms:['término opcional'],
-  wow:'La intuición que se rompe.',
-  takeaway:'Una frase que debería poder repetir el estudiante.',
-  checkQuestion:'Pregunta de comprensión que sí otorga puntaje.',
-  checkOptions:[['a','Opción A'],['b','Opción B'],['c','Opción C']],
-  timeMinutes:15,
-  journey:STANDARD_JOURNEY
+  id:'nuevo-reto',order:7,enabled:false,template:'single-choice',profileRound:2,labKey:'dml',
+  points:{lab:20,check:30,revision:20,team:30},kicker:'MISIÓN 7',title:'Pregunta corta del reto',
+  simpleQuestion:'La pregunta que el estudiante debe poder responder.',scenario:'Contexto académico de dos frases, con una sola decisión.',
+  decisionUnit:'choice',initialDecision:'Qué decide antes de ver nueva evidencia.',revisedDecision:'Qué vuelve a decidir después del laboratorio.',
+  teamDecision:'Qué bloquea el equipo.',decisionOptions:[['a','Opción A'],['b','Opción B']],
+  plainConcept:'La idea en lenguaje cotidiano.',technicalTerm:'Nombre técnico',advancedTerms:['término opcional'],
+  wow:'La intuición que se rompe.',takeaway:'Una frase que debería poder repetir el estudiante.',
+  checkQuestion:'Pregunta de comprensión que sí otorga puntaje.',checkOptions:[['a','Opción A'],['b','Opción B'],['c','Opción C']],
+  glossary:glossary(['SIGLA','Nombre completo','Definición humana.']),timeMinutes:15,journey:STANDARD_JOURNEY
 }
