@@ -11,7 +11,7 @@ const facilitator=readFileSync('supabase/functions/v2-facilitator/index.ts','utf
 const immutable=readFileSync('supabase/migrations/202609180009_v2_immutable_check_answer.sql','utf8')
 
 test('every academic mission uses 20 lab + 30 question + 20 revision + 30 team',()=>{
-  const rows=[...academic.matchAll(/(\d+,'[^']+','[abc]',20,30,20,30,true/g)]
+  const rows=[...academic.matchAll(/\d+,'[^']+','[abc]',20,30,20,30,true/g)]
   assert.equal(rows.length,6)
   assert.match(scoreSql,/checkpoint in \('lab','check','revision','team'\)/)
 })
