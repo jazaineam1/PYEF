@@ -8,7 +8,7 @@ test('V2 retains reusable causal visual evidence families',()=>{
   for(const name of ['DagLab','OverlapChart','RawAdjustedPanel','TreatmentControlCI','CateForestPlot','EconMLCompare','PolicyMeter'])assert.match(src,new RegExp('function '+name+'|export function '+name))
 })
 
-test('evidence is integrated between initial decision, revision and team lock',()=>{
+test('evidence is integrated between initial decision revision and team lock',()=>{
   const src=read('src/v2/V2Play.jsx')
   assert.match(src,/DecisionSummary state=\{state\}/)
   assert.match(src,/EvidenceLab round=\{round\}/)
@@ -26,7 +26,8 @@ test('live causal ground truth stays server-side until reveal',()=>{
 })
 
 test('simulator uses isolated deterministic academic fixtures',()=>{
-  const sim=read('src/v2/V2Simulator.jsx'),fixtures=read('src/v2/simulator-fixtures.js')
+  const sim=read('src/v2/V2Simulator.jsx')
+  const fixtures=read('src/v2/simulator-fixtures.js')
   assert.match(sim,/SIM_PATHS/)
   assert.match(sim,/SIN BACKEND|RECORRIDO COMPLETO/)
   assert.match(fixtures,/SIM_ANALYSIS/)
