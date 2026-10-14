@@ -4,6 +4,7 @@ import {WORKSHOP_120} from './workshop-script.js'
 import {WORKSHOP_SCENES} from './workshop-scenes.js'
 import {WORKSHOP_PYTHON} from './workshop-python.js'
 import EconMLV2Panel from './EconMLV2Panel.jsx'
+import {verifiedV2EconML} from './econml-v2-data.js'
 import './workshop-flow.css'
 
 const fmt=n=>Number(n||0).toLocaleString('es-CO')
@@ -58,12 +59,43 @@ export function WorkshopOptionalPython({phase}){
    {phase===4&&<details><summary>Comparar modelos EconML realmente entrenados</summary><EconMLV2Panel/></details>}
  </details>
 }
+function StoryCausalVisual({phase}){
+ if(phase===0||phase===1)return <div className="v2-workshop-visual-cards">
+  {[['ANA','92 %','37','38','+1'],['BRUNO','62 %','24','33','+9']].map(([who,prob,y0,y1,delta])=><article key={who}>
+    <span>🎓 {who}</span><strong>{prob}</strong><small>Pronóstico de aprobar</small>
+    <div className="v2-workshop-visual-futures"><span>Sin apoyo: {phase===0?'?':y0}</span><span>Con apoyo: {phase===0?'?':y1}</span></div>
+    <b>{phase===0?'EFECTO DESCONOCIDO':delta+' PUNTOS · SOLO SINTÉTICO'}</b>
+  </article>)}
+ </div>
+ if(phase===2)return <div className="v2-workshop-visual-comparison">
+   <div><strong>🤖 PREDICE</strong><b>MAE ↓ · R² ↑</b><span>Qué nota esperamos con X</span></div>
+   <strong aria-label="no implica">≠</strong>
+   <div><strong>⚡ IDENTIFICA</strong><b>Y(1) − Y(0)</b><span>Qué cambia por la intervención</span></div>
+ </div>
+ if(phase===3)return <div className="v2-workshop-visual-dag" role="img" aria-label="DAG: PGA previo influye en la oferta y en la nota; la oferta influye en la nota">
+    <div className="node confounder">PGA previo <small>confusor</small></div>
+    <span className="arrow" aria-hidden="true">↘ <small>y ↙</small></span>
+    <div className="node">Oferta de apoyo <small>Tratamiento T</small></div>
+    <span className="arrow" aria-hidden="true">→</span>
+    <div className="node outcome">Nota final <small>Resultado Y</small></div>
+    <div className="v2-workshop-dag-foot">⚠️ Estudio posterior: posible mediador · Tutoría posterior: posible collider</div>
+ </div>
+ const data=verifiedV2EconML
+ return <div className="v2-workshop-visual-cate">
+   <div className="v2-kicker">CATE ESTIMADO · EVIDENCIA ECONML REAL · SINTÉTICA</div>
+   {(data?.segments||[]).map(s=><div className="v2-workshop-cate-row" key={s.segment}>
+    <b>{s.name}</b><div><i style={{width:Math.max(3,Math.min(100,Math.abs(s.causal_forest)/12*100))+'%'}}/></div><strong>{Number(s.causal_forest).toFixed(2)} pt</strong>
+   </div>)}
+   <small>Comparación visual de CausalForestDML en holdout académico (500 perfiles). Son estimaciones condicionadas, no efectos individuales observados.</small>
+ </div>
+}
+
 export function WorkshopSceneReveal({phase}){
  const story=WORKSHOP_SCENES[phase]
  if(!story)return null
  return <section className="v2-workshop-wow" aria-live="polite">
   <div className="v2-kicker">⚡ EFECTO WOW · SOLO TRAS PROYECCIÓN DOCENTE</div>
-  <h2>La evidencia cambió nuestra decisión</h2>
+  <h2>La evidencia cambió nuestra decisión</h2><StoryCausalVisual phase={phase}/>
   <p>{story.reveal}</p>
   <small>{story.detail}</small>
  </section>
