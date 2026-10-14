@@ -50,7 +50,8 @@ test('heterogeneity and model battle use real sklearn estimators',()=>{
   assert.match(bcode,/S-Learner/)
   assert.match(bcode,/DR-Learner/)
   assert.match(bcode,/EconML/)
-  assert.match(bcode,/no se ejecuta dentro de este navegador/i)
+  assert.match(bcode,/EconML se entreno fuera de Pyodide/i)
+  assert.match(bcode,/Benchmark V2 no verificado/)
 })
 
 test('browser lab requires successful execution of all blocks and loads Pyodide packages',()=>{

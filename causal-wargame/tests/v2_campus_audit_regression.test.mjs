@@ -26,7 +26,8 @@ test('Python server ACK precedes marking success',()=>{
 test('DAG and DR teaching compute instead of just asserting',()=>{
  assert.match(read('src/v2/python-lab.js'),/np\.linalg\.lstsq/)
  assert.match(read('src/v2/python-lab.js'),/StratifiedKFold/)
- assert.match(read('src/v2/python-lab.js'),/CIFRAS ILUSTRATIVAS FIJAS/)
+ assert.match(read('src/v2/python-lab.js'),/procedencia:verifiedV2EconML/)
+ assert.match(read('src/v2/EconMLV2Panel.jsx'),/Entrenado y evaluado|ENTRENADO Y EVALUADO|ENTRENADO|entrenados/i)
  assert.match(read('src/v2/VisualTools.jsx'),/profile==='dag'&&tools\?\.dag&&<DagLab/)
 })
 
