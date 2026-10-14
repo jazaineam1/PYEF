@@ -3,6 +3,7 @@
 create table if not exists public.cw_v2_workshop (
  game_id uuid primary key references public.cw_games(id) on delete cascade,
  phase_index integer not null default 0 check (phase_index between 0 and 5),
+ cue_index integer not null default 0 check (cue_index between 0 and 8),
  active boolean not null default false,
  paused boolean not null default false,
  remaining_seconds integer,
@@ -87,7 +88,7 @@ begin
  select * into w from public.cw_v2_workshop where game_id=gid;
  select count(*) into audience from public.cw_players where game_id=gid and active and not is_bot;
  if q.game_id is null then return jsonb_build_object('quiz',jsonb_build_object('phase','idle','current_question',0,'total_questions',8),
-   'agenda',jsonb_build_object('phase_index',coalesce(w.phase_index,0),'active',coalesce(w.active,false),'paused',coalesce(w.paused,false),'deadline_at',w.deadline_at,'remaining_seconds',w.remaining_seconds,'server_now',clock_timestamp()),
+   'agenda',jsonb_build_object('phase_index',coalesce(w.phase_index,0),'cue_index',coalesce(w.cue_index,0),'active',coalesce(w.active,false),'paused',coalesce(w.paused,false),'deadline_at',w.deadline_at,'remaining_seconds',w.remaining_seconds,'server_now',clock_timestamp()),
    'participants',audience,'leaderboard','[]'::jsonb,'team_leaderboard','[]'::jsonb,'server_now',clock_timestamp()); end if;
  effective:=q.phase;
  if q.phase='question_open' and q.deadline_at<=clock_timestamp() then effective:='question_locked'; end if;
@@ -129,7 +130,7 @@ begin
     'current_question',q.current_question,'total_questions',8,'deadline_at',q.deadline_at,
     'remaining_seconds',q.remaining_seconds,'question',detail,'answer_count',answer_count,
     'tallies',tallies,'points_per_correct',15,'max_score',120,'version',q.version),
-    'agenda',jsonb_build_object('phase_index',coalesce(w.phase_index,0),'active',coalesce(w.active,false),
+    'agenda',jsonb_build_object('phase_index',coalesce(w.phase_index,0),'cue_index',coalesce(w.cue_index,0),'active',coalesce(w.active,false),
       'paused',coalesce(w.paused,false),'deadline_at',w.deadline_at,'remaining_seconds',w.remaining_seconds,'version',w.version),
     'participants',audience,'leaderboard',ranking,'team_leaderboard',team_rank,'server_now',clock_timestamp());
 end $f$;
@@ -183,13 +184,16 @@ begin
   insert into public.cw_v2_workshop(game_id) values(gid) on conflict do nothing;
   select * into w from public.cw_v2_workshop where game_id=gid for update;
   if p_action='agenda_start' then
-    update public.cw_v2_workshop set active=true,paused=false,phase_index=0,started_at=clock_timestamp(),
+    update public.cw_v2_workshop set active=true,paused=false,phase_index=0,cue_index=0,started_at=clock_timestamp(),
       deadline_at=clock_timestamp()+interval '10 minutes',remaining_seconds=null,version=version+1 where game_id=gid;
   elsif p_action in ('agenda_next','agenda_prev') then
     target:=least(5,greatest(0,w.phase_index+case when p_action='agenda_next' then 1 else -1 end));
-    update public.cw_v2_workshop set active=true,paused=false,phase_index=target,deadline_at=clock_timestamp()
+    update public.cw_v2_workshop set active=true,paused=false,phase_index=target,cue_index=0,deadline_at=clock_timestamp()
       + make_interval(mins=>case target when 0 then 10 when 1 then 20 when 5 then 15 else 25 end),
       remaining_seconds=null,version=version+1 where game_id=gid;
+  elsif p_action in ('agenda_cue_next','agenda_cue_prev') and w.active and not w.paused then
+    update public.cw_v2_workshop set cue_index=least(8,greatest(0,w.cue_index+case when p_action='agenda_cue_next' then 1 else -1 end)),
+      version=version+1 where game_id=gid;
   elsif p_action='agenda_pause' and w.active and not w.paused then
     update public.cw_v2_workshop set paused=true,remaining_seconds=greatest(0,extract(epoch from (w.deadline_at-clock_timestamp()))::int),
       deadline_at=null,version=version+1 where game_id=gid;
@@ -210,12 +214,17 @@ begin
        remaining_seconds=null,version=version+1 where game_id=gid;
   elsif p_action='lock' and q.phase='question_open' then
     update public.cw_v2_quiz_sessions set phase='question_locked',deadline_at=null,version=version+1 where game_id=gid;
+  elsif p_action='reveal_explain' and (q.phase='question_locked' or (q.phase='question_open' and q.deadline_at<=clock_timestamp())) then
+    update public.cw_v2_quiz_sessions set phase='explanation',deadline_at=null,version=version+1 where game_id=gid;
   elsif p_action='reveal' and (q.phase='question_locked' or (q.phase='question_open' and q.deadline_at<=clock_timestamp())) then
     update public.cw_v2_quiz_sessions set phase='results',deadline_at=null,version=version+1 where game_id=gid;
   elsif p_action='explain' and q.phase='results' then
     update public.cw_v2_quiz_sessions set phase='explanation',version=version+1 where game_id=gid;
   elsif p_action='rank' and q.phase='explanation' then
     update public.cw_v2_quiz_sessions set phase='leaderboard',version=version+1 where game_id=gid;
+  elsif p_action='next_fast' and q.phase in ('explanation','leaderboard') then
+    update public.cw_v2_quiz_sessions set phase=case when q.current_question=8 then 'final_podium' else 'question_preview' end,
+      current_question=least(8,q.current_question+1),deadline_at=null,version=version+1 where game_id=gid;
   elsif p_action='next' and q.phase='leaderboard' then
     update public.cw_v2_quiz_sessions set phase=case when q.current_question=8 then 'final_podium' else 'question_preview' end,
       current_question=least(8,q.current_question+1),deadline_at=null,version=version+1 where game_id=gid;
