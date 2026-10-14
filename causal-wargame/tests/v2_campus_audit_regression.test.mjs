@@ -26,3 +26,9 @@ test('DAG and DR teaching compute instead of just asserting',()=>{
  assert.match(read('src/v2/python-lab.js'),/CIFRAS ILUSTRATIVAS FIJAS/)
  assert.match(read('src/v2/VisualTools.jsx'),/profile==='dag'&&tools\?\.dag&&<DagLab/)
 })
+
+test('Analysis reveal shares authoritative causal truth',()=>{
+  const src=read('supabase/functions/v2-analysis/index.ts')
+  assert.match(src,/cw_v2_academic_truth/)
+  assert.match(src,/out\.reveal_tools=\{\.\.\.out\.reveal_tools,\.\.\.truth\}/)
+})
