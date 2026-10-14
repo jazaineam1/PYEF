@@ -115,7 +115,6 @@ export function QuizWall({data}){
    {q.phase==='question_open'&&<div className="v2-kahoot-live"><div><i style={{width:(100*Number(q.answer_count||0)/Math.max(1,data.participants))+'%'}}/></div><span>Respuestas recibidas, distribución oculta hasta el reveal</span></div>}
    {['results','explanation','leaderboard'].includes(q.phase)&&<><Answers q={q} disabled value={question?.correct_choice} onSelect={()=>{}}/><Bars q={q}/><div className="v2-kahoot-explain"><h2>{question?.concept}</h2><p>{question?.explanation}</p></div></>}
    {q.phase==='leaderboard'&&<Ranked state={data}/>}</>}
-  </>}
  </section>
 }
 export function WorkshopDirector({data,onAction,busy}){
