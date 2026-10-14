@@ -28,6 +28,10 @@ test('six missions keep a WOW, scored check and explicit definitions',()=>{
   assert.ok(retos.every(r=>r.wow&&r.takeaway&&r.checkQuestion))
   assert.ok(retos.every(r=>r.checkOptions.length===3))
   assert.ok(retos.every(r=>r.glossary.every(g=>g.term&&g.full&&g.definition)))
+  for(const r of retos){
+    const defined=new Set(r.glossary.map(g=>g.term.toLowerCase()))
+    for(const term of r.advancedTerms||[])assert.ok(defined.has(term.toLowerCase()),`${r.id}: falta definir ${term}`)
+  }
 })
 
 test('learning score and academic impact are visibly separate',()=>{
