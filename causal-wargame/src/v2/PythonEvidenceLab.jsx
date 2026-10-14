@@ -4,6 +4,24 @@ import{invoke}from'../lib/api'
 import{buildPythonLab}from'./python-lab'
 
 const TIMEOUT_MS=45000
+// Un solo runtime WASM por pestaña: conserva paquetes entre retos.
+let runtimeWorker=null
+let runtimeReady=false
+let runtimeBooting=false
+let runtimeListener=null
+function ensureRuntimeWorker(){
+  if(runtimeWorker)return runtimeWorker
+  runtimeWorker=new Worker(new URL('./pyodide.worker.js',import.meta.url))
+  runtimeWorker.onmessage=e=>{if(e.data?.type==='ready'){runtimeReady=true;runtimeBooting=false}runtimeListener?.(e)}
+  runtimeWorker.onerror=e=>{runtimeReady=false;runtimeBooting=false;runtimeListener?.({data:{type:'error',error:e.message||'Python no disponible'}})}
+  return runtimeWorker
+}
+function resetRuntime(){runtimeWorker?.terminate();runtimeWorker=null;runtimeReady=false;runtimeBooting=false}
+export function prewarmPython(){
+  if(runtimeReady||runtimeBooting)return
+  runtimeBooting=true
+  try{ensureRuntimeWorker().postMessage({type:'init'})}catch(e){runtimeBooting=false}
+}
 
 export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onComplete,simulation=false}){
   const lab=useMemo(()=>buildPythonLab(round,state,analysis,labKey),[round,state,analysis,labKey])
@@ -17,6 +35,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
   const workerRef=useRef(null)
   const timerRef=useRef(null)
   const pendingRef=useRef(null)
+  const handlerRef=useRef(null)
 
   useEffect(()=>{
     const initial={}
@@ -29,16 +48,15 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
     setClosing(false)
     setLocalComplete(false)
     clearTimeout(timerRef.current)
-    workerRef.current?.terminate()
-    workerRef.current=null
+    // El Worker continúa vivo durante la partida; los resultados de otra misión se descartan.
   },[round,lab?.title])
 
-  useEffect(()=>()=>{clearTimeout(timerRef.current);workerRef.current?.terminate()},[])
+  useEffect(()=>()=>{clearTimeout(timerRef.current);if(runtimeListener===handlerRef.current)runtimeListener=null},[])
 
   function ensureWorker(){
     if(workerRef.current)return workerRef.current
-    const worker=new Worker(new URL('./pyodide.worker.js',import.meta.url))
-    worker.onmessage=async e=>{
+    const worker=ensureRuntimeWorker()
+    runtimeListener=handlerRef.current=async e=>{
       const msg=e.data||{}
       if(msg.type==='ready'){setStatus('ready');setError('')}
       if(msg.type==='result'){
@@ -78,20 +96,17 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
         pendingRef.current=null
       }
     }
-    worker.onerror=e=>{
-      clearTimeout(timerRef.current)
-      setStatus('error')
-      setError(e.message||'No fue posible iniciar Python en este navegador.')
-      pendingRef.current=null
-    }
     workerRef.current=worker
+    if(runtimeReady){setStatus('ready');setError('')}
     return worker
   }
 
   function init(){
     setStatus('loading')
     setError('')
-    ensureWorker().postMessage({type:'init'})
+    const worker=ensureWorker()
+    if(runtimeReady){setStatus('ready');return}
+    if(!runtimeBooting){runtimeBooting=true;worker.postMessage({type:'init'})}
   }
 
   function run(step){
@@ -106,7 +121,7 @@ export function PythonEvidenceLab({round,state,analysis,labKey,labPoints=20,onCo
     worker.postMessage({type:'run',requestId:step.id,code,context:lab?.context||{}})
     clearTimeout(timerRef.current)
     timerRef.current=setTimeout(()=>{
-      worker.terminate()
+      resetRuntime()
       workerRef.current=null
       pendingRef.current=null
       setStatus('error')
