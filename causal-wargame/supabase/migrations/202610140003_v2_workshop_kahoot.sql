@@ -3,7 +3,7 @@
 create table if not exists public.cw_v2_workshop (
  game_id uuid primary key references public.cw_games(id) on delete cascade,
  phase_index integer not null default 0 check (phase_index between 0 and 5),
- cue_index integer not null default 0 check (cue_index between 0 and 8),
+ cue_index integer not null default 0 check (cue_index between 0 and 1),
  active boolean not null default false,
  paused boolean not null default false,
  remaining_seconds integer,
@@ -192,7 +192,7 @@ begin
       + make_interval(mins=>case target when 0 then 10 when 1 then 20 when 5 then 15 else 25 end),
       remaining_seconds=null,version=version+1 where game_id=gid;
   elsif p_action in ('agenda_cue_next','agenda_cue_prev') and w.active and not w.paused then
-    update public.cw_v2_workshop set cue_index=least(8,greatest(0,w.cue_index+case when p_action='agenda_cue_next' then 1 else -1 end)),
+    update public.cw_v2_workshop set cue_index=least(1,greatest(0,w.cue_index+case when p_action='agenda_cue_next' then 1 else -1 end)),
       version=version+1 where game_id=gid;
   elsif p_action='agenda_pause' and w.active and not w.paused then
     update public.cw_v2_workshop set paused=true,remaining_seconds=greatest(0,extract(epoch from (w.deadline_at-clock_timestamp()))::int),
