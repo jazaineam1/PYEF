@@ -32,7 +32,7 @@ test('No pre-reveal EconML outcomes or invented scores',()=>{
 test('Offline six-level practice is honest, local and independent of server',()=>{
  assert.match(practice,/V2_CHALLENGE_COUNT/)
  assert.match(practice,/localStorage\.setItem/)
- assert.match(practice,/No se envían evidencias ni se suman puntos/)
+ assert.match(practice,/Sin puntos ni evidencias en el ranking real/)
  assert.doesNotMatch(practice,/\binvoke\(/)
  assert.match(sim,/view==='practice'/)
  assert.match(sim,/get\('practice'\)==='1'/)

@@ -2,6 +2,7 @@ import React from 'react'
 import {Check,ChevronRight,FlaskConical,GitBranch,Shield,Target,Users,Zap} from 'lucide-react'
 import {verifiedV2EconML} from './econml-v2-data'
 import './arcade.css'
+import{V2_GAME_ART,artForMission}from'./V2Art'
 
 // Gameplay presentation only. Authoritative decisions, timing and scores remain on the V2 server.
 const AVATARS=['🧑🏽‍🎓','👩🏻‍🎓','👨🏾‍🎓','👩🏽‍🚀','🧑🏻‍🔬','👩🏾‍💻','🧑‍🎨','👨🏽‍🔬','👩🏼‍🚀','🧑🏿‍💻','👩🏽‍🏫','👨🏻‍🎓']
@@ -10,7 +11,7 @@ const THREATS={1:['🛰️','LA PREDICCIÓN ENGAÑA','Una puntuación alta no ga
 export function ArenaIntro({round,mode='decision',sub}){
  const [emoji,title,desc]=THREATS[round]||THREATS[1]
  return <div className={'v2-arcade-intro mode-'+mode}>
-   <div className="v2-arcade-orbit" aria-hidden="true"><span>{emoji}</span><i/><i/></div>
+   <div className="v2-arcade-orbit" aria-hidden="true"><span>{emoji}</span><i/><i/></div><img className="v2-arcade-scene-art" src={artForMission(round)} alt="" loading="lazy" decoding="async" aria-hidden="true"/>
    <div className="v2-arcade-intro-copy"><small>CAMPAÑA · NIVEL {String(round).padStart(2,'0')} / 06</small><strong>{title}</strong><p>{sub||desc}</p></div>
    <div className="v2-arcade-stage-tag"><span className="v2-arcade-led"/> {mode==='boss'?'JEFE FINAL':mode==='reveal'?'RESULTADO REVELADO':'TU TURNO'}</div>
  </div>
@@ -108,7 +109,7 @@ export function ResourceArena({segments=[],choices={},capacity=15000,onChoose,lo
 export function BossArena({round,question,options=[],answer,onChange,result,disabled=false}){
  return <div className="v2-arcade-game">
   <ArenaIntro round={round} mode="boss" sub="Tres portales, una decisión. Identifica la estrategia que sobrevive a la evidencia."/>
-  <div className="v2-arcade-boss"><div className="v2-arcade-boss-face" aria-hidden="true">👾<span>⚡</span></div><div><small>GUARDIÁN DEL NIVEL</small><strong>{question||'Elige tu jugada y desbloquea la revisión.'}</strong><span>El servidor valida el resultado. No hay puntos inventados.</span></div></div>
+  <div className="v2-arcade-boss"><div className="v2-arcade-boss-face" aria-hidden="true"><img src={artForMission(round)} alt="" width="120" height="68" loading="lazy" decoding="async"/><span>⚡</span></div><div><small>GUARDIÁN DEL NIVEL</small><strong>{question||'Elige tu jugada y desbloquea la revisión.'}</strong><span>El servidor valida el resultado. No hay puntos inventados.</span></div></div>
   <div className="v2-arcade-moves">{options.map(([value,label],i)=><button key={value} type="button" disabled={disabled||Boolean(result)} aria-pressed={answer===value}
     className={'v2-arcade-move '+(answer===value?'selected':'')} onClick={()=>onChange?.(value)}>
      <span className="v2-arcade-move-icon" aria-hidden="true">{['🚪','🌀','🛡️','🧪'][i%4]}</span><span className="v2-arcade-move-body"><small>PORTAL {i+1}</small><strong>{label}</strong></span><span className="v2-arcade-move-tick">{answer===value?'✓':'→'}</span>
@@ -121,7 +122,7 @@ export function TeamArena({roster=[],revision=false,value=0,total=0}){
  </div>
 }
 export function RevealArena({round,truth,observed}){
- return <div className="v2-arcade-reveal"><div className="v2-arcade-reveal-medal" aria-hidden="true">🏆</div>
+ return <div className="v2-arcade-reveal"><div className="v2-arcade-reveal-medal" aria-hidden="true"><img src={V2_GAME_ART.victory} alt="" width="140" height="79" loading="lazy" decoding="async"/></div>
   <div><small>REVELACIÓN DESBLOQUEADA · NIVEL {round}/6</small><strong>{truth!=null?'Efecto causal verdadero: '+new Intl.NumberFormat('es-CO',{maximumFractionDigits:2}).format(Number(truth))+' puntos':'La evidencia cambia la estrategia'}</strong>
    <p>{truth!=null?'Resultado calculado con los resultados potenciales del simulador sintético.':'El conocimiento ganado en este reto se conserva para tu siguiente decisión.'}</p>
    {observed!=null&&<span>Diferencia observada: {Number(observed).toFixed(2)} puntos · no equivale automáticamente al efecto verdadero</span>}

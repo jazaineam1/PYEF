@@ -1,7 +1,8 @@
 import React,{useState} from 'react'
 import {V2_CHALLENGE_COUNT,V2_ROUNDS,optionsForRound} from './content'
 import {SIM_CUSTOMERS,SIM_SEGMENTS,SIM_ECONOMY,SIM_REVEALS} from './simulator-fixtures'
-import {ArenaIntro,CohortArena,DagArena,StrategyArena,ResourceArena,RevealArena,ModelBattleResults} from './V2Arcade'
+import {CohortArena,DagArena,StrategyArena,ResourceArena,RevealArena,ModelBattleResults} from './V2Arcade'
+import{artForMission,missionArtAlt}from'./V2Art'
 
 // Independent, honest practice fallback: local state, no authentication and no competitive scoring.
 const KEY='campus-v2-arcade-practice-v1'
@@ -29,12 +30,14 @@ export default function V2Practice(){
  const truth=SIM_REVEALS[round]||{}
  const label=['','Selecciona tres estudiantes','Elige la estrategia del experimento','Activa variables en el DAG','Decide cómo aislar el efecto','Reparte los cupos disponibles','Elige el estimador causal'][round]
  return <section className="v2-arcade-practice">
-   <div className="v2-arcade-practice-ribbon"><span>🎮 CAMPAÑA LIBRE · SIN BACKEND</span><b>MISIÓN {round} / {V2_CHALLENGE_COUNT}</b></div>
-   <div className="v2-alert hint"><span>Modo entrenamiento sin conexión al servidor. Tus elecciones quedan guardadas únicamente en este dispositivo. <b>No se envían evidencias ni se suman puntos al ranking real.</b> Puedes jugar las seis misiones y ver resultados sintéticos de práctica.</span></div>
-   <ArenaIntro round={round} mode={done?'reveal':'decision'}/>
-   <div className="v2-arcade-practice-question"><small>OBJETIVO DEL NIVEL</small><h2>{V2_ROUNDS[round]?.title}</h2><p>{V2_ROUNDS[round]?.question}</p></div>
+   <div className="v2-arcade-practice-ribbon"><span>🎮 CAMPUS · CAMPAÑA LIBRE</span><b>NIVEL {round} / {V2_CHALLENGE_COUNT}</b></div>
+   <section className="v2-arcade-mission-stage" aria-label={`Escenario de la misión ${round}`}>
+     <img className="v2-arcade-mission-stage-art" src={artForMission(round)} alt={missionArtAlt(round)} width="200" height="112" loading="eager" decoding="async"/>
+     <div className="v2-arcade-mission-stage-copy"><small>OPERACIÓN {String(round).padStart(2,'0')} / 06 · {done?'REVELACIÓN':'TU TURNO'}</small><h1>{V2_ROUNDS[round]?.title}</h1><p>{V2_ROUNDS[round]?.question}</p><span>⚡ {done?'Revelación desbloqueada':label}</span></div>
+   </section>
+   <p className="v2-arcade-practice-disclaimer">Entrenamiento local: progreso guardado únicamente en este dispositivo · Sin puntos ni evidencias en el ranking real.</p>
    {!done?<>
-    <h3 className="v2-arcade-practice-objective">⚡ {label}</h3>
+    
     {template==='cohort-selection'&&<CohortArena rows={SIM_CUSTOMERS.slice(0,12)} selected={selected} max={3} onToggle={setSelected}/>}
     {template==='single-choice'&&<StrategyArena round={round} options={optionsForRound(round)} choice={choice} onChoose={setChoice}/>}
     {template==='multi-select'&&<DagArena selected={selected} onToggle={setSelected}/>}
