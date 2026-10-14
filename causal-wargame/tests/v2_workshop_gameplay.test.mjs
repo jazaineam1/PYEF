@@ -59,3 +59,15 @@ test('teacher has optional projection, scene choice reveal hides until teacher o
  assert.match(ui,/WorkshopSceneReveal/)
  assert.doesNotMatch(ui,/Siguiente momento|Momento anterior/)
 })
+
+test('causal reveal really contains visuals and keeps screen accessible on mobiles',()=>{
+ const component=read('src/v2/V2WorkshopScene.jsx')
+ const css=read('src/v2/workshop-flow.css')
+ for(const token of ['StoryCausalVisual','v2-workshop-visual-cards','v2-workshop-visual-dag','v2-workshop-visual-cate','verifiedV2EconML'])assert.ok(component.includes(token),token)
+ assert.match(css,/@media\(max-width:650px\)/)
+ assert.match(css,/@media\(max-width:760px\)/)
+ assert.match(css, /prefers-reduced-motion/)
+ const main=read('src/v2/V2Play.jsx')
+ assert.match(main,/5 FASES \+ GRAN FINAL/)
+ assert.doesNotMatch(main,/SEIS MISIONES\. UN CAMPUS\. DOS FUTUROS\./)
+})
