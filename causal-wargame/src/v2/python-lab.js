@@ -1,3 +1,5 @@
+import {verifiedV2EconML} from './econml-v2-data.js'
+
 const n=x=>Number(x||0)
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x))
 const pga=x=>{const v=n(x);return v>10?v/100:v}
@@ -392,7 +394,10 @@ print("un modelo aprende el futuro tratado y otro el futuro control.")`
   if(profile==='model-battle'){
     const context={
       experimento:safeRows(tools.experiment_rows||[]),
-      comparador:tools.econml||[]
+      comparador:verifiedV2EconML?.segments||[],
+      procedencia:verifiedV2EconML?.provenance||null,
+      metricas:verifiedV2EconML?.metrics||null,
+      campeon:verifiedV2EconML?.best_holdout_rmse||null
     }
     return{
       title:'Boss final: comparar estimadores sin olvidar identificación',
@@ -465,23 +470,26 @@ print("La reserva no demuestra exactitud de CATE; requiere validación adicional
           id:'econml',
           label:'3 · EconML / Causal Forest',
           question:'¿Un estimador más sofisticado gana automáticamente?',
-          instruction:'Distingue modelos ejecutados de números ilustrativos sin ejecución verificada de EconML.',
+          instruction:'Compara resultados EconML verificados y mide RMSE de CATE en perfiles reservados.',
           guidedCode:`import pandas as pd
-
-rows = pd.DataFrame(payload["comparador"])
-if rows.empty:
-    print("No hay comparador precomputado disponible.")
-else:
-    cols=[c for c in ["name","t_learner","dr_learner","causal_forest"] if c in rows.columns]
-    print("CIFRAS ILUSTRATIVAS FIJAS: NO SON UNA EJECUCIÓN ECONML")
-    print(rows[cols].to_string(index=False))
-
-print("\\nEconML — Econometric Machine Learning:")
-print("librería de Microsoft con estimadores causales basados en ML.")
-print("Causal Forest — Bosque causal: árboles diseñados para aprender heterogeneidad del efecto.")
-print("\\nIMPORTANTE: EconML no se ejecuta dentro de este navegador porque sus dependencias no son fiables en Pyodide.")
-print("Ejecutaste S/T/DR con scikit-learn; los otros números NO son benchmarks certificados.")
-print("WOW final: ningún estimador arregla una identificación causal incorrecta.")`
+p=payload.get("procedencia")
+if not p or p.get("engine")!="EconML":
+    raise RuntimeError("Benchmark V2 no verificado: no se acredita evidencia ficticia.")
+assert p["dataset"]=="campus-academic-experiment-v2"
+rows=pd.DataFrame(payload["comparador"])
+cols=["name","n_holdout","t_learner","dr_learner","causal_forest"]
+assert len(rows)==5 and all(x in rows for x in cols)
+print("ECONML REAL: TLearner, DRLearner y CausalForestDML entrenados en GitHub Actions.")
+print("Entrenamiento:",p["train_rows"],"evaluacion:",p["holdout_rows"])
+print("EconML",p["econml_version"],"semilla",p["seed"],"SHA",p["data_sha256"][:12])
+print("\nCATE estimado por segmento, en puntos:")
+print(rows[cols].to_string(index=False))
+metrics=pd.DataFrame(payload["metricas"]).T
+print("\nRMSE CATE reservado, menor es mejor:")
+print(metrics[["cate_rmse_points","ate_error_points"]].round(3).to_string())
+print("Menor error del CATE:",payload["campeon"])
+print("El efecto causal requiere identificacion correcta, no solo un algoritmo.")
+print("Este Python analiza el output verificado; EconML se entreno fuera de Pyodide.")`
         }
       ]
     }
