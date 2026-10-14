@@ -288,6 +288,20 @@ begin
   insert into public.cw_v2_team_decisions(game_id,round_number,team_id,submitted_by,payload,result)
   values(p.game_id,p_round,p.team_id,p.id,p_payload,result) returning id into did;
 
+  -- Team learning points are stored immediately but remain hidden until reveal.
+  insert into public.cw_v2_checkpoint_scores(
+    game_id,round_number,team_id,player_id,checkpoint,points,max_points,visible,payload
+  )
+  select p.game_id,p_round,p.team_id,pl.id,'team',
+         round(cfg.team_points*score/100.0)::int,cfg.team_points,false,
+         jsonb_build_object('team_score_pct',score,'decision_id',did)
+  from public.cw_players pl
+  where pl.game_id=p.game_id and pl.team_id=p.team_id and pl.active and not pl.is_bot
+  on conflict(game_id,round_number,player_id,checkpoint)
+  do update set
+    points=excluded.points,max_points=excluded.max_points,visible=false,
+    payload=excluded.payload,scored_at=now();
+
   insert into public.cw_events(game_id,actor,event_type,payload)
   values(p.game_id,p.id::text,'v2_team_decision_locked',jsonb_build_object('round',p_round,'team_id',p.team_id,'impact_students',result->'impact_students'));
 
