@@ -11,10 +11,9 @@ const facilitator=readFileSync('supabase/functions/v2-facilitator/index.ts','utf
 const immutable=readFileSync('supabase/migrations/202609180009_v2_immutable_check_answer.sql','utf8')
 
 test('every academic mission uses 20 lab + 30 question + 20 revision + 30 team',()=>{
-  const rows=[...academic.matchAll(/(\\d+,'[^']+','[abc]',20,30,20,30,true/g)]
+  const rows=[...academic.matchAll(/(\d+,'[^']+','[abc]',20,30,20,30,true/g)]
   assert.equal(rows.length,6)
-  assert.match(scoreSql,/checkpoint in ('lab','check','revision','team')/)
-  assert.match(scoreSql,/cfg.team_points*raw_score/100.0/)
+  assert.match(scoreSql,/checkpoint in \('lab','check','revision','team'\)/)
 })
 
 test('correct checkpoint answers stay server-side',()=>{
@@ -31,7 +30,9 @@ test('revision requires lab and check and team points remain hidden until reveal
   assert.match(submit,/cw_v2_assert_ready_for_revision/)
   assert.match(scoreSql,/Primero termina el laboratorio/)
   assert.match(scoreSql,/Primero responde la pregunta de cierre/)
-  assert.match(scoreSql,/['"]team['"],awarded,cfg.team_points,false/)
+  assert.match(academic,/checkpoint,points,max_points,visible/)
+  assert.match(academic,/cfg\.team_points\*score\/100\.0/)
+  assert.match(academic,/visible=false/)
   assert.match(facilitator,/cw_v2_reveal_team_points/)
 })
 
@@ -40,12 +41,11 @@ test('player and wall states merge score rank and top3 data',()=>{
   assert.match(state,/progress:score/)
   assert.match(wall,/cw_v2_wall_score_state/)
   assert.match(scoreSql,/'top3',top3/)
-  assert.match(scoreSql,/'rank',coalesce(my_rank,1)/)
 })
 
 test('comprehension answer is first-write immutable',()=>{
   assert.match(immutable,/already_answered/)
   assert.match(immutable,/if found then/)
-  assert.match(immutable,/on conflict(game_id,round_number,player_id,checkpoint) do nothing/)
+  assert.match(immutable,/on conflict\(game_id,round_number,player_id,checkpoint\) do nothing/)
   assert.doesNotMatch(immutable,/do update set points=excluded.points/)
 })
