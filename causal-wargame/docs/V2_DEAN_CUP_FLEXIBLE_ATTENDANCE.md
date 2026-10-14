@@ -9,3 +9,7 @@ El Kahoot indica **respuestas recibidas / inscritos reales**, nunca /30 fijo, y 
 Solo se reemplazan funciones derivadas `cw_dean_state` y `cw_dean_quiz_state` mediante `CREATE OR REPLACE`; no se modifican registros previos, V1 ni la partida `FUTUROS`.
 
 Pruebas requeridas: 0, 1, 5, 12, 17, 29 y 30 personas, con salas vacías y desiguales, avance de fase, conteos y seguridad. 
+
+### Prueba reversible ejecutada
+
+Probados mediante SQL `BEGIN/ROLLBACK` los casos de **0, 1, 5, 12, 17, 29 y 30** personas, incluyendo salas vacías, salas con 1 a 6 participantes, exámenes completados parcialmente, ranking normalizado, CSV con solo los exámenes efectivamente rendidos, cálculo correcto de denominadores del Kahoot y cierre completo para 30. Después del rollback: **cero partidas `QAFLEX%`** y el estado de `FUTUROS` permanece en ronda 1.
