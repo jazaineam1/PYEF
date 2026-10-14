@@ -257,3 +257,85 @@
 .v2-econml-track{height:6px;background:#263952;overflow:hidden;border-radius:5px}
 .v2-econml-track i{display:block;height:100%;background:#76c8df}
 .v2-econml-note{margin-top:16px}
+
+
+/* Workshop 120 and authoritative Kahoot only in V2 */
+.v2-agenda-bar{display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 15px;border-radius:13px;border:1px solid #446987;background:#122441;color:#f3f9ff;font-size:15px}
+.v2-agenda-bar span{color:#b8d6e9}
+.v2-workshop-director{display:grid;gap:10px}
+.v2-workshop-director p{margin:2px 0;font-size:clamp(14px,1.15vw,17px);color:#d9e9f6;line-height:1.55}
+.v2-workshop-steps{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:7px;overflow-x:auto}
+.v2-workshop-steps>div{padding:10px;border:1px solid #416081;border-radius:10px;background:#14253f;color:#d2e7f8;min-height:74px}
+.v2-workshop-steps>div.active{outline:2px solid #7defd5;background:#174044}
+.v2-workshop-steps b{display:block;font-size:15px;color:#e6f8fd}.v2-workshop-steps span{font-size:12px}
+.v2-kahoot-screen{background:linear-gradient(130deg,#111d3a,#182646 65%,#103646);color:#f4faff;border:1px solid #38627e;border-radius:24px;padding:clamp(16px,3vw,40px);max-width:1300px;margin:12px auto;display:grid;gap:18px;min-height:410px}
+.v2-kahoot-screen h1{font-size:clamp(25px,3.2vw,48px);line-height:1.16;margin:5px 0;text-wrap:balance}
+.v2-kahoot-screen p{font-size:clamp(16px,1.6vw,23px);line-height:1.45}
+.v2-kahoot-scoreline{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;align-items:center;font-size:clamp(15px,1.5vw,22px)}
+.v2-kahoot-timer{justify-self:center;font-size:clamp(23px,4vw,50px);font-variant-numeric:tabular-nums;font-weight:800;color:#95f4db}
+.v2-kahoot-timer.urgent{color:#ffbf8d}
+.v2-kahoot-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.v2-kahoot-choice{min-height:92px;display:flex;align-items:center;gap:18px;padding:16px;border:2px solid #6e92b2;border-radius:15px;background:#1d3a5c;color:#fff;text-align:left;font-size:clamp(16px,1.6vw,23px);line-height:1.35;cursor:pointer}
+.v2-kahoot-choice b{flex:none;border:2px solid #e8f2ff;border-radius:10px;width:52px;height:52px;display:grid;place-items:center;font-size:24px}
+.v2-kahoot-choice:hover:not(:disabled),.v2-kahoot-choice.selected{border-color:#8df7d4;background:#1d5b60}
+.v2-kahoot-choice:disabled{cursor:default;opacity:.92}
+.v2-kahoot-choice:focus-visible{outline:4px solid #fbdf8a;outline-offset:3px}
+.v2-kahoot-receipt{border-left:5px solid #78f2ce;padding:14px;background:#143b40;border-radius:8px}
+.v2-kahoot-explain{background:#132e46;border:1px solid #71c4d5;border-radius:16px;padding:20px}
+.v2-kahoot-explain h2{font-size:clamp(19px,2vw,27px)}
+.v2-kahoot-live>div{background:#314965;border-radius:12px;height:18px;overflow:hidden}
+.v2-kahoot-live i{display:block;background:#7beccf;height:100%;transition:width .25s}
+.v2-kahoot-live span{display:block;margin-top:8px;color:#c2d8e8}
+.v2-kahoot-bars{display:grid;gap:8px}.v2-kahoot-bars>div{display:grid;grid-template-columns:40px 1fr 40px;gap:10px;align-items:center}
+.v2-kahoot-bar{height:18px;background:#29435e;border-radius:8px;overflow:hidden}.v2-kahoot-bar i{display:block;height:100%;background:#74b8db;transition:width .3s}
+.v2-kahoot-bars>div.correct .v2-kahoot-bar i{background:#7defd5}
+.v2-kahoot-rankings{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+.v2-kahoot-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.v2-kahoot-podium article{background:#213b5e;border:1px solid #6b9bb7;padding:13px;border-radius:14px;display:grid;gap:5px}
+.v2-kahoot-podium strong{font-size:clamp(16px,1.6vw,23px);overflow-wrap:anywhere}
+.v2-kahoot-team-rank{display:flex;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid #385774}
+.v2-kahoot-guide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;color:#edf7ff}
+.v2-kahoot-guide>div{border:1px solid #456583;background:#16263f;border-radius:9px;padding:12px}
+.v2-kahoot-wall{width:100%;max-width:none}
+@media(max-width:720px){.v2-kahoot-answers,.v2-kahoot-guide,.v2-kahoot-rankings{grid-template-columns:1fr}.v2-kahoot-podium{gap:4px}.v2-kahoot-podium article{padding:8px}.v2-kahoot-choice{min-height:78px;padding:10px}.v2-workshop-steps{grid-template-columns:repeat(6,130px)}}
+@media(prefers-reduced-motion:reduce){.v2-kahoot-bar i,.v2-kahoot-live i{transition:none}}
+
+
+.v2-concept-lab{margin:16px 0;border:1px solid #3c6886;background:linear-gradient(110deg,#122543,#193446);border-radius:18px;padding:clamp(16px,2.5vw,28px);color:#f0f8ff}
+.v2-concept-lab h2{font-size:clamp(23px,2.3vw,34px);margin:8px 0 18px;line-height:1.2}
+.v2-concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.v2-concept-story,.v2-concept-try{background:#0f2039;border:1px solid #3e637f;border-radius:15px;padding:17px}
+.v2-concept-story h3,.v2-concept-try h3{font-size:18px;margin:0 0 12px}
+.v2-concept-story p,.v2-concept-try p{font-size:clamp(15px,1.2vw,18px);line-height:1.55}
+.v2-concept-story blockquote{padding:10px 14px;border-left:4px solid #80e7cf;background:#163c46;color:#e4fffb;font-size:clamp(15px,1.25vw,18px)}
+.v2-concept-chain{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 0}
+.v2-concept-chain strong{flex:1;min-width:110px;text-align:center;background:#244864;border:1px solid #6ba8be;border-radius:12px;padding:13px 9px;font-size:15px}
+.v2-concept-chain span{font-size:26px;color:#98ebd9}
+.v2-concept-example{border-top:1px solid #3b6a83;padding-top:12px;color:#cfe4f0}
+.v2-concept-try>button{display:block;text-align:left;min-height:55px;width:100%;border:2px solid #678bab;background:#1b3b5b;border-radius:12px;padding:12px;margin-bottom:9px;color:#f6faff;font-size:16px}
+.v2-concept-try>button.chosen,.v2-concept-try>button.correct{border-color:#8bedce;background:#1d5052}
+.v2-concept-feedback{background:#183e43;padding:13px;border-radius:12px;border:1px solid #72d9bd;margin-top:12px}
+.v2-concept-feedback button,.v2-concept-more{border:1px solid #75c9d1;background:#133954;color:#f2fcff;padding:12px;border-radius:10px;font-size:15px}
+.v2-concept-more{margin-top:16px;width:100%;text-align:left}
+.v2-concept-definition{border:1px solid #537491;border-radius:12px;padding:17px;background:#112c42;margin-top:12px;font-size:16px;line-height:1.55}
+.v2-concept-definition strong{font-size:20px}.v2-concept-definition code{display:block;white-space:normal;padding:12px;background:#09192b;border-radius:9px;color:#adebdc}
+@media(max-width:780px){.v2-concept-grid{grid-template-columns:1fr}}
+
+/* CAMPUS V2 · synchronized facilitator-led explanation beats */
+.v2-workshop-cues{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin:16px 0}
+.v2-workshop-cues>div{display:grid;gap:7px;background:#11263b;border:1px solid #426384;border-radius:12px;padding:12px}
+.v2-workshop-cues>div.active{outline:3px solid #83e9d3;background:#183c46}
+.v2-workshop-cues>div>strong{font-size:15px;color:#f3fcff}
+.v2-workshop-cues>div>span{font-size:12px;color:#b9d1e1}
+.v2-workshop-cues>div.instructor>span{color:#9ef2dc}
+.v2-workshop-cues>div>b{font-size:14px}
+.v2-teaching-cue{padding:clamp(16px,2vw,25px);border:1px solid #62b5bc;background:#112b43;border-radius:16px;margin:14px 0}
+.v2-teaching-cue h3{font-size:clamp(20px,2vw,29px)}
+.v2-teaching-cue p{font-size:clamp(15px,1.2vw,18px);line-height:1.65}
+.v2-workshop-caution{font-size:14px;color:#b8cfdf}
+.v2-teacher-scene{min-height:60vh;justify-content:center}
+.v2-teacher-scene h1{font-size:clamp(27px,3.5vw,50px)}
+.v2-teacher-scene-visual{background:#174259;border:1px solid #7cc8d3;border-radius:15px;padding:20px}
+.v2-teacher-scene-visual>p{font-size:clamp(19px,2.2vw,27px)}
+.v2-teacher-scene-lesson{font-size:clamp(19px,1.8vw,25px)!important}
+.v2-teacher-scene-check{background:#183b43;border-left:5px solid #8cebd7;padding:16px}

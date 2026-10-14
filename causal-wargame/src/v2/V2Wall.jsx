@@ -1,4 +1,7 @@
 import React,{useEffect,useRef,useState}from'react'
+import {useV2Quiz,QuizWall,WorkshopBanner,WorkshopTeachingWall} from './V2Quiz.jsx'
+import {WorkshopSceneWall} from './V2WorkshopScene.jsx'
+import {getWorkshopCue} from './workshop-script.js'
 import{CheckCircle2,Medal,Sparkles,Trophy}from'lucide-react'
 import{invoke}from'../lib/api'
 import{agentFor}from'./V2Arcade'
@@ -64,6 +67,7 @@ export default function V2Wall(){
   const[code,setCode]=useState((params.get('game')||'').toUpperCase())
   const[data,setData]=useState(null),[err,setErr]=useState('')
   const[newIds,setNewIds]=useState(new Set()),seen=useRef(new Set())
+  const {quiz:finalQuiz}=useV2Quiz(code,'wall',Boolean(code))
 
   async function refresh(){
     if(!code)return
@@ -84,16 +88,19 @@ export default function V2Wall(){
   const g=data.game,r=V2_ROUNDS[g.round],lobby=['lobby','briefing','lesson'].includes(g.status),reveal=['closed','reveal','teaching','microcheck','finished'].includes(g.status)
   const activeTeams=(data.teams||[]).filter(t=>t.humans>0),topRows=data.top3||[],rankingVisible=topRows.some(x=>Number(x.points||0)>0)
   const leaderPoints=rankingVisible?Number(topRows[0]?.points||0):0,leaderCount=rankingVisible?(data.player_scores||[]).filter(x=>Number(x.points||0)===leaderPoints).length:0
+  const teachingNow=Boolean(finalQuiz?.agenda?.active&&!finalQuiz?.agenda?.paused&&getWorkshopCue(finalQuiz?.agenda)?.mode==='teacher')
+  const workshopSceneActive=Boolean(finalQuiz?.agenda?.active&&Number(finalQuiz.agenda.phase_index)<5)
 
   return <main className="v2-wall compact-wall">
     <div className="v2-wall-top"><div><div className="v2-brand">DOS FUTUROS <span>CAMPUS WALL</span></div><div className="v2-kicker">{lobby?'ÚNETE DESDE TU TELÉFONO':statusCopy(g.status)}</div></div><div className="v2-wall-code"><span>CÓDIGO</span><strong>{g.code}</strong></div></div>
-    {lobby?<div className="v2-wall-lobby"><div className="v2-wall-count"><strong>{data.humans}</strong><span>participantes conectados</span></div><div className="v2-wall-teams compact">{data.teams.map(t=>{const members=data.players.filter(p=>p.team_id===t.id),full=t.humans>=3;return <section className={'v2-wall-team '+(full?'ready':'')} key={t.id}><div className="v2-team-head"><h2>{t.name}</h2>{full&&<CheckCircle2 size={20}/>}</div><div className="v2-wall-member-row">{members.map(p=><span className={(p.online?'':'offline ')+(newIds.has(p.id)?'new':'')} key={p.id}>{p.name}</span>)}{!members.length&&<span className="offline">Esperando…</span>}</div><div className="v2-wall-progress"><i style={{width:Math.min(100,(t.humans/4)*100)+'%'}}/></div><small>{t.humans}/4 {full?'· LISTO':'· entrando'}</small></section>})}</div></div>:
+    <WorkshopBanner state={finalQuiz}/>
+    {workshopSceneActive?(teachingNow?<WorkshopTeachingWall data={finalQuiz}/>:<WorkshopSceneWall data={finalQuiz}/>):finalQuiz?.quiz?.phase&&finalQuiz.quiz.phase!=='idle'?<QuizWall data={finalQuiz}/>:finalQuiz?.agenda?.active?<WorkshopSceneWall data={finalQuiz}/>:<>{lobby?<div className="v2-wall-lobby"><div className="v2-wall-count"><strong>{data.humans}</strong><span>participantes conectados</span></div><div className="v2-wall-teams compact">{data.teams.map(t=>{const members=data.players.filter(p=>p.team_id===t.id),full=t.humans>=3;return <section className={'v2-wall-team '+(full?'ready':'')} key={t.id}><div className="v2-team-head"><h2>{t.name}</h2>{full&&<CheckCircle2 size={20}/>}</div><div className="v2-wall-member-row">{members.map(p=><span className={(p.online?'':'offline ')+(newIds.has(p.id)?'new':'')} key={p.id}>{p.name}</span>)}{!members.length&&<span className="offline">Esperando…</span>}</div><div className="v2-wall-progress"><i style={{width:Math.min(100,(t.humans/4)*100)+'%'}}/></div><small>{t.humans}/4 {full?'· LISTO':'· entrando'}</small></section>})}</div></div>:
     <div className="v2-wall-stage">
       <div className="v2-wall-phase compact"><div><div className="v2-kicker">MISIÓN {g.round} DE {g.max_round||V2_CHALLENGE_COUNT}</div><h1>{r?.title}</h1></div><div><p>{r?.case}</p><strong className="v2-wall-question">{r?.question}</strong></div></div>
       <div className="v2-wall-primary-grid"><TopThree rows={topRows} show={rankingVisible} leaderCount={leaderCount} leaderPoints={leaderPoints}/><CheckpointBoard data={data} activeTeams={activeTeams}/></div>
       <RecentScores rows={data.recent_scores||[]}/>
       {reveal&&<><AcademicTruth truth={data.academic_truth}/><WallDecisions round={g.round} decisions={data.decisions||[]}/></>}
       {g.status==='reveal'&&<section className="v2-wall-wow"><div><Sparkles size={24}/> EFECTO WOW</div><strong>{r?.wow}</strong><p>{r?.reality}</p></section>}
-    </div>}
+    </div>}</>}
   </main>
 }
