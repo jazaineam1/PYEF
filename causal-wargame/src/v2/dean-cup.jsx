@@ -57,6 +57,34 @@ function Exam({person,onSubmit}){
  {flash&&<p className="dean-grade" role="status">Nota guardada: <b>{Number(flash.score).toFixed(1)} / 50</b></p>}{err&&<p role="alert" className="dean-error">{err}</p>}
  </section>;
 }
+
+function CupQuiz({role='student',token='',teacher=''}) {
+ const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[seconds,setSeconds]=useState(0),[receipt,setReceipt]=useState('');
+ useEffect(()=>{let cancel=false,t;
+ async function fetchState(){try{const value=await call('quiz_state',{game_code:code},token);if(!cancel){setData(value);setError('')}}catch(e){if(!cancel)setError(e.message)}
+ if(!cancel)t=setTimeout(fetchState,1450+Math.random()*600)}
+ fetchState();return()=>{cancel=true;clearTimeout(t)}},[role,token]);
+ useEffect(()=>{const id=setInterval(()=>setSeconds(data?.deadline_at?Math.max(0,Math.ceil((Date.parse(data.deadline_at)-Date.now())/1000)):0),250);return()=>clearInterval(id)},[data?.deadline_at]);
+ const commands={idle:['start','Iniciar batalla'],preview:['open','Abrir respuestas'],open:['lock','Cerrar respuestas'],locked:['reveal','Revelar y explicar'],reveal:['next',data?.question_no===8?'Mostrar podio':'Siguiente pregunta'],podium:['finish','Terminar batalla']};
+ const action=async(command)=>{setBusy(true);setError('');try{setData(await call('quiz_teacher',{command,game_code:code},'',teacher))}catch(e){setError(e.message)}finally{setBusy(false)}};
+ const answer=async(choice)=>{if(data?.mine||busy)return;setBusy(true);setError('');try{const r=await call('quiz_submit',{question:data.question_no,choice},token);setReceipt(r.choice);setData(await call('quiz_state',{game_code:code},token))}catch(e){setError(e.message)}finally{setBusy(false)}};
+ useEffect(()=>setReceipt(''),[data?.question_no]);
+ const q=data?.question,phase=data?.phase||'idle',revealed=['reveal','podium','finished'].includes(phase);
+ return <section className="dean-quiz" aria-label="Gran final Kahoot">
+  <div className="dean-kicker">🏆 GRAN FINAL · BATALLA CAUSAL · 8 PREGUNTAS · 120 PUNTOS</div>
+  <h2>{phase==='idle'?'La batalla está preparada':phase==='podium'||phase==='finished'?'🏆 Podio final':'Pregunta '+data.question_no+' / 8'}</h2>
+  {q&&phase!=='podium'&&phase!=='finished'&&<><p className="dean-quiz-question">{q.text}</p><p className="dean-quiz-timer" role="timer">{phase==='open'?seconds+' s':phase==='preview'?'PREPARA TU RESPUESTA':phase==='reveal'?'RESULTADOS':'TIEMPO CERRADO'}</p>
+    <div className="dean-quiz-options">{['a','b','c','d'].map(ch=><button key={ch} type="button" className={(data?.mine||receipt)===ch?'chosen':''} disabled={role!=='student'||phase!=='open'||Boolean(data?.mine)||busy} onClick={()=>answer(ch)}><b>{ch.toUpperCase()}</b> {q.options[ch]}</button>)}</div>
+    {role==='student'&&(data?.mine||receipt)&&<p className="dean-quiz-receipt">✓ Respuesta bloqueada: {(data.mine||receipt).toUpperCase()}</p>}
+    {revealed&&<div className="dean-quiz-explanation"><h3>Correcta: {q.correct?.toUpperCase()} · {q.options[q.correct]}</h3><p>{q.explanation}</p><div className="dean-quiz-bars">{['a','b','c','d'].map(ch=><span key={ch}>{ch.toUpperCase()}: {data.counts?.[ch]||0} votos</span>)}</div></div>}
+  </>}
+  <div className="dean-quiz-toolbar"><strong>{data?.received||0} / 30 respuestas</strong>{role==='student'&&<strong>{data?.my_points||0} / 120 puntos</strong>}
+  {role==='teacher'&&commands[phase]&&<button className="dean-big" disabled={busy} onClick={()=>action(commands[phase][0])}>{commands[phase][1]}</button>}</div>
+  {['podium','finished'].includes(phase)&&<div className="dean-quiz-podium">{(data?.leaderboard||[]).slice(0,3).map((p,i)=><article key={i}><b>{['🥇','🥈','🥉'][i]}</b><strong>{p.alias}</strong><span>Sala {p.room_no}</span><strong>{p.points} / 120</strong></article>)}</div>}
+  {error&&<p role="alert" className="dean-error">{error}</p>}
+ </section>
+}
+
 function Player(){
  const [token,setToken]=useState(localStorage.getItem(storageKey)||'');
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
@@ -71,20 +99,21 @@ function Player(){
  <main className="dean-player"><div className="dean-carnet"><span>{icons[me.archetype]}</span><div><small>ESTUDIANTE · SALA {me.room} {names[me.room-1]}</small><h2>{me.alias}</h2><p>{profiles[me.archetype]} · PGA: <strong>{Number(me.pga).toFixed(1)}/5,0</strong></p></div></div>
  {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
  {state.phase==='exams'&&<Exam person={me} onSubmit={submit}/>}
+ {state.phase==='final'&&<CupQuiz role="student" token={token}/>} 
  {['rector','survey','causal','final','finished'].includes(state.phase)&&<div className="dean-download"><h2>📦 Evidencia del semestre</h2><p>Descarga los datos reales de tu partida sintética para el laboratorio causal. Nunca son datos personales reales.</p><button onClick={()=>download('rector')} disabled={busy}>📥 Archivo del Rector · CSV</button>{['survey','causal','final','finished'].includes(state.phase)&&<button onClick={()=>download('survey')} disabled={busy}>📥 Encuesta de Hábitos · CSV</button>}</div>}
  <Board groups={state.groups}/></main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
-function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main><h2>¿Qué sala dominará el semestre?</h2><Board groups={value.groups}/></main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error">{error}</p>}</div>}
+function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main><h2>¿Qué sala dominará el semestre?</h2><Board groups={value.groups}/>{value.phase==='final'&&<CupQuiz role="wall"/>}</main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error">{error}</p>}</div>}
 function Teacher(){
  const [teacher,setTeacher]=useState(sessionStorage.getItem('df_facilitator_token')||''),[game,setGame]=useState(sessionStorage.getItem('df_facilitator_game_code')||code),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const {value:board}=useBoard('',!!teacher);
  useEffect(()=>{if(teacher)setState(board)},[teacher,board]);
  async function login(){setBusy(true);setErr('');try{const base=endpoint.replace(/\/v2-dean-cup$/,'');const r=await fetch(base+'/facilitator-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({game_code:game.toUpperCase(),pin})}),o=await r.json();if(!r.ok)throw Error(o.error||'PIN inválido');sessionStorage.setItem('df_facilitator_token',o.token);sessionStorage.setItem('df_facilitator_game_code',game.toUpperCase());setTeacher(o.token)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
- const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo'};
+ const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot'};
  return <div className="dean-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite 30 jugadores sin consumir cupos del modo anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
- <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><Board groups={state.groups}/><button className="dean-big" disabled={busy||!actions[state.phase]} onClick={()=>direct('next')}>{actions[state.phase]||'Torneo completado'}</button><div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">Wall</a></div></>:
+ <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><Board groups={state.groups}/>{state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher}/>} {actions[state.phase]&&<button className="dean-big" disabled={busy} onClick={()=>direct('next')}>{actions[state.phase]}</button>}<div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">Wall</a></div></>:
  <div className="dean-hero"><h2>Crear Copa para cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
 }

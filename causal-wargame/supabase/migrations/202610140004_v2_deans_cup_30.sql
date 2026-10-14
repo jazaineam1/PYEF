@@ -75,6 +75,9 @@ begin
     when 'lobby' then 'exams' when 'exams' then 'rector'
     when 'rector' then 'survey' when 'survey' then 'causal'
     when 'causal' then 'final' when 'final' then 'finished' else null end;
+  if current_phase='final' and (select phase from public.cw_dean_quiz_sessions where game_id=gid)<>'finished' then
+    raise exception 'Termina primero el Kahoot de 30 participantes';
+  end if;
   if p_command<>'next' or next_phase is null then raise exception 'Transición docente no permitida';end if;
   update public.cw_dean_tournaments set phase=next_phase,revision=revision+1 where game_id=gid;
  end if;
