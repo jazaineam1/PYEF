@@ -32,11 +32,27 @@ function useBoard(token='',enabled=true,gameCode=code){
  },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
-function Banner({kind,phase}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div><div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b><small>5 SALAS · 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
+function Banner({kind,phase}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div><div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b><small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
 function Board({groups=[]}){
- const rows=[...groups].sort((a,b)=>Number(b.average_score??-1)-Number(a.average_score??-1)||a.room_no-b.room_no);
- return <section className="dean-board"><h2>🏆 Clasificación en vivo</h2><p>Nota media /50 · Posiciones provisionales mientras falten exámenes</p>
- {rows.map((g,i)=><article key={g.room_no}><div className="dean-medal">{['🥇','🥈','🥉'][i]||'#'+(i+1)}</div><div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b><span>{g.members}/6 estudiantes · {g.exams_completed}/90 exámenes</span><div className="dean-meter"><i style={{width:Math.min(100,(g.exams_completed||0)*100/90)+'%'}}/></div></div><div className="dean-rating"><strong>{g.average_score==null?'—':Number(g.average_score).toFixed(1)}</strong><small>{g.is_complete?'FINAL':'PROVISIONAL'}</small></div></article>)}
+ const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
+ const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
+ const empty=groups.filter(g=>!Number(g.members)).sort((a,b)=>a.room_no-b.room_no)
+ return <section className="dean-board"><h2>🏆 Clasificación en vivo</h2>
+ <p>{attendees} inscritos de máximo 30. No hay asistencia mínima: cada sala avanza con quienes llegaron.</p>
+ <p>Puntaje comparable: suma de notas / (15 × inscritos). Los exámenes pendientes cuentan provisionalmente como cero; la media de exámenes realizados se muestra aparte.</p>
+ {ranked.length===0&&<p>Esperando al primer participante. Las salas vacías no compiten.</p>}
+ {ranked.map((g,i)=>{const target=Number(g.target_exams??Number(g.members)*15),completed=Number(g.exams_completed||0),progress=target?Math.min(100,100*completed/target):0;return <article key={g.room_no}>
+ <div className="dean-medal">{['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>
+ <div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b>
+ <span>{g.members}/6 participantes · {completed}/{target} exámenes ({Math.round(progress)} %)</span>
+ <div className="dean-meter"><i style={{width:progress+'%'}}/></div>
+ <small>Media de notas rendidas: {g.average_score==null?'—':Number(g.average_score).toFixed(1)} / 50</small>
+ </div><div className="dean-rating"><strong>{g.fair_score==null?'—':Number(g.fair_score).toFixed(1)}</strong>
+ <small>{g.is_complete?'FINAL':'PROVISIONAL'}</small></div>
+ </article>})}
+ {empty.map(g=><article key={g.room_no} className="dean-team-empty"><div className="dean-medal">—</div>
+ <div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b><span>0/6 inscritos · Sala disponible</span></div>
+ <div className="dean-rating"><small>SIN PARTICIPANTES</small></div></article>)}
  </section>;
 }
 function Slider({label,units,min,max,value,onChange}){return <label className="dean-slider"><span><b>{label}</b><strong>{Number(value).toFixed(1)} h</strong></span><input type="range" min={min} max={max} step=".5" value={value} onChange={e=>onChange(Number(e.target.value))}/><small>{min}–{max} h · {units}</small></label>}
@@ -45,7 +61,7 @@ function Exam({person,onSubmit}){
  const [s,setS]=useState(range[0][2]),[z,setZ]=useState(range[1][2]),[w,setW]=useState(range[2][2]);
  const [busy,setBusy]=useState(false),[err,setErr]=useState(''),[flash,setFlash]=useState(null);
  useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null)},[n,person.archetype]);
- if(n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Ya entregaste los 15 exámenes. Apoya a tu equipo hasta llegar a los 90 registros.</p></section>;
+ if(n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Completaste tus 15 exámenes. Tu sala no necesita seis personas para avanzar.</p></section>;
  async function submit(){setBusy(true);setErr('');try{setFlash(await onSubmit({exam:n,study:s,sleep:z,wellness:w}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  return <section className="dean-exam"><div className="dean-kicker">ASIGNATURA {n} / 15</div><h2>📅 {courses[n-1]}</h2><div className="dean-meter"><i style={{width:(n-1)/15*100+'%'}}/></div>
  <h3>Elige tu estrategia</h3>
@@ -58,16 +74,16 @@ function Exam({person,onSubmit}){
  </section>;
 }
 
-function CupQuiz({role='student',token='',teacher=''}) {
+function CupQuiz({role='student',token='',teacher='',gameCode=code}) {
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[seconds,setSeconds]=useState(0),[receipt,setReceipt]=useState('');
  useEffect(()=>{let cancel=false,t;
- async function fetchState(){try{const value=await call('quiz_state',{game_code:code},token);if(!cancel){setData(value);setError('')}}catch(e){if(!cancel)setError(e.message)}
+ async function fetchState(){try{const value=await call('quiz_state',{game_code:gameCode},token);if(!cancel){setData(value);setError('')}}catch(e){if(!cancel)setError(e.message)}
  if(!cancel)t=setTimeout(fetchState,1450+Math.random()*600)}
- fetchState();return()=>{cancel=true;clearTimeout(t)}},[role,token]);
+ fetchState();return()=>{cancel=true;clearTimeout(t)}},[role,token,gameCode]);
  useEffect(()=>{const id=setInterval(()=>setSeconds(data?.deadline_at?Math.max(0,Math.ceil((Date.parse(data.deadline_at)-Date.now())/1000)):0),250);return()=>clearInterval(id)},[data?.deadline_at]);
  const commands={idle:['start','Iniciar batalla'],preview:['open','Abrir respuestas'],open:['lock','Cerrar respuestas'],locked:['reveal','Revelar y explicar'],reveal:['next',data?.question_no===8?'Mostrar podio':'Siguiente pregunta'],podium:['finish','Terminar batalla']};
- const action=async(command)=>{setBusy(true);setError('');try{setData(await call('quiz_teacher',{command,game_code:code},'',teacher))}catch(e){setError(e.message)}finally{setBusy(false)}};
- const answer=async(choice)=>{if(data?.mine||busy)return;setBusy(true);setError('');try{const r=await call('quiz_submit',{question:data.question_no,choice},token);setReceipt(r.choice);setData(await call('quiz_state',{game_code:code},token))}catch(e){setError(e.message)}finally{setBusy(false)}};
+ const action=async(command)=>{setBusy(true);setError('');try{setData(await call('quiz_teacher',{command,game_code:gameCode},'',teacher))}catch(e){setError(e.message)}finally{setBusy(false)}};
+ const answer=async(choice)=>{if(data?.mine||busy)return;setBusy(true);setError('');try{const r=await call('quiz_submit',{question:data.question_no,choice},token);setReceipt(r.choice);setData(await call('quiz_state',{game_code:gameCode},token))}catch(e){setError(e.message)}finally{setBusy(false)}};
  useEffect(()=>setReceipt(''),[data?.question_no]);
  const q=data?.question,phase=data?.phase||'idle',revealed=['reveal','podium','finished'].includes(phase);
  return <section className="dean-quiz" aria-label="Gran final Kahoot">
@@ -78,7 +94,7 @@ function CupQuiz({role='student',token='',teacher=''}) {
     {role==='student'&&(data?.mine||receipt)&&<p className="dean-quiz-receipt">✓ Respuesta bloqueada: {(data.mine||receipt).toUpperCase()}</p>}
     {revealed&&<div className="dean-quiz-explanation"><h3>Correcta: {q.correct?.toUpperCase()} · {q.options[q.correct]}</h3><p>{q.explanation}</p><div className="dean-quiz-bars">{['a','b','c','d'].map(ch=><span key={ch}>{ch.toUpperCase()}: {data.counts?.[ch]||0} votos</span>)}</div></div>}
   </>}
-  <div className="dean-quiz-toolbar"><strong>{data?.received||0} / 30 respuestas</strong>{role==='student'&&<strong>{data?.my_points||0} / 120 puntos</strong>}
+  <div className="dean-quiz-toolbar"><strong>{data?.received||0} / {data?.participants||0} respuestas</strong>{role==='student'&&<strong>{data?.my_points||0} / 120 puntos</strong>}
   {role==='teacher'&&commands[phase]&&<button className="dean-big" disabled={busy} onClick={()=>action(commands[phase][0])}>{commands[phase][1]}</button>}</div>
   {['podium','finished'].includes(phase)&&<div className="dean-quiz-podium">{(data?.leaderboard||[]).slice(0,3).map((p,i)=><article key={i}><b>{['🥇','🥈','🥉'][i]}</b><strong>{p.alias}</strong><span>Sala {p.room_no}</span><strong>{p.points} / 120</strong></article>)}</div>}
   {error&&<p role="alert" className="dean-error">{error}</p>}
@@ -102,7 +118,7 @@ const deanGuides={
   "rector": {
     "time": "30–55",
     "teacher": "Libera el archivo del Rector. Explica MAE y R² mediante sus notas; pide hallar asociaciones, pero no atribuir causalidad.",
-    "student": "Descarga 90 exámenes de tu sala. Intenta anticipar notas y decide qué variables faltan.",
+    "student": "Descarga los exámenes disponibles de tu sala, aunque hayan asistido pocos estudiantes. Intenta anticipar notas y decide qué variables faltan.",
     "visual": "El CSV del Rector omite deliberadamente horas de estudio, sueño, arquetipo y fatiga."
   },
   "survey": {
@@ -153,7 +169,7 @@ function Player(){
  setBusy(true);setActionError('');try{await call('auto_finish',{},token);setValue(await call('state',{game_code:code},token))}
  catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function download(layer){setBusy(true);setActionError('');try{const blob=await call('export',{layer},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
- return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo de 30 participantes. No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: 6 plazas por equipo. Recibirás un arquetipo académico ficticio.</p></div>
+ return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo de 30 participantes. No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: hasta 6 plazas por equipo. No es necesario llenarlas. Recibirás un arquetipo académico ficticio.</p></div>
  <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: maria_ds"/></label>
  <div className="dean-rooms">{state.groups.map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
  <main className="dean-player"><div className="dean-carnet"><span>{icons[me.archetype]}</span><div><small>ESTUDIANTE · SALA {me.room} {names[me.room-1]}</small><h2>{me.alias}</h2><p>{profiles[me.archetype]} · PGA: <strong>{Number(me.pga).toFixed(1)}/5,0</strong></p></div></div>
@@ -175,8 +191,8 @@ function Teacher(){
  async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
- return <div className="dean-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite 30 jugadores sin consumir cupos del modo anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
- <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><DeanGuidance phase={state.phase} role="teacher"/><Board groups={state.groups}/>{state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher}/>} {['causal','final','finished'].includes(state.phase)&&<button className="dean-big" disabled={busy} onClick={downloadTruth}>🔒 DESCARGAR FATIGA OCULTA · SOLO DOCENTE</button>} {actions[state.phase]&&<button className="dean-big" disabled={busy} onClick={()=>direct('next')}>{actions[state.phase]}</button>}<div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">Wall</a></div></>:
+ return <div className="dean-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
+ <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><DeanGuidance phase={state.phase} role="teacher"/><Board groups={state.groups}/>{state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>} {['causal','final','finished'].includes(state.phase)&&<button className="dean-big" disabled={busy} onClick={downloadTruth}>🔒 DESCARGAR FATIGA OCULTA · SOLO DOCENTE</button>} {actions[state.phase]&&<button className="dean-big" disabled={busy} onClick={()=>direct('next')}>{actions[state.phase]}</button>}<div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">Wall</a></div></>:
  <div className="dean-hero"><h2>Crear Copa para cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
 }

@@ -23,3 +23,6 @@
 .dean-guidance p{font-size:clamp(16px,1.4vw,20px);line-height:1.55;margin:0}
 .dean-guidance-project{background:#103544;padding:15px;border-radius:12px;border:1px solid #69b0bd}
 .dean-guidance small{font-size:13px;color:#b7dde4}
+
+/* Dynamic team sizes; empty rooms do not compete. */
+.dean-team-empty{opacity:.63}.dean-board-main small{color:#b8dbe5;font-size:12px}
