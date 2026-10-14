@@ -75,7 +75,7 @@ begin
     when 'lobby' then 'exams' when 'exams' then 'rector'
     when 'rector' then 'survey' when 'survey' then 'causal'
     when 'causal' then 'final' when 'final' then 'finished' else null end;
-  if current_phase='final' and (select phase from public.cw_dean_quiz_sessions where game_id=gid)<>'finished' then
+  if current_phase='final' and (select phase from public.cw_dean_quiz_sessions where game_id=gid) is distinct from 'finished' then
     raise exception 'Termina primero el Kahoot de 30 participantes';
   end if;
   if p_command<>'next' or next_phase is null then raise exception 'Transición docente no permitida';end if;
@@ -320,3 +320,45 @@ revoke all on function public.cw_dean_quiz_state(text,text) from public,anon,aut
 grant execute on function public.cw_dean_quiz_teacher(text,text) to service_role;
 grant execute on function public.cw_dean_quiz_submit(text,integer,text) to service_role;
 grant execute on function public.cw_dean_quiz_state(text,text) to service_role;
+
+
+-- Teacher-only synthetic truth, never exposed in either student dataset.
+create or replace function public.cw_dean_teacher_truth(p_fac_token text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare gid uuid;phase text;rows jsonb;
+begin
+ select public.cw_validate_facilitator_token(p_fac_token) into gid;
+ if gid is null then raise exception 'Sesión docente inválida';end if;
+ select t.phase into phase from public.cw_dean_tournaments t where game_id=gid;
+ if phase not in ('causal','final','finished') then raise exception 'La verdad sintética aún no está revelada';end if;
+ select coalesce(jsonb_agg(jsonb_build_array(p.room_no,p.alias,e.exam_no,e.subject_name,
+ e.study_hours,e.sleep_hours,e.wellness_hours,e.hidden_fatigue,e.exam_score,e.auto_simulated)
+ order by p.room_no,p.alias,e.exam_no),'[]'::jsonb)
+ into rows from public.cw_dean_exam_records e join public.cw_dean_players p on p.id=e.player_id
+ where e.game_id=gid;
+ return jsonb_build_object('columns',jsonb_build_array('sala','estudiante_id','examen_nro','asignatura',
+ 'horas_estudio','horas_sueno','horas_bienestar_sem','fatiga_oculta','nota_final','simulada_automaticamente'),'rows',rows);
+end $f$;
+-- Optional rapid completion with server-calculated marks and visible provenance.
+create or replace function public.cw_dean_auto_finish(p_token_hash text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare p public.cw_dean_players;k integer;next_exam integer;r jsonb;
+begin
+ select * into p from public.cw_dean_players where token_hash=p_token_hash for update;
+ if p.id is null then raise exception 'Sesión inválida';end if;
+ select coalesce(max(exam_no),0)+1 into next_exam from public.cw_dean_exam_records where player_id=p.id;
+ for k in next_exam..15 loop
+  case p.archetype
+   when 'over' then r:=public.cw_dean_exam(p_token_hash,k,10,3.5,1,true);
+   when 'balanced' then r:=public.cw_dean_exam(p_token_hash,k,6,7.5,3.5,true);
+   when 'risk' then r:=public.cw_dean_exam(p_token_hash,k,5,5.5,1,true);
+   else r:=public.cw_dean_exam(p_token_hash,k,2,8.5,2.5,true);
+  end case;
+ end loop;
+ return jsonb_build_object('completed',15,'auto_generated_from',next_exam,
+ 'note','Exámenes restantes simulados con estrategia predeterminada, marcados en datos docentes');
+end $f$;
+revoke all on function public.cw_dean_teacher_truth(text) from public,anon,authenticated;
+revoke all on function public.cw_dean_auto_finish(text) from public,anon,authenticated;
+grant execute on function public.cw_dean_teacher_truth(text) to service_role;
+grant execute on function public.cw_dean_auto_finish(text) to service_role;

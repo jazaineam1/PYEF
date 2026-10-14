@@ -39,7 +39,19 @@ Deno.serve(async(req)=>{
   if(action==='exam'){
    if(!student)return json({error:'Falta sesión de estudiante'},401)
    return json(await rpc('cw_dean_exam',{p_token_hash:hash,p_exam:Number(b.exam),
-    p_study:Number(b.study),p_sleep:Number(b.sleep),p_wellness:Number(b.wellness),p_auto:!!b.auto}))
+    p_study:Number(b.study),p_sleep:Number(b.sleep),p_wellness:Number(b.wellness),p_auto:false}))
+  }
+  if(action==='auto_finish'){
+   if(!student)return json({error:'Falta sesión estudiantil'},401)
+   return json(await rpc('cw_dean_auto_finish',{p_token_hash:hash}))
+  }
+  if(action==='teacher_truth'){
+   if(!teacher)return json({error:'Autorización docente requerida'},401)
+   const data=await rpc('cw_dean_teacher_truth',{p_fac_token:teacher}) as {columns:unknown[],rows:unknown[][]}
+   const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
+   return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
+    'content-type':'text/csv; charset=utf-8',
+    'content-disposition':'attachment; filename="verdad_sintetica_docente.csv"'}})
   }
   if(action==='export'){
    if(!student)return json({error:'Falta sesión de estudiante'},401)
