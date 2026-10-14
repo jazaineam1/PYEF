@@ -64,7 +64,7 @@ end $f$;
 
 create or replace function public.cw_dean_source_ab_generate(p_fac_token text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
-declare gid uuid;g public.cw_dean_tournaments;p public.cw_dean_players;world0 jsonb;world1 jsonb;
+declare gid uuid;g public.cw_dean_tournaments;player_rec public.cw_dean_players;world0 jsonb;world1 jsonb;
  i integer;t integer;complete_count integer;players integer;
 begin
  select public.cw_validate_facilitator_token(p_fac_token) into gid;
@@ -74,20 +74,20 @@ begin
  if g.phase not in ('causal','final','finished') then raise exception 'Debes llegar a la fase causal';end if;
  select count(*) into players from public.cw_dean_players where game_id=gid;
  if players=0 then raise exception 'Sin participantes';end if;
- select count(*) into complete_count from public.cw_dean_players p where p.game_id=gid and
- (select count(*) from public.cw_dean_exam_records e where e.player_id=p.id)=15;
+ select count(*) into complete_count from public.cw_dean_players pl where pl.game_id=gid and
+ (select count(*) from public.cw_dean_exam_records e where e.player_id=pl.id)=15;
  if complete_count<>players then
    raise exception 'Faltan % estudiantes por completar el semestre',players-complete_count;
  end if;
- for p in select * from public.cw_dean_players where game_id=gid order by joined_at,id loop
-  t:=case when public.cw_dean_source_noise(gid,p.id,0,g.dgp_seed,'treatment')<0 then 1 else 0 end;
+ for player_rec in select * from public.cw_dean_players where game_id=gid order by joined_at,id loop
+  t:=case when public.cw_dean_source_noise(gid,player_rec.id,0,g.dgp_seed,'treatment')<0 then 1 else 0 end;
   for i in 1..15 loop
-   world0:=public.cw_dean_source_ab_potential(gid,p.id,i,g.dgp_seed,p.archetype,p.pga_prior::float8,0);
-   world1:=public.cw_dean_source_ab_potential(gid,p.id,i,g.dgp_seed,p.archetype,p.pga_prior::float8,4);
+   world0:=public.cw_dean_source_ab_potential(gid,player_rec.id,i,g.dgp_seed,player_rec.archetype,player_rec.pga_prior::float8,0);
+   world1:=public.cw_dean_source_ab_potential(gid,player_rec.id,i,g.dgp_seed,player_rec.archetype,player_rec.pga_prior::float8,4);
    insert into public.cw_dean_source_ab_records(game_id,player_id,exam_no,subject_name,
     archetype,pga_prior,complexity,treatment,wellness_observed,study_observed,sleep_observed,
     y_observed,study_0,study_1,sleep_0,sleep_1,fatigue_0,fatigue_1,y0,y1,tau)
-   values(gid,p.id,i,world0->>'subject',p.archetype,p.pga_prior,(world0->>'complexity')::numeric,
+   values(gid,player_rec.id,i,world0->>'subject',player_rec.archetype,player_rec.pga_prior,(world0->>'complexity')::numeric,
    t,case when t=1 then 4 else 0 end,
    case when t=1 then (world1->>'study')::numeric else (world0->>'study')::numeric end,
    case when t=1 then (world1->>'sleep')::numeric else (world0->>'sleep')::numeric end,
