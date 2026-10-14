@@ -19,7 +19,7 @@ test('player shows score, rank and a non-clickable phase line',()=>{
 
 test('wall makes individual top 3 and checkpoint scoring primary',()=>{
   const wall=read('src/v2/V2Wall.jsx')
-  for(const x of ['function TopThree','TOP 3','Puntaje individual acumulado','function CheckpointBoard','Laboratorio Python','Pregunta de comprensión','score.check','score.team'])assert.ok(wall.includes(x))
+  for(const x of ['function TopThree','TOP 3','Puntaje individual acumulado','function CheckpointBoard','Experimento Python','Batalla contra el guardián','score.check','score.team'])assert.ok(wall.includes(x))
 })
 
 test('six missions keep a WOW, scored check and explicit definitions',()=>{

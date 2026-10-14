@@ -3,6 +3,7 @@ import {useV2Quiz,QuizWall,WorkshopBanner,WorkshopTeachingWall} from './V2Quiz.j
 import {getWorkshopCue} from './workshop-script.js'
 import{CheckCircle2,Medal,Sparkles,Trophy}from'lucide-react'
 import{invoke}from'../lib/api'
+import{agentFor}from'./V2Arcade'
 import{V2_ROUNDS,V2_CHALLENGE_COUNT,POLICY_ACTIONS,optionsForRound,statusCopy}from'./content'
 
 const jitter=n=>Math.round(n*(.9+Math.random()*.2))
@@ -21,17 +22,17 @@ function decisionText(round,payload={}){
 function TopThree({rows=[],show=true,leaderCount=0,leaderPoints=0}){
   const top=rows.slice(0,3)
   if(!show)return <section className="v2-wall-top3 waiting"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Se activa cuando cierre el primer laboratorio.</span></div><div className="v2-top3-wait">Todavía no hay puntaje público.</div></section>
-  return <section className="v2-wall-top3"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Puntaje individual acumulado</span></div>{Number(leaderCount)>3&&<div className="v2-alert hint"><span><b>Empate provisional:</b> {leaderCount} participantes tienen {leaderPoints} puntos.</span></div>}<div className="v2-podium">{[1,0,2].map(index=>{const x=top[index];if(!x)return <div className="empty" key={index}/>;const rank=x.rank||index+1;return <article className={'rank-'+rank} key={x.player_id}><Medal size={rank===1?30:24}/><strong>{rank}°</strong><h2>{x.name}</h2><span>{x.team}</span><b>{x.points} pts</b><small>+{x.round_points||0} en esta misión</small></article>})}</div></section>
+  return <section className="v2-wall-top3"><div className="v2-wall-section-title"><b><Trophy size={22}/> TOP 3</b><span>Puntaje individual acumulado</span></div>{Number(leaderCount)>3&&<div className="v2-alert hint"><span><b>Empate provisional:</b> {leaderCount} participantes tienen {leaderPoints} puntos.</span></div>}<div className="v2-podium">{[1,0,2].map(index=>{const x=top[index];if(!x)return <div className="empty" key={index}/>;const rank=x.rank||index+1;return <article className={'rank-'+rank} key={x.player_id}><div className="v2-arcade-podium-avatar" aria-hidden="true">{agentFor(x.player_id||x.name)}</div><Medal size={rank===1?30:24}/><strong>{rank}°</strong><h2>{x.name}</h2><span>{x.team}</span><b>{x.points} pts</b><small>+{x.round_points||0} en esta misión</small></article>})}</div></section>
 }
 
 function CheckpointBoard({data,activeTeams}){
   const c=data.checkpoint||{},humans=Math.max(1,Number(c.humans||data.humans||0)),teams=Math.max(1,activeTeams.length),score=data.scoring||{}
   const rows=[
-    ['Decisión inicial',Number(c.initial||0),humans,'sin puntos'],
-    ['Laboratorio Python',Number(c.lab||0),humans,`+${Number(score.lab??20)} pts`],
-    ['Pregunta de comprensión',Number(c.check||0),humans,`hasta +${Number(score.check??30)} pts`],
+    ['Primer movimiento',Number(c.initial||0),humans,'sin puntos'],
+    ['Experimento Python',Number(c.lab||0),humans,`+${Number(score.lab??20)} pts`],
+    ['Batalla contra el guardián',Number(c.check||0),humans,`hasta +${Number(score.check??30)} pts`],
     ['Revisión',Number(c.revision||0),humans,`+${Number(score.revision??20)} pts`],
-    ['Decisión de equipo',Number(c.teams_locked||0),teams,`hasta +${Number(score.team??30)} pts al revelar`]
+    ['Jugada final de escuadrón',Number(c.teams_locked||0),teams,`hasta +${Number(score.team??30)} pts al revelar`]
   ]
   let current='Decisión inicial'
   for(const row of rows){if(row[1]<row[2]){current=row[0];break}else current='Esperando resultado'}
