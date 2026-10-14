@@ -47,7 +47,7 @@ begin
    else min_h:=0.5;max_h:=3.5;min_s:=7;max_s:=9.5;
      base_h:=1.5;base_s:=8.5;base_b:=4.8;
   end case;
-  seed:=gid::text||':ab:student:'||i;
+  seed:='2026:ab:student:'||i;
   pga:=round((case arch
     when 'over' then 3.8+public.cw_dean_uniform_v3(seed||':pga')*1.0
     when 'balanced' then 3.4+public.cw_dean_uniform_v3(seed||':pga')*0.9
@@ -57,7 +57,7 @@ begin
   for j in 1..15 loop
    subj:=public.cw_dean_subject_v3(j);
    d:=(subj->>'complexity')::numeric;
-   seed:=gid::text||':ab:student:'||i||':exam:'||j;
+   seed:='2026:ab:student:'||i||':exam:'||j;
    noise_h:=0.5*public.cw_dean_normal_v3(seed||':study');
    noise_s:=0.4*public.cw_dean_normal_v3(seed||':sleep');
    h0:=round(least(max_h,greatest(min_h,(base_h+0.3*(d-5.5)-0.7*(0-base_b)+noise_h)))::numeric,1);

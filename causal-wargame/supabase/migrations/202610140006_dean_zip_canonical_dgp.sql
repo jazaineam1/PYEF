@@ -48,7 +48,7 @@ begin
     +2.0*greatest(0.0,p_study::double precision-3.0)
     +shock+1.5*greatest(0.0,p_complexity::double precision-5.0)
     -4.5*least(p_wellness::double precision,6.0)
-    +2.0*public.cw_dean_normal_v3(p_seed||':fatigue')));
+    +2.0*public.cw_dean_normal_v3(p_seed||':shared_noise')));
  fatigue_penalty:=0.15*greatest(0.0,u-20.0)
     +0.12*power(greatest(0.0,u-60.0),1.25);
  y:=least(50.0,greatest(0.0,
@@ -57,7 +57,7 @@ begin
     +2.6*(p_study::double precision-4.0)
     +0.8*(p_sleep::double precision-7.5)
     +0.5*least(p_wellness::double precision,6.0)
-    -fatigue_penalty+1.6*public.cw_dean_normal_v3(p_seed||':exam')));
+    -fatigue_penalty+1.6*public.cw_dean_normal_v3(p_seed||':shared_noise')));
  return jsonb_build_object('fatiga_latente',round(u::numeric,4),'nota_final',round(y::numeric,1),
     'dgp','zip_dgp_2026');
 end $f$;
