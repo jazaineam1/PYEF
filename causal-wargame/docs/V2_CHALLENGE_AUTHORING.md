@@ -1,141 +1,240 @@
-# V2 · Cómo agregar un nuevo reto
+# V2 · Cómo agregar una misión causal
 
-V2 está separada en cuatro piezas reutilizables:
+DOS FUTUROS · CAMPUS separa tres responsabilidades que no deben volver a acoplarse:
 
-1. **contenido** del reto;
-2. **tipo de decisión**;
-3. **perfil de datos/laboratorio**;
-4. **puntaje y reveal**.
+1. **perfil de datos**: qué mundo sintético usa;
+2. **template de interacción**: qué decide el estudiante;
+3. **laboratorio**: qué análisis Python ejecuta.
 
-El archivo principal de autoría es:
+El manifiesto vive en:
 
 `src/v2/challenge-registry.js`
 
-La ruta del estudiante no cambia cuando agregas un reto:
+La ruta estándar del estudiante es:
 
-**contexto → decisión → laboratorio → pregunta → revisión → equipo → resultado → aprendizaje**
+**contexto → decisión inicial → laboratorio → pregunta → revisión → equipo → reveal → concepto técnico**
 
-La interfaz del estudiante usa **una sola página por fase**. No hay pestañas.
+La primera decisión es diagnóstica. Los nombres técnicos aparecen después de experimentar el problema.
 
-## Contrato de un reto
+## Campos obligatorios
 
-Cada reto del registro define:
+Cada misión define:
 
-- `id` y `order`;
-- `template`: cómo decide el estudiante;
-- `profileRound`: qué familia de datos/ground truth reutiliza;
-- `labKey`: qué laboratorio Python usa;
-- `points`: puntos por laboratorio, pregunta, revisión y equipo;
-- contexto y pregunta sencilla;
-- decisión inicial y revisada;
-- pregunta de comprensión;
-- decisión de equipo;
-- reveal;
-- idea simple y nombre técnico posterior.
+- `id`, `order`, `enabled`;
+- `template`;
+- `profileRound`;
+- `labKey`;
+- `points`;
+- `title`, `scenario`, `simpleQuestion`;
+- `initialDecision`, `revisedDecision`, `teamDecision`;
+- `plainConcept`;
+- `technicalTerm`;
+- `advancedTerms`;
+- `wow`;
+- `takeaway`;
+- `checkQuestion`, `checkOptions`;
+- `glossary`;
+- `timeMinutes`;
+- `journey`.
 
-### Templates disponibles
+## Regla de acrónimos
 
-- `cohort-selection`: seleccionar grupos/cohortes.
-- `recommendation`: elegir una recomendación categórica.
-- `segment-policy`: asignar una acción a grupos bajo una capacidad.
+Toda sigla mostrada al estudiante debe incluir:
 
-### Perfiles reutilizables
+1. sigla;
+2. nombre completo;
+3. traducción cuando corresponda;
+4. definición humana de una frase.
 
-Actualmente existen tres perfiles de backend:
+Ejemplo:
 
-- `profileRound: 1` → predicción vs. cambio causado.
-- `profileRound: 2` → comparación histórica y comparabilidad.
-- `profileRound: 3` → experimento, cambio por grupos y valor.
+**ATE**  
+**Average Treatment Effect · Efecto Promedio del Tratamiento**  
+Cambio promedio causado por la intervención frente a no intervenir.
 
-Un reto nuevo puede reutilizar cualquiera de esos perfiles sin duplicar datos ni reescribir las funciones del juego.
+No se acepta un término en `advancedTerms` si se convierte en requisito de comprensión sin aparecer definido en `glossary`.
+
+## Templates actuales
+
+### `cohort-selection`
+Seleccionar perfiles académicos.
+
+Uso actual: misión 1.
+
+### `single-choice`
+Elegir una estrategia o estimador.
+
+Uso actual: misiones 2, 4 y 6.
+
+### `multi-select`
+Seleccionar variables.
+
+Uso actual: misión 3 de DAG.
+
+### `segment-policy`
+Asignar una política a perfiles con capacidad limitada.
+
+Uso actual: misión 5.
+
+## Tres perfiles de datos reutilizables
+
+### `profileRound: 1` · predictivo
+
+Datos de estudiantes/perfiles para mostrar:
+
+- variables académicas;
+- resultado;
+- capacidad predictiva.
+
+No revela ground truth causal durante el laboratorio.
+
+### `profileRound: 2` · observacional
+
+Datos donde recibir apoyo depende de covariables previas.
+
+Se reutiliza para:
+
+- DAG;
+- ajuste;
+- Double Machine Learning.
+
+### `profileRound: 3` · experimento
+
+Datos de tratamiento/control con heterogeneidad conocida en el mundo sintético.
+
+Se reutiliza para:
+
+- A/B y ATE;
+- CATE;
+- T-Learner;
+- model battle;
+- benchmarks Causal Forest/EconML.
+
+Un reto nuevo NO necesita un perfil nuevo sólo porque usa un laboratorio distinto.
+
+## Laboratorios actuales
+
+- `prediction`
+- `ab-test`
+- `dag`
+- `dml`
+- `heterogeneity`
+- `model-battle`
+
+`python-lab.js` construye el contenido ejecutable.
+
+Pyodide permite ejecutar dentro del navegador:
+
+- pandas;
+- NumPy;
+- SciPy;
+- scikit-learn;
+- Matplotlib.
+
+EconML no se ejecuta directamente en esta versión del navegador. Si una misión usa EconML, se debe:
+
+1. enseñar primero el estimador;
+2. ejecutar un equivalente compatible cuando sea razonable;
+3. mostrar resultados EconML precomputados como benchmark claramente etiquetado.
 
 ## Puntaje
 
-El puntaje es configurable por reto. El valor inicial es:
+Por defecto:
 
-- laboratorio: **20**
-- pregunta: **30**
-- revisión: **20**
-- decisión de equipo: **hasta 30**
+- decisión inicial: 0;
+- laboratorio: +20;
+- pregunta: hasta +30;
+- revisión: +20;
+- equipo: hasta +30.
 
-La primera decisión es diagnóstica y no da puntos.
+Total: 100 por misión.
 
-El backend es la autoridad del puntaje. La tabla `cw_v2_challenge_runtime` guarda:
+El backend es autoridad de puntaje y respuesta correcta.
 
-- número de reto;
-- `challenge_key`;
-- respuesta correcta;
-- puntos;
-- `profile_round`;
-- `template`;
-- `lab_key`;
-- bloques de laboratorio requeridos.
+## Wall
 
-El laboratorio sólo puede cerrarse cuando el estudiante ha ejecutado todos los bloques requeridos. La pregunta puntuable sólo se puede contestar una vez.
+El Wall prioriza:
 
-El Wall muestra:
+1. Top 3 individual;
+2. checkpoint actual;
+3. progreso;
+4. puntos recientes.
 
-- **Top 3 individual**;
-- progreso de cada checkpoint;
-- últimos puntos obtenidos;
-- y, después del reveal, el valor económico de las decisiones de equipo.
+El impacto de equipo se muestra aparte y sólo después del reveal.
 
-## Agregar un reto que reutiliza algo existente
+Nunca mezclar:
 
-Ejemplo: quieres un cuarto reto con el mismo tipo de comparación del reto 2.
+- puntos de aprendizaje;
+- impacto académico.
 
-1. Copia `CHALLENGE_TEMPLATE`.
-2. Define `order: 4`.
-3. Usa `template: "recommendation"`.
-4. Usa `profileRound: 2`.
-5. Usa `labKey: "comparison"`.
-6. Escribe el nuevo contexto, opciones y pregunta de comprensión.
-7. Agrega una fila de runtime para el reto 4 con `profile_round = 2`.
-8. Define la respuesta correcta únicamente en backend.
-9. Añade pruebas del nuevo manifest.
+## Las seis misiones actuales
 
-El motor V2 admite hasta **12 retos** configurados. El conteo de retos es dinámico.
+1. Predicción vs. intervención.
+2. Experimento A/B, ATE e incertidumbre.
+3. DAG y conjunto de ajuste.
+4. Double Machine Learning.
+5. CATE y heterogeneidad.
+6. S/T/DR-Learner, Causal Forest y EconML.
 
-## Cuándo sí hace falta código nuevo
+## Ejemplo de una misión nueva
 
-Hace falta un adapter nuevo únicamente cuando:
+Si quieres una misión 7 sobre overlap:
 
-- la interacción no cabe en los tres templates actuales;
-- necesitas un tipo de laboratorio diferente;
-- necesitas un nuevo dataset/ground truth y no puedes reutilizar uno de los tres perfiles.
+- `template: "single-choice"`;
+- `profileRound: 2`;
+- `labKey: "overlap"`;
+- añade el builder `overlap` a `python-lab.js`;
+- agrega la fila de `cw_v2_challenge_runtime`;
+- conserva el mismo journey.
 
-En ese caso se extiende una pieza específica; no se reescribe el recorrido completo.
+No crees `Reto7.jsx`.
 
-## Plantilla para pedir un reto nuevo a ChatGPT
+## Criterio para crear código nuevo
 
-> Agrega un reto V2 sobre [tema].  
-> Contexto cotidiano: [máximo 2 frases].  
-> Pregunta única: [pregunta].  
-> Decisión inicial: [decisión].  
-> Template: cohort-selection / recommendation / segment-policy.  
-> Perfil reutilizable: 1 / 2 / 3.  
-> Laboratorio: prediction / comparison / experiment.  
-> Pregunta de cierre: [selección múltiple].  
-> Opciones: [A/B/C].  
+Sólo es necesario cuando cambia una de estas capacidades:
+
+- nuevo tipo de interacción;
+- nuevo laboratorio;
+- nuevo perfil de datos que no puede expresarse con los existentes.
+
+Un contexto narrativo nuevo no es razón suficiente para duplicar componentes.
+
+## Prompt recomendado para una nueva misión
+
+> Agrega una misión V2 sobre [concepto causal].  
+> Pregunta humana: [pregunta].  
+> Error intuitivo esperado: [error].  
+> Efecto WOW: [sorpresa].  
+> Template: [cohort-selection / single-choice / multi-select / segment-policy].  
+> Perfil de datos: [1 / 2 / 3].  
+> LabKey: [existente o nuevo].  
+> Decisión inicial: [acción].  
+> Evidencia Python: [bloques].  
+> Pregunta de comprensión: [A/B/C].  
 > Respuesta correcta: [sólo backend].  
-> Decisión revisada: [qué vuelve a decidir].  
-> Decisión de equipo: [qué bloquea].  
-> Reveal: [qué estaba oculto].  
-> Idea simple: [frase sin jerga].  
-> Nombre técnico posterior: [nombre].  
-> Puntaje: [lab/check/revision/team].  
+> Decisión revisada: [acción].  
+> Decisión de equipo: [acción].  
+> Plain concept: [sin jerga].  
+> Technical term: [nombre].  
+> Glossary: [sigla, nombre completo, definición humana].  
 > Tiempo: [minutos].
 
-## Regla pedagógica
+## Regla pedagógica final
 
-Un término técnico aparece **después** de que la persona ya entendió el problema.
+Si el estudiante todavía no tiene una pregunta para la cual el término técnico sea útil, el término aparece demasiado pronto.
 
 Primero:
 
-> “Los grupos ya eran diferentes desde antes.”
+> "Los grupos ya eran diferentes antes."
 
 Después:
 
-> “Esto se llama confusión.”
+> "Eso es confusión."
 
-La ruta principal evalúa comprensión. La profundidad estadística no debe bloquear a quien está aprendiendo el concepto por primera vez.
+Primero:
+
+> "El promedio oculta que algunos perfiles cambian mucho más."
+
+Después:
+
+> "Eso es heterogeneidad; ahora podemos hablar de CATE."
