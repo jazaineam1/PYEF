@@ -70,14 +70,14 @@ function CohortDecision({state,onSend,busy,revision=false,round,team=false}){
   const[sel,setSel]=useState([])
   const toggle=id=>setSel(v=>v.includes(id)?v.filter(x=>x!==id):v.length<max?[...v,id]:v)
   const label=team?'Bloquear estrategia del escuadrón':revision?'Guardar estrategia corregida':'Lanzar estrategia inicial'
-  return <><div className="v2-step"><b>{team?'MISIÓN COOPERATIVA':revision?'SEGUNDO INTENTO':'ELIGE A TU ESCUADRÓN'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+  return <><div className="v2-step"><b>{team?'MISIÓN COOPERATIVA':revision?'SEGUNDO INTENTO · REVISA TU DECISIÓN':'ELIGE A TU ESCUADRÓN'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
     <CohortArena rows={rows} selected={sel} max={max} onToggle={toggle}/>
     <div className="v2-sticky"><span>🎯 {sel.length}/{max} perfiles seleccionados</span><button className="v2-primary" disabled={busy||sel.length<1||(team&&sel.length!==10)} onClick={()=>onSend({selected:sel})}>{busy?'Transmitiendo…':label} →</button></div>
   </>
 }
 function SingleChoice({round,onSend,busy,revision=false,team=false}){
   const opts=optionsForRound(round),[choice,setChoice]=useState('')
-  return <><div className="v2-step"><b>{team?'LA DECISIÓN DEL ESCUADRÓN':revision?'SEGUNDO INTENTO':'ELIGE TU JUGADA'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+  return <><div className="v2-step"><b>{team?'LA DECISIÓN DEL ESCUADRÓN':revision?'SEGUNDO INTENTO · REVISA TU DECISIÓN':'ELIGE TU JUGADA'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
     <StrategyArena round={round} options={opts} choice={choice} onChoose={setChoice}/>
     <button className="v2-primary wide" disabled={busy||!choice} onClick={()=>onSend({choice})}>{busy?'Transmitiendo…':team?'Confirmar jugada del equipo':revision?'Guardar la nueva jugada':'Activar estrategia'} →</button>
   </>
@@ -85,7 +85,7 @@ function SingleChoice({round,onSend,busy,revision=false,team=false}){
 function MultiSelect({round,onSend,busy,revision=false,team=false}){
   const[sel,setSel]=useState([])
   const toggle=v=>setSel(xs=>xs.includes(v)?xs.filter(x=>x!==v):[...xs,v])
-  return <><div className="v2-step"><b>{team?'HACK COOPERATIVO':revision?'RECONFIGURA EL GRAFO':'HACKEA EL MAPA CAUSAL'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+  return <><div className="v2-step"><b>{team?'HACK COOPERATIVO · DECIDAN JUNTOS':revision?'RECONFIGURA EL GRAFO · REVISA TU DECISIÓN':'HACKEA EL MAPA CAUSAL'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
    <DagArena selected={sel} onToggle={toggle}/>
    <button className="v2-primary wide" disabled={busy||sel.length<1} onClick={()=>onSend({selected:sel})}>{busy?'Transmitiendo…':team?'Bloquear grafo del equipo':revision?'Guardar nuevo conjunto de ajuste':'Enviar mapa causal'} →</button>
   </>
@@ -100,7 +100,7 @@ function PolicyChoice({state,onSend,busy,revision=false,team=false,round}){
     avoid:segs.filter(s=>choices[s.id]==='avoid').map(s=>s.id),
     observe:segs.filter(s=>choices[s.id]==='observe').map(s=>s.id)
   }:{choices}
-  return <><div className="v2-step"><b>{team?'REPARTO FINAL DEL EQUIPO':revision?'SEGUNDO REPARTO':'ADMINISTRA EL CAMPUS'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
+  return <><div className="v2-step"><b>{team?'REPARTO FINAL DEL EQUIPO · DECIDAN JUNTOS':revision?'SEGUNDO REPARTO · REVISA TU DECISIÓN':'ADMINISTRA EL CAMPUS'}</b><span>{team?V2_ROUNDS[round].team:revision?V2_ROUNDS[round].revise:V2_ROUNDS[round].individual}</span></div>
     <ResourceArena segments={segs} choices={choices} capacity={capacity} onChoose={(id,v)=>setChoices(x=>({...x,[id]:v}))}/>
     <button className="v2-primary wide" disabled={busy||(team&&used>capacity)} onClick={()=>onSend(payload())}>{busy?'Transmitiendo…':team?(used>capacity?'Sin recursos suficientes':'Ejecutar política del equipo'):revision?'Guardar política corregida':'Desplegar propuesta'} →</button>
   </>
@@ -119,7 +119,7 @@ function StudentProgress({state}){
   const progress=state.progress||{},phase=progress.phase||'initial'
   const normalize=x=>x==='wait_initial'?'initial':x==='wait_revision'?'revision':x==='wait_reveal'?'team':x
   const idx=Math.max(0,PHASES.findIndex(x=>x[0]===normalize(phase))),me=progress.my||{}
-  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>XP ACUMULADA</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>XP DEL NIVEL</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>CLASIFICACIÓN</small><strong>#{me.rank??'—'}</strong><span>ranking en vivo</span></div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
+  return <section className="v2-student-progress"><div className="v2-student-score"><div><small>TU PUNTAJE · XP ACUMULADA</small><strong>{me.points??0}</strong><span>puntos</span></div><div><small>XP DEL NIVEL</small><strong>{me.round_points??0}<em>/{me.round_max??100}</em></strong></div><div><small>POSICIÓN · RANKING</small><strong>#{me.rank??'—'}</strong><span>ranking en vivo</span></div></div><div className="v2-phase-line">{PHASES.map((x,i)=><div key={x[0]} className={i<idx?'done':i===idx?'active':''}><b>{i<idx?'✓':i+1}</b><span>{x[1]}</span></div>)}</div></section>
 }
 
 function PhasePoints({phase,state,round}){
