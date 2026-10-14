@@ -48,7 +48,7 @@ set
   predictive_score=round((0.45+((n.rn*11)%46)/100.0)::numeric,3),
   p0=round((0.38+((n.rn*7)%35)/100.0)::numeric,3),
   p1=round(least(.97,(0.38+((n.rn*7)%35)/100.0)+
-      (array[.02,.18,.05,.11,-.02,.14,.04,.09])[((n.rn-1)%8)+1])::numeric),3),
+      (array[.02,.18,.05,.11,-.02,.14,.04,.09])[((n.rn-1)%8)+1])::numeric,3),
   baseline_risk=1+((n.rn*3)%4),
   historical_treated=(1+((n.rn*3)%4))>=3,
   historical_outcome=case when ((n.rn*29)%100) <
