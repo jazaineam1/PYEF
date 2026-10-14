@@ -1,8 +1,83 @@
 {
+  "best_holdout_rmse": "causal_forest",
+  "metrics": {
+    "causal_forest": {
+      "ate_error_points": 0.0919,
+      "cate_rmse_points": 0.3396
+    },
+    "dr_learner": {
+      "ate_error_points": 0.0221,
+      "cate_rmse_points": 0.7579
+    },
+    "t_learner": {
+      "ate_error_points": 0.0038,
+      "cate_rmse_points": 1.2927
+    }
+  },
+  "note": "El menor error del holdout sintetico no prueba identificacion causal externa.",
+  "provenance": {
+    "data_sha256": "2dbe8a142048b55587874d8e21477ace033ef2efdf93566de9e738f46e12ce2e",
+    "dataset": "campus-academic-experiment-v2",
+    "description": "Entrenamiento efectivo sobre datos academicos sinteticos de CAMPUS V2; sin datos personales.",
+    "econml_version": "0.16.0",
+    "engine": "EconML",
+    "execution": "CPython GitHub Actions (no Pyodide)",
+    "generator_sql": "202610140001_v2_academic_causal_curriculum.sql",
+    "holdout_rows": 500,
+    "methods": [
+      "TLearner",
+      "DRLearner",
+      "CausalForestDML"
+    ],
+    "n": 2000,
+    "numpy_version": "1.26.4",
+    "seed": 20261014,
+    "sklearn_version": "1.5.2",
+    "source": "causal-wargame/scripts/precompute_econml_v2.py",
+    "train_rows": 1500
+  },
   "schema_version": 1,
-  "status": "pending",
-  "provenance": null,
-  "segments": [],
-  "metrics": null,
-  "note": "EconML de V2 pendiente de ejecución real en GitHub Actions."
+  "segments": [
+    {
+      "causal_forest": -1.518,
+      "dr_learner": -1.729,
+      "n_holdout": 70,
+      "name": "Sin señal clara",
+      "segment": "arrears",
+      "t_learner": -1.095
+    },
+    {
+      "causal_forest": 10.372,
+      "dr_learner": 10.467,
+      "n_holdout": 140,
+      "name": "Alta fatiga",
+      "segment": "digital",
+      "t_learner": 10.458
+    },
+    {
+      "causal_forest": 7.785,
+      "dr_learner": 7.791,
+      "n_holdout": 150,
+      "name": "Equilibrado",
+      "segment": "middle",
+      "t_learner": 7.717
+    },
+    {
+      "causal_forest": 3.21,
+      "dr_learner": 3.075,
+      "n_holdout": 90,
+      "name": "Sueño insuficiente",
+      "segment": "traditional",
+      "t_learner": 2.375
+    },
+    {
+      "causal_forest": 1.808,
+      "dr_learner": 1.362,
+      "n_holdout": 50,
+      "name": "Sobreexigido",
+      "segment": "wealth",
+      "t_learner": 1.799
+    }
+  ],
+  "status": "verified"
 }
