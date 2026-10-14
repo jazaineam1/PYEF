@@ -3,6 +3,29 @@
 -- User-facing semantics are academic: prediction, support intervention, grades and academic profiles.
 
 -- ---------------------------------------------------------------------------
+-- 0) Widen legacy round constraints for the modular engine (up to 12 missions).
+-- ---------------------------------------------------------------------------
+alter table public.cw_v2_individual_submissions
+  drop constraint if exists cw_v2_individual_submissions_round_number_check,
+  add constraint cw_v2_individual_submissions_round_number_check
+  check (round_number between 1 and 12);
+
+alter table public.cw_v2_learning_events
+  drop constraint if exists cw_v2_learning_events_round_number_check,
+  add constraint cw_v2_learning_events_round_number_check
+  check (round_number between 1 and 12);
+
+alter table public.cw_v2_revisions
+  drop constraint if exists cw_v2_revisions_round_number_check,
+  add constraint cw_v2_revisions_round_number_check
+  check (round_number between 1 and 12);
+
+alter table public.cw_v2_team_decisions
+  drop constraint if exists cw_v2_team_decisions_round_number_check,
+  add constraint cw_v2_team_decisions_round_number_check
+  check (round_number between 1 and 12);
+
+-- ---------------------------------------------------------------------------
 -- 1) Six modular challenges. Correct checkpoint answers stay server-side.
 -- ---------------------------------------------------------------------------
 insert into public.cw_v2_challenge_runtime(
