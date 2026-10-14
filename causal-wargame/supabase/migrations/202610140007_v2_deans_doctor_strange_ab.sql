@@ -147,11 +147,11 @@ begin
  if p.id is null then raise exception 'Sesión inválida';end if;
  select t.phase into phase from public.cw_dean_tournaments t where t.game_id=p.game_id;
  if phase not in ('causal','final','finished') then raise exception 'A/B aún no publicado';end if;
- select coalesce(jsonb_agg(jsonb_build_array(e.exam_no,e.subject_name,e.pga_prior,e.complexity,
+ select coalesce(jsonb_agg(jsonb_build_array(participant.alias,e.exam_no,e.subject_name,e.pga_prior,e.complexity,
  e.archetype,e.treatment,e.wellness_observed,e.study_observed,e.sleep_observed,e.y_observed)
- order by e.player_id,e.exam_no),'[]'::jsonb) into dataset
- from public.cw_dean_source_ab_records e where e.game_id=p.game_id;
- return jsonb_build_object('columns',jsonb_build_array('examen_nro','asignatura','pga_previo',
+ order by participant.alias,e.exam_no),'[]'::jsonb) into dataset
+ from public.cw_dean_source_ab_records e join public.cw_dean_players participant on participant.id=e.player_id where e.game_id=p.game_id;
+ return jsonb_build_object('columns',jsonb_build_array('estudiante_id','examen_nro','asignatura','pga_previo',
  'complejidad','arquetipo','tratamiento','horas_bienestar_sem','horas_estudio',
  'horas_sueno','nota_final'),'rows',dataset);
 end $f$;
