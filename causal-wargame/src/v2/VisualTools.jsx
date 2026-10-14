@@ -1,5 +1,6 @@
 import React,{useState}from'react'
 import{PythonEvidenceLab}from'./PythonEvidenceLab'
+import EconMLV2Panel from './EconMLV2Panel'
 
 const num=x=>Number(x||0)
 const pp=x=>`${num(x)>0?'+':''}${num(x).toFixed(Math.abs(num(x))<10?1:0)} pp`
@@ -122,11 +123,12 @@ export function EvidenceLab({round,state,analysis,labKey,labPoints,onComplete,si
     dag:'Usa el DAG para distinguir confusores, mediadores y colliders antes de ajustar.',
     dml:'Construye Double Machine Learning paso a paso: modelos auxiliares, residuos y efecto.',
     heterogeneity:'Pasa del ATE al CATE y estima para quién funciona mejor la intervención.',
-    'model-battle':'Compara S-Learner, T-Learner, DR-Learner y referencias de Causal Forest/EconML.'
+    'model-battle':'Compara S/T/DR de Pyodide contra los tres estimadores EconML reales evaluados fuera de muestra.'
   }[profile]||'Ejecuta el análisis causal y conecta cada resultado con la decisión.'
   return <section className="v2-evidence-lab single-page">
     <div className="v2-step compact"><b>LABORATORIO</b><span>{copy}</span></div>
     {profile==='dag'&&tools?.dag&&<DagLab dag={tools.dag}/>} 
+    {profile==='model-battle'&&<EconMLV2Panel/>}
     <PythonEvidenceLab round={round} state={state} analysis={analysis} labKey={labKey} labPoints={labPoints} onComplete={onComplete} simulation={simulation}/>
   </section>
 }

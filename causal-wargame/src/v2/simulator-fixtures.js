@@ -91,13 +91,7 @@ export const SIM_ANALYSIS={
     experiment_rows:experiment,
     segments:SIM_SEGMENTS,
     economy:SIM_ECONOMY,
-    econml:[
-      {segment:'digital',name:'Alta fatiga',t_learner:9.6,dr_learner:10.1,causal_forest:10.5},
-      {segment:'middle',name:'Equilibrado',t_learner:7.0,dr_learner:7.7,causal_forest:7.9},
-      {segment:'traditional',name:'Sueño insuficiente',t_learner:2.4,dr_learner:3.0,causal_forest:3.3},
-      {segment:'wealth',name:'Sobreexigido',t_learner:.8,dr_learner:1.1,causal_forest:1.4},
-      {segment:'arrears',name:'Sin señal clara',t_learner:-1.0,dr_learner:-1.4,causal_forest:-1.6}
-    ]
+
   }}
 }
 

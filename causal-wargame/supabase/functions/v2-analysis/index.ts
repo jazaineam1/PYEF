@@ -7,6 +7,7 @@ Deno.serve(async req=>{
     const token=req.headers.get('x-game-token')||''
     if(!token)return json({error:'Falta x-game-token'},401)
     const out:any=await rpc('cw_v2_analysis',{p_token:token})
+    if(out?.team_tools?.econml){const {econml,...academic}=out.team_tools;out.team_tools=academic}
     // The old analytical RPC has one fixed illustrative effect for all rounds.
     // Normalize its reveal to the same causal DGP used by student and Wall.
     if(out?.reveal_tools&&['reveal','teaching','microcheck','finished'].includes(String(out.status||''))){
