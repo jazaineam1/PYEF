@@ -42,7 +42,7 @@ test('one server-verified selection per scene, no write to legacy game decisions
 })
 test('real Python demos are optional and output is never fabricated',()=>{
  const ui=read('src/v2/V2WorkshopScene.jsx')
- for(const piece of ['Worker(new URL','./pyodide.worker.js','msg.type===\\'result\\'','workshop_vote','disabled','WorkshopOptionalPython'])assert.ok(ui.includes(piece),piece)
+ for(const piece of ['Worker(new URL','./pyodide.worker.js',"msg.type===\'result\'",'workshop_vote','disabled','WorkshopOptionalPython'])assert.ok(ui.includes(piece),piece)
  for(const phase of [2,3,4]){
   assert.ok(WORKSHOP_PYTHON[phase].code.includes('import numpy'))
   assert.ok(WORKSHOP_PYTHON[phase].code.includes('print('))
