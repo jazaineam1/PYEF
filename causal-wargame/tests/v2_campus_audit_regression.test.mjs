@@ -17,7 +17,10 @@ test('The experimental true ATE is computed from potential outcomes',()=>{
 })
 test('Python server ACK precedes marking success',()=>{
  const s=read('src/v2/PythonEvidenceLab.jsx')
- assert.match(s,/worker\.onmessage=async e=>/)
+ assert.match(s,/runtimeListener=handlerRef\.current=async e=>/)
+ assert.match(s,/runtimeWorker\.onmessage=e=>/)
+ assert.match(s,/ensureRuntimeWorker\(\)/)
+ assert.match(s,/prewarmPython/)
  assert.ok(s.indexOf("await invoke('v2-submit'")<s.indexOf('setResults(v=>({...v,[stepId]'))
 })
 test('DAG and DR teaching compute instead of just asserting',()=>{
