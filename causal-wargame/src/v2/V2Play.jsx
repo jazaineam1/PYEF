@@ -1,3 +1,4 @@
+import{prewarmPython}from'./PythonEvidenceLab'
 import React,{useEffect,useMemo,useState}from'react'
 import{Check,ChevronRight,LogOut,Sparkles,Trophy}from'lucide-react'
 import{invoke,savePlayerToken,savePlayerGameCode,getPlayerToken,clearPlayerSession}from'../lib/api'
@@ -36,9 +37,20 @@ function Header({state,onExit}){
   return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>CAMPUS</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Misión {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>#{me?.rank??'—'}</span></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
 }
 
+const MISSION_ICONS=['🔍','⚗️','🕸️','🧠','🎯','🏆']
+function CampaignMap({round}){
+  return <nav className="v2-campaign-map" aria-label="Progreso de las seis misiones">
+    {MISSION_ICONS.map((icon,i)=><div key={i} className={i+1<round?'cleared':i+1===round?'current':'locked'} aria-current={i+1===round?'step':undefined} title={`Misión ${i+1}`}>
+      <span aria-hidden="true">{icon}</span><small>{i+1}</small>
+    </div>)}
+  </nav>
+}
 function MissionStrip({round}){
   const r=V2_ROUNDS[round]
-  return <section className="v2-mission compact simple"><div><div className="v2-kicker">{r.kicker}</div><h1>{r.title}</h1></div><div><p>{r.case}</p><div className="v2-question-card"><small>LA PREGUNTA</small><strong>{r.question}</strong></div></div></section>
+  return <section className="v2-mission compact simple v2-campaign-scene">
+    <div className="v2-campaign-head"><div><div className="v2-kicker">OPERACIÓN {String(round).padStart(2,'0')} / 06 · {r.kicker}</div><h1>{r.title}</h1></div><div className="v2-character" aria-label="Personaje investigador del equipo"><span aria-hidden="true">🧑‍🚀</span><small>AGENTE</small></div></div>
+    <div><p>{r.case}</p><div className="v2-question-card"><small>🎮 TU MISIÓN</small><strong>{r.question}</strong></div><CampaignMap round={round}/></div>
+  </section>
 }
 
 function Glossary({round}){
@@ -180,9 +192,10 @@ export default function V2Play(){
   const[joined,setJoined]=useState(Boolean(getPlayerToken()))
   const{state,error,refresh}=useV2State(joined)
   const analysis=useV2Analysis(state)
+  useEffect(()=>{if(joined&&state&&['lobby','briefing','lesson'].includes(state.game?.status))prewarmPython()},[joined,state?.game?.status])
   function exit(){clearPlayerSession();setJoined(false);location.reload()}
   if(!joined)return <Join onJoined={()=>setJoined(true)}/>
-  if(error&&!state)return <main className="v2-shell v2-center"><div className="v2-alert error">{error}</div><button className="v2-secondary" onClick={exit}>Volver a entrar</button></main>
+  if(error&&!state)return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-kicker">MODO CONTINGENCIA</div><h1>La partida no responde</h1><p>Tu progreso no se ha reiniciado. Puedes reintentar sin salir. Si el servidor continúa sin responder, usa el simulador de práctica: funciona sin Supabase, pero no registra puntos ni reemplaza la partida competitiva.</p><div className="v2-alert error">{error}</div><button className="v2-primary wide" onClick={refresh}>Reintentar conexión</button><a className="v2-secondary wide" href="./v2-simulator.html">Abrir simulador de práctica</a><button className="v2-secondary wide" onClick={exit}>Cerrar sesión en este dispositivo</button></section></main>
   if(!state)return <main className="v2-shell v2-center"><div className="v2-loader">Conectando…</div></main>
   const waiting=['lobby','briefing','lesson'].includes(state.game.status)
   const reveal=['reveal','teaching','microcheck','finished'].includes(state.game.status)
