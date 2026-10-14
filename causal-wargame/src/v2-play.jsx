@@ -1,6 +1,2 @@
-import React from'react'
-import{createRoot}from'react-dom/client'
-import'./v2/styles.css'
-import'./v2/academic.css'
-import V2Play from'./v2/V2Play.jsx'
-createRoot(document.getElementById('root')).render(<V2Play/>)
+import {mountV2} from './v2/dean-route.js'
+mountV2('student')
