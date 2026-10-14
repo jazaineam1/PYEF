@@ -1,0 +1,7 @@
+# Copa del Decano · V2 / 30 personas / GitHub Pages
+
+Nuevo modo V2 **aislado**, en `dean-play.html`, `dean-teacher.html`, `dean-wall.html`. React/Vite build estático en GitHub Pages. Supabase Edge `v2-dean-cup` y tablas propias `cw_dean_*` calculan calificaciones con DGP y fatiga latente. 5 salas de Teams, 6 cupos cada una, 4 arquetipos ficticios, 15 exámenes por persona, 450 registros en total; 2 exportaciones CSV limitadas al equipo, Kahoot propio para 30 personas y 8 preguntas. Los endpoints y claves de docente se procesan en el backend. V1 y las rutas actuales no se sustituyen hasta certificar 30 sesiones HTTP concurrentes y la UX en móvil.
+
+**Guion de 120 min**: bienvenida/carné 00–10, torneo 10–30, trampa ML y rector 30–55, encuesta/DAG 55–80, A/B-DML-CATE 80–105, Kahoot 105–120. El minijuego de 15 parciales tarda pocos minutos por estudiante, no 15 bloques docentes. EconML verificado de la V2 anterior corresponde a otro DGP y no puede afirmarse como una evaluación nueva de la Copa sin reentrenarlo.
+
+**QA**: en Supabase se ejecutó un dry-run transaccional con 30 perfiles, 450 exámenes, 90 filas por grupo, rechazo del séptimo asiento, 240 respuestas y podio 120 puntos. Las pruebas reales HTTP, los móviles y la publicación del reemplazo están pendientes. No se ha borrado ni reiniciado la partida `FUTUROS`.
