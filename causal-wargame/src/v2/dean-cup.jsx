@@ -1,6 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import{createRoot}from'react-dom/client';
 import './dean-cup.css';
+import DeanCausalAtlas from './DeanCausalAtlas.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
 const icons={over:'🧠',balanced:'🏃',risk:'🧩',pragmatic:'🏖️'};
@@ -267,7 +268,7 @@ function Player(){
  <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: maria_ds"/></label>
  <div className="dean-rooms">{state.groups.map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
  <main className="dean-player"><div className="dean-carnet"><span>{icons[me.archetype]}</span><div><small>ESTUDIANTE · SALA {me.room} {names[me.room-1]}</small><h2>{me.alias}</h2><p>{profiles[me.archetype]} · PGA: <strong>{Number(me.pga).toFixed(1)}/5,0</strong></p><small>{state.dgp_version==='zip_dgp_2026'?'DGP canónico del ZIP · fatiga latente 0–100':'Partida histórica: fórmula original preservada'}</small></div></div>
- <DeanGuidance phase={state.phase}/>
+ {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:<DeanGuidance phase={state.phase}/>}
  <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Descargar cuaderno Python · Rector, encuesta, Random Forest y A/B</a>
  {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
  {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-big" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
@@ -277,7 +278,7 @@ function Player(){
  <Board groups={state.groups}/></main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
-function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main><h2>¿Qué sala dominará el semestre?</h2><Board groups={value.groups}/><DeanGuidance phase={value.phase} role="wall"/>{value.phase==='final'&&<CupQuiz role="wall"/>}</main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error">{error}</p>}</div>}
+function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main><h2>¿Qué sala dominará el semestre?</h2><Board groups={value.groups}/>{value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase}/>:<DeanGuidance phase={value.phase} role="wall"/>}{value.phase==='final'&&<CupQuiz role="wall"/>}</main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error">{error}</p>}</div>}
 function Teacher(){
  const requestedGame=(new URLSearchParams(location.search).get('game')||sessionStorage.getItem('df_facilitator_game_code')||code).trim().toUpperCase();
  const [abSummary,setAbSummary]=useState(null);
@@ -291,7 +292,7 @@ function Teacher(){
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
  return <div className="dean-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
- <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<><DeanGuidance phase={state.phase} role="teacher"/>
+ <main className="dean-teacher"><h2>🎛️ Control de sesión · 120 minutos</h2>{state?.available?<>{state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
  <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Colab de la capacitación (datos de la Copa)</a><Board groups={state.groups}/>{state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
  {state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<div className="dean-lab">
    <h3>🧬 Experimento A/B de la especificación</h3>
