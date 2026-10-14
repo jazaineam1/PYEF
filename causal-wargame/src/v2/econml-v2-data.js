@@ -1,5 +1,5 @@
 // CAMPUS V2 ONLY: never read the banking V1 EconML outputs.
-import benchmark from './econml-v2-verified.json'
+import benchmark from './econml-v2-verified.json' with {type:'json'}
 const methods=['t_learner','dr_learner','causal_forest']
 const finite=x=>typeof x==='number'&&Number.isFinite(x)
 export const econmlV2Ready=(
