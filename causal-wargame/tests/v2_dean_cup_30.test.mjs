@@ -6,7 +6,7 @@ test('V2 Dean Cup builds as three static GitHub Pages entries',()=>{
  const config=r('vite.config.js')
  for(const name of ['dean-play.html','dean-teacher.html','dean-wall.html'])assert.ok(config.includes(name),name)
  for(const name of ['dean-play.html','dean-teacher.html','dean-wall.html'])assert.ok(r(name).includes('/src/v2/dean-cup.jsx'),name)
- assert.match(r('src/v2/dean-cup.jsx'),/30 PARTICIPANTES · 15 EXÁMENES/)
+ assert.match(r('src/v2/dean-cup.jsx'),/HASTA 30 PARTICIPANTES · 15 EXÁMENES/)
 })
 test('Five rooms exactly six each, each 15 subjects independent from legacy V1',()=>{
  const sql=r('supabase/migrations/202610140004_v2_deans_cup_30.sql')
@@ -62,4 +62,16 @@ test('Optional fast mode and teacher truth never expose student fatigue',()=>{
  assert.match(sql,/create or replace function public\.cw_dean_auto_finish/)
  assert.match(sql,/is distinct from 'finished'/)
  assert.match(sql,/simulada_automaticamente/)
+})
+
+test('attendance from 0 to 30 is optional, ranking uses actual seated players',()=>{
+ const sql=readFileSync('supabase/migrations/202610140005_deans_cup_flexible_attendance.sql','utf8')
+ for(const term of ['s.members*15','nullif(s.members*15,0)','s.members>0','registered_players','target_exams','fair_score','coverage_pct','participants'])assert.ok(sql.includes(term),term)
+ assert.doesNotMatch(sql,/count\(e.exam_no\)=90/)
+ const ui=readFileSync('src/v2/dean-cup.jsx','utf8')
+ assert.match(ui,/0\/6 inscritos · Sala disponible/)
+ assert.match(ui,/filter\(g=>Number\(g.members\)>0\)/)
+ assert.match(ui,/g\.target_exams/)
+ assert.match(ui,/data\?\.participants\|\|0/)
+ assert.doesNotMatch(ui,/exams_completed\}\/90|received\|\|0\} \/ 30/)
 })
