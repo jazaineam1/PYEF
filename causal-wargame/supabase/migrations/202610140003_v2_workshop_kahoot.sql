@@ -344,7 +344,9 @@ begin
  select choice into own from public.cw_v2_workshop_choices
  where game_id=p.game_id and player_id=p.id and phase_index=w.phase_index;
  return jsonb_build_object('active',true,'phase_index',w.phase_index,
-   'my_choice',own,'teaching',w.cue_index=1,'paused',w.paused);
+   'my_choice',own,'teaching',w.cue_index=1,'paused',w.paused,
+   'received',(select count(*) from public.cw_v2_workshop_choices where game_id=p.game_id and phase_index=w.phase_index),
+   'participants',(select count(*) from public.cw_players where game_id=p.game_id and active and not is_bot));
 end $f$;
 
 revoke all on function public.cw_v2_workshop_vote(text,integer,text) from public,anon,authenticated;

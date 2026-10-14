@@ -1,6 +1,7 @@
 import React,{useEffect,useState} from 'react'
 import {invoke} from '../lib/api'
 import {WORKSHOP_120,getWorkshopCue,instructorLedMinutes,participatoryMinutes} from './workshop-script.js'
+import {WorkshopSceneReveal} from './V2WorkshopScene.jsx'
 const abc=['a','b','c','d']
 const phaseName={idle:'Sin iniciar',question_preview:'Pregunta preparada',question_open:'Respuestas abiertas',question_locked:'Tiempo cerrado',results:'Resultados',explanation:'Explicación causal',leaderboard:'Ranking',final_podium:'Podio final',finished:'Batalla terminada',paused:'Pausa'}
 const fmt=n=>Number(n||0).toLocaleString('es-CO')
@@ -128,6 +129,8 @@ export function WorkshopTeachingWall({data}){
   <div className="v2-teacher-scene-visual"><b>PROYECCIÓN DIDÁCTICA</b><p>{cue.visual}</p></div>
   <p className="v2-teacher-scene-lesson">{cue.teacher}</p>
   <p className="v2-teacher-scene-check"><b>Verifica antes de avanzar:</b> {cue.checkpoint}</p>
+  {Number(data.agenda.phase_index)<5&&<WorkshopSceneReveal phase={Number(data.agenda.phase_index)}/>}
+  {data?.workshop?.distribution&&<div className="v2-kahoot-bars">{Object.entries(data.workshop.distribution).map(([key,total])=><p key={key}><strong>{key.toUpperCase()}</strong> · {total} decisiones</p>)}</div>}
   <small>Explicación guiada por el capacitador, no un examen ni una nueva misión independiente.</small>
  </section>
 }
