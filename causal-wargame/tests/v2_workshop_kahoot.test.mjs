@@ -34,3 +34,25 @@ test('causal seven-layer explanations in V2 contain all six topics',()=>{
  for(const n of [1,2,3,4,5,6])assert.ok(t.includes(' '+n+':{'),'Microlección '+n)
  for(const x of ['Contrafactual','confusor','DML','ATE','CATE','EconML'])assert.match(t,new RegExp(x,'i'))
 })
+
+test('Facilitator controls 30 explicit pedagogical beats within 120 minutes',async()=>{
+ const {WORKSHOP_GUIDE,instructorLedMinutes,participatoryMinutes,getWorkshopCue}=await import('../src/v2/workshop-script.js')
+ assert.equal(instructorLedMinutes,55)
+ assert.equal(participatoryMinutes,65)
+ const all=Object.values(WORKSHOP_GUIDE).flat()
+ assert.equal(all.length,30)
+ for(const stage of WORKSHOP_120){
+  const cues=WORKSHOP_GUIDE[stage.id]
+  assert.equal(cues[0].start,stage.start)
+  assert.equal(cues.at(-1).end,stage.end)
+  assert.equal(cues.reduce((n,x)=>n+x.minutes,0),stage.minutes)
+  for(let i=1;i<cues.length;i++)assert.equal(cues[i-1].end,cues[i].start)
+ }
+ assert.equal(getWorkshopCue({phase_index:3,cue_index:2}).mode,'teacher')
+ const sql=read('supabase/migrations/202610140003_v2_workshop_kahoot.sql')
+ for(const term of ['cue_index integer','agenda_cue_next','reveal_explain','next_fast'])assert.match(sql,new RegExp(term))
+ const screen=read('src/v2/V2Quiz.jsx')
+ assert.match(screen,/WorkshopTeachingWall/)
+ assert.match(screen,/Guion para explicar/)
+ assert.match(read('src/v2/V2Wall.jsx'),/teachingNow/)
+})

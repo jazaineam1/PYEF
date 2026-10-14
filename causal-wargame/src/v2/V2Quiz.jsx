@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react'
 import {invoke} from '../lib/api'
-import {WORKSHOP_120} from './workshop-script.js'
+import {WORKSHOP_120,WORKSHOP_GUIDE,getWorkshopCue,instructorLedMinutes,participatoryMinutes} from './workshop-script.js'
 const abc=['a','b','c','d']
 const phaseName={idle:'Sin iniciar',question_preview:'Pregunta preparada',question_open:'Respuestas abiertas',question_locked:'Tiempo cerrado',results:'Resultados',explanation:'Explicación causal',leaderboard:'Ranking',final_podium:'Podio final',finished:'Batalla terminada',paused:'Pausa'}
 const fmt=n=>Number(n||0).toLocaleString('es-CO')
@@ -41,7 +41,8 @@ function Remaining({state}){
 }
 function AgendaBar({agenda}){
  const stage=WORKSHOP_120[Number(agenda?.phase_index||0)]
- return <div className="v2-agenda-bar"><strong>120 MIN · {stage.title}</strong><span>{stage.start}–{stage.end} min · {stage.minutes} min</span></div>
+ const cue=getWorkshopCue(agenda)
+ return <div className="v2-agenda-bar"><strong>120 MIN · {stage.title}</strong><span>Minuto {cue?.start??stage.start}–{cue?.end??stage.end} · {cue?.title||stage.title}</span></div>
 }
 export function WorkshopBanner({state}){
  if(!state?.agenda?.active)return null
@@ -117,30 +118,60 @@ export function QuizWall({data}){
    {q.phase==='leaderboard'&&<Ranked state={data}/>}</>}
  </section>
 }
-export function WorkshopDirector({data,onAction,busy}){
- const agenda=data?.agenda||{},idx=Number(agenda.phase_index||0)
- const stage=WORKSHOP_120[idx]
- return <section className="v2-panel v2-workshop-director">
-  <div className="v2-kicker">GUION DOCENTE · 120 MINUTOS · 5 FASES + GRAN FINAL</div>
-  <div className="v2-workshop-steps">{WORKSHOP_120.map((s,i)=><div key={s.id} className={(i===idx?'active ':'')+(i<idx?'done':'')}><b>{s.start}–{s.end}´</b><span>{s.title}</span></div>)}</div>
-  <AgendaBar agenda={agenda}/>
-  <p><b>Qué explicar:</b> {stage.teacher}</p><p><b>Qué harán:</b> {stage.student}</p><p><b>WOW:</b> {stage.wow}</p>
-  <p><b>Misiones reutilizadas:</b> {stage.challenges.join(', ')} · No son seis clases separadas.</p>
-  <div className="v2-fac-actions">
-   {!agenda.active&&<button className="v2-primary" disabled={busy} onClick={()=>onAction('agenda_start')}>Iniciar taller de 120 min</button>}
-   {agenda.active&&!agenda.paused&&<button className="v2-secondary" disabled={busy||idx===0} onClick={()=>onAction('agenda_prev')}>Fase anterior</button>}
-   {agenda.active&&!agenda.paused&&<button className="v2-primary" disabled={busy||idx===5} onClick={()=>onAction('agenda_next')}>Siguiente fase</button>}
-   {agenda.active&&!agenda.paused&&<button className="v2-secondary" disabled={busy} onClick={()=>onAction('agenda_pause')}>Pausar guion</button>}
-   {agenda.paused&&<button className="v2-primary" disabled={busy} onClick={()=>onAction('agenda_resume')}>Reanudar guion</button>}
-  </div>
+export function WorkshopTeachingWall({data}){
+ const cue=getWorkshopCue(data?.agenda)
+ if(!data?.agenda?.active||data?.agenda?.paused||cue?.mode!=='teacher')return null
+ const stage=WORKSHOP_120[Number(data.agenda.phase_index||0)]
+ return <section className="v2-kahoot-screen v2-teacher-scene" aria-label="Explicación del capacitador">
+  <div className="v2-kicker">EXPLICACIÓN EN VIVO · MIN {cue.start}–{cue.end} · {stage.title}</div>
+  <h1>{cue.title}</h1>
+  <div className="v2-teacher-scene-visual"><b>PROYECCIÓN DIDÁCTICA</b><p>{cue.visual}</p></div>
+  <p className="v2-teacher-scene-lesson">{cue.teacher}</p>
+  <p className="v2-teacher-scene-check"><b>Verifica antes de avanzar:</b> {cue.checkpoint}</p>
+  <small>Explicación guiada por el capacitador, no un examen ni una nueva misión independiente.</small>
  </section>
 }
+export function WorkshopDirector({data,onAction,busy}){
+ const agenda=data?.agenda||{},idx=Number(agenda.phase_index||0)
+ const stage=WORKSHOP_120[idx],cues=WORKSHOP_GUIDE[stage.id]||[]
+ const cueIndex=Math.min(cues.length-1,Math.max(0,Number(agenda.cue_index||0)))
+ const cue=cues[cueIndex]
+ return <section className="v2-panel v2-workshop-director">
+  <div className="v2-kicker">GUION EXPLÍCITO DEL CAPACITADOR · 120 MIN · CINCO FASES + FINAL</div>
+  <h2>{instructorLedMinutes} min guiados por capacitador + {participatoryMinutes} min de actividad y competencia</h2>
+  <p>En cada fase la consola indica cuándo explicar, qué proyectar y cómo comprobar comprensión. No se obliga a completar los 17 bloques Python en las dos horas.</p>
+  <div className="v2-workshop-steps">{WORKSHOP_120.map((s,i)=><div key={s.id} className={(i===idx?'active ':'')+(i<idx?'done':'')}><b>{s.start}–{s.end}´</b><span>{s.title}</span></div>)}</div>
+  <AgendaBar agenda={agenda}/>
+  <div className="v2-workshop-cues">{cues.map((s,i)=><div key={s.start} className={(i===cueIndex?'active ':'')+(s.mode==='teacher'?'instructor':'practice')}>
+    <strong>{s.start}–{s.end} min</strong><span>{s.mode==='teacher'?'Explicación del capacitador':'Estudiantes en acción'}</span><b>{s.title}</b>
+  </div>)}</div>
+  <div className="v2-teaching-cue">
+    <div className="v2-kicker">{cue.mode==='teacher'?'EL CAPACITADOR EXPLICA · PAUSAR LA ACTIVIDAD':'AHORA ACTÚAN LOS ESTUDIANTES'}</div>
+    <h3>{cue.title} · {cue.minutes} min</h3>
+    <p><b>Guion para explicar:</b> {cue.teacher}</p>
+    <p><b>Qué proyectar:</b> {cue.visual}</p>
+    <p><b>Evidencia de comprensión:</b> {cue.checkpoint}</p>
+    <p><b>Revelación de esta fase:</b> {stage.wow}</p>
+  </div>
+  <div className="v2-fac-actions">
+    {!agenda.active&&<button className="v2-primary" disabled={busy} onClick={()=>onAction('agenda_start')}>Iniciar taller</button>}
+    {agenda.active&&!agenda.paused&&<button className="v2-secondary" disabled={busy||cueIndex===0} onClick={()=>onAction('agenda_cue_prev')}>Momento anterior</button>}
+    {agenda.active&&!agenda.paused&&<button className="v2-primary" disabled={busy||cueIndex>=cues.length-1} onClick={()=>onAction('agenda_cue_next')}>Siguiente momento</button>}
+    {agenda.active&&!agenda.paused&&<button className="v2-secondary" disabled={busy||idx===0} onClick={()=>onAction('agenda_prev')}>Fase anterior</button>}
+    {agenda.active&&!agenda.paused&&<button className="v2-primary" disabled={busy||idx===5} onClick={()=>onAction('agenda_next')}>Siguiente fase</button>}
+    {agenda.active&&!agenda.paused&&<button className="v2-secondary" disabled={busy} onClick={()=>onAction('agenda_pause')}>Pausar taller</button>}
+    {agenda.paused&&<button className="v2-primary" disabled={busy} onClick={()=>onAction('agenda_resume')}>Reanudar taller</button>}
+  </div>
+  <p className="v2-workshop-caution">Los momentos y la proyección se sincronizan desde el servidor; los seis laboratorios completos siguen disponibles como profundización. La agenda abreviada no reemplaza automáticamente los checkpoints existentes de cada misión.</p>
+ </section>
+}
+
 export function QuizTeacher({data,onAction,busy}){
  const q=data?.quiz||{phase:'idle',current_question:0}
  const command={idle:['start','Iniciar batalla'],question_preview:['open','Abrir respuestas'],
- question_open:['lock','Cerrar pregunta'],question_locked:['reveal','Revelar resultado'],
- results:['explain','Mostrar explicación'],explanation:['rank','Mostrar ranking'],
- leaderboard:['next',q.current_question===8?'Mostrar podio':'Siguiente pregunta'],
+ question_open:['lock','Cerrar antes de tiempo'],question_locked:['reveal_explain','Revelar y explicar'],
+ results:['explain','Mostrar explicación'],explanation:['next_fast',q.current_question===8?'Mostrar podio':'Siguiente pregunta'],
+ leaderboard:['next_fast',q.current_question===8?'Mostrar podio':'Siguiente pregunta'],
  final_podium:['finish','Terminar batalla']}
  const [action,title]=command[q.phase]||[]
  const question=q.question
@@ -154,6 +185,7 @@ export function QuizTeacher({data,onAction,busy}){
   {['results','explanation','leaderboard'].includes(q.phase)&&<p><b>Respuesta:</b> {question?.correct_choice?.toUpperCase()} · {question?.explanation}</p>}
   <div className="v2-fac-actions">
    {title&&<button className="v2-primary" disabled={busy} onClick={()=>onAction(action)}>{title}</button>}
+   {q.phase==='explanation'&&<button className="v2-secondary" disabled={busy} onClick={()=>onAction('rank')}>Ver ranking de la pregunta</button>}
    {q.phase==='question_open'&&<button className="v2-secondary" disabled={busy} onClick={()=>onAction('pause')}>Pausar temporizador</button>}
    {q.phase==='paused'&&<button className="v2-primary" disabled={busy} onClick={()=>onAction('resume')}>Reanudar temporizador</button>}
    {q.phase==='finished'&&<button className="v2-secondary" disabled={busy} onClick={()=>{if(window.confirm('¿Borrar exclusivamente las respuestas del Kahoot y reiniciar la batalla?'))onAction('reset_quiz')}}>Reiniciar solo batalla</button>}

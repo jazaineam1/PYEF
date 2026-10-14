@@ -327,3 +327,8 @@ export const WORKSHOP_GUIDE={
 }
 export const instructorLedMinutes=Object.values(WORKSHOP_GUIDE).flat().filter(x=>x.mode==='teacher').reduce((n,x)=>n+x.minutes,0)
 export const participatoryMinutes=120-instructorLedMinutes
+
+export function getWorkshopCue(agenda){
+ const phase=WORKSHOP_120[Number(agenda?.phase_index||0)]
+ return WORKSHOP_GUIDE[phase?.id]?.[Number(agenda?.cue_index||0)]||null
+}
