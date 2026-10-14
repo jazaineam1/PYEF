@@ -71,3 +71,12 @@ test('causal reveal really contains visuals and keeps screen accessible on mobil
  assert.match(main,/5 FASES \+ GRAN FINAL/)
  assert.doesNotMatch(main,/SEIS MISIONES\. UN CAMPUS\. DOS FUTUROS\./)
 })
+
+test('An old finished quiz never blocks the next workshop scene',()=>{
+ const play=read('src/v2/V2Play.jsx')
+ const wall=read('src/v2/V2Wall.jsx')
+ const fac=read('src/v2/V2Facilitator.jsx')
+ assert.match(play,/Number\(finalQuiz\.agenda\.phase_index\)===5/)
+ assert.match(wall,/workshopSceneActive\?\(teachingNow/)
+ assert.match(fac,/finalQuiz\?\.agenda\?\.active\?Number/)
+})

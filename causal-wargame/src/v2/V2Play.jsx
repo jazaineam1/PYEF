@@ -211,7 +211,7 @@ export default function V2Play(){
   if(!joined)return <Join onJoined={()=>setJoined(true)}/>
   if(error&&!state)return <main className="v2-shell v2-center"><section className="v2-join-card"><div className="v2-kicker">MODO CONTINGENCIA</div><h1>La partida no responde</h1><p>Tu progreso no se ha reiniciado. Puedes reintentar sin salir. Si el servidor continúa sin responder, usa el simulador de práctica: funciona sin Supabase, pero no registra puntos ni reemplaza la partida competitiva.</p><div className="v2-alert error">{error}</div><button className="v2-primary wide" onClick={refresh}>Reintentar conexión</button><a className="v2-secondary wide" href="./v2-simulator.html?practice=1">Jugar entrenamiento independiente</a><button className="v2-secondary wide" onClick={exit}>Cerrar sesión en este dispositivo</button></section></main>
   if(!state)return <main className="v2-shell v2-center"><div className="v2-loader">Conectando…</div></main>
-  const inFinalBattle=Boolean(finalQuiz?.quiz?.phase&&finalQuiz.quiz.phase!=='idle')
+  const inFinalBattle=Boolean(finalQuiz?.quiz?.phase&&finalQuiz.quiz.phase!=='idle'&&(!finalQuiz?.agenda?.active||Number(finalQuiz.agenda.phase_index)===5))
   const activeWorkshop=Boolean(finalQuiz?.agenda?.active)
   const waiting=['lobby','briefing','lesson'].includes(state.game.status)
   const reveal=['reveal','teaching','microcheck','finished'].includes(state.game.status)
