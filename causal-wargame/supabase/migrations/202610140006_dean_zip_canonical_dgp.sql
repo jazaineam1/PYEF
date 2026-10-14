@@ -124,7 +124,7 @@ declare p public.cw_dean_players;version_name text;phase text;exam_subject jsonb
 begin
  select * into p from public.cw_dean_players where token_hash=p_token_hash for update;
  if p.id is null then raise exception 'Estudiante inválido';end if;
- select dgp_version,phase into version_name,phase from public.cw_dean_tournaments where game_id=p.game_id;
+ select t.dgp_version,t.phase into version_name,phase from public.cw_dean_tournaments t where t.game_id=p.game_id;
  if version_name is distinct from 'zip_dgp_2026' then
    return public.cw_dean_exam(p_token_hash,p_exam,p_study,p_sleep,p_wellness,p_auto);
  end if;
