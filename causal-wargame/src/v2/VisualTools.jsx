@@ -126,6 +126,7 @@ export function EvidenceLab({round,state,analysis,labKey,labPoints,onComplete,si
   }[profile]||'Ejecuta el análisis causal y conecta cada resultado con la decisión.'
   return <section className="v2-evidence-lab single-page">
     <div className="v2-step compact"><b>LABORATORIO</b><span>{copy}</span></div>
+    {profile==='dag'&&tools?.dag&&<DagLab dag={tools.dag}/>} 
     <PythonEvidenceLab round={round} state={state} analysis={analysis} labKey={labKey} labPoints={labPoints} onComplete={onComplete} simulation={simulation}/>
   </section>
 }

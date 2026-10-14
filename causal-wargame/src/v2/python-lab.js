@@ -212,18 +212,23 @@ print("DAG — Directed Acyclic Graph: mapa de hipótesis sobre qué causa qué.
           label:'3 · Evitar trampas',
           question:'¿Por qué no debemos controlar automáticamente variables posteriores?',
           instruction:'Construye dos variables posteriores para visualizar mediador y collider como trampas de ajuste.',
-          guidedCode:`import pandas as pd
-import numpy as np
-
-df = pd.DataFrame(payload["historico"]).copy()
-df["horas_estudio_post"] = df["horas_estudio"] + 1.8*df["recibio_apoyo"].astype(int)
-df["tutorias_post"] = ((df["recibio_apoyo"].astype(int) + (df["complejidad"]>=3).astype(int))>=1).astype(int)
-
-print("APOYO → horas_estudio_post → nota")
-print("horas_estudio_post es MEDIADOR: parte del mecanismo por el que funciona el apoyo.")
-print("\\nAPOYO → tutorias_post ← complejidad")
-print("tutorias_post puede actuar como COLLIDER: condicionarlo puede abrir una asociación artificial.")
-print("\\nWOW: más columnas no garantizan menos sesgo causal.")`
+          guidedCode:`import numpy as np
+# Experimento didáctico independiente con el mecanismo causal conocido.
+rng=np.random.default_rng(2036)
+n=2500
+t=rng.binomial(1,.5,n)
+u=rng.normal(size=n)
+m=1.2*t+rng.normal(size=n)
+y=3.0*t+1.5*m+u+rng.normal(size=n) # efecto total 4.8
+c=1.3*t+u+rng.normal(size=n)
+def theta(x):
+    return np.linalg.lstsq(x,y,rcond=None)[0][1]
+print("Efecto total verdadero:",4.8)
+print("Sin ajustar (tratamiento aleatorio):",round(theta(np.column_stack([np.ones(n),t])),2))
+print("Ajustando mediador:",round(theta(np.column_stack([np.ones(n),t,m])),2))
+print("Ajustando collider:",round(theta(np.column_stack([np.ones(n),t,c])),2))
+print("WOW: más controles pueden sesgar el efecto total.")
+print("Este miniexperimento NO estima efectos en el histórico observacional.")`
         }
       ]
     }
@@ -251,8 +256,8 @@ T = df["recibio_apoyo"].astype(float)
 Y = df["nota_final"].astype(float)
 
 cv = KFold(n_splits=4,shuffle=True,random_state=42)
-mt = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=42)
-my = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=7)
+mt = RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=15,random_state=42)
+my = RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=15,random_state=7)
 
 t_hat = np.clip(cross_val_predict(mt,X,T,cv=cv),.02,.98)
 y_hat = cross_val_predict(my,X,Y,cv=cv)
@@ -277,8 +282,8 @@ T = df["recibio_apoyo"].astype(float)
 Y = df["nota_final"].astype(float)
 cv = KFold(n_splits=4,shuffle=True,random_state=42)
 
-t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=42),X,T,cv=cv),.02,.98)
-y_hat = cross_val_predict(RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=7),X,Y,cv=cv)
+t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=15,random_state=42),X,T,cv=cv),.02,.98)
+y_hat = cross_val_predict(RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=15,random_state=7),X,Y,cv=cv)
 
 t_res = T-t_hat
 y_res = Y-y_hat
@@ -303,11 +308,14 @@ T = df["recibio_apoyo"].astype(float)
 Y = df["nota_final"].astype(float)
 cv = KFold(n_splits=4,shuffle=True,random_state=42)
 
-t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=70,min_samples_leaf=15,random_state=42),X,T,cv=cv),.02,.98)
-y_hat = cross_val_predict(RandomForestRegressor(n_estimators=70,min_samples_leaf=15,random_state=7),X,Y,cv=cv)
+t_hat = np.clip(cross_val_predict(RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=15,random_state=42),X,T,cv=cv),.02,.98)
+y_hat = cross_val_predict(RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=15,random_state=7),X,Y,cv=cv)
 t_res,y_res = T-t_hat,Y-y_hat
 
 theta = float((t_res*y_res).sum()/(t_res*t_res).sum())
+psi=t_res*(y_res-theta*t_res)
+se=float(np.sqrt(np.mean(psi**2)/len(df))/np.mean(t_res**2))
+print("IC 95 % aproximado (iid):",round(theta-1.96*se,2),"a",round(theta+1.96*se,2))
 crudo = Y[T==1].mean()-Y[T==0].mean()
 
 print("Diferencia cruda:", round(crudo,2),"puntos")
@@ -430,29 +438,34 @@ print("Efecto medio T:",round(float(np.mean(tau_t)),2))`
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LogisticRegression
-
-df = pd.DataFrame(payload["experimento"])
-X = pd.get_dummies(df[["arquetipo","pga_previo","horas_estudio","fatiga","complejidad"]],columns=["arquetipo"],drop_first=False)
-T = df["recibio_apoyo"].astype(int).to_numpy()
-Y = df["nota_final"].to_numpy()
-
-ps = np.clip(LogisticRegression(max_iter=1000).fit(X,T).predict_proba(X)[:,1],.05,.95)
-mu1 = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=1).fit(X[T==1],Y[T==1]).predict(X)
-mu0 = RandomForestRegressor(n_estimators=60,min_samples_leaf=15,random_state=2).fit(X[T==0],Y[T==0]).predict(X)
-
-pseudo = (mu1-mu0) + T*(Y-mu1)/ps - (1-T)*(Y-mu0)/(1-ps)
-dr = RandomForestRegressor(n_estimators=60,min_samples_leaf=20,random_state=3).fit(X,pseudo)
-tau_dr = dr.predict(X)
-
-print("DR-Learner — Doubly Robust Learner / Aprendiz doblemente robusto.")
-print("Efecto medio DR:",round(float(np.mean(tau_dr)),2))
-print("La robustez depende de supuestos; no vuelve causal una mala estrategia de identificación.")`
+from sklearn.model_selection import StratifiedKFold,train_test_split
+df=pd.DataFrame(payload["experimento"])
+X=pd.get_dummies(df[["arquetipo","pga_previo","horas_estudio","fatiga","complejidad"]],columns=["arquetipo"])
+T=df["recibio_apoyo"].astype(int).to_numpy()
+Y=df["nota_final"].astype(float).to_numpy()
+train,hold=train_test_split(np.arange(len(df)),test_size=.25,random_state=2026,stratify=T)
+xt,tt,yt=X.iloc[train],T[train],Y[train]
+p=np.zeros(len(train));mu1=np.zeros(len(train));mu0=np.zeros(len(train))
+cv=StratifiedKFold(n_splits=4,shuffle=True,random_state=2026)
+for fit,val in cv.split(xt,tt):
+    a,b=xt.iloc[fit],xt.iloc[val];tf,yf=tt[fit],yt[fit]
+    ps=LogisticRegression(max_iter=1000).fit(a,tf)
+    m1=RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=12,random_state=4).fit(a[tf==1],yf[tf==1])
+    m0=RandomForestRegressor(n_estimators=35,max_depth=9,min_samples_leaf=12,random_state=5).fit(a[tf==0],yf[tf==0])
+    p[val]=ps.predict_proba(b)[:,1];mu1[val],mu0[val]=m1.predict(b),m0.predict(b)
+p=np.clip(p,.05,.95)
+pseudo=(mu1-mu0)+tt*(yt-mu1)/p-(1-tt)*(yt-mu0)/(1-p)
+dr=RandomForestRegressor(n_estimators=45,max_depth=9,min_samples_leaf=20,random_state=9).fit(xt,pseudo)
+tau=dr.predict(X.iloc[hold])
+print("DR-Learner didáctico: auxiliares fuera de muestra (4 folds).")
+print("CATE medio proyectado sobre perfiles reservados:",round(float(tau.mean()),2),"puntos")
+print("La reserva no demuestra exactitud de CATE; requiere validación adicional.")`
         },
         {
           id:'econml',
           label:'3 · EconML / Causal Forest',
           question:'¿Un estimador más sofisticado gana automáticamente?',
-          instruction:'Compara tus estimaciones con resultados de referencia precomputados con estimadores causales especializados.',
+          instruction:'Distingue modelos ejecutados de números ilustrativos sin ejecución verificada de EconML.',
           guidedCode:`import pandas as pd
 
 rows = pd.DataFrame(payload["comparador"])
@@ -460,13 +473,14 @@ if rows.empty:
     print("No hay comparador precomputado disponible.")
 else:
     cols=[c for c in ["name","t_learner","dr_learner","causal_forest"] if c in rows.columns]
+    print("CIFRAS ILUSTRATIVAS FIJAS: NO SON UNA EJECUCIÓN ECONML")
     print(rows[cols].to_string(index=False))
 
 print("\\nEconML — Econometric Machine Learning:")
 print("librería de Microsoft con estimadores causales basados en ML.")
 print("Causal Forest — Bosque causal: árboles diseñados para aprender heterogeneidad del efecto.")
 print("\\nIMPORTANTE: EconML no se ejecuta dentro de este navegador porque sus dependencias no son fiables en Pyodide.")
-print("Aquí ejecutaste S/T/DR con scikit-learn y comparas contra resultados EconML precomputados.")
+print("Ejecutaste S/T/DR con scikit-learn; los otros números NO son benchmarks certificados.")
 print("WOW final: ningún estimador arregla una identificación causal incorrecta.")`
         }
       ]

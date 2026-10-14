@@ -18,3 +18,10 @@
   .v2-glossary-grid{grid-template-columns:1fr}
   .v2-policy-meter{grid-template-columns:1fr}
 }
+
+/* V2 academic reveal and readable terms */
+.academic-truth{margin-block:14px}
+.academic-truth p{font-size:clamp(14px,1.2vw,18px);line-height:1.5}
+.v2-glossary-grid article>p{font-size:clamp(13px,1.1vw,16px)}
+.v2-glossary-grid article>b{font-size:clamp(13px,1.1vw,15px)}
+.v2-dag-options button:focus-visible{outline:3px solid #f9d779;outline-offset:3px}
