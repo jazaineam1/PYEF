@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "pending",
+  "provenance": null,
+  "segments": [],
+  "metrics": null,
+  "note": "EconML de V2 pendiente de ejecución real en GitHub Actions."
+}

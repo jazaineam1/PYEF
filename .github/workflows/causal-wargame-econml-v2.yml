@@ -1,0 +1,52 @@
+name: campus-v2-econml-real-training
+on:
+  push:
+    branches: [main, v2/econml-campus-real]
+    paths:
+      - 'causal-wargame/scripts/precompute_econml_v2.py'
+      - '.github/workflows/causal-wargame-econml-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: campus-v2-econml-training
+  cancel-in-progress: false
+jobs:
+  econml:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pinned EconML V2
+        run: python -m pip install --disable-pip-version-check 'numpy==1.26.4' 'scikit-learn==1.5.2' 'econml==0.16.0'
+      - name: Fit real TLearner DRLearner CausalForestDML on CAMPUS V2
+        working-directory: causal-wargame
+        run: python scripts/precompute_econml_v2.py
+      - name: Validate actual results and provenance
+        working-directory: causal-wargame
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path('src/v2/econml-v2-verified.json').read_text())
+          assert x['status']=='verified' and x['provenance']['engine']=='EconML'
+          assert x['provenance']['dataset']=='campus-academic-experiment-v2'
+          assert x['provenance']['data_sha256']=='2dbe8a142048b55587874d8e21477ace033ef2efdf93566de9e738f46e12ce2e'
+          assert x['provenance']['train_rows']==1500 and x['provenance']['holdout_rows']==500
+          assert len(x['segments'])==5 and len(x['metrics'])==3
+          print('V2_ECONML_RESULTS_VALIDATED')
+          PY
+      - name: Commit generated V2 JSON only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add causal-wargame/src/v2/econml-v2-verified.json
+          if git diff --cached --quiet; then
+            echo 'No generated changes'
+          else
+            git commit -m 'data(v2): real academic EconML benchmark [skip ci]'
+            git push
+          fi
