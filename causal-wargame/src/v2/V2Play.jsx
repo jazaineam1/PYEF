@@ -35,7 +35,7 @@ function useV2Analysis(state){
 
 function Header({state,onExit}){
   const r=V2_ROUNDS[state.game.round],me=state.progress?.my
-  return <header className="v2-header"><div><div className="v2-brand small">DOS FUTUROS <span>CAMPUS</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Misión {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>#{me?.rank??'—'}</span></div><button className="v2-icon" onClick={onExit} title="Salir"><LogOut size={18}/></button></header>
+  return <header className="v2-header v2-header-compact"><div className="v2-header-player"><div className="v2-brand small">DOS FUTUROS <span>CAMPUS</span></div><strong>{state.player.name}</strong></div><div className="v2-header-center"><span>Misión {state.game.round}/{state.game.max_round||V2_CHALLENGE_COUNT}</span><b>{r?.title}</b></div><div className="v2-header-score"><b>{me?.points??0} pts</b><span>#{me?.rank??'—'}</span></div><button className="v2-icon" onClick={onExit} title="Salir" aria-label="Salir de la partida"><LogOut size={18}/></button></header>
 }
 
 const MISSION_ICONS=['🔍','⚗️','🕸️','🧠','🎯','🏆']
@@ -48,9 +48,10 @@ function CampaignMap({round}){
 }
 function MissionStrip({round}){
   const r=V2_ROUNDS[round]
-  return <section className="v2-mission compact simple v2-campaign-scene">
-    <div className="v2-campaign-head"><div><div className="v2-kicker">OPERACIÓN {String(round).padStart(2,'0')} / 06 · {r.kicker}</div><h1>{r.title}</h1></div><div className="v2-character" aria-label="Personaje investigador del equipo"><span aria-hidden="true">🧑‍🚀</span><small>AGENTE</small></div></div>
-    <div><p>{r.case}</p><div className="v2-question-card"><small>🎮 TU MISIÓN</small><strong>{r.question}</strong></div><CampaignMap round={round}/></div>
+  return <section className="v2-mission compact simple v2-campaign-scene" aria-label={`Misión ${round}: ${r.title}`}>
+    <div className="v2-campaign-head"><div><div className="v2-kicker">NIVEL {String(round).padStart(2,'0')} / 06</div><h1>{r.title}</h1></div><div className="v2-character" aria-label="Tu agente investigador"><span aria-hidden="true">🧑‍🚀</span><small>AGENTE</small></div></div>
+    <div className="v2-campaign-brief"><div className="v2-question-card"><small>🎮 OBJETIVO</small><strong>{r.question}</strong></div><details className="v2-campaign-context"><summary>Leer historia y contexto del caso</summary><p>{r.case}</p></details></div>
+    <CampaignMap round={round}/>
   </section>
 }
 
@@ -207,5 +208,5 @@ export default function V2Play(){
   if(!state)return <main className="v2-shell v2-center"><div className="v2-loader">Conectando…</div></main>
   const waiting=['lobby','briefing','lesson'].includes(state.game.status)
   const reveal=['reveal','teaching','microcheck','finished'].includes(state.game.status)
-  return <div className="v2-shell"><Header state={state} onExit={exit}/>{waiting&&<Lobby state={state}/>} {state.game.status==='round'&&<RoundPlay state={state} refresh={refresh} analysis={analysis}/>} {state.game.status==='paused'&&<div className="v2-main"><MissionStrip round={state.game.round}/><section className="v2-big-wait"><h2>Misión pausada</h2><p>Conserven su discusión; el facilitador la reanudará.</p></section></div>} {state.game.status==='closed'&&<div className="v2-main v2-player-compact"><MissionStrip round={state.game.round}/><section className="v2-big-wait small"><h2>Decisiones cerradas</h2><p>El resultado y el puntaje final se mostrarán al revelar.</p></section></div>} {reveal&&<Reveal state={state}/>}<footer className="v2-footer"><span>{statusCopy(state.game.status)}</span><span>{state.player.team} · {state.player.name}</span></footer></div>
+  return <div className={'v2-shell '+(state.game.status==='round'?'v2-active-game':'')}><Header state={state} onExit={exit}/>{waiting&&<Lobby state={state}/>} {state.game.status==='round'&&<RoundPlay state={state} refresh={refresh} analysis={analysis}/>} {state.game.status==='paused'&&<div className="v2-main"><MissionStrip round={state.game.round}/><section className="v2-big-wait"><h2>Misión pausada</h2><p>Conserven su discusión; el facilitador la reanudará.</p></section></div>} {state.game.status==='closed'&&<div className="v2-main v2-player-compact"><MissionStrip round={state.game.round}/><section className="v2-big-wait small"><h2>Decisiones cerradas</h2><p>El resultado y el puntaje final se mostrarán al revelar.</p></section></div>} {reveal&&<Reveal state={state}/>}<footer className="v2-footer"><span>{statusCopy(state.game.status)}</span><span>{state.player.team} · {state.player.name}</span></footer></div>
 }
