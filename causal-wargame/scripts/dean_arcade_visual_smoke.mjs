@@ -243,7 +243,7 @@ async function sixRoundViewport(width,height,skip=false){
  assert.equal(scores.length,6,'exactly six exams');
  assert.equal(await page.locator('.corr-embedded input[type=file]').count(),0,
   'Data must come from the server automatically; never ask players to upload CSV');
- assert.match(await page.locator('.corr-embedded').innerText(),/5 SALAS|cinco salas|cinco/i);
+ assert.match(await page.locator('.corr-embedded').innerText(),/5 SALAS|cinco salas|todas las salas/i);
  if(width===1366){
   await page.locator('.corr-stat-grid').waitFor({timeout:90000});
   let result=Number(await page.locator('.corr-stat-grid strong').first().innerText());
