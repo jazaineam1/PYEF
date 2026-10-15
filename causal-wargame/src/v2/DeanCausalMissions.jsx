@@ -240,3 +240,41 @@ export function DeanMissionWall({missions}){
   <small>La puntuación de práctica solo se conoce tras el cierre docente de cada acto. Salas vacías no compiten.</small>
  </section>;
 }
+
+
+export function DeanABDiscovery({rows=[],step='challenge'}){
+ const grouped=new Map();
+ for(const row of rows){
+  const id=String(row.estudiante_id||'');
+  const tr=Number(row.tratamiento),y=Number(row.nota_final),pga=Number(row.pga_previo);
+  if(!id||![tr,y,pga].every(Number.isFinite)||![0,1].includes(tr))continue;
+  if(!grouped.has(id))grouped.set(id,{tr,pga,values:[]});
+  grouped.get(id).values.push(y);
+ }
+ const people=[...grouped.values()].map(p=>({...p,y:p.values.reduce((a,b)=>a+b,0)/p.values.length}));
+ const t=people.filter(p=>p.tr===1),c=people.filter(p=>p.tr===0);
+ const avg=(arr,key)=>arr.length?arr.reduce((s,p)=>s+p[key],0)/arr.length:null;
+ const varSample=(arr,key)=>arr.length>1?
+   arr.reduce((s,p)=>s+(p[key]-avg(arr,key))**2,0)/(arr.length-1):null;
+ const diff=t.length&&c.length?avg(t,'y')-avg(c,'y'):null;
+ const se=t.length>1&&c.length>1?Math.sqrt(varSample(t,'y')/t.length+varSample(c,'y')/c.length):null;
+ return <section className="dean-causal-mission dean-ab-discovery" aria-label="Comparar A/B observado e incertidumbre">
+  <Story title="DOS FUTUROS: COMPARAR EXPERIMENTO Y VERDAD" subtitle="Tratamiento aleatorizado POR ESTUDIANTE: T=0 bienestar 0 h; T=1 bienestar 4 h. Cada persona sintética rinde 15 exámenes."/>
+  <div className="dean-ab-numbers">
+   <div><small>Asignados a T=1</small><strong>{t.length}</strong><span>Estudiantes sintéticos · B=4 h</span></div>
+   <div><small>Asignados a T=0</small><strong>{c.length}</strong><span>Estudiantes sintéticos · B=0 h</span></div>
+   <div><small>Diferencia de medias observadas</small><strong>{diff===null?'—':diff.toFixed(2)}</strong><span>Puntos sobre 50 · estimación muestral</span></div>
+   <div><small>IC 95 % normal aproximado</small><strong>{se===null?'Inestable':'['+(diff-1.96*se).toFixed(2)+', '+(diff+1.96*se).toFixed(2)+']'}</strong><span>Entre estudiantes, NO 450 observaciones independientes</span></div>
+  </div>
+  <p>🧭 Balance basal: PGA previo medio {t.length?avg(t,'pga').toFixed(2):'—'} en tratados frente a {c.length?avg(c,'pga').toFixed(2):'—'} en controles. Diferencia aleatoria posible incluso con T sorteado.</p>
+  <details><summary>📚 Comparar con A/B histórico del ZIP · referencia, NO tu Copa</summary>
+   <div className="dean-ab-reference">
+    <span>25 estudiantes del ZIP piloto: 14 tratados / 11 control</span>
+    <b>Diferencia observada −6,460 pts · IC [−14,724; +1,804] pts</b>
+    <small>Los resultados de un experimento pequeño varían por azar. La asignación aleatoria no garantiza muestras perfectamente equilibradas.</small>
+    {step==='debrief'?<p className="dean-mission-reveal">🔓 ORÁCULO SINTÉTICO del ZIP original: ATE potencial verdadero +1,799 puntos. No se observa el resultado alternativo de cada estudiante real. Esta verdad es de OTRA cohorte, no de tu torneo.</p>:
+    <p className="dean-mission-source">🔒 La verdad contrafactual del ZIP se revela después del cierre docente. Antes solo se observan los datos asignados.</p>}
+   </div>
+  </details>
+ </section>;
+}
