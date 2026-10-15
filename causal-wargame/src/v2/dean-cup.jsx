@@ -305,13 +305,13 @@ function Player(){
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')} tabIndex={0} aria-label="Escena principal de la Copa">
     {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:state.phase!=='exams'?<DeanGuidance phase={state.phase}/>:<details className="dean-player-hint"><summary>💡 ¿Qué estoy descubriendo?</summary><DeanGuidance phase={state.phase}/></details>}
     {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
-    {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular restantes · OPCIONAL</button>}</>}
+    {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
     <DeanCausalLab phase={state.phase} token={token} version={state.dgp_version}/>
     {state.phase==='final'&&<CupQuiz role="student" token={token}/>}
     {['rector','survey','causal','final','finished'].includes(state.phase)&&<div className="dean-download"><h2>📦 Evidencia del semestre</h2><p>Datos sintéticos de tu partida; nunca datos de personas reales.</p><button onClick={()=>download('rector')} disabled={busy}>📥 Archivo del Rector · CSV</button>{['survey','causal','final','finished'].includes(state.phase)&&<button onClick={()=>download('survey')} disabled={busy}>📥 Encuesta de Hábitos · CSV</button>}{state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<button onClick={downloadAB} disabled={busy}>📥 Experimento A/B observado · CSV</button>}</div>}
     {lastAward&&<div key={lastAward.nonce} className="dean-score-flash" role="status">✨ EXAMEN COMPLETADO <strong>+{Number.isFinite(lastAward.score)?lastAward.score.toFixed(1):'—'} / 50</strong></div>}
    </div>
-   <div className="dean-player-dock"><span>🏆 {state.dgp_version==='zip_dgp_2026'?'COPA CAUSAL · MODELO 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></div>
+   <div className="dean-player-dock"><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></div>
   </main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
