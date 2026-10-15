@@ -96,3 +96,15 @@
 .dean-quest-misconceptions>div{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .dean-quest-misconceptions span{font-size:12px;font-weight:750;background:#255163;border-radius:6px;padding:5px 8px}
 .dean-quest-misconceptions small{font-size:10px;color:#c5e9df}
+
+
+/* Within the game, no external slides needed for basic causal vocabulary. */
+.dean-concepts{border:1px solid #90acaa;border-radius:10px;background:#173b53;min-width:0}
+.dean-concepts>summary{cursor:pointer;color:#fae9b2;font-size:12px;font-weight:900;
+ padding:10px;list-style-position:inside}
+.dean-concepts>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
+ padding:10px;border-top:1px solid #5a8e91;max-height:200px;overflow:auto}
+.dean-concepts article{border:1px solid #4c8292;border-radius:8px;padding:8px;background:#143348}
+.dean-concepts strong{font-size:11px;color:#bdffdc}
+.dean-concepts p{font-size:11px!important;line-height:1.4!important;color:#e7f4f2!important;margin:4px 0 0!important}
+@media(max-width:620px){.dean-concepts>div{grid-template-columns:1fr;max-height:175px}}
