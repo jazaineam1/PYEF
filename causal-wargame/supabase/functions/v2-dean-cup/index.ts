@@ -38,7 +38,8 @@ Deno.serve(async(req)=>{
   }
   if(action==='quiz_state'){
    if(!code)return json({error:'Código requerido'},400)
-   return json(await rpc('cw_dean_quiz_state',{p_code:code,p_hash:hash}))
+   await rpc('cw_dean_quiz_tick_v4',{p_code:code})
+   return json(await rpc('cw_dean_quiz_state_v4',{p_code:code,p_hash:hash}))
   }
   if(action==='quiz_submit'){
    if(!student)return json({error:'Sesión de estudiante obligatoria'},401)
@@ -47,7 +48,7 @@ Deno.serve(async(req)=>{
   if(action==='quiz_teacher'){
    if(!teacher)return json({error:'Credencial docente obligatoria'},401)
    if(!['start','open','lock','reveal','next','finish'].includes(b.command))return json({error:'Acción inválida'},400)
-   return json(await rpc('cw_dean_quiz_teacher',{p_token:teacher,p_action:String(b.command)}))
+   return json(await rpc('cw_dean_quiz_teacher_v4',{p_token:teacher,p_action:String(b.command)}))
   }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
