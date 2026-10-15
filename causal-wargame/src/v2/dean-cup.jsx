@@ -31,7 +31,7 @@ async function call(action,payload={},student='',teacher=''){
  if(teacher)h['x-facilitator-token']=teacher;
  if(!endpoint.startsWith('https://'))throw Error('Backend seguro no configurado');
  const r=await fetch(endpoint,{method:'POST',headers:h,body:JSON.stringify({action,...payload}),cache:'no-store'});
- if(['export','teacher_truth','ab_download','ab_truth','game_export'].includes(action)&&r.ok)return r.blob();
+ if(['export','teacher_truth','ab_download','ab_truth','game_export','teacher_game_export'].includes(action)&&r.ok)return r.blob();
  const data=await r.json().catch(()=>({}));
  if(!r.ok)throw Error(data.error||'Fallo de conexión');
  return data;
@@ -654,6 +654,12 @@ function Teacher(){
  }
  async function startAB(){setBusy(true);setErr('');try{const summary=await call('ab_generate',{},'',teacher);setAbSummary(summary)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadABTruth(){setBusy(true);setErr('');try{const blob=await call('ab_truth',{},'',teacher),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_doctor_strange.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ async function downloadAllObserved(){setBusy(true);setErr('');try{
+   const blob=await call('teacher_game_export',{},'',teacher);
+   const url=URL.createObjectURL(blob),a=document.createElement('a');
+   a.href=url;a.download='copa_decano_'+game+'_TODAS_LAS_SALAS_6_examenes.csv';
+   a.click();setTimeout(()=>URL.revokeObjectURL(url),7000);
+  }catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
  return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} examCount={examCount} controls={teacher&&<div className="dean-teacher-banner-actions">
@@ -679,6 +685,7 @@ function Teacher(){
  <aside className="dean-teacher-sidebar">
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · cinco salas.</p>
      <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
+     {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LAS 5 SALAS</button>}
      <p>Un clic para iniciar, ninguno entre exámenes.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
