@@ -88,3 +88,11 @@
 .dean-quest-versus{font-weight:950;font-size:19px;color:#ffe19c;align-self:center}
 @media(max-width:650px){.dean-quest-scene{padding:7px}.dean-quest-figures>div{flex-basis:95px;padding:5px 7px}
 .dean-quest-figures strong{font-size:13px}.dean-quest-versus{font-size:14px}}
+
+
+/* After-reveal only distribution: explain common mistakes, never individual answers. */
+.dean-quest-misconceptions{display:grid;gap:5px;border:1px solid #7db5a5;border-radius:9px;background:#193c44;padding:8px}
+.dean-quest-misconceptions strong,.dean-quest-misconceptions b{font-size:11px;color:#e6f1ab}
+.dean-quest-misconceptions>div{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.dean-quest-misconceptions span{font-size:12px;font-weight:750;background:#255163;border-radius:6px;padding:5px 8px}
+.dean-quest-misconceptions small{font-size:10px;color:#c5e9df}
