@@ -1,33 +1,32 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useState} from 'react';
 import './dean-quiz-arena.css';
 
 const LETTERS=['a','b','c','d'];
 const ROOM_NAMES=['Alpha','Beta','Gamma','Delta','Épsilon'];
 const WIN_MEDALS=['🥇','🥈','🥉'];
-const SECONDS=30;
 
 function Podium({players=[],role='student',mine=null,participants=0,myPosition=null,myPoints=0}){
- const champions=players.filter(p=>p.position===1);
- const winner=champions.length===1?champions[0]?.alias:champions.map(p=>p.alias).join(' · ');
- const top=players.filter(p=>Number(p.position)<=3);
- const mineEntry=players.find(p=>p.position===myPosition&&p.points===myPoints);
+ const hasWinner=players.some(p=>Number(p.points)>0);
+ const champions=hasWinner?players.filter(p=>p.position===1):[];
+ const winner=champions.length===1?champions[0]?.alias:champions.slice(0,3).map(p=>p.alias).join(' · ')+(champions.length>3?' y '+(champions.length-3)+' más':'');
+ const top=hasWinner?players.filter(p=>Number(p.position)<=3):[];
  return <div className="dean-final-ceremony" role="region" aria-label="Ceremonia final de premiación">
    <div className="dean-confetti" aria-hidden="true">{Array.from({length:30},(_,i)=><i key={i} style={{'--c':i%5,'--x':(i*37+9)%100+'%','--delay':(i%9)*-.58+'s','--duration':3.5+(i%7)*.42+'s'}}/>)}</div>
    <header className="dean-final-hero">
     <span className="dean-final-crown" aria-hidden="true">🏆</span>
     <div><small>LA COPA DEL DECANO · GRAN FINAL</small>
-    <h2>{champions.length>1?'¡FELICIDADES, CAMPEONES!':champions.length===1?'¡FELICIDADES AL CAMPEÓN!':'GRAN FINAL · SIN PARTICIPANTES'}</h2>
-    {champions.length>0&&<p>Un aplauso para <strong>{winner}</strong>{champions.length===1?', primer lugar de la batalla causal.':' — comparten el primer lugar.'}</p>}
+    <h2>{champions.length>1?'¡FELICIDADES, CAMPEONES!':champions.length===1?'¡FELICIDADES AL CAMPEÓN!':players.length?'¡FELICIDADES POR COMPLETAR LA COPA!':'GRAN FINAL · SIN PARTICIPANTES'}</h2>
+    {champions.length>0?<p>Un aplauso para <strong>{winner}</strong>{champions.length===1?', primer lugar de la batalla causal.':' — comparten el primer lugar.'}</p>:players.length>0?<p>Todos terminaron con cero aciertos. La premiación reconoce su participación sin inventar un campeón.</p>:null}
     </div>
     <span className="dean-final-stars" aria-hidden="true">✦ ✧ ✦</span>
    </header>
    <div className="dean-final-podium" aria-label="Podio de ganadores">
     {top.length?top.slice(0,3).map((p,i)=><article key={p.alias+'-'+i} className={'dean-final-medalist dean-final-rank-'+p.position}>
-     <div className="dean-final-medal">{WIN_MEDALS[Math.min(2,Number(p.position)-1)]}</div>
+     <div className="dean-final-medal">{WIN_MEDALS[Math.min(2,Math.max(0,Number(p.position)-1))]}</div>
      <strong>{p.alias}</strong><small>Sala {ROOM_NAMES[Number(p.room_no)-1]||p.room_no}</small>
      <b>{p.points} <small>/ 120 puntos</small></b>
      <div className="dean-final-stand">PUESTO #{p.position}</div>
-    </article>):<p>Esperando el resultado.</p>}
+    </article> ):<p>{players.length?'Todos participaron; no hay un campeón por aciertos.':'Esperando el resultado.'}</p>}
    </div>
    {role==='student'&&<div className="dean-my-place" role="status">
     <b>{myPosition===1?'🏆 ¡GANASTE LA COPA!':myPosition&&myPosition<=3?'🎉 ¡LLEGASTE AL PODIO!':'🎓 ¡TERMINASTE LA BATALLA CAUSAL!'}</b>
@@ -68,21 +67,22 @@ function VoteBars({counts={},correct,chosen,participants=0}){
  </div>;
 }
 
-export default function DeanQuizArena({role='student',token='',teacher='',gameCode,call}){
+export default function DeanQuizArena({role='student',token='',teacher='',gameCode,call,onCloseTournament,closedTournament=false}){
  const [data,setData]=useState(null);
  const [error,setError]=useState('');
  const [busy,setBusy]=useState(false);
- const [selected,setSelected]=useState('');
+ const [selected,setSelected]=useState({question:0,choice:''});
  const [clockNow,setClockNow]=useState(Date.now());
  const [offset,setOffset]=useState(0);
- const [celebration,setCelebration]=useState(false);
  useEffect(()=>{
   let disposed=false,timeout=null;
   async function poll(){
    try{
+    const sentAt=Date.now();
     const value=await call('quiz_state',{game_code:gameCode},token);
+    const receivedAt=Date.now();
     if(!disposed){
-     setData(value);setOffset(Date.parse(value.server_now||new Date().toISOString())-Date.now());
+     setData(value);setOffset(Date.parse(value.server_now||new Date().toISOString())-(sentAt+receivedAt)/2);
      setError('');
     }
    }catch(e){if(!disposed)setError(e.message)}
@@ -91,8 +91,6 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
   poll();return()=>{disposed=true;clearTimeout(timeout)};
  },[call,token,gameCode]);
  useEffect(()=>{let t=setInterval(()=>setClockNow(Date.now()),130);return()=>clearInterval(t)},[]);
- useEffect(()=>{setSelected('');setCelebration(false)},[data?.question_no]);
- useEffect(()=>{if(['podium','finished'].includes(data?.phase))setCelebration(true)},[data?.phase]);
  const phase=data?.phase||'idle';
  const automatic=Boolean(data?.auto_mode);
  const isOpen=phase==='open';
@@ -101,7 +99,7 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
  const q=data?.question;
  const remaining=Math.max(0,Math.ceil((Date.parse(data?.deadline_at||'')-clockNow-offset)/1000))||0;
  const revealRemaining=Math.max(0,Math.ceil((Date.parse(data?.reveal_until||'')-clockNow-offset)/1000))||0;
- const mine=data?.mine||selected;
+ const mine=data?.mine||(selected.question===data?.question_no?selected.choice:'');
  const locked=Boolean(mine)||busy||remaining===0;
  const canVote=role==='student'&&isOpen&&!locked;
  const ranked=Array.isArray(data?.leaderboard)?data.leaderboard:[];
@@ -121,11 +119,11 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
  }
  async function vote(ch){
   if(!canVote)return;
-  setSelected(ch);setBusy(true);setError('');
+  setSelected({question:data.question_no,choice:ch});setBusy(true);setError('');
   try{
    await call('quiz_submit',{question:data.question_no,choice:ch,game_code:gameCode},token);
    setData(await call('quiz_state',{game_code:gameCode},token));
-  }catch(e){setSelected('');setError(e.message)}finally{setBusy(false)}
+  }catch(e){setSelected({question:data.question_no,choice:''});setError(e.message)}finally{setBusy(false)}
  }
  const colorFor=ch=>reveal?(ch===q?.correct?'is-correct':ch===mine?'is-incorrect':'is-dim'):ch===mine?'is-selected':'';
  const clockLabel=isOpen?remaining+' s':reveal?'RESULTADOS · '+revealRemaining+' s':phase==='preview'?'PREPARA TU RESPUESTA':phase==='locked'?'RESPUESTAS CERRADAS':'EN ESPERA';
@@ -175,6 +173,11 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
         myPosition={data?.my_position} myPoints={data?.my_points}/>}
   {completed&&role==='teacher'&&phase==='podium'&&<button type="button" className="dean-final-dismiss"
     disabled={busy} onClick={()=>teacherAction('finish')}>✓ Finalizar ceremonia (conservando el podio)</button>}
+  {completed&&role==='teacher'&&phase==='finished'&&!closedTournament&&onCloseTournament&&
+   <button type="button" className="dean-final-dismiss" disabled={busy}
+    onClick={onCloseTournament}>✓ Registrar cierre de la Copa en el servidor</button>}
+  {completed&&role==='teacher'&&phase==='finished'&&closedTournament&&
+   <p className="dean-final-closed" role="status">✓ Copa terminada. Los resultados y todas las posiciones quedaron guardados.</p>}
   {error&&<div className="dean-quiz-error" role="alert">⚠️ {error}</div>}
  </section>;
 }

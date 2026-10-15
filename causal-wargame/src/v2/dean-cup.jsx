@@ -122,10 +122,10 @@ function Exam({person,onSubmit,version,deadline,serverNow,receivedAt}){
   </div></section>;
 }
 
-function CupQuiz({role='student',token='',teacher='',gameCode=code,canonical=false}){
- // The modern FULL-SCREEN arena is presentation-only for historical tournaments:
- // its manual server protocol and existing votes/notes remain unchanged.
- return <DeanQuizArena role={role} token={token} teacher={teacher} gameCode={gameCode} call={call}/>;
+function CupQuiz({role='student',token='',teacher='',gameCode=code,canonical=false,onCloseTournament,closedTournament=false}){
+ // Historical tournaments retain original backend timers, votes and ranking.
+ return <DeanQuizArena role={role} token={token} teacher={teacher} gameCode={gameCode}
+    call={call} onCloseTournament={onCloseTournament} closedTournament={closedTournament}/>;
 }
 function CupQuizLegacy({role='student',token='',teacher='',gameCode=code}) {
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[seconds,setSeconds]=useState(0),[receipt,setReceipt]=useState('');
@@ -359,7 +359,9 @@ function Teacher(){
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
  return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
  state?.available&&['final','finished'].includes(state.phase)
- ?<main className="dean-quiz-stage dean-quiz-teacher-stage"><CupQuiz role="teacher" canonical teacher={teacher} gameCode={game}/></main>
+ ?<main className="dean-quiz-stage dean-quiz-teacher-stage"><CupQuiz role="teacher" canonical
+  teacher={teacher} gameCode={game} onCloseTournament={()=>direct('next')}
+  closedTournament={state.phase==='finished'}/></main>
  :<main className="dean-teacher">
  <div className="dean-teacher-toolbar"><div><small>🎛️ PANEL DEL CAPACITADOR · 120 MINUTOS</small><h2>Control de sesión</h2></div>
  {state?.available&&actions[state.phase]&&<button className="dean-big dean-teacher-next"
