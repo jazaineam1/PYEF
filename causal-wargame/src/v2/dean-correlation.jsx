@@ -102,6 +102,13 @@ json.dumps(result,ensure_ascii=False,allow_nan=False)
 `;
 
 const showR=v=>v==null?'No calculable':Number(v).toFixed(3);
+function correlationReading(r){
+ if(r==null||!Number.isFinite(r))return 'No calculable: faltan puntos o variación.';
+ const direction=r>0?'positiva':r<0?'negativa':'sin dirección';
+ const absolute=Math.abs(r);
+ const strength=absolute<.1?'prácticamente nula':absolute<.3?'débil':absolute<.7?'moderada':'fuerte';
+ return 'Asociación lineal '+direction+', '+strength+'; r²='+Number(r*r).toFixed(2)+'. No expresa un efecto causal.';
+}
 function Scatter({points=[],line=null,factor}) {
  const xvalues=points.map(p=>p.x),min=Math.min(...xvalues),max=Math.max(...xvalues);
  const xmin=Math.floor(Math.min(0,min)*2)/2,xmax=Math.ceil(Math.max(max,xmin+1)*2)/2;
@@ -112,7 +119,7 @@ function Scatter({points=[],line=null,factor}) {
   <rect x="56" y="25" width="656" height="252" rx="9" fill="#0c1c38"/>
   {[0,10,20,30,40,50].map(v=><g key={v}><line x1="56" x2="712" y1={yfn(v)} y2={yfn(v)} stroke="#3f5a75" strokeDasharray="3 5"/><text x="45" y={yfn(v)+4} fontSize="12" fill="#c7d8eb" textAnchor="end">{v}</text></g>)}
   {[0,1,2,3,4].map(i=>{let t=xmin+(xmax-xmin)*i/4;return <text key={i} x={xfn(t)} y="298" fontSize="12" textAnchor="middle" fill="#c7d8eb">{t.toFixed(1)}</text>})}
-  {points.map((p,i)=><circle key={i} cx={xfn(p.x)} cy={yfn(p.y)} r="4" fill={colors[p.profile]||'#65ddda'} fillOpacity=".62" stroke="#061023" strokeWidth=".5"/>)}
+  {points.map((p,i)=><circle key={i} cx={xfn(p.x)} cy={yfn(p.y)} r="4" fill={colors[p.profile]||'#65ddda'} fillOpacity=".62" stroke="#061023" strokeWidth=".5"><title>{p.profile+" · "+p.x+" horas · nota "+p.y.toFixed(1)}</title></circle>)}
   {line&&<line x1={xfn(xmin)} x2={xfn(xmax)} y1={yfn(Math.max(0,Math.min(50,line.intercept+line.slope*xmin)))} y2={yfn(Math.max(0,Math.min(50,line.intercept+line.slope*xmax)))} stroke="#ffdb7c" strokeWidth="3" strokeDasharray="8 5"/>}
   <text x="385" y="321" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#d0eafd">{factor} (horas)</text>
   <text transform="translate(14 151) rotate(-90)" textAnchor="middle" fontSize="13" fill="#d0eafd">Nota / 50</text>
@@ -186,7 +193,7 @@ function Analysis(){
    <section className="corr-results" aria-live="polite">
     {!data?<div className="corr-empty"><span aria-hidden="true">🔬</span><h2>Tu laboratorio está listo</h2><p>La gráfica y las correlaciones aparecerán aquí tras analizar el CSV.</p></div>:<>
      <div className="corr-result-head"><h2>Relaciones observadas</h2><small>{data.n} parciales analizados · {data.n_students} estudiantes · {data.n_rooms} salas en el archivo · {data.n_simulated} registros simulados en el original</small></div>
-     <div className="corr-stat-grid"><div><small>Pearson r</small><strong>{showR(detail?.r)}</strong><span>Relación lineal</span></div><div><small>Spearman ρ</small><strong>{showR(detail?.rho)}</strong><span>Relación por rangos</span></div><div><small>Pearson dentro del alumno</small><strong>{showR(data.r_within)}</strong><span>{data.n_within} exámenes con repetición</span></div></div>
+     <p className="corr-reading" role="status">{correlationReading(detail?.r)}</p><div className="corr-stat-grid"><div><small>Pearson r</small><strong>{showR(detail?.r)}</strong><span>Relación lineal</span></div><div><small>Spearman ρ</small><strong>{showR(detail?.rho)}</strong><span>Relación por rangos</span></div><div><small>Pearson dentro del alumno</small><strong>{showR(data.r_within)}</strong><span>{data.n_within} exámenes con repetición</span></div></div>
      <Scatter points={data.points} line={data.linear} factor={factorLabel}/>
      <div className="corr-legend"><span>🟠 Sobreexigido</span><span>🟢 Equilibrado</span><span>🔴 En riesgo</span><span>🔵 Pragmático</span></div>
      <h3>Comparación por arquetipo</h3>
