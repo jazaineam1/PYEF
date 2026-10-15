@@ -679,4 +679,35 @@ function Teacher(){
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
 }
 const role=document.body.dataset.role||'student';
-createRoot(document.getElementById('root')).render(role==='teacher'?<Teacher/>:role==='wall'?<Wall/>:<Player/>);
+const explicitCode=new URLSearchParams(location.search).get('game')?.trim();
+function EnterCupCode({roleName}){
+ const [entered,setEntered]=useState('');
+ const [invalid,setInvalid]=useState(false);
+ const targets={student:'dean-play.html',teacher:'dean-teacher.html',wall:'dean-wall.html'};
+ function enter(event){
+  event.preventDefault();
+  const next=entered.trim().toUpperCase();
+  if(!/^[A-Z0-9-]{4,36}$/.test(next)){setInvalid(true);return}
+  location.assign('./'+targets[roleName]+'?game='+encodeURIComponent(next));
+ }
+ return <div className="dean-page dean-arcade-entry-page">
+  <Banner kind="COPA DEL DECANO" phase="ELIGE TU PARTIDA" examCount={ARCADE_EXAMS}/>
+  <main className="dean-join dean-arcade-entry">
+   <div className="dean-emoji" aria-hidden="true">🏆</div>
+   <span className="dean-kicker">10 EXÁMENES · 5 SALAS · UNA SOLA COPA</span>
+   <h2>¿Listo para competir?</h2>
+   <p>Escribe el código que te compartió el docente para entrar a tu torneo.</p>
+   <form onSubmit={enter}>
+    <label htmlFor="dean-enter-game">CÓDIGO DE LA COPA</label>
+    <input id="dean-enter-game" type="text" value={entered} maxLength={36} autoCapitalize="characters"
+     placeholder="COPA-XXXXXXXX" autoComplete="off" spellCheck={false}
+     onChange={event=>{setEntered(event.target.value);setInvalid(false)}}/>
+    {invalid&&<p className="dean-error" role="alert">Escribe un código válido, por ejemplo COPA-ABC123.</p>}
+    <button className="dean-big dean-arcade-enter-btn" type="submit">🚀 ENTRAR A LA COPA</button>
+   </form>
+   {roleName==='teacher'&&<p className="dean-arcade-entry-help">¿Necesitas crear una nueva Copa? <a href="./dean-teacher.html?game=FUTUROS">Abrir el panel docente histórico</a> y usa «Crear Copa nueva».</p>}
+   {roleName==='student'&&<p className="dean-arcade-entry-help">¿No tienes el código? Solicítalo al docente.</p>}
+  </main>
+ </div>;
+}
+createRoot(document.getElementById('root')).render(!explicitCode?<EnterCupCode roleName={role}/>:role==='teacher'?<Teacher/>:role==='wall'?<Wall/>:<Player/>);
