@@ -40,7 +40,9 @@ begin
   new_code:='COPA-'||upper(encode(extensions.gen_random_bytes(6),'hex'));
   begin
    insert into public.cw_games(code,title,facilitator_pin_hash,team_target,max_humans)
-   values(new_code,'La Copa del Decano · DOS FUTUROS V2',old_hash,5,30)
+   -- Legacy cw_games.max_humans permits 1–28; Dean V2 independently permits 30
+   -- through cw_dean_players (five rooms × six), without changing V1 schema.
+   values(new_code,'La Copa del Decano · DOS FUTUROS V2',old_hash,5,28)
    returning id into new_gid;
    exit;
   exception when unique_violation then
