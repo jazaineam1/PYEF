@@ -245,7 +245,11 @@ async function testCausalScience(role,phase,width,height){
   assert.equal(submitted.policy.counts.risk,0,'Equity no longer rewards assigning negative-CATE intervention to En riesgo');
   assert.equal(submitted.policy.harm,'refer_to_alternative','Evidence documents considered alternatives');
  }
- if(role==='teacher')assert.ok(await page.locator('.dean-teacher-mission').isVisible(),'Teacher skill evidence is visible');
+ if(role==='teacher'){
+  assert.ok(await page.locator('.dean-teacher-extras>summary').isVisible(),'Teacher sees one simple optional evidence drawer');
+  await page.locator('.dean-teacher-extras>summary').click();
+  assert.ok(await page.locator('.dean-teacher-mission').isVisible(),'Teacher evidence is available on demand');
+ }
  if(role==='wall')assert.ok(await page.locator('.dean-wall-mission').isVisible(),'Wall evidence separate from academic grade');
  const metrics=await page.evaluate(()=>({sh:document.documentElement.scrollHeight,sw:document.documentElement.scrollWidth}));
  assert.ok(metrics.sh<=height+3&&metrics.sw<=width+3,'Scientific stage causes global page overflow');
