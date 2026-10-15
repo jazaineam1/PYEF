@@ -44,7 +44,7 @@ function useBoard(token='',enabled=true,gameCode=code){
  },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
-function Banner({kind,phase,controls=null,examCount=15}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>5 SALAS · HASTA 30 PARTICIPANTES · {examCount} EXÁMENES</small></div></header>}
+function Banner({kind,phase,controls=null,examCount=15,showCode=true}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&showCode&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>5 SALAS · HASTA 30 PARTICIPANTES · {examCount} EXÁMENES</small></div></header>}
 function Board({groups=[],examCount=15}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
@@ -700,7 +700,7 @@ function EnterCupCode({roleName}){
   location.assign('./'+targets[roleName]+'?game='+encodeURIComponent(next));
  }
  return <div className="dean-page dean-arcade-entry-page">
-  <Banner kind="COPA DEL DECANO" phase="ELIGE TU PARTIDA" examCount={ARCADE_EXAMS}/>
+  <Banner kind="COPA DEL DECANO" phase="ELIGE TU PARTIDA" examCount={ARCADE_EXAMS} showCode={false}/>
   <main className="dean-join dean-arcade-entry">
    <div className="dean-emoji" aria-hidden="true">🏆</div>
    <span className="dean-kicker">10 EXÁMENES · 5 SALAS · UNA SOLA COPA</span>
