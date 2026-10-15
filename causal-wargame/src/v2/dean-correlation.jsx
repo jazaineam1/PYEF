@@ -6,9 +6,10 @@ import './dean-correlation.css';
 // No server-side analysis, no unreviewed package installation, no local or browser data exfiltration.
 const PYODIDE_URL='https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.mjs';
 const FACTORS=[
- {key:'horas_bienestar_jornada',name:'🏃 Bienestar'},
- {key:'horas_estudio_jornada',name:'📚 Estudio'},
- {key:'horas_sueno_jornada',name:'😴 Sueño'}
+ {key:'horas_bienestar_jornada',x:'horas_bienestar_jornada',y:'nota_final',name:'🏃 Bienestar frente a la nota'},
+ {key:'horas_estudio_jornada',x:'horas_estudio_jornada',y:'nota_final',name:'📚 Estudio frente a la nota'},
+ {key:'horas_sueno_jornada',x:'horas_sueno_jornada',y:'nota_final',name:'😴 Sueño frente a la nota'},
+ {key:'sacrificio_estudio_bienestar',x:'horas_estudio_jornada',y:'horas_bienestar_jornada',name:'⚖️ Sacrificio: estudio frente a bienestar'}
 ];
 const NOTEBOOK='./notebooks/copa_decano_6_examenes_correlaciones.ipynb';
 const COLAB='https://colab.research.google.com/github/jazaineam1/PYEF/blob/main/causal-wargame/public/notebooks/copa_decano_6_examenes_correlaciones.ipynb';
@@ -66,27 +67,29 @@ def rank(values):
         for z in range(i,j):ans[ix[z]]=v
         i=j
     return ans
-def metrics(records,col):
-    x=[r[col] for r in records];y=[r['nota_final'] for r in records]
+def metrics(records,col,outcome='nota_final'):
+    x=[r[col] for r in records];y=[r[outcome] for r in records]
     r=pearson(x,y)
     rho=pearson(rank(x),rank(y))
     return {'r':r,'rho':rho,'n':len(records)}
+if 'selected_y' not in globals(): selected_y='nota_final'
 factors={key:metrics(rows,key) for key in ['horas_bienestar_jornada','horas_estudio_jornada','horas_sueno_jornada']}
+factors['sacrificio_estudio_bienestar']=metrics(rows,'horas_estudio_jornada','horas_bienestar_jornada')
 by_student=collections.defaultdict(list)
 for r in rows:by_student[(r['sala'],r['estudiante_id'])].append(r)
 cx=[];cy=[]
 for observations in by_student.values():
     if len(observations)<2: continue
     avg_x=statistics.mean(o[selected_var] for o in observations)
-    avg_y=statistics.mean(o['nota_final'] for o in observations)
+    avg_y=statistics.mean(o[selected_y] for o in observations)
     cx.extend(o[selected_var]-avg_x for o in observations)
-    cy.extend(o['nota_final']-avg_y for o in observations)
+    cy.extend(o[selected_y]-avg_y for o in observations)
 within=pearson(cx,cy)
 by_profile={}
 for profile in ['over','balanced','risk','pragmatic']:
     sub=[r for r in rows if r['arquetipo']==profile]
-    by_profile[profile]=metrics(sub,selected_var)
-x=[r[selected_var] for r in rows];y=[r['nota_final'] for r in rows]
+    by_profile[profile]=metrics(sub,selected_var,selected_y)
+x=[r[selected_var] for r in rows];y=[r[selected_y] for r in rows]
 linear=None
 if len(rows)>=3 and len(set(x))>1:
     xm=sum(x)/len(x);ym=sum(y)/len(y);den=sum((v-xm)**2 for v in x)
@@ -97,7 +100,7 @@ result={'n':len(rows),'n_total':total,'n_students':len(by_student),'n_students_t
         'n_simulated':sum(r['auto_simulado'] for r in raw),
         'factors':factors,'r_within':within,'n_within':len(cx),
         'profiles':by_profile,'linear':linear,
-        'points':[{'x':r[selected_var],'y':r['nota_final'],'profile':r['arquetipo']} for r in rows]}
+        'points':[{'x':r[selected_var],'y':r[selected_y],'profile':r['arquetipo']} for r in rows]}
 json.dumps(result,ensure_ascii=False,allow_nan=False)
 `;
 
@@ -109,20 +112,20 @@ function correlationReading(r){
  const strength=absolute<.1?'prácticamente nula':absolute<.3?'débil':absolute<.7?'moderada':'fuerte';
  return 'Asociación lineal '+direction+', '+strength+'; r²='+Number(r*r).toFixed(2)+'. No expresa un efecto causal.';
 }
-function Scatter({points=[],line=null,factor}) {
+function Scatter({points=[],line=null,factor,outcome='Nota final',yMax=50}) {
  const xvalues=points.map(p=>p.x),min=Math.min(...xvalues),max=Math.max(...xvalues);
  const xmin=Math.floor(Math.min(0,min)*2)/2,xmax=Math.ceil(Math.max(max,xmin+1)*2)/2;
  const xfn=x=>56+(x-xmin)/(xmax-xmin)*656;
- const yfn=y=>277-y/50*252;
+ const yfn=y=>277-y/yMax*252;
  const colors={over:'#fcb764',balanced:'#56dcca',risk:'#f98da6',pragmatic:'#a0b7ff'};
- return <svg className="corr-plot" viewBox="0 0 750 330" role="img" aria-label={'Diagrama de dispersión: '+factor+' y nota final'}>
+ return <svg className="corr-plot" viewBox="0 0 750 330" role="img" aria-label={'Diagrama de dispersión: '+factor+' y '+outcome}>
   <rect x="56" y="25" width="656" height="252" rx="9" fill="#0c1c38"/>
-  {[0,10,20,30,40,50].map(v=><g key={v}><line x1="56" x2="712" y1={yfn(v)} y2={yfn(v)} stroke="#3f5a75" strokeDasharray="3 5"/><text x="45" y={yfn(v)+4} fontSize="12" fill="#c7d8eb" textAnchor="end">{v}</text></g>)}
+  {Array.from({length:6},(_,i)=>Number((i*yMax/5).toFixed(1))).map(v=><g key={v}><line x1="56" x2="712" y1={yfn(v)} y2={yfn(v)} stroke="#3f5a75" strokeDasharray="3 5"/><text x="45" y={yfn(v)+4} fontSize="12" fill="#c7d8eb" textAnchor="end">{v}</text></g>)}
   {[0,1,2,3,4].map(i=>{let t=xmin+(xmax-xmin)*i/4;return <text key={i} x={xfn(t)} y="298" fontSize="12" textAnchor="middle" fill="#c7d8eb">{t.toFixed(1)}</text>})}
-  {points.map((p,i)=><circle key={i} cx={xfn(p.x)} cy={yfn(p.y)} r="4" fill={colors[p.profile]||'#65ddda'} fillOpacity=".62" stroke="#061023" strokeWidth=".5"><title>{p.profile+" · "+p.x+" horas · nota "+p.y.toFixed(1)}</title></circle>)}
-  {line&&<line x1={xfn(xmin)} x2={xfn(xmax)} y1={yfn(Math.max(0,Math.min(50,line.intercept+line.slope*xmin)))} y2={yfn(Math.max(0,Math.min(50,line.intercept+line.slope*xmax)))} stroke="#ffdb7c" strokeWidth="3" strokeDasharray="8 5"/>}
+  {points.map((p,i)=><circle key={i} cx={xfn(p.x)} cy={yfn(p.y)} r="4" fill={colors[p.profile]||'#65ddda'} fillOpacity=".62" stroke="#061023" strokeWidth=".5"><title>{p.profile+" · "+p.x+" horas · "+outcome+" "+p.y.toFixed(1)}</title></circle>)}
+  {line&&<line x1={xfn(xmin)} x2={xfn(xmax)} y1={yfn(Math.max(0,Math.min(yMax,line.intercept+line.slope*xmin)))} y2={yfn(Math.max(0,Math.min(yMax,line.intercept+line.slope*xmax)))} stroke="#ffdb7c" strokeWidth="3" strokeDasharray="8 5"/>}
   <text x="385" y="321" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#d0eafd">{factor} (horas)</text>
-  <text transform="translate(14 151) rotate(-90)" textAnchor="middle" fontSize="13" fill="#d0eafd">Nota / 50</text>
+  <text transform="translate(14 151) rotate(-90)" textAnchor="middle" fontSize="13" fill="#d0eafd">{outcome}</text>
  </svg>;
 }
 
@@ -168,7 +171,8 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
    instance.current=runtime;
    setStatus('Python está calculando las correlaciones…');
    runtime.globals.set('csv_input',csvText);
-   runtime.globals.set('selected_var',factor);
+   runtime.globals.set('selected_var',FACTORS.find(f=>f.key===factor)?.x||factor);
+   runtime.globals.set('selected_y',FACTORS.find(f=>f.key===factor)?.y||'nota_final');
    runtime.globals.set('selected_archetype',profile);
    runtime.globals.set('only_manual',onlyManual);
    const result=await runtime.runPythonAsync(PYTHON);
@@ -176,7 +180,8 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
   }catch(e){setData(null);setStatus('No fue posible analizar el archivo: '+(e?.message||String(e)));}
   finally{setBusy(false)}
  }
- const factorLabel=FACTORS.find(f=>f.key===factor)?.name||factor;
+ const selectedFactor=FACTORS.find(f=>f.key===factor)||FACTORS[0];
+ const factorLabel=selectedFactor.name;
  const detail=useMemo(()=>data?.factors?.[factor]||null,[data,factor]);
  return <div className={'corr-page'+(embedded?' corr-embedded':'')}>
   <header className="corr-top"><div><span>🏆 COPA DEL DECANO · ANÁLISIS DENTRO DEL JUEGO</span><h1>📉 ¿Correlación negativa?</h1><p>Python WebAssembly calcula la relación sobre los parciales reales de todas las salas. El signo se obtiene de los datos; no está predeterminado.</p></div>
@@ -191,7 +196,7 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
     {fileName&&<small className="corr-muted">Archivo: {fileName}</small>}
     <div className="corr-step">02 · EXPLORAR</div>
     <label className="corr-field">Relación a analizar
-     <select value={factor} onChange={e=>{setFactor(e.target.value);setData(null)}}>{FACTORS.map(f=><option key={f.key} value={f.key}>{f.name} vs. Nota final</option>)}</select>
+     <select value={factor} onChange={e=>{setFactor(e.target.value);setData(null)}}>{FACTORS.map(f=><option key={f.key} value={f.key}>{f.name}</option>)}</select>
     </label>
     <label className="corr-field">Arquetipo
      <select value={profile} onChange={e=>{setProfile(e.target.value);setData(null)}}>
@@ -209,7 +214,8 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
     {!data?<div className="corr-empty"><span aria-hidden="true">🔬</span><h2>Tu laboratorio está listo</h2><p>La gráfica y las correlaciones aparecerán aquí tras analizar el CSV.</p></div>:<>
      <div className="corr-result-head"><h2>Relaciones observadas</h2><small>{data.n} parciales analizados · {data.n_students} estudiantes · {data.n_rooms} salas en el archivo · {data.n_simulated} registros simulados en el original</small></div>
      <p className={'corr-reading'+(detail?.r<0?' corr-negative':'')} role="status">{detail?.r<0?'📉 CORRELACIÓN NEGATIVA OBSERVADA · ':detail?.r>=0?'📈 NO SE OBSERVA CORRELACIÓN NEGATIVA · ':''}{correlationReading(detail?.r)}</p><div className="corr-stat-grid"><div><small>Pearson r</small><strong>{showR(detail?.r)}</strong><span>Relación lineal</span></div><div><small>Spearman ρ</small><strong>{showR(detail?.rho)}</strong><span>Relación por rangos</span></div><div><small>Pearson dentro del alumno</small><strong>{showR(data.r_within)}</strong><span>{data.n_within} exámenes con repetición</span></div></div>
-     <Scatter points={data.points} line={data.linear} factor={factorLabel}/>
+     <Scatter points={data.points} line={data.linear} factor={selectedFactor.x==='horas_estudio_jornada'?'Horas de estudio':selectedFactor.x==='horas_sueno_jornada'?'Horas de sueño':'Horas de bienestar'} outcome={selectedFactor.y==='nota_final'?'Nota final / 50':'Horas de bienestar'} yMax={selectedFactor.y==='nota_final'?50:4}/>
+     {selectedFactor.y!=='nota_final'&&<p className="corr-reading">Esta gráfica muestra el sacrificio entre actividades: más estudio puede implicar menos horas de bienestar por el límite de 14 horas. Es una relación observada, no un efecto sobre las notas.</p>}
      <div className="corr-legend"><span>🟠 Sobreexigido</span><span>🟢 Equilibrado</span><span>🔴 En riesgo</span><span>🔵 Pragmático</span></div>
      <h3>Comparación por arquetipo</h3>
      <table><thead><tr><th>Perfil</th><th>Exámenes</th><th>Pearson r</th><th>Spearman ρ</th></tr></thead>
