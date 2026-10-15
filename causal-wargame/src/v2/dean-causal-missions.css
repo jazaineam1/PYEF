@@ -1,0 +1,94 @@
+.dean-causal-mission{display:grid;gap:10px;min-width:0;padding:clamp(11px,1.2vw,17px);
+ border:1px solid #62abc2;border-radius:13px;
+ background:linear-gradient(145deg,#0f3047,#194a4a);color:#edfaff}
+.dean-mission-story{display:grid;gap:4px;border-left:4px solid #f1d282;padding:6px 10px;background:#163c4a}
+.dean-mission-story strong{font-size:clamp(13px,1.1vw,16px);color:#fff1b9;letter-spacing:.6px}
+.dean-mission-story span{font-size:clamp(12px,.95vw,14px);line-height:1.35;color:#e2f6eb}
+.dean-causal-mission button{color:#eafbff;border-radius:9px;border:1px solid #6b9db6;
+ background:linear-gradient(150deg,#1d4a63,#204b60);font:inherit;font-weight:750;
+ padding:9px;min-height:36px;cursor:pointer;transition:filter .2s,transform .2s}
+.dean-causal-mission button:hover:not(:disabled){filter:brightness(1.16);transform:translateY(-1px)}
+.dean-causal-mission button:disabled{opacity:.6;cursor:default;transform:none}
+.dean-causal-mission button[aria-pressed="true"]{background:#77602a;border:2px solid #f9da7d;color:white}
+.dean-mission-source{font-size:11px;color:#c7e3de}
+.dean-source-select,.dean-association-modes,.dean-collider-vignette>div,
+.dean-dml-limit,.dean-policy-objective{display:flex;gap:7px;flex-wrap:wrap}
+.dean-source-select button,.dean-association-modes button{flex:1 1 130px;font-size:12px}
+.dean-association-scatter{width:100%;max-height:215px;border:1px solid #57859d;border-radius:9px;
+ background:radial-gradient(ellipse at center,#2e586677,#0e2b3d)}
+.dean-mission-placeholder{padding:18px;border:1px dashed #6ca8aa;border-radius:9px;font-size:12px}
+.dean-reference-values{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dean-reference-values span{background:#1a455d;border:1px solid #6187a2;border-radius:8px;
+ padding:9px;display:grid;gap:4px;font-size:12px}
+.dean-reference-values span b{font-size:19px;color:#f6d7a0}
+.dean-reference-values small{grid-column:1/-1;color:#d0e7e8}
+.dean-association-readout{background:#112a40;padding:11px;border:1px solid #66a1b0;
+ border-radius:10px;display:grid;gap:5px}
+.dean-association-readout strong{font-size:clamp(19px,2vw,28px);color:#fce09b}
+.dean-association-readout small,.dean-association-readout span{font-size:12px;color:#c5f3e5}
+.dean-association-readout p{margin:0;font-size:12px;line-height:1.4}
+.dean-mission-choice,.dean-collider-vignette,.dean-policy-objective{display:grid;gap:7px}
+.dean-mission-choice strong,.dean-collider-vignette strong,.dean-policy-objective strong{font-size:14px;color:#fff3c1}
+.dean-mission-choice button{font-size:12px;text-align:left}
+.dean-mission-submit{background:linear-gradient(90deg,#72dfbc,#c6ffd5)!important;color:#093f39!important;
+ font-size:13px!important;min-height:39px!important;font-weight:950!important;border:1px solid #c2ffe2!important}
+.dean-mission-receipt,.dean-mission-reveal{font-size:12px;line-height:1.45;
+ padding:10px;border-left:3px solid #a5e5a7;background:#1e5249;border-radius:6px;margin:0}
+.dean-dag-pick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.dean-dag-pick-grid button{display:grid;text-align:left;gap:5px;align-content:start}
+.dean-dag-pick-grid strong{font-size:12px}
+.dean-dag-pick-grid small{font-size:10px;line-height:1.3;color:#d5e8ea;font-weight:400}
+.dean-dag-paths{display:grid;gap:5px;padding:11px;border:1px solid #7fb0a9;border-radius:9px;background:#14384c}
+.dean-dag-paths b{color:#e4eeb1;font-size:13px}
+.dean-dag-paths span{font-size:12px}
+.dean-dag-paths small{font-size:11px;line-height:1.4;color:#c5e4e3}
+.dean-collider-vignette{border:1px dashed #cbbf8c;padding:9px;border-radius:9px;background:#183b4d}
+.dean-collider-vignette p{font-size:12px;margin:0}
+.dean-collider-vignette button{flex:1 1 140px;font-size:11px}
+.dean-dml-sequence{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.dean-dml-sequence>div{border:1px solid #64b4a9;background:#225a58;border-radius:9px;
+ padding:9px;font-size:11px;line-height:1.35}
+.dean-dml-sequence b{border-radius:100%;background:#aaf8d1;color:#163b31;padding:3px 7px;margin-right:5px}
+.dean-dml-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.dean-dml-cards button{display:grid;gap:5px;text-align:left}
+.dean-dml-cards strong{font-size:12px}.dean-dml-cards small{font-size:10px;line-height:1.35;font-weight:400}
+.dean-mission-clear{font-size:11px;justify-self:start}
+.dean-causal-mission p{margin:0;font-size:12px}
+.dean-dml-limit button{flex:1 1 140px;font-size:12px}
+.dean-policy-stats{display:grid;gap:5px;background:#174153;border:1px solid #80bcaf;border-radius:9px;padding:10px}
+.dean-policy-stats strong{font-size:21px;color:#fff2a9}
+.dean-policy-stats span{font-size:15px}
+.dean-policy-stats small{font-size:11px;color:#c4dfdf}
+.dean-policy-profiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.dean-policy-profiles>div{display:flex;justify-content:space-between;gap:8px;align-items:center;
+ padding:8px 10px;border:1px solid #5f929b;border-radius:9px;background:#173951}
+.dean-policy-profiles>div>span{min-width:0;display:grid;gap:3px}
+.dean-policy-profiles b{font-size:12px}
+.dean-policy-profiles small{font-size:11px;color:#c6e0e1}
+.dean-policy-profiles>div>div{display:flex;gap:6px;align-items:center}
+.dean-policy-profiles button{padding:4px;min-height:29px;min-width:29px;font-size:17px}
+.dean-policy-comparison{display:grid;gap:6px;border:1px solid #c0b079;
+ border-radius:9px;background:#35453e;padding:10px}
+.dean-policy-comparison strong{color:#f7e4a7;font-size:12px}
+.dean-policy-comparison span,.dean-policy-comparison small{font-size:11px}
+.dean-policy-objective button{flex:1 1 180px;font-size:11px;text-align:left}
+.dean-teacher-mission{gap:7px}.dean-teacher-mission>strong{font-size:13px;color:#fff4b2}
+.dean-teacher-mission-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.dean-teacher-mission-grid>div{display:flex;justify-content:space-between;
+ gap:8px;background:#173b51;padding:7px;border-radius:7px;font-size:11px}
+.dean-wall-mission{padding:9px;gap:5px}
+.dean-wall-mission>strong{font-size:11px;color:#fff0b7}
+.dean-wall-mission-rooms{display:grid;gap:4px}
+.dean-wall-mission-rooms span{font-size:11px}
+.dean-causal-mission small{line-height:1.35}
+@media(max-width:700px){
+ .dean-causal-mission{gap:7px;padding:8px}
+ .dean-dml-sequence{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dean-policy-profiles{grid-template-columns:1fr}
+ .dean-policy-profiles>div{padding:6px}
+ .dean-association-scatter{max-height:165px}
+ .dean-dag-pick-grid{gap:4px}
+ .dean-dag-pick-grid strong{font-size:11px}
+ .dean-mission-story strong{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.dean-causal-mission button{transition:none}}
