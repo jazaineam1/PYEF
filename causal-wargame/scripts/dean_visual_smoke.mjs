@@ -80,10 +80,10 @@ async function testView(role,width,height){
   await action.click();
   const flash=page.locator('.dean-score-flash');
   await flash.waitFor({state:'attached',timeout:4000});
-  assert.match(await flash.textContent(),/43\\.2/,'Score source must match server');
+  assert.match(await flash.textContent(),/43\.2/,'Score source must match server');
   if(width<790){
    assert.equal(await flash.isVisible(),false,'Mobile toast must not cover the exam button');
-   assert.match(await page.locator('.dean-hud-earned').innerText(),/43\\.2/,'The mobile HUD should display the latest score');
+   assert.match(await page.locator('.dean-hud-earned').innerText(),/43\.2/,'The mobile HUD should display the latest score');
   }else{assert.ok(await flash.isVisible(),'Desktop arcade score toast visible')}
   const exam=await page.locator('.dean-exam').boundingBox();
   const grade=await page.locator('.dean-grade').boundingBox();
