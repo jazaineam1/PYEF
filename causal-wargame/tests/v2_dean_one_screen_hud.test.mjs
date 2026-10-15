@@ -53,7 +53,9 @@ test('Exam action and the compact instructor phase action remain available',()=>
  assert.match(teacher,/dean-teacher-grid/);
  assert.match(teacher,/dean-teacher-sidebar/);
  assert.match(teacher,/dean-teacher-next/);
- assert.match(teacher,/onClick=\{\(\)=>direct\('next'\)\}/);
+ assert.match(teacher,/onClick=\{\(\)=>direct\(arcade&&state\.phase==='exams'\?'finish_game':'next'\)\}/);
+ assert.match(teacher,/state\.phase==='lobby'\?'🚀 ABRIR LOS 10 EXÁMENES'/);
+ assert.match(teacher,/game_code:game/);
 });
 test('Wall provides all five room rows with a separate bounded explainer',()=>{
  const wall=section('function Wall(){','function Teacher(){');
