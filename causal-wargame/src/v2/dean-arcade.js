@@ -35,7 +35,7 @@ export function arcadeTier(score){
 }
 // Stable variety across ten exams, never chosen at random and never altering grades.
 const arcadeCheers={
- legend:['¡ERES UNA MÁQUINA!','¡MONIQUILLO, QUÉ NIVEL!','¡MODO LEYENDA!','¡UNA BESTIA!'],
+ legend:['¡ERES UNA MÁQUINA!','¡MONICAQUILLO, QUÉ NIVEL!','¡MODO LEYENDA!','¡UNA BESTIA!'],
  epic:['¡QUÉ ÁSPERO!','¡HOMBRECILLO, QUÉ JUGADA!','¡ESTÁS INTRATABLE!','¡MUY ÁSPERO!'],
  solid:['¡JUGADÓN!','¡VAS VOLANDO!','¡ESA ES LA ACTITUD!','¡BIEN JUGADO!'],
  recover:['¡TE DEFENDISTE!','¡SIGUES EN LA PELEA!','¡VAMOS POR MÁS!'],
