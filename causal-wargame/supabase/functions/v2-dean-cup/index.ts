@@ -45,6 +45,12 @@ Deno.serve(async(req)=>{
     if(!teacher)return json({error:'Sesión docente requerida'},401)
     return json(await rpc('cw_dean_game_finish_v3',{p_token:teacher}))
    }
+   if(action==='lobby_ready'){
+    if(!student)return json({error:'Sesión de jugador requerida'},401)
+    return json(await rpc('cw_dean_arcade_ready_v4',{
+      p_hash:hash,p_ready:b.ready===true
+    }))
+   }
    if(action==='policy_submit'){
     if(!student)return json({error:'Sesión de jugador requerida'},401)
     return json(await rpc('cw_dean_arcade_policy_submit_v4',{
