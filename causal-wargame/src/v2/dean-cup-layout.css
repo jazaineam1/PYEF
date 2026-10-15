@@ -106,6 +106,21 @@
  box-shadow:0 0 25px #4de0b4aa;animation:dean-points-in .4s ease-out both;pointer-events:none}
 .dean-score-flash strong{font-size:26px;color:#c9ffe6}
 @keyframes dean-points-in{from{opacity:0;transform:translateY(14px) scale(.93)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* Cinematic mission layer uses the existing V2 artwork; never overlays controls. */
+.dean-exam-brief{
+ padding:clamp(11px,1.3vw,18px);border:1px solid #6a9aaa;border-radius:12px;
+ background:linear-gradient(90deg,#102943f2,#102f43ba),url('./art/hero.webp') center/cover no-repeat;
+ box-shadow:inset 4px 0 0 #72d9bc;position:relative;
+}
+.dean-exam-brief .dean-kicker{color:#e7e6a0}
+.dean-player .dean-exam{box-shadow:0 6px 30px #020e1d77,inset 0 0 30px #4ac0bb0c}
+.dean-hud .dean-hud-row>b{text-shadow:0 0 14px #64ffd166}
+.dean-wall .dean-board>article:first-of-type .dean-rating strong{
+ color:#d7ffe9;text-shadow:0 0 16px #7afcc166;
+}
+.dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{
+ transition:width .5s cubic-bezier(.23,1,.32,1)
+}
 /* Compact leaderboard reusable on projection and instructor board. */
 .dean-wall .dean-board,.dean-teacher-page .dean-board{min-width:0;min-height:0;overflow:hidden;
  display:grid;grid-template-rows:auto repeat(5,minmax(0,1fr));gap:0;
@@ -229,4 +244,5 @@
 @media(prefers-reduced-motion:reduce){
  .dean-score-flash{animation:none}
  .dean-exam-controls .dean-exam-action:hover:not(:disabled){transform:none}
+ .dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{transition:none}
 }
