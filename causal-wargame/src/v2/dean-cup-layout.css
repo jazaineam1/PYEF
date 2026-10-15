@@ -279,6 +279,14 @@
  .dean-banner-meta{max-width:94px}
 }
 
+/* The mobile score flash must remain entirely inside the Halo HUD frame. */
+@media(max-width:790px){
+ .dean-page main.dean-player{grid-template-rows:72px minmax(0,1fr) 34px}
+ .dean-hud>summary{height:72px}
+ .dean-hud-foot{min-height:12px;line-height:1.1;align-items:center}
+ .dean-hud-earned{font-size:10px;line-height:1.1;white-space:nowrap;letter-spacing:0}
+}
+
 @media(prefers-reduced-motion:reduce){
  .dean-score-flash{animation:none}
  .dean-exam-controls .dean-exam-action:hover:not(:disabled){transform:none}
