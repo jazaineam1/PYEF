@@ -33,6 +33,21 @@ export function arcadeTier(score){
  if(score>=25)return {id:'recover',emoji:'🛡️',label:'¡SE DEFENDIÓ!',line:'Tienes otra oportunidad'};
  return {id:'retry',emoji:'💫',label:'¡TOCA REMONTAR!',line:'La siguiente puede cambiarlo todo'};
 }
+// Stable variety across ten exams, never chosen at random and never altering grades.
+const arcadeCheers={
+ legend:['¡ERES UNA MÁQUINA!','¡MONIQUILLO, QUÉ NIVEL!','¡MODO LEYENDA!','¡UNA BESTIA!'],
+ epic:['¡QUÉ ÁSPERO!','¡HOMBRECILLO, QUÉ JUGADA!','¡ESTÁS INTRATABLE!','¡MUY ÁSPERO!'],
+ solid:['¡JUGADÓN!','¡VAS VOLANDO!','¡ESA ES LA ACTITUD!','¡BIEN JUGADO!'],
+ recover:['¡TE DEFENDISTE!','¡SIGUES EN LA PELEA!','¡VAMOS POR MÁS!'],
+ retry:['¡SE VIENE LA REMONTADA!','¡NO TE RINDAS!','¡OTRO ROUND, OTRA OPORTUNIDAD!']
+};
+export function arcadeCheer(score,exam){
+ const tier=arcadeTier(score);
+ const phrases=arcadeCheers[tier.id]||[tier.label];
+ const index=Math.max(0,Math.floor(Number(exam)||1)-1)%phrases.length;
+ return {...tier,label:phrases[index],stars:score>=46?3:score>=41?2:score>=33?1:0,
+  tag:score>=46?'PERFECTO':score>=41?'EXCELENTE':score>=33?'GRAN JUGADA':score>=25?'SIGUES EN JUEGO':'A REMONTAR'};
+}
 export function arcadeStreak(scores){
  let streak=0;for(let i=scores.length-1;i>=0;i--){if(Number(scores[i])>=40)streak++;else break}return streak;
 }
