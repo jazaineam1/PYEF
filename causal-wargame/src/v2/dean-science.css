@@ -20,3 +20,11 @@
 .dean-science-dml small{color:#b1cfdb;font-size:11px}
 @media(max-width:690px){.dean-science-dml{grid-template-columns:repeat(2,minmax(0,1fr))}
  .dean-science>summary{font-size:12px}.dean-science>summary span{font-size:9px}}
+
+
+.dean-econml-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.dean-econml-compare>div{display:grid;gap:6px;padding:10px;border:1px solid #5f929e;border-radius:10px;background:#153a55}
+.dean-econml-compare b{font-size:14px;color:#f7e4ae}
+.dean-econml-compare strong{font-size:13px;color:#b4ffd5}
+.dean-econml-compare small{font-size:11px;color:#c4e1e0}
+@media(max-width:650px){.dean-econml-compare{grid-template-columns:1fr}}
