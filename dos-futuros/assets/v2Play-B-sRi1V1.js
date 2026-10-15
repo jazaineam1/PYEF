@@ -1,0 +1,1 @@
+import"./modulepreload-polyfill-DHZR_UKa.js";import{t as e}from"./dean-route-ZOjIP1xM.js";e(`student`);
