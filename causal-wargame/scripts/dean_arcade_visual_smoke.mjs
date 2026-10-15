@@ -200,7 +200,7 @@ async function sixRoundViewport(width,height,skip=false){
    const columns=['estudiante_id','sala','examen_nro','arquetipo','pga_previo','complejidad','horas_estudio_jornada','horas_sueno_jornada','horas_bienestar_jornada','nota_final','auto_simulado'];
    const rows=Array.from({length:30},(_,i)=>{
     const sala=Math.floor(i/6)+1,well=(i%6)/2;
-    return ['Alumno '+(i+1),sala,i%6+1,'balanced',3.5,1.2,4,8,well,49-well*8,false];
+    return ['Alumno '+(i+1),sala,i%6+1,'balanced',3.5,1.2,5-well,8,well,49-well*8,false];
    });
    return route.fulfill({status:200,contentType:'text/csv',
      body:[columns,...rows].map(row=>row.join(',')).join('\r\n')+'\r\n'});
@@ -244,6 +244,16 @@ async function sixRoundViewport(width,height,skip=false){
  assert.equal(await page.locator('.corr-embedded input[type=file]').count(),0,
   'Data must come from the server automatically; never ask players to upload CSV');
  assert.match(await page.locator('.corr-embedded').innerText(),/5 SALAS|cinco salas|cinco/i);
+ if(width===1366){
+  await page.locator('.corr-stat-grid').waitFor({timeout:90000});
+  let result=Number(await page.locator('.corr-stat-grid strong').first().innerText());
+  assert.ok(result<-.95,'Actual CSV must produce negative wellbeing vs grade Pearson r, not a fixed label');
+  await page.locator('.corr-field select').first().selectOption('sacrificio_estudio_bienestar');
+  await page.locator('.corr-stat-grid').waitFor({timeout:90000});
+  await page.getByText(/CORRELACIÓN NEGATIVA OBSERVADA/).waitFor({timeout:90000});
+  result=Number(await page.locator('.corr-stat-grid strong').first().innerText());
+  assert.ok(result<-.95,'Real Python must compute negative study versus wellbeing tradeoff');
+ }
  await page.screenshot({path:'visual-qa/six-in-game-python-'+width+'.png',fullPage:false});
  // The user may always continue even if CDN Pyodide is unavailable. Scientific
  // Python correlation is independently checked against known data in node tests.
