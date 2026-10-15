@@ -101,6 +101,7 @@
  align-content:end;gap:3px;border:1px solid #76b7b5;border-radius:12px 12px 4px 4px;
  background:linear-gradient(140deg,#1a415c,#224b64);padding:6px 8px 0;
  box-shadow:0 7px 18px #0005;animation:dean-podium-rise .8s cubic-bezier(.22,1,.36,1) both}
+.dean-final-medalist{transform-origin:center bottom}
 .dean-final-medalist.dean-final-rank-1{order:2;background:linear-gradient(140deg,#554b30,#816929);
  border:2px solid #fce2a0;box-shadow:0 0 23px #f7d88555;animation-delay:.3s}
 .dean-final-medalist.dean-final-rank-2{order:1;animation-delay:.08s}
@@ -148,7 +149,7 @@
 .dean-confetti i:nth-child(5n+2){background:#7df4c9}
 .dean-confetti i:nth-child(5n+3){background:#a9b6ff}
 .dean-confetti i:nth-child(5n+4){background:#ffe4a2}
-@keyframes dean-podium-rise{from{transform:translateY(95px) scale(.82);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes dean-podium-rise{from{transform:scale(.86);opacity:0;filter:brightness(1.4)}to{transform:scale(1);opacity:1;filter:brightness(1)}}
 @keyframes dean-trophy-shine{50%{transform:scale(1.1) rotate(-4deg);filter:drop-shadow(0 0 15px #ffd67b)}}
 @keyframes dean-confetti-fall{0%{transform:translateY(-30px) rotate(0deg)}100%{transform:translateY(750px) rotate(1080deg)}}
 @keyframes dean-victory-pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
