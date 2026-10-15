@@ -54,6 +54,11 @@ async function testView(role,width,height){
  assert.ok(metrics.scrollHeight<=metrics.viewport+3,`${role} ${width}×${height}: document overflows vertically (${JSON.stringify(metrics)})`);
  assert.ok(metrics.scrollWidth<=width+3,`${role} ${width}×${height}: document overflows horizontally`);
  if(role==='wall'){
+  const banner=await page.locator('.dean-wall .dean-banner').boundingBox();
+  const meta=await page.locator('.dean-wall .dean-banner-meta').boundingBox();
+  assert.ok(meta&&banner&&meta.y+meta.height<=banner.y+banner.height+2,'Wall header metadata overflows into title');
+  const clipped=await page.locator('.dean-wall .dean-team-empty .dean-rating').evaluateAll(nodes=>nodes.map(el=>({client:el.clientWidth,scroll:el.scrollWidth})));
+  assert.ok(clipped.every(x=>x.scroll<=x.client+3),'Empty-room labels are clipped');
   assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5,'Wall needs exactly five rooms');
   const last=await page.locator('.dean-wall .dean-board>article').last().boundingBox();
   assert.ok(last && last.y+last.height<=height+2,`Last room outside screen: ${JSON.stringify(last)}`);
@@ -75,6 +80,9 @@ async function testView(role,width,height){
   await action.click();
   await page.locator('.dean-score-flash').waitFor({timeout:4000});
   assert.match(await page.locator('.dean-score-flash').innerText(),/43\.2/,'Flash must show actual mock server grade');
+  const exam=await page.locator('.dean-exam').boundingBox();
+  const grade=await page.locator('.dean-grade').boundingBox();
+  assert.ok(exam&&grade&&grade.y+grade.height<=exam.y+exam.height+2,'Grade feedback overlaps exam container');
  }
  if(role==='teacher'){
   const control=page.locator('.dean-teacher-toolbar .dean-teacher-next');
