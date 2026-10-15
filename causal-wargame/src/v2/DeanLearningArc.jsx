@@ -176,6 +176,28 @@ function DeanMissionScene({phase,step}){
  </div>;
 }
 
+const GAME_CLUES={
+ lobby:'Una nota prevista no revela cuánto cambiaría con una ayuda.',
+ exams:'¡Cuidado! Las mejores notas no prueban la mejor política.',
+ rector:'R² mide predicción, no cuánto cambia Y si imponemos B.',
+ survey:'Arquetipo y PGA son anteriores; estudio y sueño pueden mediar.',
+ causal:'30 alumnos sintéticos: el A/B tiene incertidumbre; CATE varía.'
+};
+const GAME_TAKEAWAYS={
+ lobby:'Predecir NO es medir un efecto.',
+ exams:'Ranking ≠ efecto causal.',
+ rector:'Correlación y R² ≠ intervención.',
+ survey:'Ajusta causas previas, no mediadores.',
+ causal:'ATE ≠ CATE. Decide con incertidumbre.'
+};
+const GAME_CHOICES={
+ lobby:['Dar a Ana el cupo','Todavía NO sabemos quién gana más','Dar a Bruno el cupo'],
+ exams:['Todos deben dormir menos','No generalizar: hay selección','Copiar al líder'],
+ rector:['La asociación basta','Más árboles resuelven causalidad','Predecir NO prueba un efecto'],
+ survey:['Controlar todo, incluso mediadores','Arquetipo y PGA; proteger mediadores','Ajustar toda variable correlacionada'],
+ causal:['Elegir por nota prevista','Prometer el mismo ATE a todos','Usar CATE, incertidumbre y equidad']
+};
+
 export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''}) {
  const scene=DEAN_ARC[phase];
  const [choice,setChoice]=useState('');
@@ -188,40 +210,40 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
  const actionAvailable=step!=='debrief'&&!submitted&&!learning.paused&&
    (kind==='initial'||Boolean(initial));
  const choiceValue=submitted||choice;
- return <section className="dean-quest" aria-label={'Reto causal '+scene.title}>
+ return <section className="dean-quest dean-game-quest" aria-label={'Reto causal '+scene.title}>
   <div className="dean-quest-header">
    <span className="dean-quest-chapter">{scene.icon} {scene.act} · {scene.time} MIN</span>
    <span className="dean-quest-step">◆ {learningLabel(step)} {learning.paused?'· PAUSADO':''}</span>
   </div>
   <h2>{scene.title}</h2>
-  <DeanLearningMap phase={phase}/>
   <DeanMissionScene phase={phase} step={step}/>
   <p className="dean-quest-question">{scene.question}</p>
-  {step!=='challenge'&&<div className="dean-quest-reveal">
-   <strong>⚡ NUEVA PISTA DEL SIMULADOR</strong><p>{scene.evidence}</p>
-  </div>}
-  {step!=='challenge'&&<DeanConcepts phase={phase}/>}
+  {step!=='challenge'&&<p className="dean-game-clue" role="status">⚡ {GAME_CLUES[phase]}</p>}
   <div className="dean-quest-choices" role="group" aria-label="Tu decisión causal">
    {scene.choices.map((option,i)=>{
-     const key=['a','b','c'][i];
-     return <button type="button" key={key} disabled={!actionAvailable}
-      aria-pressed={choiceValue===key} className={'dean-quest-option '+(choiceValue===key?'is-selected':'')}
-      onClick={()=>setChoice(key)}><b>{key.toUpperCase()}</b><span>{option.slice(2)}</span></button>
+    const key=['a','b','c'][i];
+    return <button type="button" key={key} disabled={!actionAvailable}
+     aria-pressed={choiceValue===key} className={'dean-quest-option '+(choiceValue===key?'is-selected':'')}
+     onClick={()=>setChoice(key)}><b>{key.toUpperCase()}</b><span>{GAME_CHOICES[phase][i]}</span></button>;
    })}
   </div>
   {actionAvailable?<button type="button" className="dean-quest-submit" disabled={!choice||busy}
-   onClick={()=>onSubmit({action:'learning_submit',phase,kind,choice})}>
-   {busy?'Sincronizando…':kind==='initial'?'🛡️ BLOQUEAR MI INTUICIÓN · 0 PTS':'⚡ REVISAR CON EVIDENCIA'}
-  </button>:<p className="dean-quest-receipt" role="status">
-   {submitted?'✓ Decisión '+(kind==='initial'?'inicial':'revisada')+' confirmada en el servidor.':'Esperando al capacitador para continuar.'}
-  </p>}
-  {step==='challenge'&&<p className="dean-quest-hint">Tu primera intuición nunca resta puntos. La evidencia aparecerá cuando el capacitador la libere.</p>}
-  {step==='evidence'&&!revision&&<p className="dean-quest-hint">Reconsidera tu respuesta. El resultado correcto aún está oculto: explica mentalmente por qué cambiarías.</p>}
+    onClick={()=>onSubmit({action:'learning_submit',phase,kind,choice})}>
+    {busy?'Guardando…':kind==='initial'?'⚡ CONFIRMAR DECISIÓN':'🛡️ REVISAR MI DECISIÓN'}
+   </button>:<p className="dean-quest-receipt" role="status">
+    {submitted?'✓ Decisión guardada.':'⏳ Esperando la siguiente etapa.'}
+   </p>}
   {step==='debrief'&&<div className="dean-quest-solution" role="status">
-   <strong>🏆 RESPUESTA DEL DEBRIEF: {learning.correct?.toUpperCase()||'—'}</strong>
-   <p>{scene.reveal}</p><p><b>Error frecuente:</b> {scene.trap}</p>
-   <small>Maestría causal: 57 puntos por decisiones revisadas y 43 por prácticas verificadas. La primera intuición no puntúa.</small>
+   <strong>🏆 {GAME_TAKEAWAYS[phase]}</strong>
+   <small>Respuesta: {learning.correct?.toUpperCase()||'—'} · El docente desbloqueó la explicación.</small>
   </div>}
+  <details className="dean-game-learn-more">
+   <summary>📚 ¿Por qué? · Aprender causalidad</summary>
+   <p>{step==='challenge'?'Primero elige. El juego revelará nueva información cuando avance el docente.':scene.evidence}</p>
+   {step==='debrief'&&<p>{scene.reveal} <b>Error frecuente:</b> {scene.trap}</p>}
+   {step!=='challenge'&&<DeanLearningMap phase={phase}/>}
+   {step==='debrief'&&<DeanConcepts phase={phase}/>}
+  </details>
   {error&&<p className="dean-quest-error" role="alert">{error}</p>}
  </section>;
 }
@@ -234,16 +256,26 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
  const noEvidence=step==='challenge'?initials===0:step==='evidence'?revisions===0:false;
  const action=learning.paused?'resume':step==='challenge'?(noEvidence?'demo':'evidence'):
   step==='evidence'?(noEvidence?'demo':'debrief'):null;
- const title={resume:'Reanudar',demo:'Modo demostración · cerrar sin puntos',
-  evidence:'Mostrar pista y abrir revisión',debrief:'Cerrar revisión y revelar solución'}[action];
+ const title={resume:'▶ Reanudar',demo:'👀 Demostración · sin puntos',
+  evidence:'⚡ Dar pista y abrir revisión',debrief:'🏁 Revelar solución'}[action];
  return <section className="dean-quest-control">
   <div className="dean-quest-chapter">🎓 GUION DOCENTE · {scene.time} MIN · {scene.act}</div>
   <h3>{scene.title}</h3>
-  <DeanLearningMap phase={phase}/>
-  <p><b>Di:</b> {scene.teacher}</p>
-  <p><b>Proyecta:</b> {scene.example}</p>
-  <p><b>Comprueba:</b> {scene.expected}</p>
-  <DeanConcepts phase={phase}/>
+  <div className="dean-teacher-brief">
+   {phase==='lobby'?'🎯 Pregunta quién gana más con el cupo. No des todavía la respuesta.':
+    phase==='exams'?'🎮 Deja jugar. El ranking NO demuestra qué intervención funciona.':
+    phase==='rector'?'📊 Muestra la asociación: R² NO demuestra efectos de bienestar.':
+    phase==='survey'?'🕸️ Busca arquetipo, PGA y mediadores en el DAG.':
+    '⚡ Compara A/B e IC; después decide seis cupos con CATE.'}
+  </div>
+  <details className="dean-teacher-script">
+   <summary>📚 Guion completo y conceptos (opcional)</summary>
+   <p><b>Di:</b> {scene.teacher}</p>
+   <p><b>Proyecta:</b> {scene.example}</p>
+   <p><b>Comprueba:</b> {scene.expected}</p>
+   <DeanLearningMap phase={phase}/>
+   <DeanConcepts phase={phase}/>
+  </details>
   <div className="dean-quest-counts">
    <span>Intuiciones: <b>{learning.counts?.initial||0}/{learning.registered||0}</b></span>
    <span>Revisiones: <b>{learning.counts?.revision||0}/{learning.registered||0}</b></span>

@@ -116,3 +116,55 @@
  padding:5px 8px;color:#d3e9e4;font-size:10px;white-space:nowrap;font-weight:800}
 .dean-learning-map span.active{color:#142b31;background:#bff4d1;border:1px solid #d8ffe5;
  box-shadow:0 0 10px #85e5c344}
+
+
+/* Game-first, one-viewport layout. The core player view is decisions, not a lesson. */
+.dean-page .dean-game-quest{display:grid;gap:9px;padding:clamp(9px,1.2vw,17px);align-content:start}
+.dean-game-quest .dean-quest-scene{min-height:125px;padding:8px 12px;gap:6px}
+.dean-game-quest .dean-quest-question{font-size:clamp(17px,1.6vw,26px)!important;
+ font-weight:950!important;line-height:1.24!important;max-width:64ch}
+.dean-game-quest .dean-quest-choices{gap:9px}
+.dean-game-quest .dean-quest-option{justify-content:flex-start;align-items:center;
+ background:#152e48;border:2px solid #7798b5;min-height:68px;
+ font-size:clamp(13px,1.05vw,17px);font-weight:800;cursor:pointer}
+.dean-game-quest .dean-quest-option:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.14)}
+.dean-game-quest .dean-quest-option.is-selected{background:#665029!important;
+ border-color:#ffd17b!important;box-shadow:0 0 0 2px #f0c06f44}
+.dean-game-quest .dean-quest-submit{min-height:49px;font-size:clamp(14px,1.1vw,17px);
+ border-radius:12px;box-shadow:0 8px 22px #0004}
+.dean-game-clue{background:#3c4a31;border:1px solid #d3b76b;border-radius:9px;
+ padding:10px 12px;color:#fff5c2;font-weight:850;margin:0}
+.dean-game-learn-more,.dean-game-science-tools,.dean-teacher-script{border:1px solid #638da6;
+ border-radius:9px;background:#17364d;padding:0;min-width:0}
+.dean-game-learn-more>summary,.dean-game-science-tools>summary,
+.dean-teacher-script>summary{cursor:pointer;color:#deeee9;font-weight:850;
+ padding:10px 13px;font-size:13px;list-style-position:inside}
+.dean-game-learn-more>p,.dean-teacher-script>p{padding:8px 12px;margin:0;font-size:13px;line-height:1.45}
+.dean-game-learn-more .dean-concepts,.dean-teacher-script .dean-concepts{margin:8px}
+.dean-game-science-tools{flex:none}
+.dean-game-science-tools>*:not(summary){margin:8px}
+.dean-game-wait{padding:9px 12px;border:1px dashed #8aa3ab;border-radius:8px;
+ background:#152c41;font-weight:800;font-size:13px}
+.dean-teacher-brief{border-radius:9px;padding:12px;background:#255263;color:#f1ffeb;
+ border-left:4px solid #97e3c5;font-size:clamp(13px,1vw,16px);line-height:1.4;font-weight:800}
+.dean-teacher-script{background:#15344a}
+.dean-quest-control .dean-teacher-script p{padding:7px 11px}
+.dean-quest-control .dean-quest-toolbar button:first-child{min-height:42px;
+ font-size:clamp(12px,.95vw,15px)}
+.dean-reauth-inline{display:grid;gap:9px;padding:11px;border-radius:9px;
+ border:1px solid #91d0c5;background:#153b46}
+.dean-reauth-inline button{background:#8de6c3;border:1px solid #c5ffe3;color:#113b34;
+ border-radius:9px;padding:9px 13px;font-weight:950;cursor:pointer}
+.dean-reauth-inline button:disabled{opacity:.55}
+.dean-reset-notice{color:#d9fff1!important;background:#234b45;border:1px solid #8cd1b2;
+ padding:10px;border-radius:9px}
+.dean-reset-dialog{gap:10px}
+.dean-reset-dialog .dean-reset-agreement{font-size:14px}
+@media(max-width:800px){
+ .dean-game-quest .dean-quest-scene{min-height:auto}
+ .dean-game-quest .dean-quest-question{font-size:17px!important}
+ .dean-game-quest .dean-quest-option{min-height:49px}
+ .dean-game-quest .dean-quest-choices{grid-template-columns:1fr}
+ .dean-game-quest .dean-quest-submit{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.dean-game-quest .dean-quest-option{transform:none!important}}

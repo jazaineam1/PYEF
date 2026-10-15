@@ -96,8 +96,9 @@ async function testView(role,width,height,attendees=18){
   assert.ok(last && last.y+last.height<=height+2,`Last room outside screen: ${JSON.stringify(last)}`);
  }
  if(role==='player'){
-  await page.locator('.dean-quest').waitFor();
-  assert.equal(await page.locator('.dean-quest-option').count(),3,'Exactly three contextual choices');
+  await page.locator('.dean-game-science-tools>summary').first().waitFor();
+  assert.equal(await page.locator('.dean-quest-option').count(),3,'Exactly three contextual choices, available for the required learning challenge');
+  assert.equal(await page.locator('.dean-quest').isVisible(),false,'Theory must not interrupt active exams');
   const hud=page.locator('.dean-hud');
   assert.equal(await hud.count(),1,'One compact HUD');
   const box=await hud.boundingBox();
@@ -144,14 +145,13 @@ async function testView(role,width,height,attendees=18){
   const reset=page.locator('.dean-reset-trigger');
   assert.ok(await reset.isVisible(),'Facilitator has a persistent reset control');
   await reset.click();
-  const dialog=page.getByRole('dialog',{name:/Reiniciar esta Copa/});
+  const dialog=page.getByRole('dialog',{name:/Reiniciar la Copa/});
   assert.ok(await dialog.isVisible(),'Reset requires a visible confirmation');
   const danger=dialog.locator('.dean-reset-danger');
   assert.ok(await danger.isDisabled(),'Reset disabled before acknowledgement');
-  await dialog.locator('#dean-reset-code').fill(code);
-  assert.ok(await danger.isDisabled(),'Exact game code alone is insufficient');
+  assert.equal(await dialog.locator('#dean-reset-code').count(),0,'No redundant game-code typing');
   await dialog.locator('.dean-reset-agreement input').check();
-  assert.ok(await danger.isEnabled(),'Reset enabled only with exact code and consent');
+  assert.ok(await danger.isEnabled(),'Reset enabled only after irreversible-action acknowledgement');
   await dialog.getByRole('button',{name:/Cancelar/}).click();
   assert.equal(await page.getByRole('dialog').count(),0,'Cancel never resets');
   const control=page.locator('.dean-teacher-toolbar .dean-teacher-next');
@@ -209,6 +209,8 @@ async function testCausalScience(role,phase,width,height){
  await page.locator('.dean-page').waitFor();
  if(role==='player'&&phase==='rector'){
   await page.locator('.dean-association').waitFor({timeout:12000});
+  assert.ok(await page.locator('.dean-game-quest .dean-quest-choices').isVisible(),'Player sees game choices first');
+  assert.ok(await page.locator('.dean-game-learn-more').count()>0,'Long pedagogy is optional');
   assert.match(await page.locator('.dean-association').innerText(),/r simple|r de Pearson/);
   assert.equal(await page.locator('.dean-association-scatter').count(),1,'Real-scene scatter drawn from CSV');
   await page.locator('.dean-source-select button').filter({hasText:'Referencia ZIP'}).click();
@@ -243,13 +245,112 @@ async function testCausalScience(role,phase,width,height){
   assert.equal(submitted.policy.counts.risk,0,'Equity no longer rewards assigning negative-CATE intervention to En riesgo');
   assert.equal(submitted.policy.harm,'refer_to_alternative','Evidence documents considered alternatives');
  }
- if(role==='teacher')assert.ok(await page.locator('.dean-teacher-mission').isVisible(),'Teacher skill evidence is visible');
+ if(role==='teacher'){
+  assert.ok(await page.locator('.dean-teacher-extras>summary').isVisible(),'Teacher sees one simple optional evidence drawer');
+  await page.locator('.dean-teacher-extras>summary').click();
+  assert.ok(await page.locator('.dean-teacher-mission').isVisible(),'Teacher evidence is available on demand');
+ }
  if(role==='wall')assert.ok(await page.locator('.dean-wall-mission').isVisible(),'Wall evidence separate from academic grade');
  const metrics=await page.evaluate(()=>({sh:document.documentElement.scrollHeight,sw:document.documentElement.scrollWidth}));
  assert.ok(metrics.sh<=height+3&&metrics.sw<=width+3,'Scientific stage causes global page overflow');
  assert.deepEqual(errors,[],'No science-stage runtime JS error');
  await page.screenshot({path:`visual-qa/causal-${phase}-${role}-${width}x${height}.png`,fullPage:false});
  console.log('PASS_CAUSAL_SCIENCE',phase,role,width+'x'+height);
+ await page.close();
+}
+
+async function testCompactGameLobby(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(code=>localStorage.setItem('cw-dean-v2-'+code,'a'.repeat(64)),code);
+ await page.route('**/v2-dean-cup',async route=>{
+  const b=route.request().postDataJSON();
+  const response=b.action==='learning_state'?{
+   available:true,phase:'lobby',step:'evidence',paused:false,registered:14,
+   mine:{initial:'b',revision:null},counts:{initial:14,revision:0},
+   rooms:[1,2,3,4,5].map((room_no)=>({room_no,participants:3,learning_points:0}))
+  }:b.action==='mission_state'?{available:false}:{...fixture,game_code:code,phase:'lobby',groups:groupFixture(14)};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(response)});
+ });
+ await page.goto(base+'/dean-play.html?game='+code,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-game-quest').waitFor({state:'visible',timeout:10000});
+ const options=page.locator('.dean-game-quest .dean-quest-option');
+ assert.equal(await options.count(),3,'Game has only three concise choices');
+ const captions=await options.allTextContents();
+ assert.ok(captions.every(t=>t.length<65),'No prose walls inside game choices');
+ const deep=page.locator('.dean-game-learn-more');
+ assert.equal(await deep.isVisible(),true,'Learning disclosure discoverable');
+ assert.equal(await deep.getAttribute('open'),null,'Theory defaults closed');
+ assert.equal(await page.locator('.dean-game-wait').count(),1,'One concise wait line, no duplicated intro');
+ assert.equal(await page.locator('.dean-game-science-tools').count(),0,'No secondary science atlas on prologue');
+ const action=page.locator('.dean-game-quest .dean-quest-submit');
+ assert.ok(await action.isVisible(),'Primary confirm decision visible');
+ const rect=await action.boundingBox();
+ assert.ok(rect&&rect.x+rect.width<=width+2,'Decision is not cut horizontally');
+ const metrics=await page.evaluate(()=>({sh:document.documentElement.scrollHeight,sw:document.documentElement.scrollWidth}));
+ assert.ok(metrics.sh<=height+3&&metrics.sw<=width+3,'No global scroll in game');
+ assert.deepEqual(errors,[],'No runtime errors');
+ await page.screenshot({path:`visual-qa/lobby-game-first-${width}x${height}.png`,fullPage:false});
+ console.log('PASS_COMPACT_GAME_LOBBY',width+'x'+height);
+ await page.close();
+}
+
+async function testExpiredTeacherReset(){
+ const page=await browser.newPage({viewport:{width:1366,height:768}});
+ const pageErrors=[];page.on('pageerror',e=>pageErrors.push(e.message));
+ await page.addInitScript(code=>{
+  sessionStorage.setItem('df_facilitator_game_code',code);
+  sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
+ },code);
+ let rejected=0,confirmed=0,logins=0;
+ await page.route('**/facilitator-login',async route=>{
+  logins++;
+  const b=route.request().postDataJSON();
+  assert.equal(b.game_code,code,'Recovery logs into the same Copa');
+  assert.equal(b.pin,'1234','PIN typed explicitly by the facilitator');
+  await route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({token:'c'.repeat(64)})});
+ });
+ await page.route('**/v2-dean-cup',async route=>{
+  const request=route.request(),b=request.postDataJSON();
+  if(b.action==='reset_confirmed'){
+   assert.equal(b.game_code,code);assert.equal(b.confirmation_code,code);
+   if(request.headers()['x-facilitator-token']==='b'.repeat(64)){
+    rejected++;
+    return route.fulfill({status:401,contentType:'application/json',
+     body:JSON.stringify({error:'Solo el docente autenticado puede reiniciar la Copa'})});
+   }
+   assert.equal(request.headers()['x-facilitator-token'],'c'.repeat(64),'Renewed token used');
+   confirmed++;
+   return route.fulfill({status:200,contentType:'application/json',
+    body:JSON.stringify({reset:true,phase:'lobby',game_code:code})});
+  }
+  const result=b.action==='learning_state'?
+   {available:true,phase:'lobby',step:'challenge',registered:0,
+    counts:{initial:0,revision:0},rooms:[],mine:{}}:
+   b.action==='mission_state'?{available:false}:
+    {...fixture,available:true,dgp_version:'zip_dgp_2026',game_code:code,phase:confirmed?'lobby':'exams'};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
+ });
+ await page.goto(base+'/dean-teacher.html?game='+code,{waitUntil:'networkidle'});
+ await page.locator('.dean-reset-trigger').click();
+ const dialog=page.getByRole('dialog',{name:/Reiniciar la Copa/});
+ await dialog.locator('.dean-reset-agreement input').check();
+ await dialog.locator('.dean-reset-danger').click();
+ await dialog.locator('#dean-reauth-pin').waitFor({state:'visible'});
+ assert.equal(rejected,1,'Expired token was rejected by server');
+ assert.equal(confirmed,0,'No reset before reauthentication');
+ await dialog.locator('#dean-reauth-pin').fill('1234');
+ await dialog.getByRole('button',{name:/Recuperar acceso/}).click();
+ await dialog.getByText(/Acceso docente recuperado/).waitFor({state:'visible'});
+ assert.equal(logins,1,'PIN recovered once without leaving the screen');
+ assert.equal(confirmed,0,'No auto-reset after entering PIN');
+ await dialog.locator('.dean-reset-danger').click();
+ await dialog.waitFor({state:'detached'});
+ assert.equal(confirmed,1,'Only a second deliberate confirmation resets the fixture');
+ assert.deepEqual(pageErrors,[]);
+ console.log('PASS_EXPIRED_TEACHER_RESET');
+ await page.screenshot({path:'visual-qa/teacher-reset-recovered-1366x768.png',fullPage:false});
  await page.close();
 }
 
@@ -400,6 +501,10 @@ async function testFinal(role,width,height,attendees){
 }
 
 try{
+ for(const [w,h] of [[1366,768],[390,844]]){
+  try{await testCompactGameLobby(w,h)}catch(e){failures++;console.error('FAIL_COMPACT_GAME_LOBBY',w,h,e.stack||e)}
+ }
+ try{await testExpiredTeacherReset()}catch(e){failures++;console.error('FAIL_EXPIRED_TEACHER_RESET',e.stack||e)}
  for(const [role,phase,w,h] of [
   ['player','rector',1366,768],['player','survey',1366,768],
   ['player','causal',1366,768],['player','causal',390,844],

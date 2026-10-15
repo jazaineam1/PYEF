@@ -11,7 +11,10 @@ const edge=file('supabase/functions/v2-dean-cup/index.ts');
 test('Five causal acts and genuine learning loop',()=>{
  for(const p of ['lobby','exams','rector','survey','causal']) assert.ok(story.includes(p+':{'),p);
  for(const p of ['challenge','evidence','debrief','initial','revision']) assert.ok(story.includes(p),p);
- assert.ok(story.includes('Tu primera intuición nunca resta puntos'));
+ assert.ok(story.includes('GAME_CHOICES'));
+ assert.ok(story.includes('dean-game-learn-more'));
+ assert.ok(story.includes('step===\'debrief\'&&<div className="dean-quest-solution"'));
+ assert.ok(!story.includes('>{scene.evidence}</p>'));
 });
 test('Server authorization, idempotent decisions and protected scoring',()=>{
  for(const p of ['primary key (player_id, phase, kind)','for update','stage_step','security invoker',
