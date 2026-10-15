@@ -32,7 +32,7 @@ function groupFixture(n){
 }
 async function testView(role,width,height,attendees=18){
  const roomGroups=groupFixture(attendees);
- const sample={...fixture,groups:roomGroups};
+ const sample={...fixture,game_code:code,groups:roomGroups};
 
  const errors=[];
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
@@ -128,6 +128,19 @@ async function testView(role,width,height,attendees=18){
  }
  if(role==='teacher'){
   assert.ok(await page.locator('.dean-quest-control').isVisible(),'Teacher can teach and reveal evidence');
+  const newCup=page.locator('.dean-new-cup-trigger');
+  assert.ok(await newCup.isVisible(),'Teacher can always create a new tournament');
+  const header=await page.locator('.dean-teacher-page .dean-banner').boundingBox();
+  for(const action of [newCup,page.locator('.dean-reset-trigger')]){
+   const a=await action.boundingBox();
+   assert.ok(a&&header&&a.y>=header.y-1&&a.y+a.height<=header.y+header.height+1,
+    'Tournament buttons must fit WITHIN the header, not overlap the bottom of the screen');
+  }
+  await newCup.click();
+  const newDialog=page.getByRole('dialog',{name:/Comenzar una Copa nueva/});
+  assert.ok(await newDialog.isVisible(),'New Copa explains that old data are retained');
+  await newDialog.getByRole('button',{name:'Cancelar'}).click();
+  assert.equal(await page.getByRole('dialog').count(),0,'Cancelling a new game does not create or reset anything');
   const reset=page.locator('.dean-reset-trigger');
   assert.ok(await reset.isVisible(),'Facilitator has a persistent reset control');
   await reset.click();
@@ -151,12 +164,64 @@ async function testView(role,width,height,attendees=18){
  console.log('PASS',role,width+'x'+height,JSON.stringify(metrics));
  await page.close();
 }
+async function testNewCupFromHistoric(width,height){
+ const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ let creations=0,resets=0;
+ await page.addInitScript(({code})=>{
+  sessionStorage.setItem('df_facilitator_game_code',code);
+  sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
+ },{code});
+ await page.route('**/v2-dean-cup',async route=>{
+  const b=route.request().postDataJSON();
+  let body={};
+  if(b.action==='new_cup'){
+   creations++;
+   assert.equal(b.game_code,code,'Fork must be from current historical cup');
+   body={created:true,game_code:'COPA-NEWTEST1234',
+    facilitator_token:'c'.repeat(64),source_game_preserved:true};
+  }else if(b.action==='reset_confirmed'){
+   resets++;body={error:'No se debe reiniciar la Copa histórica'};
+  }else if(b.action==='state'){
+   body={...fixture,game_code:b.game_code,phase:b.game_code===code?'finished':'lobby',
+    available:true,dgp_version:b.game_code===code?'legacy_v1':'zip_dgp_2026',mine:null};
+  }else if(b.action==='quiz_state'){
+   body={phase:'podium',question_no:8,leaderboard:[],participants:0,auto_mode:false,
+    server_now:new Date().toISOString()};
+  }else if(b.action==='learning_state'){
+   body={available:false};
+  }
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
+ });
+ await page.goto(base+'/dean-teacher.html?game='+code,{waitUntil:'networkidle',timeout:45000});
+ const button=page.locator('.dean-new-cup-trigger');await button.waitFor({state:'visible',timeout:10000});
+ assert.equal(await page.locator('.dean-reset-trigger').count(),0,'Historic finished FUTUROS has no destructive reset');
+ let top=await button.boundingBox();
+ const bar=await page.locator('.dean-banner').boundingBox();
+ assert.ok(top&&bar&&top.y>=bar.y&&top.y+top.height<=bar.y+bar.height,'New Copa visible in historic finished header');
+ await button.click();
+ await page.getByRole('dialog',{name:/Comenzar una Copa nueva/}).getByRole('button',{name:/Sí, crear Copa nueva/}).click();
+ await page.waitForURL('**/dean-teacher.html?game=COPA-NEWTEST1234',{timeout:6000});
+ await page.locator('.dean-active-cup-code').filter({hasText:'COPA-NEWTEST1234'}).waitFor({timeout:10000});
+ await page.locator('.dean-reset-trigger').waitFor({state:'visible',timeout:10000});
+ assert.equal(creations,1,'One new tournament is created');
+ assert.equal(resets,0,'No past session was deleted');
+ assert.equal(await page.evaluate(()=>sessionStorage.getItem('df_facilitator_game_code')),'COPA-NEWTEST1234','New teacher session is active');
+ const metrics=await page.evaluate(()=>({scrollHeight:document.documentElement.scrollHeight,
+   scrollWidth:document.documentElement.scrollWidth,innerHeight,innerWidth}));
+ assert.ok(metrics.scrollHeight<=height+3 && metrics.scrollWidth<=width+3,'Created game header overflows viewport');
+ assert.deepEqual(errors,[],'No browser errors while creating new tournament: '+errors.join('; '));
+ await page.screenshot({path:`visual-qa/new-cup-${width}x${height}.png`,fullPage:false});
+ console.log('PASS_NEW_CUP_FROM_HISTORIC',width+'x'+height);
+ await page.close();
+}
+
 // Quiz uses only fixtures; this validates the three-state UI and complete 1–30 ranking.
 async function testFinal(role,width,height,attendees){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const roomGroups=groupFixture(attendees);
- const sample={...fixture,groups:roomGroups,phase:'final'};
+ const sample={...fixture,game_code:code,groups:roomGroups,phase:'final'};
  let quizPhase='open',picked=null;
  const roster=Array.from({length:attendees},(_,i)=>({
   alias:'Jugador '+String(i+1).padStart(2,'0'),room_no:i%5+1,
@@ -246,6 +311,9 @@ async function testFinal(role,width,height,attendees){
 }
 
 try{
+ for(const [w,h] of [[1366,768],[390,844]]){
+  try{await testNewCupFromHistoric(w,h)}catch(e){failures++;console.error('FAIL_NEW_CUP',w+'x'+h,e.stack||e)}
+ }
  for(const attendees of [14,18,30]){
   for(const [w,h] of [[1366,768],[1920,1080],[390,844]]){
    for(const role of ['player','wall','teacher']){

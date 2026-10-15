@@ -40,7 +40,7 @@ function useBoard(token='',enabled=true,gameCode=code){
  },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
-function Banner({kind,phase}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div><div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b><small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
+function Banner({kind,phase,controls=null}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b><small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
 function Board({groups=[]}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
@@ -344,6 +344,38 @@ function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({g
  {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}
  </aside></div>
  </main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error" role="alert">{error}</p>}</div>}
+function DeanNewCupControl({game,disabled=false,onCreate}){
+ const [opened,setOpened]=useState(false);
+ const [creating,setCreating]=useState(false);
+ const [error,setError]=useState('');
+ const close=()=>{if(!creating){setOpened(false);setError('')}};
+ async function confirm(){
+  if(creating)return;
+  setCreating(true);setError('');
+  try{await onCreate();setOpened(false)}
+  catch(e){setError(e.message||'No se pudo crear la Copa nueva')}
+  finally{setCreating(false)}
+ }
+ return <>
+  <button type="button" className="dean-new-cup-trigger" disabled={disabled||creating}
+   onClick={()=>{setError('');setOpened(true)}}>＋ Nueva Copa</button>
+  {opened&&<div className="dean-reset-backdrop" role="presentation">
+   <div className="dean-reset-dialog dean-new-cup-dialog" role="dialog" aria-modal="true" aria-labelledby="dean-new-cup-title">
+    <h2 id="dean-new-cup-title">🏆 Comenzar una Copa nueva</h2>
+    <p>Se creará otra partida con un <strong>código único</strong>, cinco salas y cupos para 1–30 participantes. Empezará en el prólogo pedagógico.</p>
+    <p>La Copa <strong>{game}</strong> y todos sus resultados permanecerán intactos. Se conservará el PIN docente; el nuevo código aparecerá arriba para compartirlo con los jugadores.</p>
+    {error&&<p role="alert" className="dean-reset-error">{error}</p>}
+    <div className="dean-reset-actions">
+     <button type="button" disabled={creating} onClick={close}>Cancelar</button>
+     <button type="button" className="dean-new-cup-confirm" disabled={creating} onClick={confirm}>
+      {creating?'Creando partida…':'Sí, crear Copa nueva'}
+     </button>
+    </div>
+   </div>
+  </div>}
+ </>;
+}
+
 function DeanResetControl({game,disabled=false,onReset}){
  const [opened,setOpened]=useState(false);
  const [typed,setTyped]=useState('');
@@ -388,9 +420,32 @@ function Teacher(){
  const [teacher,setTeacher]=useState(()=>sessionStorage.getItem('df_facilitator_game_code')===requestedGame?(sessionStorage.getItem('df_facilitator_token')||''):''),[game,setGame]=useState(requestedGame),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const {value:board}=useBoard('',!!teacher,game);
  const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026',teacherToken:teacher});
- useEffect(()=>{if(teacher)setState(board)},[teacher,board]);
+ useEffect(()=>{if(teacher&&board?.game_code===game)setState(board)},[teacher,board,game]);
  async function login(){setBusy(true);setErr('');try{const base=endpoint.replace(/\/v2-dean-cup$/,'');const r=await fetch(base+'/facilitator-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({game_code:game.toUpperCase(),pin})}),o=await r.json();if(!r.ok)throw Error(o.error||'PIN inválido');sessionStorage.setItem('df_facilitator_token',o.token);sessionStorage.setItem('df_facilitator_game_code',game.toUpperCase());setTeacher(o.token)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ async function createFreshCup(){
+  setBusy(true);setErr('');
+  try{
+   const created=await call('new_cup',{game_code:game},'',teacher);
+   if(!created?.created||!created?.game_code||!created?.facilitator_token)
+    throw Error('El servidor no confirmó el código y la sesión de la Copa nueva');
+   const next=created.game_code;
+   sessionStorage.setItem('df_facilitator_game_code',next);
+   sessionStorage.setItem('df_facilitator_token',created.facilitator_token);
+   const url=new URL(location.href);url.searchParams.set('game',next);
+   history.replaceState(null,'',url.pathname+url.search+url.hash);
+   setAbSummary(null);setState(null);setGame(next);setTeacher(created.facilitator_token);
+   setState(await call('state',{game_code:next},'',created.facilitator_token));
+   return created;
+  }catch(e){
+   if(/sesión.*expir|credencial docente inválida/i.test(String(e.message||''))){
+    sessionStorage.removeItem('df_facilitator_token');
+    setTeacher('');setState(null);
+    setErr('La sesión docente venció. Vuelve a entrar con el PIN para crear otra Copa.');
+   }
+   throw e;
+  }finally{setBusy(false)}
+ }
  async function resetCup(){
   setBusy(true);setErr('');
   try{
@@ -404,7 +459,14 @@ function Teacher(){
  async function downloadABTruth(){setBusy(true);setErr('');try{const blob=await call('ab_truth',{},'',teacher),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_doctor_strange.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
- return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{teacher&&state?.available&&<DeanResetControl game={game} disabled={busy||state.dgp_version!=='zip_dgp_2026'} onReset={resetCup}/>} {!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
+ return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} controls={teacher&&<div className="dean-teacher-banner-actions">
+ <span className="dean-active-cup-code" title="Código para compartir con participantes">🎮 {game}</span>
+ <div className="dean-teacher-buttons">
+  <DeanNewCupControl game={game} disabled={busy} onCreate={createFreshCup}/>
+  {state?.available&&state.dgp_version==='zip_dgp_2026'&&
+   <DeanResetControl game={game} disabled={busy} onReset={resetCup}/>}
+ </div>
+ </div>}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
  state?.available&&['final','finished'].includes(state.phase)
  ?<main className="dean-quiz-stage dean-quiz-teacher-stage"><CupQuiz role="teacher" canonical
   teacher={teacher} gameCode={game} onCloseTournament={()=>direct('next')}
