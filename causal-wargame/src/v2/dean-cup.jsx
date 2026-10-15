@@ -437,6 +437,13 @@ function Teacher(){
    setAbSummary(null);setState(null);setGame(next);setTeacher(created.facilitator_token);
    setState(await call('state',{game_code:next},'',created.facilitator_token));
    return created;
+  }catch(e){
+   if(/sesión.*expir|credencial docente inválida/i.test(String(e.message||''))){
+    sessionStorage.removeItem('df_facilitator_token');
+    setTeacher('');setState(null);
+    setErr('La sesión docente venció. Vuelve a entrar con el PIN para crear otra Copa.');
+   }
+   throw e;
   }finally{setBusy(false)}
  }
  async function resetCup(){
