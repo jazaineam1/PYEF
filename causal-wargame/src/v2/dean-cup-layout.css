@@ -1,0 +1,248 @@
+/* DOS FUTUROS / Copa del Decano V2: single-viewport arcade surfaces.
+   This file is imported only by dean-cup.jsx. Do not apply it to V1 or classic V2.
+   On small screens or with large text, content may scroll inside the stage/aside;
+   controls and the global game shell remain accessible. */
+.dean-page{
+  height:100dvh;min-height:0;overflow:hidden;
+  display:grid;grid-template-rows:66px minmax(0,1fr);gap:10px;
+  padding:10px clamp(10px,1.25vw,22px);
+}
+.dean-banner{
+  min-height:0;height:66px;align-self:stretch;border-radius:12px;
+  padding:8px 16px;box-shadow:0 2px 18px #020a1b77;
+}
+.dean-banner h1{font-size:clamp(19px,2vw,27px);margin:0;line-height:1.12}
+.dean-banner small,.dean-kicker{font-size:clamp(10px,.75vw,12px);letter-spacing:1px}
+.dean-banner-meta{gap:1px;line-height:1.15}
+.dean-banner-meta>span{font-size:12px}
+.dean-page main{width:100%;max-width:none;margin:0;min-height:0;min-width:0}
+.dean-page h2{font-size:clamp(20px,1.65vw,27px);line-height:1.18;margin:0}
+.dean-page p{line-height:1.35}
+.dean-page .dean-big{min-height:43px;padding:9px 14px;font-size:clamp(12px,1vw,16px);border-radius:10px}
+.dean-page .dean-notebook-link{font-size:13px;padding:8px 12px;border-radius:9px;text-decoration:none}
+.dean-page .dean-join,.dean-page main.dean-hero{max-width:920px;margin:auto;overflow:auto;padding:clamp(14px,2vw,28px)}
+/* No invisible global vertical scroll; independent panels retain keyboard scrolling. */
+.dean-player,.dean-teacher,.dean-wall-main{height:100%;overflow:hidden;min-height:0;min-width:0}
+.dean-player{display:grid;grid-template-rows:70px minmax(0,1fr) 38px;gap:8px}
+.dean-player-topbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,270px);gap:12px;min-height:0}
+.dean-player .dean-carnet{
+ padding:8px 15px;gap:12px;border-radius:13px;min-height:0;overflow:hidden;
+ background:linear-gradient(115deg,#174356,#153448);
+}
+.dean-player .dean-carnet>span{font-size:36px;line-height:1}
+.dean-player .dean-carnet h2{font-size:clamp(18px,1.4vw,24px);margin:3px 0 0;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.dean-player .dean-carnet small{font-size:11px;letter-spacing:.6px;white-space:nowrap}
+.dean-carnet-pga{font-size:12px;font-weight:700;color:#bdebdc;margin-left:12px;vertical-align:middle}
+.dean-hud{position:relative;z-index:15;min-width:0}
+.dean-hud>summary{
+ list-style:none;cursor:pointer;height:70px;border:1px solid #e7d99e;border-radius:13px;
+ background:linear-gradient(115deg,#253c55,#16394a 72%,#17493f);
+ padding:7px 13px;display:flex;flex-direction:column;justify-content:space-between;
+ box-shadow:inset 0 0 0 1px #091a2b,0 0 14px #27ac9e33;
+}
+.dean-hud>summary::-webkit-details-marker{display:none}
+.dean-hud-label{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#e4d298}
+.dean-hud-row{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.dean-hud-row>strong{font-size:17px;color:#fff}
+.dean-hud-row>b{font-size:24px;font-variant-numeric:tabular-nums;color:#bbffe1;line-height:1}
+.dean-hud-row>b small{font-size:10px;color:#bcdbd1}
+.dean-hud-foot{font-size:9px;color:#d3e9e4;display:flex;justify-content:space-between;gap:8px}
+.dean-hud-foot>span{color:#f4da8b;font-weight:900}
+.dean-hud[open]>summary{border-color:#b3ffe1}
+.dean-hud-popover{position:absolute;right:0;top:calc(100% + 6px);width:min(335px,90vw);
+ padding:12px;border:1px solid #b2f3dd;border-radius:12px;
+ background:#0c2336;box-shadow:0 16px 30px #000c;display:grid;gap:7px}
+.dean-hud-popover>b{font-size:13px;margin-bottom:3px}
+.dean-hud-popover>div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #446678;padding:5px 2px;font-size:13px}
+.dean-hud-popover>div.mine{color:#9bffda;font-weight:800}
+.dean-hud-popover>div.empty{color:#8baab2}
+.dean-hud-popover>small{font-size:11px;color:#a6d6d3}
+.dean-player-stage{
+ position:relative;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;
+ scrollbar-width:thin;scrollbar-color:#628ea3 transparent;
+ padding:12px clamp(12px,2vw,22px);
+ background:radial-gradient(circle at 90% 5%,#24547066,transparent 35%),linear-gradient(135deg,#10213b,#0f2b36 80%);
+ border:1px solid #527b91;border-radius:15px;display:flex;flex-direction:column;gap:11px;
+}
+.dean-player-stage>.dean-atlas,.dean-player-stage>.dean-guidance,.dean-player-stage>.dean-lab{margin:0}
+.dean-player-stage.dean-is-exam{overflow:auto}
+.dean-player-stage.dean-is-exam .dean-exam{flex:1}
+.dean-player-hint{flex:none;border:1px solid #527b91;border-radius:9px;background:#173e50}
+.dean-player-hint>summary{font-weight:800;font-size:12px;color:#c5eee8;cursor:pointer;padding:7px 12px}
+.dean-player-hint .dean-guidance{margin:0;padding:10px;background:#16384a;border:0}
+.dean-player-hint .dean-guidance h2{font-size:17px}
+.dean-player-hint .dean-guidance p{font-size:14px}
+.dean-player .dean-exam{
+ max-width:none;width:100%;min-width:0;min-height:0;margin:0;
+ display:grid;grid-template-columns:minmax(220px,.83fr) minmax(310px,1.17fr);
+ gap:clamp(10px,1.5vw,22px);padding:clamp(11px,1.35vw,20px);
+ border-color:#80baa9;border-radius:13px;
+ background:linear-gradient(125deg,#153f56,#101e37);
+}
+.dean-exam-brief{display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,1.25vh,13px);min-width:0}
+.dean-exam-brief>h2{font-size:clamp(20px,2.5vw,34px);line-height:1.2;max-width:23ch}
+.dean-exam-brief .dean-exam-clock{padding:8px 12px;gap:3px;border-radius:9px}
+.dean-exam-brief .dean-exam-clock strong{font-size:clamp(14px,1.3vw,20px)}
+.dean-exam-brief .dean-exam-clock small{font-size:11px}
+.dean-exam-brief>.dean-meter{height:7px}
+.dean-exam-brief .dean-state{padding:9px;font-size:13px}
+.dean-exam-controls{min-height:0;min-width:0;display:grid;grid-template-rows:auto repeat(3,minmax(0,1fr)) auto;gap:8px;align-content:stretch}
+.dean-exam-controls>h3{margin:0;font-size:clamp(15px,1.3vw,20px)}
+.dean-exam-controls .dean-slider{padding:6px 10px;gap:3px;min-height:65px}
+.dean-exam-controls .dean-slider>span{font-size:13px}
+.dean-exam-controls .dean-slider strong{font-size:17px}
+.dean-exam-controls .dean-slider input{height:27px;min-height:27px}
+.dean-exam-controls .dean-slider small{font-size:11px}
+.dean-exam-controls .dean-exam-action{width:100%;background:linear-gradient(100deg,#61d8bf,#a8f1d2);box-shadow:0 4px 0 #256959,0 0 23px #6bd6ba22}
+.dean-exam-controls .dean-exam-action:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+.dean-exam-controls .dean-grade,.dean-exam-controls .dean-error{margin:0;font-size:13px}
+.dean-player .dean-quick-complete{align-self:flex-end;border:0;background:transparent;color:#b4dad9;text-decoration:underline;cursor:pointer;font-size:12px;padding:2px 5px}
+.dean-player-dock{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;background:#101f35;border:1px solid #315c70;border-radius:10px;padding:4px 10px}
+.dean-player-dock>span{font-size:10px;font-weight:800;letter-spacing:.9px;color:#90c6c8}
+.dean-player-dock .dean-notebook-link{font-size:12px;padding:5px 9px}
+.dean-score-flash{position:fixed;right:clamp(18px,2vw,35px);bottom:68px;z-index:20;display:grid;gap:2px;
+ padding:12px 20px;border:2px solid #bcffe5;border-radius:12px;
+ background:#103d39f5;color:#f6ebbd;font-size:12px;font-weight:900;letter-spacing:1.2px;
+ box-shadow:0 0 25px #4de0b4aa;animation:dean-points-in .4s ease-out both;pointer-events:none}
+.dean-score-flash strong{font-size:26px;color:#c9ffe6}
+@keyframes dean-points-in{from{opacity:0;transform:translateY(14px) scale(.93)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* Cinematic mission layer uses the existing V2 artwork; never overlays controls. */
+.dean-exam-brief{
+ padding:clamp(11px,1.3vw,18px);border:1px solid #6a9aaa;border-radius:12px;
+ background:linear-gradient(90deg,#102943f2,#102f43ba),url('./art/hero.webp') center/cover no-repeat;
+ box-shadow:inset 4px 0 0 #72d9bc;position:relative;
+}
+.dean-exam-brief .dean-kicker{color:#e7e6a0}
+.dean-player .dean-exam{box-shadow:0 6px 30px #020e1d77,inset 0 0 30px #4ac0bb0c}
+.dean-hud .dean-hud-row>b{text-shadow:0 0 14px #64ffd166}
+.dean-wall .dean-board>article:first-of-type .dean-rating strong{
+ color:#d7ffe9;text-shadow:0 0 16px #7afcc166;
+}
+.dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{
+ transition:width .5s cubic-bezier(.23,1,.32,1)
+}
+/* Compact leaderboard reusable on projection and instructor board. */
+.dean-wall .dean-board,.dean-teacher-page .dean-board{min-width:0;min-height:0;overflow:hidden;
+ display:grid;grid-template-rows:auto repeat(5,minmax(0,1fr));gap:0;
+ padding:13px clamp(13px,1.6vw,24px);border-radius:14px}
+.dean-wall .dean-board>h2,.dean-teacher-page .dean-board>h2{font-size:clamp(21px,1.9vw,30px);padding-bottom:7px}
+.dean-wall .dean-board>p,.dean-teacher-page .dean-board>p{display:none}
+.dean-wall .dean-board>article,.dean-teacher-page .dean-board>article{
+ min-height:0;max-height:none;align-self:stretch;display:grid;
+ grid-template-columns:35px minmax(0,1fr) 92px;gap:10px;
+ border-top:1px solid #4a6577;padding:7px 2px;align-items:center;
+}
+.dean-wall .dean-board-main,.dean-teacher-page .dean-board-main{gap:3px;min-width:0}
+.dean-wall .dean-board-main b,.dean-teacher-page .dean-board-main b{font-size:clamp(13px,1.4vw,19px)}
+.dean-wall .dean-board-main span,.dean-teacher-page .dean-board-main span{font-size:clamp(10px,.85vw,13px)}
+.dean-wall .dean-board-main small,.dean-teacher-page .dean-board-main small{font-size:10px}
+.dean-wall .dean-board-main .dean-meter,.dean-teacher-page .dean-board-main .dean-meter{height:7px}
+.dean-wall .dean-rating strong,.dean-teacher-page .dean-rating strong{font-size:clamp(24px,2.6vw,39px)}
+.dean-wall .dean-medal,.dean-teacher-page .dean-medal{font-size:24px}
+.dean-wall .dean-rating small,.dean-teacher-page .dean-rating small{font-size:9px}
+.dean-wall .dean-board>article:first-of-type{background:linear-gradient(90deg,#45b9a60d,transparent)}
+/* Projection wall: complete five-room scoreboard, optional facilitator story in own panel. */
+.dean-wall-main{display:grid;grid-template-rows:40px minmax(0,1fr);gap:8px}
+.dean-wall-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.dean-wall-head h2{font-size:clamp(22px,2vw,32px)}
+.dean-wall-head>span{color:#c0e3d8;font-size:11px;letter-spacing:1px;font-weight:900}
+.dean-wall-grid{min-width:0;min-height:0;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(290px,.68fr);gap:10px}
+.dean-wall-story{min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border:1px solid #426e82;border-radius:13px;background:#132e3b;padding:12px}
+.dean-wall-story .dean-guidance,.dean-wall-story .dean-atlas{padding:12px;border:0;background:transparent;gap:9px}
+.dean-wall-story .dean-guidance h2,.dean-wall-story .dean-atlas h2{font-size:clamp(18px,1.4vw,24px)}
+.dean-wall-story .dean-guidance p,.dean-wall-story .dean-atlas p{font-size:14px;line-height:1.35}
+.dean-wall-story .dean-guidance-project{padding:10px}
+.dean-wall-story .dean-quiz{padding:10px}
+.dean-wall-story .dean-quiz-question{font-size:20px}
+/* Instructor: fixed primary phase action; full leaderboard; secondary controls scroll in a narrow rail. */
+.dean-teacher{display:grid;grid-template-rows:52px minmax(0,1fr);gap:8px}
+.dean-teacher-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;
+ padding:2px 8px;border-bottom:1px solid #51778b}
+.dean-teacher-toolbar small{font-size:10px;font-weight:900;letter-spacing:1px;color:#afeadd}
+.dean-teacher-toolbar h2{font-size:22px}
+.dean-teacher-toolbar .dean-teacher-next{max-width:380px;min-height:42px;font-size:13px}
+.dean-teacher-grid{min-height:0;min-width:0;display:grid;grid-template-columns:minmax(0,1.62fr) minmax(310px,.9fr);gap:10px}
+.dean-teacher-sidebar{min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;
+ padding:10px;display:flex;flex-direction:column;gap:10px;
+ background:linear-gradient(145deg,#132e44,#11333f);border:1px solid #527c8b;border-radius:13px}
+.dean-teacher-sidebar .dean-guidance,.dean-teacher-sidebar .dean-atlas{padding:10px;gap:7px}
+.dean-teacher-sidebar .dean-guidance h2,.dean-teacher-sidebar .dean-atlas h2{font-size:21px}
+.dean-teacher-sidebar .dean-guidance p,.dean-teacher-sidebar .dean-atlas p{font-size:13px}
+.dean-teacher-sidebar .dean-guidance-project{padding:9px}
+.dean-teacher-sidebar .dean-quiz{padding:10px}
+.dean-teacher-sidebar .dean-lab{margin:0;padding:10px;gap:8px}
+.dean-teacher-sidebar .dean-lab h3{margin:0}
+.dean-teacher-sidebar .dean-lab p{font-size:13px}
+.dean-teacher-sidebar .dean-lab button{font-size:12px;padding:8px}
+.dean-teacher-sidebar .dean-actions{margin-top:auto;gap:8px}
+.dean-teacher-sidebar .dean-actions a{display:inline-block;padding:7px 10px;font-size:12px;background:#18445a;border-radius:9px}
+@media(max-height:760px){
+ .dean-page{grid-template-rows:56px minmax(0,1fr);gap:7px;padding-top:7px;padding-bottom:7px}
+ .dean-banner{height:56px;padding:5px 13px}
+ .dean-player{grid-template-rows:60px minmax(0,1fr) 34px;gap:6px}
+ .dean-hud>summary{height:60px;padding:5px 10px}
+ .dean-player-topbar{grid-template-columns:minmax(0,1fr) 255px}
+ .dean-player .dean-carnet>span{font-size:29px}
+ .dean-player-stage{padding:8px 12px;gap:7px}
+ .dean-player .dean-exam{padding:9px 13px}
+ .dean-exam-controls{gap:5px}
+ .dean-exam-controls .dean-slider{min-height:55px}
+ .dean-wall-main{grid-template-rows:32px minmax(0,1fr);gap:6px}
+ .dean-wall .dean-board>article,.dean-teacher-page .dean-board>article{padding:4px 2px}
+ .dean-teacher{grid-template-rows:48px minmax(0,1fr);gap:6px}
+}
+@media(max-width:1050px){
+ .dean-wall-grid,.dean-teacher-grid{grid-template-columns:minmax(0,1fr) minmax(230px,.57fr)}
+ .dean-player-topbar{grid-template-columns:minmax(0,1fr) 242px}
+ .dean-wall-head>span{display:none}
+}
+@media(max-width:790px){
+ .dean-page{padding:7px;grid-template-rows:52px minmax(0,1fr)}
+ .dean-banner{height:52px;padding:6px 10px}
+ .dean-banner h1{font-size:18px}
+ .dean-banner-meta small{display:none}
+ .dean-player{grid-template-rows:63px minmax(0,1fr) 34px;gap:6px}
+ .dean-player-topbar{grid-template-columns:minmax(0,1fr) minmax(162px,215px);gap:6px}
+ .dean-player .dean-carnet{gap:7px;padding:5px 7px}
+ .dean-player .dean-carnet>span{font-size:28px}
+ .dean-player .dean-carnet h2{font-size:16px}
+ .dean-player .dean-carnet small{font-size:9px;max-width:35ch;text-overflow:ellipsis;overflow:hidden;display:block}
+ .dean-carnet-pga{font-size:10px;display:block;margin-left:0}
+ .dean-hud>summary{height:63px;padding:5px 7px}
+ .dean-hud-row>strong{font-size:13px}
+ .dean-hud-row>b{font-size:20px}
+ .dean-hud-label,.dean-hud-foot{font-size:8px}
+ .dean-exam{grid-template-columns:1fr!important}
+ .dean-exam-brief{justify-content:flex-start}
+ .dean-exam-brief>h2{font-size:20px}
+ .dean-player-stage{padding:8px;overflow:auto}
+ .dean-exam-controls{grid-template-rows:auto repeat(3,auto) auto}
+ .dean-wall-grid,.dean-teacher-grid{grid-template-columns:minmax(0,1fr);gap:6px}
+ .dean-wall-grid{grid-template-rows:minmax(0,1fr) auto}
+ .dean-wall-story{max-height:94px}
+ .dean-wall-story .dean-guidance,.dean-wall-story .dean-atlas{padding:4px}
+ .dean-wall-story .dean-guidance-project,.dean-wall-story .dean-atlas-dag{display:none}
+ .dean-teacher-grid{grid-template-rows:minmax(0,1fr) minmax(95px,.38fr)}
+ .dean-wall .dean-board,.dean-teacher-page .dean-board{padding:8px}
+ .dean-wall .dean-board>article,.dean-teacher-page .dean-board>article{grid-template-columns:26px minmax(0,1fr) 66px;gap:5px}
+ .dean-wall .dean-medal,.dean-teacher-page .dean-medal{font-size:19px}
+ .dean-wall .dean-board-main b,.dean-teacher-page .dean-board-main b{font-size:13px}
+ .dean-wall .dean-rating strong,.dean-teacher-page .dean-rating strong{font-size:23px}
+ .dean-wall .dean-board-main small,.dean-teacher-page .dean-board-main small{display:none}
+ .dean-teacher-toolbar h2{font-size:17px}
+ .dean-teacher-toolbar .dean-teacher-next{font-size:11px;max-width:48%;min-height:36px}
+ .dean-page .dean-notebook-link{font-size:11px}
+}
+@media(max-width:410px){
+ .dean-banner small{display:none}
+ .dean-player-topbar{grid-template-columns:minmax(0,1fr) 145px}
+ .dean-hud-foot>span{display:none}
+ .dean-hud-row>strong{font-size:11px}
+ .dean-player-dock>span{display:none}
+ .dean-player-dock .dean-notebook-link{margin-left:auto}
+}
+@media(prefers-reduced-motion:reduce){
+ .dean-score-flash{animation:none}
+ .dean-exam-controls .dean-exam-action:hover:not(:disabled){transform:none}
+ .dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{transition:none}
+}
