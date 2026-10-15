@@ -41,7 +41,7 @@ function useBoard(token='',enabled=true,gameCode=code){
  },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
-function Banner({kind,phase,controls=null}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b><small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
+function Banner({kind,phase,controls=null}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
 function Board({groups=[]}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
