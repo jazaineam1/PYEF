@@ -256,16 +256,26 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
  const noEvidence=step==='challenge'?initials===0:step==='evidence'?revisions===0:false;
  const action=learning.paused?'resume':step==='challenge'?(noEvidence?'demo':'evidence'):
   step==='evidence'?(noEvidence?'demo':'debrief'):null;
- const title={resume:'Reanudar',demo:'Modo demostración · cerrar sin puntos',
-  evidence:'Mostrar pista y abrir revisión',debrief:'Cerrar revisión y revelar solución'}[action];
+ const title={resume:'▶ Reanudar',demo:'👀 Demostración · sin puntos',
+  evidence:'⚡ Dar pista y abrir revisión',debrief:'🏁 Revelar solución'}[action];
  return <section className="dean-quest-control">
   <div className="dean-quest-chapter">🎓 GUION DOCENTE · {scene.time} MIN · {scene.act}</div>
   <h3>{scene.title}</h3>
-  <DeanLearningMap phase={phase}/>
-  <p><b>Di:</b> {scene.teacher}</p>
-  <p><b>Proyecta:</b> {scene.example}</p>
-  <p><b>Comprueba:</b> {scene.expected}</p>
-  <DeanConcepts phase={phase}/>
+  <div className="dean-teacher-brief">
+   {phase==='lobby'?'🎯 Pregunta quién gana más con el cupo. No des todavía la respuesta.':
+    phase==='exams'?'🎮 Deja jugar. El ranking NO demuestra qué intervención funciona.':
+    phase==='rector'?'📊 Muestra la asociación: R² NO demuestra efectos de bienestar.':
+    phase==='survey'?'🕸️ Busca arquetipo, PGA y mediadores en el DAG.':
+    '⚡ Compara A/B e IC; después decide seis cupos con CATE.'}
+  </div>
+  <details className="dean-teacher-script">
+   <summary>📚 Guion completo y conceptos (opcional)</summary>
+   <p><b>Di:</b> {scene.teacher}</p>
+   <p><b>Proyecta:</b> {scene.example}</p>
+   <p><b>Comprueba:</b> {scene.expected}</p>
+   <DeanLearningMap phase={phase}/>
+   <DeanConcepts phase={phase}/>
+  </details>
   <div className="dean-quest-counts">
    <span>Intuiciones: <b>{learning.counts?.initial||0}/{learning.registered||0}</b></span>
    <span>Revisiones: <b>{learning.counts?.revision||0}/{learning.registered||0}</b></span>
