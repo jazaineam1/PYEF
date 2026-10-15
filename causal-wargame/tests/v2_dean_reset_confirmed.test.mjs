@@ -26,12 +26,16 @@ test('Reset keeps facilitator and V1 and invalidates old student sessions throug
  assert.ok(sql.includes('cw_dean_reset_audit'));
  assert.ok(sql.includes("'old_student_sessions_invalidated',true"));
 });
-test('Educator must explicitly type game code AND acknowledge loss before reset',()=>{
+test('Teacher confirms irreversibility once, PIN recovery if session expired, server still checks the exact code',()=>{
  assert.ok(jsx.includes('function DeanResetControl('));
  assert.ok(jsx.includes('role="dialog" aria-modal="true"'));
- assert.ok(jsx.includes('typed!==game||!ack'));
+ assert.ok(jsx.includes('running||!ack||reauthRequired'));
+ assert.ok(!jsx.includes('id="dean-reset-code"'));
+ assert.ok(jsx.includes('onReauthenticate={authenticateWithPin}'));
+ assert.ok(jsx.includes('dean-reauth-pin'));
+ assert.ok(jsx.includes('onReauthenticate(reauthPin)'));
  assert.ok(jsx.includes('Reiniciar partida'));
- assert.ok(jsx.includes('Esta acción no se puede deshacer'));
+ assert.ok(jsx.includes('este reinicio es irreversible'));
  assert.ok(jsx.includes('onReset={resetCup}'));
  assert.ok(css.includes('.dean-reset-backdrop'));
 });
