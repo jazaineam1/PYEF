@@ -1,10 +1,9 @@
-import React,{useEffect,useMemo,useState} from 'react';
+import React,{useEffect,useState} from 'react';
 import './dean-quiz-arena.css';
 
 const LETTERS=['a','b','c','d'];
 const ROOM_NAMES=['Alpha','Beta','Gamma','Delta','Épsilon'];
 const WIN_MEDALS=['🥇','🥈','🥉'];
-const SECONDS=30;
 
 function Podium({players=[],role='student',mine=null,participants=0,myPosition=null,myPoints=0}){
  const hasWinner=players.some(p=>Number(p.points)>0);
@@ -72,17 +71,18 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
  const [data,setData]=useState(null);
  const [error,setError]=useState('');
  const [busy,setBusy]=useState(false);
- const [selected,setSelected]=useState('');
+ const [selected,setSelected]=useState({question:0,choice:''});
  const [clockNow,setClockNow]=useState(Date.now());
  const [offset,setOffset]=useState(0);
- const [celebration,setCelebration]=useState(false);
  useEffect(()=>{
   let disposed=false,timeout=null;
   async function poll(){
    try{
+    const sentAt=Date.now();
     const value=await call('quiz_state',{game_code:gameCode},token);
+    const receivedAt=Date.now();
     if(!disposed){
-     setData(value);setOffset(Date.parse(value.server_now||new Date().toISOString())-Date.now());
+     setData(value);setOffset(Date.parse(value.server_now||new Date().toISOString())-(sentAt+receivedAt)/2);
      setError('');
     }
    }catch(e){if(!disposed)setError(e.message)}
@@ -91,8 +91,6 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
   poll();return()=>{disposed=true;clearTimeout(timeout)};
  },[call,token,gameCode]);
  useEffect(()=>{let t=setInterval(()=>setClockNow(Date.now()),130);return()=>clearInterval(t)},[]);
- useEffect(()=>{setSelected('');setCelebration(false)},[data?.question_no]);
- useEffect(()=>{if(['podium','finished'].includes(data?.phase))setCelebration(true)},[data?.phase]);
  const phase=data?.phase||'idle';
  const automatic=Boolean(data?.auto_mode);
  const isOpen=phase==='open';
@@ -101,7 +99,7 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
  const q=data?.question;
  const remaining=Math.max(0,Math.ceil((Date.parse(data?.deadline_at||'')-clockNow-offset)/1000))||0;
  const revealRemaining=Math.max(0,Math.ceil((Date.parse(data?.reveal_until||'')-clockNow-offset)/1000))||0;
- const mine=data?.mine||selected;
+ const mine=data?.mine||(selected.question===data?.question_no?selected.choice:'');
  const locked=Boolean(mine)||busy||remaining===0;
  const canVote=role==='student'&&isOpen&&!locked;
  const ranked=Array.isArray(data?.leaderboard)?data.leaderboard:[];
@@ -121,11 +119,11 @@ export default function DeanQuizArena({role='student',token='',teacher='',gameCo
  }
  async function vote(ch){
   if(!canVote)return;
-  setSelected(ch);setBusy(true);setError('');
+  setSelected({question:data.question_no,choice:ch});setBusy(true);setError('');
   try{
    await call('quiz_submit',{question:data.question_no,choice:ch,game_code:gameCode},token);
    setData(await call('quiz_state',{game_code:gameCode},token));
-  }catch(e){setSelected('');setError(e.message)}finally{setBusy(false)}
+  }catch(e){setSelected({question:data.question_no,choice:''});setError(e.message)}finally{setBusy(false)}
  }
  const colorFor=ch=>reveal?(ch===q?.correct?'is-correct':ch===mine?'is-incorrect':'is-dim'):ch===mine?'is-selected':'';
  const clockLabel=isOpen?remaining+' s':reveal?'RESULTADOS · '+revealRemaining+' s':phase==='preview'?'PREPARA TU RESPUESTA':phase==='locked'?'RESPUESTAS CERRADAS':'EN ESPERA';
