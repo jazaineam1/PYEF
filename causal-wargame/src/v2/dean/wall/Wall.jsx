@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import DeanCausalAtlas from '../../DeanCausalAtlas.jsx';
 import{useBoard}from'../useBoard.js';
 import DeanShell from'../Shell.jsx';
@@ -9,6 +9,9 @@ import'./wall.css';
 
 export default function Wall(){
  const {value,error}=useBoard();
+ useEffect(()=>{
+  document.querySelector('[data-dean-role="wall"] [data-dean-zone="stage"]')?.removeAttribute('data-dean-scroll');
+ });
  const isFinal=value?.phase==='final';
  const panel=value?.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)
   ?<DeanCausalAtlas phase={value.phase}/>:<DeanGuidance phase={value?.phase} role="wall"/>;
