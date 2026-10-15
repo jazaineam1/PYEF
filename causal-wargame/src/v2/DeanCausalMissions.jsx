@@ -227,7 +227,7 @@ export function DeanMissionTeacher({missions,phase}){
   <p>Las decisiones científicas se registran una vez por jugador y se califican en el servidor cuando revelas la solución.</p>
   <div className="dean-teacher-mission-grid">{Object.entries(labels).map(([id,label])=>
    <div key={id}><b>{label}</b><span>{s.completed?.[id]||0}/{s.registered||0}</span></div>)}</div>
-  <small>La práctica es una evidencia adicional, separada de 0–100 (ABC), 0–50 (notas) y 0–120 (Kahoot).</small>
+  <small>La práctica aporta hasta 43 puntos a la maestría de 100; las decisiones ABC aportan 57. Notas académicas y Kahoot siguen separados.</small>
  </section>;
 }
 export function DeanMissionWall({missions}){
@@ -237,7 +237,7 @@ export function DeanMissionWall({missions}){
   <strong>🔬 PRÁCTICA CAUSAL · HASTA 43 PUNTOS</strong>
   <div className="dean-wall-mission-rooms">{(s.rooms||[]).map(r=>
    <span key={r.room_no}>Sala {r.room_no}: {r.verified_people||0}/{r.participants||0} con evidencia · {r.participants?Math.round(r.skill_points/r.participants):'—'} / 43 pts</span>)}</div>
-  <small>La puntuación de práctica solo se conoce tras el cierre docente de cada acto. Salas vacías no compiten.</small>
+  <small>Las prácticas aportan hasta 43 de los 100 puntos de maestría causal. Solo puntúan tras el debrief docente; las salas vacías no compiten.</small>
  </section>;
 }
 
