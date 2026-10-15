@@ -1,3 +1,4 @@
+import {readDeanSources} from './helpers/dean-sources.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
@@ -6,7 +7,7 @@ test('V2 Dean Cup builds as three static GitHub Pages entries',()=>{
  const config=r('vite.config.js')
  for(const name of ['dean-play.html','dean-teacher.html','dean-wall.html'])assert.ok(config.includes(name),name)
  for(const name of ['dean-play.html','dean-teacher.html','dean-wall.html'])assert.ok(r(name).includes('/src/v2/dean-cup.jsx'),name)
- assert.match(r('src/v2/dean-cup.jsx'),/HASTA 30 PARTICIPANTES · 15 EXÁMENES/)
+ assert.match(readDeanSources(),/HASTA 30 PARTICIPANTES · 15 EXÁMENES/)
 })
 test('Five rooms exactly six each, each 15 subjects independent from legacy V1',()=>{
  const sql=r('supabase/migrations/202610140004_v2_deans_cup_30.sql')
@@ -19,7 +20,7 @@ test('Score and physiology are computed server-side with strict archetype slider
  for(const x of ['hidden_fatigue','prev_fatigue','sqrt(p_wellness)','ln(1+p_study)','p_sleep-8','p_study<min_study','p_sleep>max_sleep','p_wellness>max_well'])assert.ok(sql.includes(x),x)
  assert.match(sql,/least\(50,greatest\(0,/)
  assert.match(sql,/least\(12,greatest\(0,/)
- const ui=r('src/v2/dean-cup.jsx')
+ const ui=readDeanSources()
  assert.match(ui,/LIMITS|const limits=/i)
  assert.match(ui,/RIND|RENDIR EXAMEN/i)
  assert.match(ui,/Dormir poco no es una estrategia saludable/i)
@@ -49,7 +50,7 @@ test('Kahoot 30 separate sessions protects answers until server reveal',()=>{
 })
 
 test('Optional fast mode and teacher truth never expose student fatigue',()=>{
- const ui=r('src/v2/dean-cup.jsx')
+ const ui=readDeanSources()
  assert.match(ui,/auto_finish/)
  assert.match(ui,/Simular mis exámenes restantes/)
  assert.match(ui,/teacher_truth/)
@@ -68,7 +69,7 @@ test('attendance from 0 to 30 is optional, ranking uses actual seated players',(
  const sql=readFileSync('supabase/migrations/202610140005_deans_cup_flexible_attendance.sql','utf8')
  for(const term of ['s.members*15','nullif(s.members*15,0)','s.members>0','registered_players','target_exams','fair_score','coverage_pct','participants'])assert.ok(sql.includes(term),term)
  assert.doesNotMatch(sql,/count\(e.exam_no\)=90/)
- const ui=readFileSync('src/v2/dean-cup.jsx','utf8')
+ const ui=readDeanSources()
  assert.match(ui,/0\/6 inscritos · Sala disponible/)
  assert.match(ui,/filter\(g=>Number\(g.members\)>0\)/)
  assert.match(ui,/g\.target_exams/)

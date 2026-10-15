@@ -1,0 +1,6 @@
+/* Single-screen shell: hud / stage / actions / drawer in a 100dvh grid. */
+.dean-shell{height:100dvh;min-height:0;padding:14px var(--dean-gutter) 0;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;overflow:hidden}
+.dean-shell-hud{display:grid;gap:var(--dean-space-3)}
+.dean-shell-stage{min-height:0;overflow:auto;padding-bottom:64px}
+.dean-shell-actions,.dean-shell-drawer{min-width:0}
+.dean-shell-actions:empty,.dean-shell-drawer:empty{display:none}

@@ -1,9 +1,10 @@
+import {readDeanSources} from './helpers/dean-sources.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 const read=p=>readFileSync(p,'utf8')
 test('Visual causal atlas is sourced to six-node DGP and limited to three teaching phases',()=>{
- const ui=read('src/v2/dean-cup.jsx')
+ const ui=readDeanSources()
  assert.equal((ui.match(/<DeanCausalAtlas phase=/g)||[]).length,3)
  assert.match(ui,/dgp_version==='zip_dgp_2026'/)
  assert.match(ui,/<DeanGuidance phase=\{state.phase\}\/?>/)

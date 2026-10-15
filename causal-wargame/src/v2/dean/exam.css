@@ -1,0 +1,6 @@
+.dean-exam{display:grid;gap:17px;max-width:830px;width:100%;margin:auto}.dean-exam h2{margin:0}.dean-exam h3{font-size:21px;margin:10px 0 0}.dean-slider{display:grid;gap:10px;padding:12px;background:#132a43;border-radius:12px}.dean-slider>span{display:flex;justify-content:space-between;gap:10px}.dean-slider strong{font-size:21px;color:#a9fbd9}.dean-slider input{width:100%;accent-color:#72eccf;height:32px;cursor:grab}.dean-slider small{font-size:13px;color:#c7d8e5}.dean-state{padding:16px;background:#153b3c;border:1px solid #86d3bd;border-radius:12px}.dean-state.alert{background:#4a3a27;border-color:#f3c586}.dean-grade{font-size:22px!important;color:#c9ffe3!important}
+
+.dean-exam-clock{display:grid;gap:7px;background:#173b4a;border:2px solid #7de1c6;border-radius:14px;padding:13px 17px}
+.dean-exam-clock strong{font-size:clamp(20px,2vw,28px);font-variant-numeric:tabular-nums}
+.dean-exam-clock small{color:#c8e7ef;font-size:13px}
+.dean-exam-clock.ended{background:#61412b;border-color:#ffd18e}

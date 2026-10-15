@@ -1,0 +1,17 @@
+.dean-quiz{background:linear-gradient(145deg,#172c52,#183d59);border:2px solid #72b6d8;border-radius:24px;padding:clamp(16px,2.8vw,36px);display:grid;gap:16px;margin:12px 0}
+.dean-quiz h2{font-size:clamp(24px,3vw,42px)}.dean-quiz-question{font-size:clamp(20px,2.5vw,38px);font-weight:850;line-height:1.22;color:#fff!important}
+.dean-quiz-timer{font-size:clamp(23px,3vw,44px);font-weight:900;color:#a4f4e7!important;text-align:center}
+.dean-quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.dean-quiz-options button{background:#1e436a;color:white;border:2px solid #79a6cb;border-radius:14px;min-height:95px;text-align:left;font-size:clamp(15px,1.5vw,22px);padding:15px}
+.dean-quiz-options button.chosen{background:#246655;border-color:#95efcc}
+.dean-quiz-options button:disabled{cursor:default}
+.dean-quiz-options button b{display:inline-grid;place-items:center;margin-right:8px;border:2px solid #cde5f8;border-radius:9px;width:42px;height:42px}
+.dean-quiz-receipt,.dean-quiz-explanation{padding:16px;background:#144b45;border-radius:13px;border:1px solid #9de0cb}
+.dean-quiz-bars{display:flex;gap:11px;flex-wrap:wrap}
+.dean-quiz-bars span{padding:8px;border:1px solid #7ea7c0;border-radius:8px}
+.dean-quiz-toolbar{display:flex;gap:15px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.dean-quiz-toolbar>.dean-big{flex-basis:100%}
+.dean-quiz-podium{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dean-quiz-podium article{display:grid;text-align:center;gap:8px;background:#1a4662;border:1px solid #7ddec3;padding:15px;border-radius:15px}
+.dean-quiz-podium article b{font-size:48px}
+@media(max-width:700px){.dean-quiz-options{grid-template-columns:1fr}.dean-quiz-podium{gap:5px}.dean-quiz-podium article{padding:8px}.dean-quiz-podium article b{font-size:32px}}
