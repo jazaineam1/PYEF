@@ -5,7 +5,7 @@ import {decisionConsequence} from './dean-life.js';
 import './dean-arcade.css';
 
 // Full-screen mobile-game reveal. All grades and streaks come from verified exam records.
-export default function DeanArcadeResult({award,onContinue,examCount=ARCADE_EXAMS}){
+export default function DeanArcadeResult({award,onContinue,examCount=ARCADE_EXAMS,lifeMode=false}){
  const action=useRef(null);
  useEffect(()=>{action.current?.focus()},[award?.nonce]);
  if(!award)return null;
@@ -55,7 +55,7 @@ export default function DeanArcadeResult({award,onContinue,examCount=ARCADE_EXAM
     <span>📈 Media <strong>{Number(award.average||0).toFixed(1)}</strong></span>
    </div>
    <button ref={action} type="button" className="dean-arcade-next" onClick={onContinue}>
-    {isFinal?'🏁 VER CÓMO SERÍA MI VIDA':'🎭 SEGUIR MI HISTORIA'} <span aria-hidden="true">➜</span>
+    {lifeMode?(isFinal?'🏁 VER CÓMO SERÍA MI VIDA':'🎭 SEGUIR MI HISTORIA'):(isFinal?'🏆 VER MI TEMPORADA':'⚡ SIGUIENTE EXAMEN')} <span aria-hidden="true">➜</span>
    </button>
    <small className="arcade-result-footer">EXAMEN {award.exam} / {examCount} · ¡QUÉ JUGADA!</small>
   </section>
