@@ -128,6 +128,19 @@ async function testView(role,width,height,attendees=18){
  }
  if(role==='teacher'){
   assert.ok(await page.locator('.dean-quest-control').isVisible(),'Teacher can teach and reveal evidence');
+  const reset=page.locator('.dean-reset-trigger');
+  assert.ok(await reset.isVisible(),'Facilitator has a persistent reset control');
+  await reset.click();
+  const dialog=page.getByRole('dialog',{name:/Reiniciar esta Copa/});
+  assert.ok(await dialog.isVisible(),'Reset requires a visible confirmation');
+  const danger=dialog.locator('.dean-reset-danger');
+  assert.ok(await danger.isDisabled(),'Reset disabled before acknowledgement');
+  await dialog.locator('#dean-reset-code').fill(code);
+  assert.ok(await danger.isDisabled(),'Exact game code alone is insufficient');
+  await dialog.locator('.dean-reset-agreement input').check();
+  assert.ok(await danger.isEnabled(),'Reset enabled only with exact code and consent');
+  await dialog.getByRole('button',{name:/Cancelar/}).click();
+  assert.equal(await page.getByRole('dialog').count(),0,'Cancel never resets');
   const control=page.locator('.dean-teacher-toolbar .dean-teacher-next');
   assert.ok(await control.isVisible(),'Primary teacher action visible');
   if(width>=790){const b=await control.boundingBox();assert.ok(b && b.y+b.height<=height+2,'Teacher control below viewport')}
