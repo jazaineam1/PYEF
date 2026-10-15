@@ -144,14 +144,13 @@ async function testView(role,width,height,attendees=18){
   const reset=page.locator('.dean-reset-trigger');
   assert.ok(await reset.isVisible(),'Facilitator has a persistent reset control');
   await reset.click();
-  const dialog=page.getByRole('dialog',{name:/Reiniciar esta Copa/});
+  const dialog=page.getByRole('dialog',{name:/Reiniciar la Copa/});
   assert.ok(await dialog.isVisible(),'Reset requires a visible confirmation');
   const danger=dialog.locator('.dean-reset-danger');
   assert.ok(await danger.isDisabled(),'Reset disabled before acknowledgement');
-  await dialog.locator('#dean-reset-code').fill(code);
-  assert.ok(await danger.isDisabled(),'Exact game code alone is insufficient');
+  assert.equal(await dialog.locator('#dean-reset-code').count(),0,'No redundant game-code typing');
   await dialog.locator('.dean-reset-agreement input').check();
-  assert.ok(await danger.isEnabled(),'Reset enabled only with exact code and consent');
+  assert.ok(await danger.isEnabled(),'Reset enabled only after irreversible-action acknowledgement');
   await dialog.getByRole('button',{name:/Cancelar/}).click();
   assert.equal(await page.getByRole('dialog').count(),0,'Cancel never resets');
   const control=page.locator('.dean-teacher-toolbar .dean-teacher-next');
@@ -209,6 +208,8 @@ async function testCausalScience(role,phase,width,height){
  await page.locator('.dean-page').waitFor();
  if(role==='player'&&phase==='rector'){
   await page.locator('.dean-association').waitFor({timeout:12000});
+  assert.ok(await page.locator('.dean-game-quest .dean-quest-choices').isVisible(),'Player sees game choices first');
+  assert.ok(await page.locator('.dean-game-learn-more').count()>0,'Long pedagogy is optional');
   assert.match(await page.locator('.dean-association').innerText(),/r simple|r de Pearson/);
   assert.equal(await page.locator('.dean-association-scatter').count(),1,'Real-scene scatter drawn from CSV');
   await page.locator('.dean-source-select button').filter({hasText:'Referencia ZIP'}).click();
