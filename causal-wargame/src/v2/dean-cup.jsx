@@ -353,8 +353,8 @@ function Player(){
      {state.phase==='lobby'&&<p className="dean-game-wait">🎮 Decide primero. El docente abrirá la siguiente ronda.</p>}
     {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
      {state.dgp_version==='zip_dgp_2026'&&state.phase==='exams'&&
-      <details className="dean-game-science-tools">
-       <summary>🎯 Reto causal de la Copa</summary>
+      <details className="dean-game-science-tools" open={Number(me.completed)>=15}>
+       <summary>🎯 Reto causal · obligatorio antes de avanzar</summary>
        <DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>
       </details>}
     {(state.dgp_version!=='zip_dgp_2026'||['final','finished'].includes(state.phase)||['evidence','debrief'].includes(learning.data?.step))&&<DeanCausalLab phase={state.phase} token={token} version={state.dgp_version} step={learning.data?.step} missions={missions}/>}
@@ -427,7 +427,7 @@ function DeanResetControl({game,disabled=false,onReset,onReauthenticate}){
  async function confirm(){
   if(running||!ack||reauthRequired)return;
   setRunning(true);setError('');
-  try{await onReset();close()}
+  try{await onReset();setOpened(false);setAck(false);setError('');setReauthPin('');setReauthRequired(false)}
   catch(e){
    const message=String(e?.message||'No se pudo reiniciar');
    if(/docente autenticado|credencial docente inv[aá]lida|sesi[oó]n.*(venci|expir)|token.*(inv[aá]lid|expir)/i.test(message)){
