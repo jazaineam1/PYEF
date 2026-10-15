@@ -123,8 +123,9 @@ function Exam({person,onSubmit,version,deadline,serverNow,receivedAt}){
 }
 
 function CupQuiz({role='student',token='',teacher='',gameCode=code,canonical=false}){
- return canonical?<DeanQuizArena role={role} token={token} teacher={teacher} gameCode={gameCode} call={call}/>
-  :<CupQuizLegacy role={role} token={token} teacher={teacher} gameCode={gameCode}/>;
+ // The modern FULL-SCREEN arena is presentation-only for historical tournaments:
+ // its manual server protocol and existing votes/notes remain unchanged.
+ return <DeanQuizArena role={role} token={token} teacher={teacher} gameCode={gameCode} call={call}/>;
 }
 function CupQuizLegacy({role='student',token='',teacher='',gameCode=code}) {
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[seconds,setSeconds]=useState(0),[receipt,setReceipt]=useState('');
@@ -316,8 +317,8 @@ function Player(){
     <div className="dean-carnet"><span aria-hidden="true">{icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
     <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward}/>
    </div>
-   <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')+(['final','finished'].includes(state.phase)&&state.dgp_version==='zip_dgp_2026'?' dean-quiz-only':'')} tabIndex={0} aria-label="Escena principal de la Copa">
-    {['final','finished'].includes(state.phase)&&state.dgp_version==='zip_dgp_2026'?<CupQuiz role="student" canonical token={token}/>:<>
+   <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')+(['final','finished'].includes(state.phase)?' dean-quiz-only':'')} tabIndex={0} aria-label="Escena principal de la Copa">
+    {['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
 
     {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:state.phase!=='exams'?<DeanGuidance phase={state.phase}/>:<details className="dean-player-hint"><summary>💡 ¿Qué estoy descubriendo?</summary><DeanGuidance phase={state.phase}/></details>}
@@ -334,7 +335,7 @@ function Player(){
   </main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
-function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available&&value.dgp_version==='zip_dgp_2026'&&['final','finished'].includes(value.phase)
+function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available&&['final','finished'].includes(value.phase)
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
@@ -357,7 +358,7 @@ function Teacher(){
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
  return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
- state?.available&&state.dgp_version==='zip_dgp_2026'&&['final','finished'].includes(state.phase)
+ state?.available&&['final','finished'].includes(state.phase)
  ?<main className="dean-quiz-stage dean-quiz-teacher-stage"><CupQuiz role="teacher" canonical teacher={teacher} gameCode={game}/></main>
  :<main className="dean-teacher">
  <div className="dean-teacher-toolbar"><div><small>🎛️ PANEL DEL CAPACITADOR · 120 MINUTOS</small><h2>Control de sesión</h2></div>
