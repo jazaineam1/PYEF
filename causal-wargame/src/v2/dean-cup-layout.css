@@ -316,3 +316,30 @@
  .dean-player-stage.dean-quiz-only{padding:0!important;overflow:hidden!important}
  .dean-page main.dean-quiz-stage{min-height:0}
 }
+
+
+/* Reset command intentionally outside the teacher's scrollable panels. */
+.dean-reset-wrapper{position:fixed;z-index:60;bottom:12px;left:14px}
+.dean-reset-trigger{background:#412b41;color:#fff0f0;border:1px solid #ba899b;border-radius:9px;
+ padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px #0007}
+.dean-reset-trigger:disabled{opacity:.45;cursor:not-allowed}
+.dean-reset-backdrop{position:fixed;z-index:200;inset:0;display:grid;place-items:center;
+ padding:12px;background:#010916e8;backdrop-filter:blur(7px)}
+.dean-reset-dialog{background:linear-gradient(150deg,#192e43,#142b3b);border:2px solid #f2bb93;
+ border-radius:16px;padding:clamp(16px,2.5vw,28px);display:grid;gap:12px;
+ max-width:570px;width:min(100%,570px);max-height:95dvh;overflow:auto;box-shadow:0 20px 70px #000d}
+.dean-reset-dialog h2{font-size:clamp(22px,2vw,29px)!important;color:#fff1d1}
+.dean-reset-dialog p{font-size:14px;line-height:1.45;margin:0;color:#e7ebf3}
+.dean-reset-dialog label{font-size:13px;color:#fff;font-weight:800}
+.dean-reset-dialog input:not([type=checkbox]){width:100%;padding:11px 12px;background:#0d2136;
+ border:1px solid #b0cbd2;border-radius:9px;color:#fff;font-size:18px;font-weight:900;
+ text-transform:uppercase;letter-spacing:1px}
+.dean-reset-agreement{display:flex;align-items:start;gap:9px;line-height:1.4}
+.dean-reset-agreement input{width:20px;height:20px;flex:0 0 20px;accent-color:#c78d80}
+.dean-reset-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dean-reset-actions button{flex:1 1 180px;padding:11px;border:1px solid #9dbecc;
+ border-radius:9px;background:#26485c;color:#f6fdff;font-size:13px;font-weight:850}
+.dean-reset-actions .dean-reset-danger{background:#9a3542;border-color:#ffb2a5;color:white}
+.dean-reset-actions .dean-reset-danger:disabled{opacity:.4;cursor:not-allowed}
+.dean-reset-error{color:#fff!important;background:#863743;padding:9px;border-radius:9px}
+@media(max-width:790px){.dean-reset-wrapper{bottom:6px;left:7px}.dean-reset-trigger{font-size:10px;padding:5px 7px}}
