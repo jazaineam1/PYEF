@@ -5,6 +5,7 @@ import './dean-correlation.css';
 // Pyodide is loaded only after an explicit click; the user's CSV stays in this browser.
 // No server-side analysis, no unreviewed package installation, no local or browser data exfiltration.
 const PYODIDE_URL='https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.mjs';
+const PYODIDE_INDEX='https://cdn.jsdelivr.net/pyodide/v0.28.3/full/';
 const FACTORS=[
  {key:'horas_bienestar_jornada',x:'horas_bienestar_jornada',y:'nota_final',name:'🏃 Bienestar frente a la nota'},
  {key:'horas_estudio_jornada',x:'horas_estudio_jornada',y:'nota_final',name:'📚 Estudio frente a la nota'},
@@ -139,6 +140,7 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
  const [busy,setBusy]=useState(false);
  const [status,setStatus]=useState('');
  const [data,setData]=useState(null);
+ const [refreshIndex,setRefreshIndex]=useState(0);
  const instance=useRef(null);
  const runtimePromise=useRef(null);
  async function fetchWholeCup(){
@@ -149,12 +151,13 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
    const csv=await blob.text();
    if(csv.length<40)throw Error('La Copa todavía no tiene registros analizables.');
    setCsvText(csv);
+   setRefreshIndex(i=>i+1);
    setFileName('CSV completo de la Copa · Datos observados del servidor');
    setStatus('Datos recibidos. Ejecutando Python WebAssembly…');
   }catch(e){setBusy(false);setData(null);setStatus('No pudimos obtener el CSV: '+(e?.message||String(e)));}
  }
  useEffect(()=>{if(loadCsv)void fetchWholeCup();},[]);
- useEffect(()=>{if(embedded&&csvText)void analyse();},[csvText,factor,profile,onlyManual]);
+ useEffect(()=>{if(embedded&&csvText)void analyse();},[csvText,factor,profile,onlyManual,refreshIndex]);
  async function pick(e){
   const f=e.target.files?.[0];if(!f)return;
   if(f.size>2_000_000){setStatus('Este archivo supera 2 MB. Usa el CSV de la Copa.');return}
@@ -165,7 +168,7 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
   setBusy(true);setStatus('Cargando Python en tu navegador…');
   try{
    if(!runtimePromise.current){
-    runtimePromise.current=import(/* @vite-ignore */ PYODIDE_URL).then(module=>module.loadPyodide());
+    runtimePromise.current=import(/* @vite-ignore */ PYODIDE_URL).then(module=>module.loadPyodide({indexURL:PYODIDE_INDEX}));
    }
    const runtime=await runtimePromise.current;
    instance.current=runtime;
