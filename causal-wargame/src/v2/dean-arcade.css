@@ -118,3 +118,10 @@
 @media(max-width:480px){.dean-arcade-overlay{padding:6px}.dean-arcade-overlay .dean-arcade-result{padding:10px 8px;gap:3px}.arcade-character-scene{height:150px;min-height:0}.dean-arcade-mascot{width:145px;height:145px}.dean-arcade-overlay .arcade-celebration-copy h2{font-size:clamp(23px,6.5vw,32px)}.arcade-grade-stars{font-size:18px}.dean-arcade-overlay .dean-arcade-results-strip span{padding:5px 7px}}
 @media(max-height:640px){.arcade-character-scene{height:115px;min-height:0}.dean-arcade-mascot{width:115px;height:115px}.arcade-big-grade .dean-arcade-score strong{font-size:47px}.arcade-grade-stars{font-size:18px}.dean-arcade-overlay .dean-arcade-result{gap:2px}}
 @media(prefers-reduced-motion:reduce){.arcade-clear-label,.dean-arcade-mascot,.arcade-mascot-aura,.arcade-character-ribbon,.arcade-impact-ring,.arcade-spark,.arcade-celebration-copy h2,.arcade-grade-stars .earned{animation:none!important}}
+
+/* Decorative mascot in the live round. It never captures taps or slider focus. */
+.dean-arcade-player .dean-exam-brief::after{content:none!important;display:none!important}
+.dean-arcade-sidekick{position:absolute;right:0;bottom:0;z-index:0;pointer-events:none;opacity:.55;filter:drop-shadow(0 0 16px #32c4ff44)}
+.dean-arcade-sidekick .dean-arcade-mascot{width:170px;height:170px}
+.dean-arcade-player .dean-exam-brief>*:not(.dean-arcade-sidekick){position:relative;z-index:1}
+@media(max-width:790px){.dean-arcade-sidekick{display:none}}
