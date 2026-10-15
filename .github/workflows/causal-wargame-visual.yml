@@ -28,6 +28,60 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Generate visual report and contact sheet
         run: npm run test:visual -- --project=report
+      - name: Run visual contract (non-blocking until G1)
+        id: contract
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npx playwright test --project=contract --reporter=json > contract-report.json
+          status=$?
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Publish visual contract summary
+        if: always()
+        working-directory: causal-wargame
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs'
+          const roles = ['player', 'teacher', 'wall']
+          const viewports = ['desktop1280', 'desktop1366', 'desktop1920', 'tablet', 'mobile390', 'mobile360']
+          const phases = ['lobby', 'exams', 'rector', 'survey', 'causal', 'final', 'finished']
+          const variants = ['legacy_v1', 'zip_dgp_2026']
+          const report = fs.existsSync('contract-report.json') ? JSON.parse(fs.readFileSync('contract-report.json', 'utf8')) : { suites: [] }
+          const failures = []
+          const walk = (suite) => {
+            for (const spec of suite.specs || []) for (const test of spec.tests || []) {
+              if (test.status === 'expected' || test.status === 'passed') continue
+              const title = spec.title || ''
+              const role = roles.find((value) => title.includes(value))
+              const viewport = viewports.find((value) => title.includes(value))
+              const phase = phases.find((value) => title.includes(value))
+              const variant = variants.find((value) => title.includes(value))
+              const message = (test.results || []).flatMap((result) => result.errors || []).map((error) => error.message || '').join('\n')
+              const criterion = message.includes('stage con overflow') ? 'stageOverflow' : message.includes('overflow horizontal') ? 'overflowHorizontal' : message.includes('overflow vertical') ? 'overflowVertical' : message.includes('CTA fuera') ? 'ctaInViewport' : message.includes('elementos recortados') ? 'clippedElements' : 'contract'
+              if (role && viewport && phase && variant) failures.push({ role, phase, variant, viewport, criterion })
+            }
+            for (const child of suite.suites || []) walk(child)
+          }
+          for (const suite of report.suites || []) walk(suite)
+          const byCell = new Map()
+          for (const failure of failures) {
+            const key = `${failure.role}|${failure.viewport}`
+            const current = byCell.get(key) || new Set()
+            current.add(failure.criterion)
+            byCell.set(key, current)
+          }
+          const cell = (role, viewport) => [...(byCell.get(`${role}|${viewport}`) || [])].join(', ') || '—'
+          let markdown = '### Causal Wargame · contrato visual\\n\\n'
+          markdown += '| Rol \\ Viewport | ' + viewports.join(' | ') + ' |\\n|---|' + viewports.map(() => '---').join('|') + '|\\n'
+          for (const role of roles) markdown += `| ${role} | ${viewports.map((viewport) => cell(role, viewport)).join(' | ')} |\\n`
+          markdown += '\\n#### Celdas fallidas\\n\\n'
+          markdown += failures.length ? failures.map((failure) => `- ${failure.role}-${failure.phase}-${failure.variant}-${failure.viewport}: ${failure.criterion}`).join('\\n') : '- Ninguna'
+          markdown += `\\n\\nResultado del contrato: ${failures.length ? `${failures.length} fallos (no bloqueante hasta G1)` : 'sin fallos'}\\n`
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, markdown)
+          NODE
       - name: Upload visual artifacts
         if: always()
         uses: actions/upload-artifact@v4
