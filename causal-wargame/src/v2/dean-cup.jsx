@@ -28,7 +28,7 @@ async function call(action,payload={},student='',teacher=''){
  if(teacher)h['x-facilitator-token']=teacher;
  if(!endpoint.startsWith('https://'))throw Error('Backend seguro no configurado');
  const r=await fetch(endpoint,{method:'POST',headers:h,body:JSON.stringify({action,...payload}),cache:'no-store'});
- if(['export','teacher_truth','ab_download','ab_truth'].includes(action)&&r.ok)return r.blob();
+ if(['export','teacher_truth','ab_download','ab_truth','game_export'].includes(action)&&r.ok)return r.blob();
  const data=await r.json().catch(()=>({}));
  if(!r.ok)throw Error(data.error||'Fallo de conexión');
  return data;
@@ -404,14 +404,16 @@ function Player(){
  useEffect(()=>{if(!lastAward)return;const t=setTimeout(()=>setLastAward(null),4200);return()=>clearTimeout(t)},[lastAward]);
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  const me=state?.mine;
- const learning=useDeanLearning({token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'});
- const missions=useDeanMissions({call,token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'});
+ const arcade=state?.game_mode==='real_hours_10_v1';
+ const learning=useDeanLearning({token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'&&!arcade});
+ const missions=useDeanMissions({call,token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'&&!arcade});
  async function join(){setBusy(true);setActionError('');const t=token||hexToken();localStorage.setItem(storageKey,t);
  try{const s=await call('join',{game_code:code,alias:alias.trim(),room},t);setToken(t);setValue(s)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
- async function submit(v){const r=await call('exam',v,token);setLastAward({score:Number(r.score),nonce:Date.now()});setValue(await call('state',{game_code:code},token));return r}
+ async function submit(v){const r=await call('exam',v,token);const snap=await call('state',{game_code:code},token);const scores=Array.isArray(snap?.mine?.scores)?snap.mine.scores.map(Number):[Number(r.score)];setLastAward({score:Number(r.score),exam:Number(r.exam_no),average:scores.reduce((a,b)=>a+b,0)/scores.length,streak:arcadeStreak(scores),nonce:Date.now()});setValue(snap);return r}
  async function quickComplete(){if(!window.confirm('¿Simular los exámenes restantes usando la estrategia predeterminada de tu arquetipo? Los registros quedarán marcados como simulados automáticamente.'))return;
  setBusy(true);setActionError('');try{await call('auto_finish',{},token);setValue(await call('state',{game_code:code},token))}
  catch(e){setActionError(e.message)}finally{setBusy(false)}}
+ async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+'_sala_'+me.room+'_10_examenes.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function downloadAB(){setBusy(true);setActionError('');try{const blob=await call('ab_download',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_test_2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function download(layer){setBusy(true);setActionError('');try{const blob=await call('export',{layer},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan (hasta 30). No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: hasta 6 plazas por equipo. No es necesario llenarlas. Recibirás un arquetipo académico ficticio.</p></div>
@@ -420,13 +422,29 @@ function Player(){
  <b> {names[(state.groups.filter(g=>g.members<6).sort((a,b)=>a.members-b.members||a.room_no-b.room_no)[0]?.room_no||1)-1]}</b>.
  Es una recomendación, no una obligación. Puedes jugar con 1–30 personas en total.</p>
  <div className="dean-rooms">{state.groups.map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
- <main className="dean-player">
+ <main className={'dean-player'+(arcade?' dean-arcade-player':'')}>
    <div className="dean-player-topbar">
     <div className="dean-carnet"><span aria-hidden="true">{icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
-    <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward}/>
+    <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward} examCount={arcade?ARCADE_EXAMS:15}/>
    </div>
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')+(['final','finished'].includes(state.phase)?' dean-quiz-only':'')} tabIndex={0} aria-label="Escena principal de la Copa">
-    {['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
+    {arcade?
+    (Number(me.completed)>=ARCADE_EXAMS || !['lobby','exams'].includes(state.phase)?
+     <section className="dean-arcade-finish">
+      <div className="dean-emoji" aria-hidden="true">🏆</div>
+      <h2>¡TEMPORADA COMPLETADA!</h2>
+      <p>¡Qué nivel, {me.alias}! Ya puedes volver con tu equipo.</p>
+      <div className="dean-arcade-finish-stats">
+       <span>📈 Promedio {Number(me.average_score||0).toFixed(1)} / 50</span>
+       <span>🏅 {arcadeTitle(Number(me.average_score||0))}</span>
+      </div>
+      <button type="button" className="dean-arcade-download" disabled={busy||Number(me.completed)<ARCADE_EXAMS} onClick={downloadGameData}>📥 DESCARGAR DATOS DE MI SALA</button>
+      <a className="dean-arcade-return" href={import.meta.env.VITE_DEAN_MAIN_ROOM_URL||'https://teams.microsoft.com/'} target="_blank" rel="noreferrer">↗ VOLVER A TEAMS</a>
+      <small>Regresa a la sala principal de tu reunión de Teams.</small>
+     </section>:
+     state.phase==='lobby'?<section className="dean-arcade-finish"><div className="dean-emoji" aria-hidden="true">🎮</div><h2>¡A CALENTAR MOTORES!</h2><p>10 parciales. Una Copa. Tu sala va por la gloria.</p><p>El docente iniciará la partida.</p></section>:
+     <Exam person={me} version={state.dgp_version} arcade agendaEnabled deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>)
+   :['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
 
     {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)&&
@@ -446,8 +464,9 @@ function Player(){
     {state.phase==='final'&&state.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="student" token={token}/>}
     {lastAward&&<div key={lastAward.nonce} className="dean-score-flash" role="status">✨ EXAMEN COMPLETADO <strong>+{Number.isFinite(lastAward.score)?lastAward.score.toFixed(1):'—'} / 50</strong></div>}
    </>}
+   {arcade&&lastAward&&<DeanArcadeResult award={lastAward} onContinue={()=>setLastAward(null)}/>}
    </div>
-   <div className="dean-player-dock"><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></div>
+   <div className="dean-player-dock">{arcade?<span>🏆 10 EXÁMENES · JUEGA Y DESCARGA TUS DATOS</span>:<><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></>}</div>
   </main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
