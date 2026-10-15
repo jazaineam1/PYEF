@@ -142,8 +142,12 @@
 .dean-final-dismiss{font-size:11px;justify-self:end;align-self:center}
 .dean-confetti{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
 .dean-confetti i{position:absolute;top:-16px;left:var(--x);width:7px;height:12px;opacity:.82;
- background:color-mix(in srgb,#fbdc84 calc((var(--c) + 1)*16%),#41d4c7);
+ background:#fbdc84;
  border-radius:1px;animation:dean-confetti-fall var(--duration) linear infinite;animation-delay:var(--delay)}
+.dean-confetti i:nth-child(5n+1){background:#ff8ea2}
+.dean-confetti i:nth-child(5n+2){background:#7df4c9}
+.dean-confetti i:nth-child(5n+3){background:#a9b6ff}
+.dean-confetti i:nth-child(5n+4){background:#ffe4a2}
 @keyframes dean-podium-rise{from{transform:translateY(95px) scale(.82);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes dean-trophy-shine{50%{transform:scale(1.1) rotate(-4deg);filter:drop-shadow(0 0 15px #ffd67b)}}
 @keyframes dean-confetti-fall{0%{transform:translateY(-30px) rotate(0deg)}100%{transform:translateY(750px) rotate(1080deg)}}
