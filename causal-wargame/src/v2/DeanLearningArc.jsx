@@ -199,6 +199,11 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
    {action&&<button type="button" disabled={busy} onClick={()=>onAction(action)}>{busy?'Procesando…':title+' →'}</button>}
    {!learning.paused&&step!=='debrief'&&<button type="button" className="dean-quest-secondary" disabled={busy} onClick={()=>onAction('pause')}>⏸ Pausar</button>}
   </div>
+  {step==='debrief'&&learning.distribution&&<div className="dean-quest-misconceptions">
+   <strong>Respuestas revisadas después de la evidencia</strong>
+   <div>{['a','b','c'].map(k=><span key={k}>{k.toUpperCase()}: {learning.distribution[k]||0} jugadores</span>)}</div>
+   <small>Distribución agregada visible solo tras revelar, para explicar los errores frecuentes sin señalar personas.</small>
+  </div>}
   {step==='debrief'&&<p className="dean-quest-done">✓ Solución proyectable. Puedes avanzar el acto cuando el grupo esté listo.</p>}
   {error&&<p role="alert" className="dean-quest-error">{error}</p>}
  </section>;
@@ -222,6 +227,9 @@ export function DeanLearningWall({learning,phase}) {
    {learning.step==='challenge'?'⏳ Decisiones iniciales: ':learning.step==='evidence'?'⚡ Revisiones recibidas: ':'✓ Solución revelada: '}
    {learning.step==='challenge'?learning.counts?.initial||0:learning.counts?.revision||0} / {learning.registered||0}
   </p>}
+  {learning.step==='debrief'&&learning.distribution&&<div className="dean-quest-misconceptions">
+   <b>Votos tras revisar:</b> A {learning.distribution.a||0} · B {learning.distribution.b||0} · C {learning.distribution.c||0}
+  </div>}
   {learning.step==='debrief'&&scene&&<p className="dean-quest-wall-wow">{scene.reveal}</p>}
  </section>
 }
