@@ -36,7 +36,7 @@ export const DEAN_ARC={
  },
  rector:{
   act:'ACTO 2',time:'30–55',icon:'🏛️',title:'El modelo predice; el Rector se equivoca',
-  question:'Un Random Forest predice notas con MAE bajo y R² alto. ¿Cuál es la conclusión válida para la política de bienestar?',
+  question:'Tu Random Forest reporta MAE y R² de prueba, posiblemente incluso R² negativo si la sala es pequeña. ¿Qué puedes concluir sobre intervenir en bienestar?',
   choices:[
    'A Reducir bienestar: el coeficiente de asociación alcanza para inferir causalidad.',
    'B Repetir el predictor con más árboles convierte una predicción en causal.',
@@ -46,27 +46,27 @@ export const DEAN_ARC={
   reveal:'Contrastar una predicción «cambiando B» NO equivale al efecto de intervenir do(B). Sesgo de selección y mecanismos omitidos pueden contaminar esa comparación.',
   trap:'La precisión del modelo no prueba identificación causal.',
   teacher:'Ejecuta el modelo real y explica MAE/R² con unidades. Pregunta qué falta: comparabilidad y una intervención definida.',
-  expected:'Separar predicción de efecto causal aunque el ajuste sea excelente.',
-  example:'Aunque R² fuera 0.95, no demostraría qué ocurriría al imponer B=4 h.'
+  expected:'Separar predicción de efecto causal independientemente de que el R² sea alto, bajo o negativo.',
+  example:'Con R²=0,95 o R²=−0,50 no se demuestra cuánto cambia Y por imponer B=4 h. R² negativo significa que en prueba el modelo predijo peor que la media de esa muestra.'
  },
  survey:{
   act:'ACTO 3',time:'55–80',icon:'🕸️',title:'DAG Detective: las flechas importan',
   question:'Quieres el efecto TOTAL de bienestar B sobre nota Y. ¿Qué ajuste elegirías a partir del DAG sintético?',
   choices:[
    'A Controlar estudio, sueño y fatiga posteriores: cuantas más columnas, mejor.',
-   'B Considerar PGA y complejidad previos y NO ajustar automáticamente los mediadores posteriores.',
+   'B Considerar ARQUETIPO y PGA como antecedentes, sin ajustar automáticamente estudio, sueño o fatiga posteriores.',
    'C Ignorar el momento de medición y ajustar por toda variable correlacionada con Y.'
   ],
-  evidence:'H (PGA previo) afecta las decisiones y la nota. Estudio y sueño son descendientes de bienestar B en el mecanismo del ZIP. Condicionar un mediador puede bloquear parte del efecto total. En otro ejemplo, condicionar un collider puede ABRIR un camino espurio.',
-  reveal:'DAG = grafo acíclico dirigido de HIPÓTESIS causales. Antes de estimar, decide qué caminos de confusión cerrar y qué mecanismos no bloquear. La fatiga U continúa oculta para el jugador.',
+  evidence:'El arquetipo configura PGA, bienestar basal, estudio y sueño basales; por eso es una causa común que PGA sola no controla por completo. Estudio y sueño también responden a cambios de B y son mediadores en el mecanismo del ZIP. Condicionar un mediador puede bloquear parte del efecto total. En otro ejemplo, condicionar un collider puede ABRIR un camino espurio.',
+  reveal:'DAG = grafo acíclico dirigido de HIPÓTESIS causales. Antes de estimar, decide qué causas previas cerrar y qué mecanismos no bloquear. Ajustar arquetipo y PGA puede ayudar, pero la falta de solapamiento de bienestar entre perfiles limita la identificación. La fatiga U continúa oculta para el jugador.',
   trap:'Ajustar por todo puede sesgar el efecto total; tampoco podemos ajustar por U si no fue medida.',
   teacher:'Pide tocar confusor, mediador y collider. Este collider es una VIÑETA EXTRA, no una nueva flecha del DGP. Tras las decisiones, explica el efecto total.',
-  expected:'Seleccionar covariables previas y evitar ajuste indiscriminado postratamiento.',
-  example:'Grafo principal: H→B, H→Y, B→estudio/sueño→Y. Viñeta adicional: B→tutorías←dificultad.',
+  expected:'Incluir arquetipo y PGA, evitar mediadores posteriores y comprobar positividad sin prometer identificación automática.',
+  example:'Grafo principal: arquetipo→{PGA, B, estudio basal, sueño basal}; PGA→{B,Y}; B→estudio/sueño→Y. Viñeta adicional: B→tutorías←dificultad.',
  },
  causal:{
   act:'ACTO 4',time:'80–105',icon:'⚗️',title:'Doctor Strange: ¿a quién ayudar?',
-  question:'El experimento A/B de bienestar obtiene ATE positivo. La universidad solo dispone de cupos para 20 % de una cohorte. ¿Qué política defenderías?',
+  question:'Un A/B pequeño ofrece una estimación imprecisa; los CATE pueden ser positivos para algunos perfiles y negativos para otros. Con seis cupos, ¿qué política defenderías?',
   choices:[
    'A Atender solo a quienes tienen mayor nota predicha, sin medir impacto.',
    'B Prometer que todos ganarán el ATE exactamente, porque ya se aleatorizó.',
@@ -74,8 +74,8 @@ export const DEAN_ARC={
   ],
   evidence:'Se sorteó T por ESTUDIANTE sintético, no por cada examen: T=1 impone B=4 h; T=0 impone B=0 h. El ATE observado es estimado; el IC refleja incertidumbre. CATE estudia promedios condicionales por perfiles, no futuros individuales observables.',
   reveal:'DML usa modelos auxiliares para T e Y, predicciones fuera de muestra y residuos; no corrige confusión latente sin supuestos. Ninguna familia de estimadores arregla una identificación equivocada.',
-  trap:'ATE positivo no implica idéntico beneficio individual, ni justifica seleccionar solo por riesgo predictivo.',
-  teacher:'Proyecta A/B e IC; muestra X→T y X→Y, residuos y cross-fitting en Pyodide. Compara CATE con incertidumbre antes de limitar cupos.',
+  trap:'ATE estimado positivo o negativo puede ser compatible con un IC amplio. CATE negativo no implica abandonar a un perfil: exige evaluar alternativas, no imponer una ayuda supuestamente benéfica.',
+  teacher:'Proyecta A/B e IC; muestra X→T y X→Y, residuos y cross-fitting en Pyodide. Compara CATE y sus limitaciones: el benchmark NO contiene IC por perfil; no se pueden prometer beneficios individuales. Señala que 30 alumnos aportan poca potencia para un ATE pequeño.',
   expected:'Distinguir ATE de CATE y decidir una política bajo restricciones.',
   example:'Dos perfiles con la misma nota esperada pueden responder de modo distinto. Toda estimación es sintética.'
  }
@@ -98,13 +98,13 @@ export const DEAN_CONCEPTS={
  ],
  survey:[
   ['DAG','Grafo acíclico dirigido con flechas causales SUPUESTAS por el generador, no aprendidas de correlaciones.'],
-  ['Confusor','Antecedente que puede afectar selección del tratamiento y resultado, abriendo una ruta no causal.'],
+  ['Confusor','En este generador, el arquetipo es una causa común del PGA y de las decisiones basales de bienestar, estudio y sueño. PGA sola puede no eliminar su confusión.'],
   ['Mediador','Variable posterior por la que transcurre parte del efecto total. Ajustarla puede quitar ese camino.'],
   ['Collider','Variable causada por dos nodos; condicionarla puede abrir un camino espurio. El ejemplo de tutorías es externo al DGP.']
  ],
  causal:[
   ['A/B aleatorizado','El tratamiento B=0 o B=4 se sortea una vez por estudiante sintético, no por cada examen.'],
-  ['ATE e intervalo','ATE es promedio poblacional objetivo; diferencia observada e IC son estimación con error, calculados entre alumnos.'],
+  ['ATE e intervalo','ATE es un efecto promedio poblacional. Una diferencia observada con IC amplio no demuestra ausencia ni presencia definitiva de efecto. Las unidades independientes aquí son los 30 alumnos sintéticos.'],
   ['DML','Modelos auxiliares T(X)/Y(X), folds, residuos y estimación. No corrige confusión no observada automáticamente.'],
   ['CATE y política','Efecto promedio condicionado por perfil: orienta decisiones con cupos y equidad, pero no garantiza beneficio individual.']
  ]
