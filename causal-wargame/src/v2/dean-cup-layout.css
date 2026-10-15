@@ -292,3 +292,27 @@
  .dean-exam-controls .dean-exam-action:hover:not(:disabled){transform:none}
  .dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{transition:none}
 }
+
+
+/* The exam is one complete interactive scene: never shrink behind a second lesson.
+   Further story content scrolls inside the stage, never over the submit control. */
+@media(min-width:791px){
+ .dean-player-stage.dean-is-exam .dean-exam{
+  flex:0 0 auto;height:calc(100% - 18px);min-height:420px
+ }
+}
+
+
+/* Full-frame synchronized final: student, Wall and facilitator.
+   Teacher podium and all ranks sit inside the viewport; only narrow phones scroll within panels. */
+.dean-page main.dean-quiz-stage{
+ display:block;min-height:0;min-width:0;height:100%;overflow:hidden;width:100%;margin:0;max-width:none
+}
+.dean-player-stage.dean-quiz-only{padding:0;display:block;overflow:hidden;border:0;background:transparent}
+.dean-player-stage.dean-quiz-only>.dean-quiz-arena{height:100%}
+.dean-quiz-teacher-stage .dean-quiz-arena,
+.dean-quiz-wall-stage .dean-quiz-arena{height:100%}
+@media(max-width:790px){
+ .dean-player-stage.dean-quiz-only{padding:0!important;overflow:hidden!important}
+ .dean-page main.dean-quiz-stage{min-height:0}
+}

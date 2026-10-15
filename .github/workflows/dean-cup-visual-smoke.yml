@@ -5,9 +5,16 @@ on:
     paths:
       - 'causal-wargame/src/v2/dean-cup.jsx'
       - 'causal-wargame/src/v2/dean-cup-layout.css'
+      - 'causal-wargame/src/v2/DeanQuizArena.jsx'
+      - 'causal-wargame/src/v2/dean-quiz-arena.css'
+      - 'causal-wargame/supabase/migrations/202610150005_dean_kahoot_automatic_podium.sql'
       - 'causal-wargame/scripts/dean_visual_smoke.mjs'
       - '.github/workflows/dean-cup-visual-smoke.yml'
   workflow_dispatch:
+
+concurrency:
+  group: dean-cup-visual-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -32,7 +39,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Build secure Pages app
         run: npm run build:secure
-      - name: Visual QA 1366x768, 1920x1080, mobile, three roles
+      - name: Visual QA 14, 18, 30 attendees, three resolutions and three roles
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/dean-vite-preview.log 2>&1 &
           sleep 4

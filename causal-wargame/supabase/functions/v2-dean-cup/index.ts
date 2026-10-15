@@ -18,11 +18,28 @@ Deno.serve(async(req)=>{
   if(action==='teacher'){
    if(!teacher)return json({error:'Credencial del docente requerida'},401)
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
-   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_teacher_next_v3',{p_token:teacher})))
+   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_learning_next',{p_token:teacher}) /* wraps cw_dean_teacher_next_v3 with V2 learning gate */))
+  }
+  // Isolated teaching arc, stored on server; no correct option before debrief.
+  if(action==='learning_state'){
+   if(!code)return json({error:'Código requerido'},400)
+   return json(await rpc('cw_dean_learning_state',{p_code:code,p_hash:hash}))
+  }
+  if(action==='learning_submit'){
+   if(!student)return json({error:'Credencial de estudiante requerida'},401)
+   return json(await rpc('cw_dean_learning_submit',{p_hash:hash,p_phase:String(b.phase||''),
+    p_kind:String(b.kind||''),p_choice:String(b.choice||'').toLowerCase()}))
+  }
+  if(action==='learning_teacher'){
+   if(!teacher)return json({error:'Credencial docente requerida'},401)
+   const command=String(b.command||'')
+   if(!['evidence','debrief','pause','resume'].includes(command))return json({error:'Acción de clase inválida'},400)
+   return json(await rpc('cw_dean_learning_teacher',{p_token:teacher,p_action:command}))
   }
   if(action==='quiz_state'){
    if(!code)return json({error:'Código requerido'},400)
-   return json(await rpc('cw_dean_quiz_state',{p_code:code,p_hash:hash}))
+   await rpc('cw_dean_quiz_tick_v4',{p_code:code})
+   return json(await rpc('cw_dean_quiz_state_v4',{p_code:code,p_hash:hash}))
   }
   if(action==='quiz_submit'){
    if(!student)return json({error:'Sesión de estudiante obligatoria'},401)
@@ -31,7 +48,7 @@ Deno.serve(async(req)=>{
   if(action==='quiz_teacher'){
    if(!teacher)return json({error:'Credencial docente obligatoria'},401)
    if(!['start','open','lock','reveal','next','finish'].includes(b.command))return json({error:'Acción inválida'},400)
-   return json(await rpc('cw_dean_quiz_teacher',{p_token:teacher,p_action:String(b.command)}))
+   return json(await rpc('cw_dean_quiz_teacher_v4',{p_token:teacher,p_action:String(b.command)}))
   }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
@@ -60,7 +77,7 @@ Deno.serve(async(req)=>{
   }
   if(action==='ab_download'){
    if(!student)return json({error:'Sesión de estudiante requerida'},401)
-   const data=await rpc('cw_dean_ab_observed_v3',{p_hash:hash}) as {columns:unknown[],rows:unknown[][]}
+   const data=await rpc('cw_dean_learning_ab_observed',{p_hash:hash}) /* protected cw_dean_ab_observed_v3 */ as {columns:unknown[],rows:unknown[][]}
    const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
    return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
       'content-type':'text/csv; charset=utf-8',
@@ -78,7 +95,7 @@ Deno.serve(async(req)=>{
    if(!student)return json({error:'Falta sesión de estudiante'},401)
    const layer=String(b.layer||'')
    if(!['rector','survey'].includes(layer))return json({error:'Capa de datos inválida'},400)
-   const data=await rpc('cw_dean_export',{p_token_hash:hash,p_layer:layer}) as {columns:unknown[],rows:unknown[][]}
+   const data=await rpc('cw_dean_learning_export',{p_hash:hash,p_layer:layer}) /* protected cw_dean_export */ as {columns:unknown[],rows:unknown[][]}
    const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
    const name=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv'
    return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,

@@ -30,8 +30,10 @@ const lenses={
  mediator:{label:'2 · Mediadores',copy:'El bienestar modifica el tiempo disponible para estudiar y el descanso; ambos pueden afectar la fatiga y la nota. Para el efecto TOTAL no basta con controlar todos los descendientes de B.'},
  latent:{label:'3 · La variable invisible',copy:'La fatiga U combina privación de sueño sigmoidal, carga de estudio, trasnocho, complejidad y amortiguación del bienestar. U no se entrega en los archivos del alumno.'}
 }
-export default function DeanCausalAtlas({phase}){
- const meta=scopes[phase], [lens,setLens]=useState(phase==='rector'?'pre':phase==='survey'?'mediator':'latent')
+export default function DeanCausalAtlas({phase,teachingStep='challenge'}){
+ const meta=scopes[phase], [lens,setLens]=useState(phase==='rector'?'pre':phase==='survey'?'mediator':'latent');
+ const [adjust,setAdjust]=useState([]);const visible=teachingStep!=='challenge';
+ useEffect(()=>setAdjust([]),[phase]);
  useEffect(()=>setLens(phase==='rector'?'pre':phase==='survey'?'mediator':'latent'),[phase])
  if(!meta)return null
  return <section className="dean-atlas" aria-label="Mapa causal interactivo de la Copa del Decano">
@@ -44,18 +46,24 @@ export default function DeanCausalAtlas({phase}){
   </div>}
   {(phase==='survey'||phase==='causal')&&<div className="dean-atlas-dag">
    <h3>Mapa causal · DAG v4</h3>
-   <div className="dean-atlas-lenses" aria-label="Selecciona qué mecanismo destacar">
+   {phase==='survey'&&<div className="dean-dag-mission" aria-label="Detective causal: conjunto de ajuste">
+    <strong>🎮 Elige qué variables AJUSTARÍAS para el efecto TOTAL de B sobre Y</strong>
+    <div className="dean-dag-toggles">{[['h','H · PGA previo'],['z','Z · Complejidad'],['study','X₁ · Estudio posterior'],['sleep','S · Sueño posterior']].map(([id,label])=><button type="button" key={id} aria-pressed={adjust.includes(id)} onClick={()=>setAdjust(previous=>previous.includes(id)?previous.filter(x=>x!==id):[...previous,id])}>{adjust.includes(id)?'✓ ': '+ '}{label}</button>)}</div>
+    <small>Seleccionadas: {adjust.length?adjust.map(x=>({h:'PGA',z:'complejidad',study:'estudio',sleep:'sueño'})[x]).join(', '):'ninguna'}. Las flechas son supuestos de este simulador.</small>
+    {visible&&<p className="dean-dag-feedback">{adjust.includes('study')||adjust.includes('sleep')?'⚠️ Elegiste variables posteriores a B. Si buscas el efecto TOTAL, podrías bloquear mecanismos mediadores.':'🛡️ Revisa las causas previas: ajustarlas puede reducir confusión sin bloquear mediación.'}</p>}
+   </div>}
+   {visible&&<div className="dean-atlas-lenses" aria-label="Selecciona qué mecanismo destacar">
     {Object.entries(lenses).map(([k,v])=><button type="button" key={k} aria-pressed={lens===k} className={lens===k?'selected':''} onClick={()=>setLens(k)}>{v.label}</button>)}
-   </div>
+   </div>}
    <div className="dean-atlas-scroll"><svg viewBox="0 0 920 405" role="img" aria-label="Grafo causal: H influye en B, estudio y nota; Z influye en estudio, fatiga y nota; B influye en estudio, sueño, fatiga y nota; estudio influye en sueño, fatiga y nota; sueño influye en fatiga y nota; fatiga influye en nota">
     <defs><marker id="atlas-tip" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9" fill="none" stroke="#99e9d8" strokeWidth="1.5"/></marker></defs>
     {edges.map(([path,group],i)=><path key={i} d={path} fill="none" stroke={lens===group?'#f6db89':'#8fbbb9'} strokeWidth={lens===group?3:1.5} opacity={lens===group?1:.6} markerEnd="url(#atlas-tip)"/>)}
     {nodes.map(n=><g key={n.id} transform={'translate('+n.x+' '+n.y+')'}>
       <rect width="166" height="58" rx="11" stroke={n.group===lens?'#ffe6a2':'#a7d6d3'} strokeWidth={n.group===lens?3:1.7} fill={n.group==='latent'?'#574255':n.group==='outcome'?'#195647':'#173b55'}/>
       <text x="12" y="25" fontSize="16" fill="#fff" fontWeight="700">{n.name}</text>
-      <text x="12" y="44" fontSize="12" fill="#e0f2f4">{n.detail}</text>
+      <text x="12" y="44" fontSize="12" fill="#e0f2f4">{visible?n.detail:'Explora la relación'}</text>
     </g>)}
-   </svg></div><p className="dean-atlas-explanation"><strong>{lenses[lens].label}:</strong> {lenses[lens].copy}</p>
+   </svg></div>{visible&&<p className="dean-atlas-explanation"><strong>{lenses[lens].label}:</strong> {lenses[lens].copy}</p>}
    <small>Las flechas son relaciones asumidas en el simulador del ZIP, no relaciones demostradas por el análisis predictivo.</small>
   </div>}
   {phase==='causal'&&<div className="dean-atlas-two-worlds">
@@ -65,7 +73,7 @@ export default function DeanCausalAtlas({phase}){
    <p>ATE = media de Y(1)−Y(0). CATE = efecto promedio condicionado a características previas. En el alumno real solo se observaría uno de los dos resultados.</p>
   </div>}
   <p className="dean-atlas-mystery">{meta.mystery}</p>
-  <div className="dean-atlas-wow">⚡ <strong>Descubrimiento causal:</strong> {meta.reveal}</div>
+  {teachingStep==='debrief'&&<div className="dean-atlas-wow">⚡ <strong>Descubrimiento causal:</strong> {meta.reveal}</div>}
   <small>La simulación no aporta evidencia clínica ni experimental sobre estudiantes reales. El arquetipo es una persona de juego, no una causa primitiva del DAG.</small>
  </section>
 }

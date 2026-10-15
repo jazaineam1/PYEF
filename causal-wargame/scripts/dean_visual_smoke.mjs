@@ -22,7 +22,18 @@ const fixture={
 await mkdir('visual-qa',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 let failures=0;
-async function testView(role,width,height){
+function groupFixture(n){
+ const distribution=Array.from({length:5},(_,i)=>Math.floor(n/5)+(i<n%5?1:0));
+ return distribution.map((members,i)=>({
+  room_no:i+1,members,target_exams:15*members,exams_completed:6*members,
+  coverage_pct:members?40:0,fair_score:members?Number((38-i*2)*.4.toFixed(1)):null,
+  average_score:members?38-i*2:null,is_complete:false
+ }));
+}
+async function testView(role,width,height,attendees=18){
+ const roomGroups=groupFixture(attendees);
+ const sample={...fixture,groups:roomGroups};
+
  const errors=[];
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
  page.on('pageerror',e=>errors.push(e.message));
@@ -33,10 +44,30 @@ async function testView(role,width,height){
    sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
   }
  },{role,code});
+ let lessonStep='challenge', lessonInitial=null, lessonRevision=null;
+ const lessonState=()=>({
+  available:true,phase:'exams',step:lessonStep,paused:false,
+  mine:{initial:lessonInitial,revision:lessonRevision},
+  counts:{initial:Number(Boolean(lessonInitial)),revision:Number(Boolean(lessonRevision))},
+  correct:lessonStep==='debrief'?'b':null,registered:18,
+  rooms:[1,2,3,4,5].map(i=>({room_no:i,participants:roomGroups[i-1].members,learning_points:0}))
+ });
  await page.route('**/v2-dean-cup',async route=>{
   const req=route.request();let input={};
   try{input=req.postDataJSON()}catch{}
-  const output=input.action==='exam'?{score:43.2}:fixture;
+  let output=sample;
+  if(input.action==='exam')output={score:43.2};
+  if(input.action==='learning_state')output=lessonState();
+  if(input.action==='learning_submit'){
+   if(input.kind==='initial')lessonInitial=input.choice;
+   else lessonRevision=input.choice;
+   output={accepted:true,already_submitted:false,choice:input.choice};
+  }
+  if(input.action==='learning_teacher'){
+   if(input.command==='evidence')lessonStep='evidence';
+   else if(input.command==='debrief')lessonStep='debrief';
+   output=lessonState();
+  }
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(output)});
  });
  const file=role==='player'?'dean-play':role==='wall'?'dean-wall':'dean-teacher';
@@ -60,10 +91,13 @@ async function testView(role,width,height){
   const clipped=await page.locator('.dean-wall .dean-team-empty .dean-rating').evaluateAll(nodes=>nodes.map(el=>({client:el.clientWidth,scroll:el.scrollWidth})));
   assert.ok(clipped.every(x=>x.scroll<=x.client+3),'Empty-room labels are clipped');
   assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5,'Wall needs exactly five rooms');
+  assert.equal(await page.locator('.dean-wall .dean-quest-wall-rooms>div').count(),5,'Five learning teams in Wall');
   const last=await page.locator('.dean-wall .dean-board>article').last().boundingBox();
   assert.ok(last && last.y+last.height<=height+2,`Last room outside screen: ${JSON.stringify(last)}`);
  }
  if(role==='player'){
+  await page.locator('.dean-quest').waitFor();
+  assert.equal(await page.locator('.dean-quest-option').count(),3,'Exactly three contextual choices');
   const hud=page.locator('.dean-hud');
   assert.equal(await hud.count(),1,'One compact HUD');
   const box=await hud.boundingBox();
@@ -93,22 +127,110 @@ async function testView(role,width,height){
   assert.ok(exam&&grade&&grade.y+grade.height<=exam.y+exam.height+2,'Grade feedback overlaps exam container');
  }
  if(role==='teacher'){
+  assert.ok(await page.locator('.dean-quest-control').isVisible(),'Teacher can teach and reveal evidence');
   const control=page.locator('.dean-teacher-toolbar .dean-teacher-next');
   assert.ok(await control.isVisible(),'Primary teacher action visible');
   if(width>=790){const b=await control.boundingBox();assert.ok(b && b.y+b.height<=height+2,'Teacher control below viewport')}
   assert.equal(await page.locator('.dean-teacher-page .dean-board>article').count(),5);
  }
  assert.deepEqual(errors,[],`${role} errors: ${errors.join('; ')}`);
- await page.screenshot({path:`visual-qa/${role}-${width}x${height}.png`,fullPage:false});
+ await page.screenshot({path:`visual-qa/${role}-${attendees}-${width}x${height}.png`,fullPage:false});
  console.log('PASS',role,width+'x'+height,JSON.stringify(metrics));
  await page.close();
 }
+// Quiz uses only fixtures; this validates the three-state UI and complete 1–30 ranking.
+async function testFinal(role,width,height,attendees){
+ const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const roomGroups=groupFixture(attendees);
+ const sample={...fixture,groups:roomGroups,phase:'final'};
+ let quizPhase='open',picked=null;
+ const roster=Array.from({length:attendees},(_,i)=>({
+  alias:'Jugador '+String(i+1).padStart(2,'0'),room_no:i%5+1,
+  points:120-i*5,position:i+1
+ }));
+ await page.addInitScript(({role,code})=>{
+  if(role==='player')localStorage.setItem('cw-dean-v2-'+code,'a'.repeat(64));
+  if(role==='teacher'){
+   sessionStorage.setItem('df_facilitator_game_code',code);
+   sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
+  }
+ },{role,code});
+ await page.route('**/v2-dean-cup',async route=>{
+  let input={};try{input=route.request().postDataJSON()}catch{}
+  let output=sample;
+  if(input.action==='learning_state')output={available:false};
+  if(input.action==='quiz_submit'){picked=input.choice;output={accepted:true,choice:picked}}
+  if(input.action==='quiz_state'){
+   output={
+    phase:quizPhase,auto_mode:true,question_no:quizPhase==='podium'?8:1,
+    participants:attendees,received:quizPhase==='open'?Number(Boolean(picked)):attendees,
+    deadline_at:quizPhase==='open'?new Date(Date.now()+30000).toISOString():null,
+    reveal_until:quizPhase==='reveal'?new Date(Date.now()+9000).toISOString():null,
+    server_now:new Date().toISOString(),my_points:15,my_position:Math.min(5,attendees),
+    mine:role==='player'?picked:null,leaderboard:roster,
+    question:{text:'Un R² de 0,95 demuestra que el bienestar causa mejores notas?',
+     options:{a:'Sí, la predicción es precisa',b:'No, precisión no identifica causalidad',
+      c:'Sí, siempre que la muestra sea grande',d:'No hay necesidad de comparar grupos'},
+     ...(quizPhase==='reveal'?{correct:'b',explanation:'Predecir una nota no equivale a estimar un efecto al intervenir.'}:{})},
+    counts:quizPhase==='reveal'?{a:4,b:Math.max(0,attendees-7),c:2,d:1}:null
+   };
+  }
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(output)});
+ });
+ const file=role==='player'?'dean-play':role==='wall'?'dean-wall':'dean-teacher';
+ await page.goto(base+'/'+file+'.html?game='+code,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-quiz-arena').waitFor({timeout:15000});
+ assert.equal(await page.locator('.dean-quiz-choice').count(),4,'All four answers are displayed');
+ assert.match(await page.locator('.dean-quiz-clock').innerText(),/30 s|29 s/,'Global 30-second timer');
+ assert.equal(await page.locator('.dean-quiz-choice.is-correct').count(),0,'Never reveal green while voting');
+ if(role==='player'){
+  await page.locator('.dean-quiz-choice').first().click();
+  assert.equal(await page.locator('.dean-quiz-choice.is-selected').count(),1,'Yellow selection shown, not success green');
+ }
+ const widthMetrics=await page.evaluate(()=>({height:document.documentElement.scrollHeight,width:document.documentElement.scrollWidth}));
+ assert.ok(widthMetrics.height<=height+3&&widthMetrics.width<=width+3,'The quiz must never cause body scrolling');
+ await page.screenshot({path:`visual-qa/final-open-${role}-${attendees}-${width}x${height}.png`,fullPage:false});
+ quizPhase='reveal';
+ await page.locator('.dean-quiz-results').waitFor({timeout:5000});
+ assert.equal(await page.locator('.dean-vote-row').count(),4,'Four frequency bars');
+ assert.equal(await page.locator('.dean-quiz-choice.is-correct').count(),1,'Correct choice turns green');
+ if(role==='player')assert.equal(await page.locator('.dean-quiz-choice.is-incorrect').count(),1,'Wrong selected choice turns red');
+ assert.ok(await page.locator('.dean-quiz-teaching').isVisible(),'Causal explanation is shown automatically');
+ await page.screenshot({path:`visual-qa/final-reveal-${role}-${attendees}-${width}x${height}.png`,fullPage:false});
+ quizPhase='podium';
+ await page.locator('.dean-final-ceremony').waitFor({timeout:5000});
+ assert.ok(await page.locator('.dean-final-medalist').count()>=1,'Winners get animated podium');
+ if(role!=='player'){
+  assert.equal(await page.locator('.dean-final-player').count(),attendees,'Facilitator and wall must show EVERY player');
+  if(width>=1000){
+   const last=await page.locator('.dean-final-player').last().boundingBox();
+   assert.ok(last && last.y+last.height<=height+2,'Last ranked player is off screen');
+   const rosterMetrics=await page.locator('.dean-final-roster').evaluate(e=>({scroll:e.scrollHeight,client:e.clientHeight}));
+   assert.ok(rosterMetrics.scroll<=rosterMetrics.client+3,'Desktop full final roster requires scrolling');
+  }
+ }else{
+  assert.match(await page.locator('.dean-my-place').innerText(),/Puesto #/,'Every participant sees their final position');
+ }
+ assert.ok(await page.locator('.dean-final-hero').isVisible(),'Celebration visible');
+ assert.ok(await page.locator('.dean-confetti').count()===1,'Winner confetti present');
+ const podiumMetrics=await page.evaluate(()=>({height:document.documentElement.scrollHeight,width:document.documentElement.scrollWidth}));
+ assert.ok(podiumMetrics.height<=height+3&&podiumMetrics.width<=width+3,'The podium must stay in the viewport');
+ assert.deepEqual(errors,[],'No browser JS runtime errors');
+ await page.screenshot({path:`visual-qa/final-podium-${role}-${attendees}-${width}x${height}.png`,fullPage:false});
+ console.log('PASS_FINAL',role,attendees,width+'x'+height);
+ await page.close();
+}
+
 try{
- for(const [w,h] of [[1366,768],[1920,1080],[390,844]]){
-  for(const role of ['player','wall','teacher']){
-   try{await testView(role,w,h)}catch(e){failures++;console.error('FAIL',role,w+'x'+h,e.stack||e)}
+ for(const attendees of [14,18,30]){
+  for(const [w,h] of [[1366,768],[1920,1080],[390,844]]){
+   for(const role of ['player','wall','teacher']){
+    try{await testView(role,w,h,attendees)}catch(e){failures++;console.error('FAIL',role,w+'x'+h,attendees,e.stack||e)}
+    try{await testFinal(role,w,h,attendees)}catch(e){failures++;console.error('FAIL_FINAL',role,w+'x'+h,attendees,e.stack||e)}
+   }
   }
  }
 }finally{await browser.close()}
 assert.equal(failures,0,`Visual viewport smoke failed for ${failures} cases`);
-console.log('DEAN_VISUAL_QA_OK · nine viewport/role checks · no production mutation');
+console.log('DEAN_VISUAL_QA_OK · 54 mission+quiz checks (plus reveal+podium) across attendee/role/viewport · no production mutation');

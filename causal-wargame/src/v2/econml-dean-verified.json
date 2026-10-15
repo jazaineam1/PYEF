@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "pending",
+  "provenance": {
+    "engine": "EconML",
+    "dgp": "zip_dgp_2026",
+    "execution": "PRECOMPUTED BENCHMARK NOT YET TRAINED",
+    "source": "causal-wargame/scripts/precompute_econml_dean.py"
+  },
+  "segments": [],
+  "metrics": {},
+  "note": "No afirmar entrenamiento EconML completado hasta que GitHub Actions publique datos verificados."
+}
