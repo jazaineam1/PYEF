@@ -5,7 +5,7 @@ import './dean-cup-layout.css';
 import DeanCausalAtlas from './DeanCausalAtlas.jsx';
 import DeanSciencePython from './DeanSciencePython.jsx';
 import DeanEconMLPanel from './DeanEconMLPanel.jsx';
-import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall} from './DeanCausalMissions.jsx';
+import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall,DeanABDiscovery} from './DeanCausalMissions.jsx';
 import DeanQuizArena from './DeanQuizArena.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
@@ -283,6 +283,7 @@ function DeanCausalLab({phase,token,version,step='challenge',missions}){
     </>}
   </div>}
   {rows&&layer!=='ab'&&<DeanCorrelationLab rows={rows} phase={phase} step={step} missions={missions} onSubmit={missions?.submit} busy={missions?.busy}/>}
+  {rows&&layer==='ab'&&<DeanABDiscovery rows={rows} step={step}/>}
   {rows&&<DeanSciencePython mode={layer} rows={rows}/>}
   {phase==='causal'&&layer==='ab'&&<DeanEconMLPanel/>}
   {phase!=='rector'&&<div className="dean-lab-dag" role="img" aria-label="DAG: historial previo influye en bienestar y nota; bienestar afecta estudio, sueño, fatiga y nota">
