@@ -62,6 +62,12 @@ begin
      left join public.cw_dean_arcade_lobby_ready rd on rd.player_id=p.id
      where p.game_id=gid)
     else '[]'::jsonb end,
+  'my_lobby_ready',case when p_hash is not null then
+    (select coalesce(rd.ready,false)
+     from public.cw_dean_players p
+     left join public.cw_dean_arcade_lobby_ready rd on rd.player_id=p.id
+     where p.game_id=gid and p.token_hash=p_hash)
+    else false end,
   'exam_count',max_exams,'game_mode',game_protocol,'dgp_version',coalesce(ver,'legacy_v1'),
   'canonical_source','chapter-causalidad-master/config/simulation_parameters.toml',
   'dgp_updated_on','2026-10-14',
