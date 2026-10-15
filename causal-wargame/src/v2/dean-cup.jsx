@@ -467,8 +467,9 @@ function Player(){
         ?<a className="dean-arcade-return" href={import.meta.env.VITE_DEAN_MAIN_ROOM_URL} target="_blank" rel="noreferrer">↗ ABRIR REUNIÓN PRINCIPAL</a>
         :<div className="dean-arcade-return">🎧 En Teams, elige «Regresar» para volver a la sala principal</div>}
      </section>:
-     state.phase==='lobby'?<section className="dean-arcade-finish"><div className="dean-emoji" aria-hidden="true">🎮</div><h2>¡A CALENTAR MOTORES!</h2><p>{examCount} parciales. Una Copa. Tu sala va por la gloria.</p><p>El docente iniciará la partida.</p></section>:
-     <Exam person={me} version={state.dgp_version} arcade examCount={examCount} agendaEnabled deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>)
+     state.phase==='lobby'?<DeanArcadeLobby players={state.lobby_players||[]} phase="lobby" room={me.room}
+      ownReady={state.my_lobby_ready===true} readyBusy={readyBusy} onReady={markReady} examCount={examCount}/>:
+     <Exam person={me} version={state.dgp_version} gameMode={state.game_mode} arcade examCount={examCount} agendaEnabled deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit} onSkip={state.game_mode==='real_hours_6_v1'?()=>quickComplete({skipConfirm:true}):null}/>)
    :['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
 
@@ -500,7 +501,7 @@ function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
- <div className="dean-wall-grid"><Board groups={value.groups} examCount={examCount}/><aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><p>Compite, suma puntos y trae los datos a la sala principal.</p><strong>{value.phase==='finished'?'🏁 PARTIDA CERRADA':'🎮 COPA EN MARCHA'}</strong></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
+ <div className="dean-wall-grid"><Board groups={value.groups} examCount={examCount}/><aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
  {value.phase==='final'&&value.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="wall"/>}
  {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}</>}
  </aside></div>
@@ -523,7 +524,7 @@ function DeanNewCupControl({game,disabled=false,onCreate}){
   {opened&&<div className="dean-reset-backdrop" role="presentation">
    <div className="dean-reset-dialog dean-new-cup-dialog" role="dialog" aria-modal="true" aria-labelledby="dean-new-cup-title">
     <h2 id="dean-new-cup-title">🏆 Comenzar una Copa nueva</h2>
-    <p>Se creará otra partida con un <strong>código único</strong>, cinco salas y cupos para 1–30 participantes. Empezará en el lobby con 10 exámenes.</p>
+    <p>Se creará otra partida con un <strong>código único</strong>, cinco salas y cupos para 1–30 participantes. Empezará en el lobby con 6 exámenes.</p>
     <p>La Copa <strong>{game}</strong> y todos sus resultados permanecerán intactos. Se conservará el PIN docente; el nuevo código aparecerá arriba para compartirlo con los jugadores.</p>
     {error&&<p role="alert" className="dean-reset-error">{error}</p>}
     <div className="dean-reset-actions">
@@ -676,7 +677,9 @@ function Teacher(){
  {state?.available?<div className="dean-teacher-grid">
  <Board groups={state.groups} examCount={examCount}/>
  <aside className="dean-teacher-sidebar">
-  {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite conjunto de 14 horas · cinco salas.</p><p>Los jugadores ven una animación por nota y descargan datos. Los conceptos se explican fuera del juego.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
+  {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · cinco salas.</p>
+     <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
+     <p>Un clic para iniciar, ninguno entre exámenes.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
   <details className="dean-teacher-extras">
