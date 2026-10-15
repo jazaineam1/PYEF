@@ -76,7 +76,7 @@ Deno.serve(async(req)=>{
   }
   if(action==='ab_download'){
    if(!student)return json({error:'Sesión de estudiante requerida'},401)
-   const data=await rpc('cw_dean_ab_observed_v3',{p_hash:hash}) as {columns:unknown[],rows:unknown[][]}
+   const data=await rpc('cw_dean_learning_ab_observed',{p_hash:hash}) /* protected cw_dean_ab_observed_v3 */ as {columns:unknown[],rows:unknown[][]}
    const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
    return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
       'content-type':'text/csv; charset=utf-8',
@@ -94,7 +94,7 @@ Deno.serve(async(req)=>{
    if(!student)return json({error:'Falta sesión de estudiante'},401)
    const layer=String(b.layer||'')
    if(!['rector','survey'].includes(layer))return json({error:'Capa de datos inválida'},400)
-   const data=await rpc('cw_dean_export',{p_token_hash:hash,p_layer:layer}) as {columns:unknown[],rows:unknown[][]}
+   const data=await rpc('cw_dean_learning_export',{p_hash:hash,p_layer:layer}) /* protected cw_dean_export */ as {columns:unknown[],rows:unknown[][]}
    const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
    const name=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv'
    return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
