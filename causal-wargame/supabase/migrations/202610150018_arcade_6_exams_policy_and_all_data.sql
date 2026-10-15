@@ -42,7 +42,14 @@ begin
  end if;
  select coalesce(max(exam_no),0) into previous from public.cw_dean_exam_records where player_id=p.id;
  if p_exam<>previous+1 then raise exception 'Rinde el siguiente parcial en orden';end if;
- if game_protocol in ('real_hours_6_v1','real_hours_10_v1') then
+ if game_protocol='real_hours_6_v1' then
+  case p.archetype
+    when 'over' then lo_h:=2;hi_h:=8;lo_s:=6;hi_s:=8;lo_b:=0;hi_b:=3;
+    when 'balanced' then lo_h:=1;hi_h:=6;lo_s:=7;hi_s:=9;lo_b:=0;hi_b:=4;
+    when 'risk' then lo_h:=0;hi_h:=5;lo_s:=6;hi_s:=8.5;lo_b:=0;hi_b:=4;
+    else lo_h:=0;hi_h:=5;lo_s:=7;hi_s:=9;lo_b:=1;hi_b:=4;
+  end case;
+ elsif game_protocol='real_hours_10_v1' then
   lo_h:=0;hi_h:=8;lo_s:=5.5;hi_s:=9;lo_b:=0;hi_b:=4;
  else
  case p.archetype
@@ -96,7 +103,14 @@ begin
  select coalesce(max(exam_no),0)+1 into next_exam from public.cw_dean_exam_records where player_id=p.id;
  select protocol into game_protocol from public.cw_dean_agenda_rules where game_id=p.game_id;
  max_exams:=case game_protocol when 'real_hours_6_v1' then 6 when 'real_hours_10_v1' then 10 else 15 end;
- if game_protocol in ('real_hours_6_v1','real_hours_10_v1') then h:=4;s:=8;b:=2;
+ if game_protocol='real_hours_6_v1' then
+   case p.archetype
+    when 'over' then h:=6;s:=6.5;b:=1.5;
+    when 'balanced' then h:=4;s:=8;b:=2;
+    when 'risk' then h:=3;s:=7;b:=2;
+    else h:=3;s:=8;b:=3;
+   end case;
+ elsif game_protocol='real_hours_10_v1' then h:=4;s:=8;b:=2;
  else
  case p.archetype
  when 'over' then h:=11.5;s:=3.5;b:=0.6;
