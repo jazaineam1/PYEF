@@ -115,6 +115,22 @@ export function useDeanLearning({token='',gameCode,enabled=true,teacherToken=''}
  return {data,error,busy,act};
 }
 
+function DeanMissionScene({phase,step}){
+ const seen=step!=='challenge';
+ return <div className={'dean-quest-scene dean-quest-scene-'+phase} aria-label="Escena del videojuego causal">
+  <span className="dean-quest-scene-tag">✦ CENTRO DE MANDO · MODO {seen?'EVIDENCIA':'INCERTIDUMBRE'}</span>
+  {phase==='lobby'?<div className="dean-quest-figures">
+   <div>🧑🏻‍🎓 <b>ANA</b><strong>PGA 4.6</strong><small>Beneficio: {seen?'no identificado':'???'}</small></div>
+   <span className="dean-quest-versus">VS</span>
+   <div>👩🏾‍🎓 <b>BRUNO</b><strong>PGA 2.9</strong><small>Beneficio: {seen?'no identificado':'???'}</small></div>
+  </div>:
+  phase==='exams'?<div className="dean-quest-figures"><div>📚 <b>ESTUDIO</b><strong>¿Cuánto?</strong></div><span className="dean-quest-versus">↔</span><div>😴 <b>DESCANSO</b><strong>¿Qué sacrificas?</strong></div><span className="dean-quest-versus">↔</span><div>🏃 <b>BIENESTAR</b><strong>¿Qué cambia?</strong></div></div>:
+  phase==='rector'?<div className="dean-quest-figures"><div>📊 <b>MAE · R²</b><strong>Predicción</strong><small>¿Qué ocurrirá?</small></div><span className="dean-quest-versus">≠</span><div>⚡ <b>do(B)</b><strong>Intervención</strong><small>¿Qué cambiaría?</small></div></div>:
+  phase==='survey'?<div className="dean-quest-figures"><div>🔎 <b>H · PGA</b><strong>Antes de B</strong></div><span className="dean-quest-versus">→</span><div>🏃 <b>B</b><strong>Bienestar</strong></div><span className="dean-quest-versus">→</span><div>📈 <b>Y</b><strong>Nota</strong></div></div>:
+  <div className="dean-quest-figures"><div>🪞 <b>FUTURO 0</b><strong>B = 0 h</strong></div><span className="dean-quest-versus">VS</span><div>⚡ <b>FUTURO 1</b><strong>B = 4 h</strong></div><div>🎟️ <b>CUPOS</b><strong>20 %</strong></div></div>}
+ </div>;
+}
+
 export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''}) {
  const scene=DEAN_ARC[phase];
  const [choice,setChoice]=useState('');
@@ -133,6 +149,7 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
    <span className="dean-quest-step">◆ {learningLabel(step)} {learning.paused?'· PAUSADO':''}</span>
   </div>
   <h2>{scene.title}</h2>
+  <DeanMissionScene phase={phase} step={step}/>
   <p className="dean-quest-question">{scene.question}</p>
   {step!=='challenge'&&<div className="dean-quest-reveal">
    <strong>⚡ NUEVA PISTA DEL SIMULADOR</strong><p>{scene.evidence}</p>
