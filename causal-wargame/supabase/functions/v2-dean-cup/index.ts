@@ -18,7 +18,7 @@ Deno.serve(async(req)=>{
   if(action==='teacher'){
    if(!teacher)return json({error:'Credencial del docente requerida'},401)
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
-   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_teacher_next_v3',{p_token:teacher})))
+   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_learning_next',{p_token:teacher}) /* wraps cw_dean_teacher_next_v3 with V2 learning gate */))
   }
   // Isolated teaching arc, stored on server; no correct option before debrief.
   if(action==='learning_state'){
