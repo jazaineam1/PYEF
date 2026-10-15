@@ -12,6 +12,7 @@
     "build": "npm run build:demo",
     "build:demo": "npm run generate:demo && vite build --mode demo",
     "build:secure": "vite build --mode secure && node scripts/assert_secure_bundle.mjs",
+    "test:visual": "playwright test",
     "preview": "vite preview --host 0.0.0.0",
     "test": "npm run generate:demo && node --test tests/*.test.mjs",
     "check": "npm run test && npm run build:demo && npm run build:secure"
@@ -22,5 +23,8 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "lucide-react": "1.45.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0"
   }
 }
