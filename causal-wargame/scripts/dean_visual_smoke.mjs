@@ -208,15 +208,19 @@ async function testCausalScience(role,phase,width,height){
   {waitUntil:'networkidle',timeout:45000});
  await page.locator('.dean-page').waitFor();
  if(role==='player'&&phase==='rector'){
+  await page.locator('.dean-mission-hub>summary').click();
   await page.locator('.dean-association').waitFor({timeout:12000});
   assert.ok(await page.locator('.dean-game-quest .dean-quest-choices').isVisible(),'Player sees game choices first');
   assert.ok(await page.locator('.dean-game-learn-more').count()>0,'Long pedagogy is optional');
+  assert.equal(await page.locator('.dean-rector-boss').count(),1,'Rector portrayed as an animated boss');
+  assert.match(await page.locator('.dean-game-quest .dean-quest-question').innerText(),/¿Qué orden firmas/);
   assert.match(await page.locator('.dean-association').innerText(),/r simple|r de Pearson/);
   assert.equal(await page.locator('.dean-association-scatter').count(),1,'Real-scene scatter drawn from CSV');
   await page.locator('.dean-source-select button').filter({hasText:'Referencia ZIP'}).click();
   assert.match(await page.locator('.dean-reference-values').innerText(),/−0,468/);
  }
  if(role==='player'&&phase==='survey'){
+  await page.locator('.dean-mission-hub>summary').click();
   await page.locator('[aria-label="Misión interactiva DAG evaluada"]').waitFor();
   const block=page.locator('[aria-label="Misión interactiva DAG evaluada"]');
   await block.getByRole('button',{name:/Arquetipo de origen/}).click();
@@ -226,6 +230,7 @@ async function testCausalScience(role,phase,width,height){
   await block.locator('.dean-mission-receipt').waitFor();
  }
  if(role==='player'&&phase==='causal'){
+  await page.locator('.dean-mission-hub>summary').click();
   await page.locator('[aria-label="Microjuego de Double Machine Learning"]').waitFor();
   await page.locator('[aria-label="Política de seis cupos de bienestar"]').waitFor();
   const dml=page.locator('[aria-label="Microjuego de Double Machine Learning"]');
@@ -256,6 +261,57 @@ async function testCausalScience(role,phase,width,height){
  assert.deepEqual(errors,[],'No science-stage runtime JS error');
  await page.screenshot({path:`visual-qa/causal-${phase}-${role}-${width}x${height}.png`,fullPage:false});
  console.log('PASS_CAUSAL_SCIENCE',phase,role,width+'x'+height);
+ await page.close();
+}
+
+async function testSixTokenAgenda(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ const errors=[];page.on('pageerror',err=>errors.push(err.message));
+ await page.addInitScript(code=>localStorage.setItem('cw-dean-v2-'+code,'a'.repeat(64)),code);
+ let submissions=0;
+ await page.route('**/v2-dean-cup',async route=>{
+  const b=route.request().postDataJSON();
+  let out={...fixture,game_code:code,agenda_enabled:true,phase:'exams',
+   mine:{...fixture.mine,archetype:'balanced',completed:7}};
+  if(b.action==='learning_state')out={available:true,phase:'exams',step:'challenge',
+   paused:false,registered:18,mine:{},counts:{initial:0,revision:0},rooms:[]};
+  if(b.action==='mission_state')out={available:false};
+  if(b.action==='exam'){
+   submissions++;
+   assert.ok(b.study>6,'Study must have increased');
+   assert.ok(b.sleep<7.5||b.wellness<2.5,'A tradeoff MUST accompany increased study');
+   // Recalculate per-profile agenda tokens from source ranges, not runtime assumptions.
+   const used=(b.study-4)*4/4+(b.sleep-6.5)*4/2+(b.wellness-1.5)*4/2;
+   assert.ok(used<=6.00001,'Never submit overspent tokens to SQL: '+used);
+   out={score:37.4};
+  }
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(out)});
+ });
+ await page.goto(base+'/dean-play.html?game='+code,{waitUntil:'networkidle',timeout:45000});
+ const hud=page.locator('.dean-agenda-hud');
+ await hud.waitFor({state:'visible',timeout:10000});
+ assert.match(await hud.innerText(),/6 fichas/);
+ const study=page.locator('.dean-slider input[type=range]').nth(0);
+ const sleep=page.locator('.dean-slider input[type=range]').nth(1);
+ const originalSleep=Number(await sleep.inputValue());
+ await study.focus();await study.press('ArrowRight');
+ await page.waitForTimeout(100);
+ assert.ok(Number(await study.inputValue())>6,'Study rose through keyboard-accessible slider');
+ assert.ok(Number(await sleep.inputValue())<originalSleep,'Sleep paid the opportunity cost');
+ assert.match(await page.locator('.dean-agenda-trade').innerText(),/Sacrificio/);
+ const button=page.locator('.dean-exam-action');
+ await button.click();
+ await page.locator('.dean-grade').waitFor({state:'visible',timeout:8000});
+ assert.equal(submissions,1,'One real exam action');
+ const dims=await page.evaluate(()=>({h:document.documentElement.scrollHeight,w:document.documentElement.scrollWidth}));
+ assert.ok(dims.h<=height+3&&dims.w<=width+3,'No body scroll with agenda');
+ if(width>800){
+  const action=await button.boundingBox();
+  assert.ok(action&&action.y+action.height<=height+2,'Exam submit fits on the screen');
+ }
+ assert.deepEqual(errors,[],'No browser runtime errors in agenda');
+ await page.screenshot({path:`visual-qa/agenda-sacrifice-${width}x${height}.png`,fullPage:false});
+ console.log('PASS_SIX_TOKEN_AGENDA',width,height);
  await page.close();
 }
 
@@ -502,6 +558,7 @@ async function testFinal(role,width,height,attendees){
 
 try{
  for(const [w,h] of [[1366,768],[390,844]]){
+  try{await testSixTokenAgenda(w,h)}catch(e){failures++;console.error('FAIL_AGENDA',w,h,e.stack||e)}
   try{await testCompactGameLobby(w,h)}catch(e){failures++;console.error('FAIL_COMPACT_GAME_LOBBY',w,h,e.stack||e)}
  }
  try{await testExpiredTeacherReset()}catch(e){failures++;console.error('FAIL_EXPIRED_TEACHER_RESET',e.stack||e)}

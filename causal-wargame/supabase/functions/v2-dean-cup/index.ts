@@ -13,7 +13,12 @@ Deno.serve(async(req)=>{
   if(action==='state'){
    if(!code)return json({error:'Código requerido'},400)
    await rpc('cw_dean_tick_v3',{p_game_code:code})
-   return json(await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}))
+   const state=await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}) as Record<string,unknown>
+   if(state?.dgp_version==='zip_dgp_2026'){
+    const schedule=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
+    return json({...state,agenda_enabled:schedule?.enabled===true,agenda_cap:6})
+   }
+   return json(state)
   }
   if(action==='teacher'){
    if(!teacher)return json({error:'Credencial del docente requerida'},401)

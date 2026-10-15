@@ -170,12 +170,28 @@ function DeanMissionScene({phase,step}){
    <div>👩🏾‍🎓 <b>BRUNO</b><strong>PGA 2.9</strong><small>Beneficio: {seen?'no identificado':'???'}</small></div>
   </div>:
   phase==='exams'?<div className="dean-quest-figures"><div>📚 <b>ESTUDIO</b><strong>¿Cuánto?</strong></div><span className="dean-quest-versus">↔</span><div>😴 <b>DESCANSO</b><strong>¿Qué sacrificas?</strong></div><span className="dean-quest-versus">↔</span><div>🏃 <b>BIENESTAR</b><strong>¿Qué cambia?</strong></div></div>:
-  phase==='rector'?<div className="dean-quest-figures"><div>📊 <b>MAE · R²</b><strong>Predicción</strong><small>¿Qué ocurrirá?</small></div><span className="dean-quest-versus">≠</span><div>⚡ <b>do(B)</b><strong>Intervención</strong><small>¿Qué cambiaría?</small></div></div>:
+  phase==='rector'?<div className={'dean-rector-heist '+(step==='debrief'?'dean-rector-revealed':'')}>
+    <div className="dean-rector-boss"><span className="dean-rector-avatar" aria-hidden="true">👨🏻‍💼</span>
+     <div><small>🏛️ ORDEN URGENTE DEL RECTOR</small><strong>«Las notas parecen altas… ¿quito bienestar?»</strong></div>
+    </div>
+    <div className="dean-rector-intel">
+     <div className="dean-rector-intel-card"><span>📊 PREDICCIÓN</span><strong>Nota esperada</strong><small>El modelo puede acertar o fallar.</small></div>
+     <div className="dean-rector-lock"><span aria-hidden="true">{step==='debrief'?'🔓':'🔐'}</span>
+      <b>{step==='debrief'?'¡TRAMPA DETECTADA!':'EFECTO REAL · ?'}</b></div>
+    </div>
+   </div>:
   phase==='survey'?<div className="dean-quest-figures"><div>🔎 <b>H · PGA</b><strong>Antes de B</strong></div><span className="dean-quest-versus">→</span><div>🏃 <b>B</b><strong>Bienestar</strong></div><span className="dean-quest-versus">→</span><div>📈 <b>Y</b><strong>Nota</strong></div></div>:
   <div className="dean-quest-figures"><div>🪞 <b>FUTURO 0</b><strong>B = 0 h</strong></div><span className="dean-quest-versus">VS</span><div>⚡ <b>FUTURO 1</b><strong>B = 4 h</strong></div><div>🎟️ <b>CUPOS</b><strong>20 %</strong></div></div>}
  </div>;
 }
 
+const GAME_QUESTIONS={
+ lobby:'¿A quién darías el cupo para lograr el MAYOR cambio?',
+ exams:'El equipo ganador duerme poco. ¿Imitarías su estrategia?',
+ rector:'El Rector quiere recortar bienestar por un gráfico. ¿Qué orden firmas?',
+ survey:'Elige qué variables sirven para comparar justamente.',
+ causal:'Solo quedan seis cupos. ¿A quién ayudarías y por qué?'
+};
 const GAME_CLUES={
  lobby:'Una nota prevista no revela cuánto cambiaría con una ayuda.',
  exams:'¡Cuidado! Las mejores notas no prueban la mejor política.',
@@ -190,10 +206,15 @@ const GAME_TAKEAWAYS={
  survey:'Ajusta causas previas, no mediadores.',
  causal:'ATE ≠ CATE. Decide con incertidumbre.'
 };
+const RECTOR_ENDINGS={
+ a:{icon:'🚨',title:'¡Recorte sin evidencia!',effect:'La universidad no sabe si la medida ayuda. La correlación no prueba el efecto.'},
+ b:{icon:'💸',title:'¡Presupuesto gastado!',effect:'Compraste predicción, pero no descubriste el efecto de intervenir.'},
+ c:{icon:'🧪',title:'¡Detectaste la trampa!',effect:'Pediste una comparación causal antes de cambiar la política.'}
+};
 const GAME_CHOICES={
  lobby:['Dar a Ana el cupo','Todavía NO sabemos quién gana más','Dar a Bruno el cupo'],
  exams:['Todos deben dormir menos','No generalizar: hay selección','Copiar al líder'],
- rector:['La asociación basta','Más árboles resuelven causalidad','Predecir NO prueba un efecto'],
+ rector:['✂️ Firmar el recorte','🖥️ Comprar más árboles','🧪 Exigir un experimento'],
  survey:['Controlar todo, incluso mediadores','Arquetipo y PGA; proteger mediadores','Ajustar toda variable correlacionada'],
  causal:['Elegir por nota prevista','Prometer el mismo ATE a todos','Usar CATE, incertidumbre y equidad']
 };
@@ -217,28 +238,33 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
   </div>
   <h2>{scene.title}</h2>
   <DeanMissionScene phase={phase} step={step}/>
-  <p className="dean-quest-question">{scene.question}</p>
+  <p className="dean-quest-question">{GAME_QUESTIONS[phase]}</p>
   {step!=='challenge'&&<p className="dean-game-clue" role="status">⚡ {GAME_CLUES[phase]}</p>}
-  <div className="dean-quest-choices" role="group" aria-label="Tu decisión causal">
+  {(actionAvailable||(!submitted&&step!=='debrief'))&&<div className="dean-quest-choices" role="group" aria-label="Tu decisión causal">
    {scene.choices.map((option,i)=>{
     const key=['a','b','c'][i];
     return <button type="button" key={key} disabled={!actionAvailable}
      aria-pressed={choiceValue===key} className={'dean-quest-option '+(choiceValue===key?'is-selected':'')}
      onClick={()=>setChoice(key)}><b>{key.toUpperCase()}</b><span>{GAME_CHOICES[phase][i]}</span></button>;
    })}
-  </div>
+  </div>}
   {actionAvailable?<button type="button" className="dean-quest-submit" disabled={!choice||busy}
     onClick={()=>onSubmit({action:'learning_submit',phase,kind,choice})}>
     {busy?'Guardando…':kind==='initial'?'⚡ CONFIRMAR DECISIÓN':'🛡️ REVISAR MI DECISIÓN'}
    </button>:<p className="dean-quest-receipt" role="status">
     {submitted?'✓ Decisión guardada.':'⏳ Esperando la siguiente etapa.'}
    </p>}
-  {step==='debrief'&&<div className="dean-quest-solution" role="status">
+  {step==='debrief'&&phase==='rector'&&<div className={'dean-rector-consequence dean-rector-consequence-'+(revision||initial||'c')} role="status">
+   <span aria-hidden="true">{RECTOR_ENDINGS[revision||initial||'c'].icon}</span>
+   <div><strong>{RECTOR_ENDINGS[revision||initial||'c'].title}</strong>
+     <small>{RECTOR_ENDINGS[revision||initial||'c'].effect}</small></div>
+  </div>}
+  {step==='debrief'&&<div className="dean-quest-solution dean-game-victory" role="status">
    <strong>🏆 {GAME_TAKEAWAYS[phase]}</strong>
-   <small>Respuesta: {learning.correct?.toUpperCase()||'—'} · El docente desbloqueó la explicación.</small>
+   <small>Decisión segura: {learning.correct?.toUpperCase()||'—'}. ¡El Rector necesita evidencia!</small>
   </div>}
   <details className="dean-game-learn-more">
-   <summary>📚 ¿Por qué? · Aprender causalidad</summary>
+   <summary>💡 Ver explicación (opcional)</summary>
    <p>{step==='challenge'?'Primero elige. El juego revelará nueva información cuando avance el docente.':scene.evidence}</p>
    {step==='debrief'&&<p>{scene.reveal} <b>Error frecuente:</b> {scene.trap}</p>}
    {step!=='challenge'&&<DeanLearningMap phase={phase}/>}

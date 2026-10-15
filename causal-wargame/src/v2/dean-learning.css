@@ -168,3 +168,60 @@
  .dean-game-quest .dean-quest-submit{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.dean-game-quest .dean-quest-option{transform:none!important}}
+
+
+/* Rector: show a game situation with animated boss, not a two-page lecture. */
+.dean-game-quest .dean-quest-scene-rector{min-height:175px;position:relative;isolation:isolate;overflow:hidden;
+ background:radial-gradient(ellipse at 25% 35%,#395671,#10253d 69%)}
+.dean-rector-heist{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+ gap:10px;align-items:center;padding:7px;min-height:132px}
+.dean-rector-boss{display:flex;align-items:center;gap:10px;background:#2e344b;border:2px solid #f7c989;
+ border-radius:14px;padding:10px;box-shadow:0 7px 0 #101a30}
+.dean-rector-avatar{font-size:clamp(39px,4.5vw,72px);line-height:1.05;
+ filter:drop-shadow(0 8px 6px #0008);animation:deanBossBob 2.7s ease-in-out infinite alternate}
+.dean-rector-boss>div{display:grid;gap:6px;min-width:0}
+.dean-rector-boss small{font-size:10px;color:#ffcc75;font-weight:950;letter-spacing:.6px}
+.dean-rector-boss strong{font-size:clamp(15px,1.6vw,23px);line-height:1.16;color:#fff}
+.dean-rector-intel{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
+.dean-rector-intel-card,.dean-rector-lock{display:flex;flex-direction:column;align-items:center;
+ justify-content:center;text-align:center;gap:6px;border:2px solid #7a9fa9;border-radius:13px;
+ padding:12px 8px;background:#142c44;min-height:118px}
+.dean-rector-intel-card span{font-size:12px;font-weight:950;color:#9ff5e3}
+.dean-rector-intel-card strong{font-size:clamp(12px,1.4vw,21px)}
+.dean-rector-intel-card small{font-size:10px;color:#c4dedb}
+.dean-rector-lock{border:2px dashed #ecbd5d;background:#3a3343}
+.dean-rector-lock span{font-size:35px;filter:drop-shadow(0 0 5px #ffe7a5)}
+.dean-rector-lock b{font-size:clamp(11px,1vw,15px);color:#ffe6a6}
+.dean-rector-revealed .dean-rector-lock{background:#215b45;border-color:#80ffd3;
+ animation:deanBossReveal .8s cubic-bezier(.16,1,.3,1)}
+.dean-game-victory{border:2px solid #84efc7;background:linear-gradient(120deg,#295d4b,#123b49);
+ padding:12px 17px;animation:deanBossReveal .55s ease both}
+.dean-game-victory strong{font-size:clamp(15px,1.4vw,23px)}
+.dean-game-quest .dean-quest-scene-rector .dean-quest-scene-tag{display:none}
+@keyframes deanBossBob{from{transform:translateY(-3px) rotate(-1deg)}to{transform:translateY(3px) rotate(1deg)}}
+@keyframes deanBossReveal{from{transform:scale(.94);opacity:.25}to{transform:scale(1);opacity:1}}
+@media(max-width:800px){
+ .dean-game-quest .dean-quest-scene-rector{min-height:0}
+ .dean-rector-heist{min-height:0;grid-template-columns:1fr;gap:6px;padding:3px}
+ .dean-rector-boss{min-height:65px;padding:6px}
+ .dean-rector-avatar{font-size:35px}
+ .dean-rector-boss strong{font-size:14px}
+ .dean-rector-intel-card,.dean-rector-lock{min-height:66px;padding:6px;gap:3px}
+ .dean-rector-lock span{font-size:24px}
+ .dean-rector-intel-card small{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .dean-rector-avatar,.dean-rector-revealed .dean-rector-lock,.dean-game-victory{animation:none}
+}
+
+
+.dean-rector-consequence{display:flex;align-items:center;gap:14px;border:2px solid #f5c77c;
+ border-radius:12px;padding:12px;background:linear-gradient(110deg,#494133,#203949);
+ animation:deanBossReveal .6s cubic-bezier(.2,1.4,.35,1) both}
+.dean-rector-consequence>span{font-size:clamp(31px,3vw,50px)}
+.dean-rector-consequence>div{display:grid;gap:3px}
+.dean-rector-consequence strong{font-size:clamp(14px,1.5vw,21px);color:#ffe2a0}
+.dean-rector-consequence small{font-size:clamp(11px,1vw,14px);line-height:1.3;color:#fff}
+.dean-rector-consequence-c{background:linear-gradient(110deg,#225b48,#124556);border-color:#91ffcb}
+.dean-rector-consequence-c strong{color:#d2ffdf}
+@media(prefers-reduced-motion:reduce){.dean-rector-consequence{animation:none}}
