@@ -287,7 +287,7 @@ function Player(){
  useEffect(()=>{if(!lastAward)return;const t=setTimeout(()=>setLastAward(null),4200);return()=>clearTimeout(t)},[lastAward]);
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  const me=state?.mine;
- const learning=useDeanLearning({token,gameCode:code,enabled:!!token});
+ const learning=useDeanLearning({token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'});
  async function join(){setBusy(true);setActionError('');const t=token||hexToken();localStorage.setItem(storageKey,t);
  try{const s=await call('join',{game_code:code,alias:alias.trim(),room},t);setToken(t);setValue(s)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function submit(v){const r=await call('exam',v,token);setLastAward({score:Number(r.score),nonce:Date.now()});setValue(await call('state',{game_code:code},token));return r}
@@ -320,7 +320,7 @@ function Player(){
   </main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
-function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({gameCode:code});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main className="dean-wall-main">
+function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
  <div className="dean-wall-grid"><Board groups={value.groups}/><aside className="dean-wall-story"><DeanLearningWall learning={learning.data} phase={value.phase}/>
  {value.phase==='final'&&<CupQuiz role="wall"/>}
@@ -332,7 +332,7 @@ function Teacher(){
  const [abSummary,setAbSummary]=useState(null);
  const [teacher,setTeacher]=useState(()=>sessionStorage.getItem('df_facilitator_game_code')===requestedGame?(sessionStorage.getItem('df_facilitator_token')||''):''),[game,setGame]=useState(requestedGame),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const {value:board}=useBoard('',!!teacher,game);
- const learning=useDeanLearning({gameCode:game,enabled:!!teacher,teacherToken:teacher});
+ const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026',teacherToken:teacher});
  useEffect(()=>{if(teacher)setState(board)},[teacher,board]);
  async function login(){setBusy(true);setErr('');try{const base=endpoint.replace(/\/v2-dean-cup$/,'');const r=await fetch(base+'/facilitator-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({game_code:game.toUpperCase(),pin})}),o=await r.json();if(!r.ok)throw Error(o.error||'PIN inválido');sessionStorage.setItem('df_facilitator_token',o.token);sessionStorage.setItem('df_facilitator_game_code',game.toUpperCase());setTeacher(o.token)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
@@ -352,7 +352,7 @@ function Teacher(){
  <aside className="dean-teacher-sidebar">
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
-  <DeanLearningWall learning={learning.data} phase={state.phase}/>
+  {state.dgp_version==='zip_dgp_2026'&&<DeanLearningWall learning={learning.data} phase={state.phase}/>}
   {state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
   {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
   <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Colab · Copa ↗</a>
