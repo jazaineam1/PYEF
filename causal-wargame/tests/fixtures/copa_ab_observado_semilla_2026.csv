@@ -1,0 +1,451 @@
+estudiante_id,examen_nro,arquetipo,pga_previo,asignatura,complejidad,tratamiento,horas_bienestar_sem,horas_estudio,horas_sueno,nota_final
+ab_01,1,Sobreexigido,3.83,Física Mecánica y Ondas,8.5,0,0.0,12.8,3.5,29.6
+ab_01,2,Sobreexigido,3.83,Econometría Aplicada,8.0,0,0.0,12.3,2.9,24.2
+ab_01,3,Sobreexigido,3.83,Estructuras de Datos y Algoritmos,7.5,0,0.0,12.5,4.0,41.4
+ab_01,4,Sobreexigido,3.83,Estadística y Probabilidad,7.0,0,0.0,11.8,3.5,30.7
+ab_01,5,Sobreexigido,3.83,Bases de Datos Relacionales,6.0,0,0.0,13.2,3.2,33.1
+ab_01,6,Sobreexigido,3.83,Metodología de la Investigación,4.5,0,0.0,11.6,3.6,38.5
+ab_01,7,Sobreexigido,3.83,Fundamentos de Gestión y Finanzas,4.0,0,0.0,11.3,3.9,41.0
+ab_01,8,Sobreexigido,3.83,Innovación y Emprendimiento,3.5,0,0.0,11.5,3.3,37.0
+ab_01,9,Sobreexigido,3.83,Comunicación Oral y Escrita,3.0,0,0.0,11.7,3.4,38.7
+ab_01,10,Sobreexigido,3.83,Ética Profesional y Ciudadanía,2.5,0,0.0,10.6,3.3,36.2
+ab_01,11,Sobreexigido,3.83,Cálculo Multivariable,9.0,0,0.0,13.2,3.7,30.6
+ab_01,12,Sobreexigido,3.83,Física Mecánica y Ondas,8.5,0,0.0,12.9,3.0,24.9
+ab_01,13,Sobreexigido,3.83,Econometría Aplicada,8.0,0,0.0,12.5,2.7,27.3
+ab_01,14,Sobreexigido,3.83,Estructuras de Datos y Algoritmos,7.5,0,0.0,12.7,2.8,26.1
+ab_01,15,Sobreexigido,3.83,Estadística y Probabilidad,7.0,0,0.0,12.0,4.4,44.8
+ab_02,1,Equilibrado,3.45,Econometría Aplicada,8.0,0,0.0,8.0,6.7,34.4
+ab_02,2,Equilibrado,3.45,Estructuras de Datos y Algoritmos,7.5,0,0.0,7.8,7.3,36.0
+ab_02,3,Equilibrado,3.45,Estadística y Probabilidad,7.0,0,0.0,7.9,7.1,36.0
+ab_02,4,Equilibrado,3.45,Bases de Datos Relacionales,6.0,0,0.0,7.6,6.6,35.1
+ab_02,5,Equilibrado,3.45,Metodología de la Investigación,4.5,0,0.0,7.0,6.5,35.4
+ab_02,6,Equilibrado,3.45,Fundamentos de Gestión y Finanzas,4.0,0,0.0,7.3,6.5,39.1
+ab_02,7,Equilibrado,3.45,Innovación y Emprendimiento,3.5,0,0.0,7.1,6.9,39.9
+ab_02,8,Equilibrado,3.45,Comunicación Oral y Escrita,3.0,0,0.0,6.8,6.9,42.1
+ab_02,9,Equilibrado,3.45,Ética Profesional y Ciudadanía,2.5,0,0.0,7.3,7.0,44.3
+ab_02,10,Equilibrado,3.45,Cálculo Multivariable,9.0,0,0.0,8.0,6.5,33.1
+ab_02,11,Equilibrado,3.45,Física Mecánica y Ondas,8.5,0,0.0,8.0,6.5,32.5
+ab_02,12,Equilibrado,3.45,Econometría Aplicada,8.0,0,0.0,8.0,6.5,34.5
+ab_02,13,Equilibrado,3.45,Estructuras de Datos y Algoritmos,7.5,0,0.0,7.9,6.5,34.0
+ab_02,14,Equilibrado,3.45,Estadística y Probabilidad,7.0,0,0.0,7.5,6.5,37.0
+ab_02,15,Equilibrado,3.45,Bases de Datos Relacionales,6.0,0,0.0,7.4,6.7,35.8
+ab_03,1,En Riesgo,2.45,Estructuras de Datos y Algoritmos,7.5,0,0.0,5.5,5.1,16.6
+ab_03,2,En Riesgo,2.45,Estadística y Probabilidad,7.0,0,0.0,5.5,4.9,16.5
+ab_03,3,En Riesgo,2.45,Bases de Datos Relacionales,6.0,0,0.0,5.5,4.8,19.9
+ab_03,4,En Riesgo,2.45,Metodología de la Investigación,4.5,0,0.0,4.9,5.1,20.1
+ab_03,5,En Riesgo,2.45,Fundamentos de Gestión y Finanzas,4.0,0,0.0,4.7,4.5,19.7
+ab_03,6,En Riesgo,2.45,Innovación y Emprendimiento,3.5,0,0.0,5.5,5.0,22.8
+ab_03,7,En Riesgo,2.45,Comunicación Oral y Escrita,3.0,0,0.0,5.5,4.8,23.4
+ab_03,8,En Riesgo,2.45,Ética Profesional y Ciudadanía,2.5,0,0.0,5.2,5.1,24.7
+ab_03,9,En Riesgo,2.45,Cálculo Multivariable,9.0,0,0.0,5.5,5.0,14.1
+ab_03,10,En Riesgo,2.45,Física Mecánica y Ondas,8.5,0,0.0,5.5,5.0,15.1
+ab_03,11,En Riesgo,2.45,Econometría Aplicada,8.0,0,0.0,5.5,4.9,15.0
+ab_03,12,En Riesgo,2.45,Estructuras de Datos y Algoritmos,7.5,0,0.0,5.2,5.3,19.6
+ab_03,13,En Riesgo,2.45,Estadística y Probabilidad,7.0,0,0.0,5.5,5.8,19.2
+ab_03,14,En Riesgo,2.45,Bases de Datos Relacionales,6.0,0,0.0,5.2,5.1,18.2
+ab_03,15,En Riesgo,2.45,Metodología de la Investigación,4.5,0,0.0,5.3,5.1,22.4
+ab_04,1,Pragmatico,3.43,Estadística y Probabilidad,7.0,1,4.0,3.0,7.5,25.4
+ab_04,2,Pragmatico,3.43,Bases de Datos Relacionales,6.0,1,4.0,2.5,8.5,25.5
+ab_04,3,Pragmatico,3.43,Metodología de la Investigación,4.5,1,4.0,2.4,8.3,31.0
+ab_04,4,Pragmatico,3.43,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.2,8.6,26.5
+ab_04,5,Pragmatico,3.43,Innovación y Emprendimiento,3.5,1,4.0,1.4,8.4,25.9
+ab_04,6,Pragmatico,3.43,Comunicación Oral y Escrita,3.0,1,4.0,1.2,8.0,29.9
+ab_04,7,Pragmatico,3.43,Ética Profesional y Ciudadanía,2.5,1,4.0,1.6,8.5,30.1
+ab_04,8,Pragmatico,3.43,Cálculo Multivariable,9.0,1,4.0,3.5,7.9,25.3
+ab_04,9,Pragmatico,3.43,Física Mecánica y Ondas,8.5,1,4.0,3.5,7.6,25.4
+ab_04,10,Pragmatico,3.43,Econometría Aplicada,8.0,1,4.0,2.5,7.6,20.9
+ab_04,11,Pragmatico,3.43,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.3,8.0,21.3
+ab_04,12,Pragmatico,3.43,Estadística y Probabilidad,7.0,1,4.0,2.2,8.1,24.9
+ab_04,13,Pragmatico,3.43,Bases de Datos Relacionales,6.0,1,4.0,2.3,8.1,23.8
+ab_04,14,Pragmatico,3.43,Metodología de la Investigación,4.5,1,4.0,2.5,7.3,27.9
+ab_04,15,Pragmatico,3.43,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.2,8.0,28.6
+ab_05,1,Sobreexigido,4.61,Bases de Datos Relacionales,6.0,1,4.0,9.9,4.1,50.0
+ab_05,2,Sobreexigido,4.61,Metodología de la Investigación,4.5,1,4.0,9.8,5.0,50.0
+ab_05,3,Sobreexigido,4.61,Fundamentos de Gestión y Finanzas,4.0,1,4.0,9.0,5.0,50.0
+ab_05,4,Sobreexigido,4.61,Innovación y Emprendimiento,3.5,1,4.0,9.0,4.6,50.0
+ab_05,5,Sobreexigido,4.61,Comunicación Oral y Escrita,3.0,1,4.0,8.4,4.8,50.0
+ab_05,6,Sobreexigido,4.61,Ética Profesional y Ciudadanía,2.5,1,4.0,8.0,4.7,50.0
+ab_05,7,Sobreexigido,4.61,Cálculo Multivariable,9.0,1,4.0,10.8,3.9,46.7
+ab_05,8,Sobreexigido,4.61,Física Mecánica y Ondas,8.5,1,4.0,9.9,5.0,50.0
+ab_05,9,Sobreexigido,4.61,Econometría Aplicada,8.0,1,4.0,10.3,4.2,48.9
+ab_05,10,Sobreexigido,4.61,Estructuras de Datos y Algoritmos,7.5,1,4.0,9.8,4.3,48.6
+ab_05,11,Sobreexigido,4.61,Estadística y Probabilidad,7.0,1,4.0,9.6,4.2,48.8
+ab_05,12,Sobreexigido,4.61,Bases de Datos Relacionales,6.0,1,4.0,8.4,5.0,50.0
+ab_05,13,Sobreexigido,4.61,Metodología de la Investigación,4.5,1,4.0,8.7,4.6,50.0
+ab_05,14,Sobreexigido,4.61,Fundamentos de Gestión y Finanzas,4.0,1,4.0,9.3,4.5,50.0
+ab_05,15,Sobreexigido,4.61,Innovación y Emprendimiento,3.5,1,4.0,8.0,5.0,50.0
+ab_06,1,Equilibrado,4.28,Metodología de la Investigación,4.5,0,0.0,7.7,6.8,47.6
+ab_06,2,Equilibrado,4.28,Fundamentos de Gestión y Finanzas,4.0,0,0.0,7.7,6.9,48.9
+ab_06,3,Equilibrado,4.28,Innovación y Emprendimiento,3.5,0,0.0,7.6,6.5,50.0
+ab_06,4,Equilibrado,4.28,Comunicación Oral y Escrita,3.0,0,0.0,7.5,6.5,50.0
+ab_06,5,Equilibrado,4.28,Ética Profesional y Ciudadanía,2.5,0,0.0,6.8,6.9,50.0
+ab_06,6,Equilibrado,4.28,Cálculo Multivariable,9.0,0,0.0,7.6,6.5,39.6
+ab_06,7,Equilibrado,4.28,Física Mecánica y Ondas,8.5,0,0.0,8.0,6.5,40.6
+ab_06,8,Equilibrado,4.28,Econometría Aplicada,8.0,0,0.0,8.0,6.5,41.7
+ab_06,9,Equilibrado,4.28,Estructuras de Datos y Algoritmos,7.5,0,0.0,8.0,6.9,45.0
+ab_06,10,Equilibrado,4.28,Estadística y Probabilidad,7.0,0,0.0,8.0,6.6,44.2
+ab_06,11,Equilibrado,4.28,Bases de Datos Relacionales,6.0,0,0.0,8.0,6.9,46.4
+ab_06,12,Equilibrado,4.28,Metodología de la Investigación,4.5,0,0.0,7.2,6.5,46.3
+ab_06,13,Equilibrado,4.28,Fundamentos de Gestión y Finanzas,4.0,0,0.0,7.1,7.1,47.2
+ab_06,14,Equilibrado,4.28,Innovación y Emprendimiento,3.5,0,0.0,7.0,6.5,49.4
+ab_06,15,Equilibrado,4.28,Comunicación Oral y Escrita,3.0,0,0.0,6.9,6.9,48.6
+ab_07,1,En Riesgo,2.71,Fundamentos de Gestión y Finanzas,4.0,0,0.0,4.9,5.3,26.6
+ab_07,2,En Riesgo,2.71,Innovación y Emprendimiento,3.5,0,0.0,5.1,5.0,25.0
+ab_07,3,En Riesgo,2.71,Comunicación Oral y Escrita,3.0,0,0.0,3.9,5.7,26.3
+ab_07,4,En Riesgo,2.71,Ética Profesional y Ciudadanía,2.5,0,0.0,4.4,5.9,25.5
+ab_07,5,En Riesgo,2.71,Cálculo Multivariable,9.0,0,0.0,5.5,5.4,15.2
+ab_07,6,En Riesgo,2.71,Física Mecánica y Ondas,8.5,0,0.0,5.4,5.6,19.2
+ab_07,7,En Riesgo,2.71,Econometría Aplicada,8.0,0,0.0,5.5,5.0,18.1
+ab_07,8,En Riesgo,2.71,Estructuras de Datos y Algoritmos,7.5,0,0.0,5.5,4.5,16.6
+ab_07,9,En Riesgo,2.71,Estadística y Probabilidad,7.0,0,0.0,5.4,5.4,21.8
+ab_07,10,En Riesgo,2.71,Bases de Datos Relacionales,6.0,0,0.0,4.8,5.4,21.6
+ab_07,11,En Riesgo,2.71,Metodología de la Investigación,4.5,0,0.0,4.6,5.2,21.8
+ab_07,12,En Riesgo,2.71,Fundamentos de Gestión y Finanzas,4.0,0,0.0,4.4,5.3,22.4
+ab_07,13,En Riesgo,2.71,Innovación y Emprendimiento,3.5,0,0.0,4.6,6.1,26.6
+ab_07,14,En Riesgo,2.71,Comunicación Oral y Escrita,3.0,0,0.0,4.3,5.4,24.5
+ab_07,15,En Riesgo,2.71,Ética Profesional y Ciudadanía,2.5,0,0.0,4.8,5.4,25.0
+ab_08,1,Pragmatico,3.02,Innovación y Emprendimiento,3.5,1,4.0,1.1,8.4,21.4
+ab_08,2,Pragmatico,3.02,Comunicación Oral y Escrita,3.0,1,4.0,0.6,8.3,21.0
+ab_08,3,Pragmatico,3.02,Ética Profesional y Ciudadanía,2.5,1,4.0,1.2,8.6,27.0
+ab_08,4,Pragmatico,3.02,Cálculo Multivariable,9.0,1,4.0,3.2,8.0,16.3
+ab_08,5,Pragmatico,3.02,Física Mecánica y Ondas,8.5,1,4.0,2.7,7.9,17.3
+ab_08,6,Pragmatico,3.02,Econometría Aplicada,8.0,1,4.0,3.1,7.8,20.1
+ab_08,7,Pragmatico,3.02,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.5,8.0,23.5
+ab_08,8,Pragmatico,3.02,Estadística y Probabilidad,7.0,1,4.0,2.6,8.1,24.4
+ab_08,9,Pragmatico,3.02,Bases de Datos Relacionales,6.0,1,4.0,1.9,7.9,18.6
+ab_08,10,Pragmatico,3.02,Metodología de la Investigación,4.5,1,4.0,3.3,7.1,27.8
+ab_08,11,Pragmatico,3.02,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.4,8.4,26.5
+ab_08,12,Pragmatico,3.02,Innovación y Emprendimiento,3.5,1,4.0,0.5,8.5,21.1
+ab_08,13,Pragmatico,3.02,Comunicación Oral y Escrita,3.0,1,4.0,1.0,8.1,26.6
+ab_08,14,Pragmatico,3.02,Ética Profesional y Ciudadanía,2.5,1,4.0,0.5,8.4,28.1
+ab_08,15,Pragmatico,3.02,Cálculo Multivariable,9.0,1,4.0,2.6,8.1,20.5
+ab_09,1,Sobreexigido,4.61,Comunicación Oral y Escrita,3.0,1,4.0,8.3,4.0,50.0
+ab_09,2,Sobreexigido,4.61,Ética Profesional y Ciudadanía,2.5,1,4.0,9.0,4.9,50.0
+ab_09,3,Sobreexigido,4.61,Cálculo Multivariable,9.0,1,4.0,9.5,4.4,46.2
+ab_09,4,Sobreexigido,4.61,Física Mecánica y Ondas,8.5,1,4.0,9.3,4.6,48.3
+ab_09,5,Sobreexigido,4.61,Econometría Aplicada,8.0,1,4.0,10.1,4.7,50.0
+ab_09,6,Sobreexigido,4.61,Estructuras de Datos y Algoritmos,7.5,1,4.0,9.4,4.9,50.0
+ab_09,7,Sobreexigido,4.61,Estadística y Probabilidad,7.0,1,4.0,9.9,5.0,50.0
+ab_09,8,Sobreexigido,4.61,Bases de Datos Relacionales,6.0,1,4.0,9.3,4.4,50.0
+ab_09,9,Sobreexigido,4.61,Metodología de la Investigación,4.5,1,4.0,8.6,4.6,50.0
+ab_09,10,Sobreexigido,4.61,Fundamentos de Gestión y Finanzas,4.0,1,4.0,9.4,4.7,50.0
+ab_09,11,Sobreexigido,4.61,Innovación y Emprendimiento,3.5,1,4.0,9.4,4.6,50.0
+ab_09,12,Sobreexigido,4.61,Comunicación Oral y Escrita,3.0,1,4.0,8.2,5.0,50.0
+ab_09,13,Sobreexigido,4.61,Ética Profesional y Ciudadanía,2.5,1,4.0,8.0,5.0,50.0
+ab_09,14,Sobreexigido,4.61,Cálculo Multivariable,9.0,1,4.0,10.7,4.6,50.0
+ab_09,15,Sobreexigido,4.61,Física Mecánica y Ondas,8.5,1,4.0,10.3,5.0,50.0
+ab_10,1,Equilibrado,4.08,Ética Profesional y Ciudadanía,2.5,1,4.0,4.3,8.3,43.9
+ab_10,2,Equilibrado,4.08,Cálculo Multivariable,9.0,1,4.0,6.8,8.1,40.6
+ab_10,3,Equilibrado,4.08,Física Mecánica y Ondas,8.5,1,4.0,5.6,8.5,37.2
+ab_10,4,Equilibrado,4.08,Econometría Aplicada,8.0,1,4.0,6.1,7.2,40.8
+ab_10,5,Equilibrado,4.08,Estructuras de Datos y Algoritmos,7.5,1,4.0,6.1,8.0,39.0
+ab_10,6,Equilibrado,4.08,Estadística y Probabilidad,7.0,1,4.0,5.8,7.8,39.1
+ab_10,7,Equilibrado,4.08,Bases de Datos Relacionales,6.0,1,4.0,5.3,8.2,40.5
+ab_10,8,Equilibrado,4.08,Metodología de la Investigación,4.5,1,4.0,5.6,7.7,45.0
+ab_10,9,Equilibrado,4.08,Fundamentos de Gestión y Finanzas,4.0,1,4.0,4.8,8.0,43.2
+ab_10,10,Equilibrado,4.08,Innovación y Emprendimiento,3.5,1,4.0,5.0,8.5,47.7
+ab_10,11,Equilibrado,4.08,Comunicación Oral y Escrita,3.0,1,4.0,4.0,8.5,41.2
+ab_10,12,Equilibrado,4.08,Ética Profesional y Ciudadanía,2.5,1,4.0,4.0,7.9,39.7
+ab_10,13,Equilibrado,4.08,Cálculo Multivariable,9.0,1,4.0,5.7,8.2,36.8
+ab_10,14,Equilibrado,4.08,Física Mecánica y Ondas,8.5,1,4.0,6.3,8.2,38.0
+ab_10,15,Equilibrado,4.08,Econometría Aplicada,8.0,1,4.0,5.2,8.0,37.9
+ab_11,1,En Riesgo,2.69,Cálculo Multivariable,9.0,1,4.0,3.6,5.5,13.3
+ab_11,2,En Riesgo,2.69,Física Mecánica y Ondas,8.5,1,4.0,3.8,6.7,16.7
+ab_11,3,En Riesgo,2.69,Econometría Aplicada,8.0,1,4.0,3.3,6.7,17.5
+ab_11,4,En Riesgo,2.69,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.9,6.2,18.4
+ab_11,5,En Riesgo,2.69,Estadística y Probabilidad,7.0,1,4.0,2.3,6.9,16.0
+ab_11,6,En Riesgo,2.69,Bases de Datos Relacionales,6.0,1,4.0,2.1,6.8,15.3
+ab_11,7,En Riesgo,2.69,Metodología de la Investigación,4.5,1,4.0,2.4,6.6,21.3
+ab_11,8,En Riesgo,2.69,Fundamentos de Gestión y Finanzas,4.0,1,4.0,2.0,6.3,20.1
+ab_11,9,En Riesgo,2.69,Innovación y Emprendimiento,3.5,1,4.0,2.1,6.6,21.8
+ab_11,10,En Riesgo,2.69,Comunicación Oral y Escrita,3.0,1,4.0,2.1,6.7,26.2
+ab_11,11,En Riesgo,2.69,Ética Profesional y Ciudadanía,2.5,1,4.0,2.0,7.0,24.3
+ab_11,12,En Riesgo,2.69,Cálculo Multivariable,9.0,1,4.0,2.8,6.4,10.2
+ab_11,13,En Riesgo,2.69,Física Mecánica y Ondas,8.5,1,4.0,4.4,5.6,17.4
+ab_11,14,En Riesgo,2.69,Econometría Aplicada,8.0,1,4.0,2.7,6.5,16.2
+ab_11,15,En Riesgo,2.69,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.8,6.8,17.7
+ab_12,1,Pragmatico,3.44,Física Mecánica y Ondas,8.5,1,4.0,3.2,7.5,24.6
+ab_12,2,Pragmatico,3.44,Econometría Aplicada,8.0,1,4.0,2.6,8.3,26.7
+ab_12,3,Pragmatico,3.44,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.4,7.7,25.5
+ab_12,4,Pragmatico,3.44,Estadística y Probabilidad,7.0,1,4.0,2.9,7.3,24.6
+ab_12,5,Pragmatico,3.44,Bases de Datos Relacionales,6.0,1,4.0,2.6,8.2,27.2
+ab_12,6,Pragmatico,3.44,Metodología de la Investigación,4.5,1,4.0,2.8,8.0,28.9
+ab_12,7,Pragmatico,3.44,Fundamentos de Gestión y Finanzas,4.0,1,4.0,0.5,8.7,25.9
+ab_12,8,Pragmatico,3.44,Innovación y Emprendimiento,3.5,1,4.0,1.0,8.7,28.7
+ab_12,9,Pragmatico,3.44,Comunicación Oral y Escrita,3.0,1,4.0,1.7,8.3,27.4
+ab_12,10,Pragmatico,3.44,Ética Profesional y Ciudadanía,2.5,1,4.0,1.4,8.0,30.9
+ab_12,11,Pragmatico,3.44,Cálculo Multivariable,9.0,1,4.0,3.0,8.0,21.3
+ab_12,12,Pragmatico,3.44,Física Mecánica y Ondas,8.5,1,4.0,2.6,7.5,20.9
+ab_12,13,Pragmatico,3.44,Econometría Aplicada,8.0,1,4.0,2.3,8.2,23.5
+ab_12,14,Pragmatico,3.44,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.2,8.7,25.7
+ab_12,15,Pragmatico,3.44,Estadística y Probabilidad,7.0,1,4.0,2.9,7.9,24.1
+ab_13,1,Sobreexigido,4.51,Econometría Aplicada,8.0,0,0.0,12.9,3.4,36.7
+ab_13,2,Sobreexigido,4.51,Estructuras de Datos y Algoritmos,7.5,0,0.0,13.2,3.4,38.6
+ab_13,3,Sobreexigido,4.51,Estadística y Probabilidad,7.0,0,0.0,13.0,2.4,31.5
+ab_13,4,Sobreexigido,4.51,Bases de Datos Relacionales,6.0,0,0.0,10.8,3.9,43.0
+ab_13,5,Sobreexigido,4.51,Metodología de la Investigación,4.5,0,0.0,11.4,3.6,45.9
+ab_13,6,Sobreexigido,4.51,Fundamentos de Gestión y Finanzas,4.0,0,0.0,11.0,4.4,50.0
+ab_13,7,Sobreexigido,4.51,Innovación y Emprendimiento,3.5,0,0.0,10.0,3.4,41.0
+ab_13,8,Sobreexigido,4.51,Comunicación Oral y Escrita,3.0,0,0.0,10.8,3.2,43.7
+ab_13,9,Sobreexigido,4.51,Ética Profesional y Ciudadanía,2.5,0,0.0,11.5,3.7,48.5
+ab_13,10,Sobreexigido,4.51,Cálculo Multivariable,9.0,0,0.0,12.1,2.7,27.4
+ab_13,11,Sobreexigido,4.51,Física Mecánica y Ondas,8.5,0,0.0,12.4,2.2,27.1
+ab_13,12,Sobreexigido,4.51,Econometría Aplicada,8.0,0,0.0,12.8,3.2,34.8
+ab_13,13,Sobreexigido,4.51,Estructuras de Datos y Algoritmos,7.5,0,0.0,12.0,3.1,33.6
+ab_13,14,Sobreexigido,4.51,Estadística y Probabilidad,7.0,0,0.0,12.7,3.4,37.9
+ab_13,15,Sobreexigido,4.51,Bases de Datos Relacionales,6.0,0,0.0,11.9,3.6,42.5
+ab_14,1,Equilibrado,3.93,Estructuras de Datos y Algoritmos,7.5,0,0.0,7.8,7.0,36.9
+ab_14,2,Equilibrado,3.93,Estadística y Probabilidad,7.0,0,0.0,8.0,6.7,42.5
+ab_14,3,Equilibrado,3.93,Bases de Datos Relacionales,6.0,0,0.0,8.0,6.5,43.2
+ab_14,4,Equilibrado,3.93,Metodología de la Investigación,4.5,0,0.0,7.0,6.5,45.4
+ab_14,5,Equilibrado,3.93,Fundamentos de Gestión y Finanzas,4.0,0,0.0,7.0,7.3,44.7
+ab_14,6,Equilibrado,3.93,Innovación y Emprendimiento,3.5,0,0.0,7.3,6.5,48.4
+ab_14,7,Equilibrado,3.93,Comunicación Oral y Escrita,3.0,0,0.0,7.8,6.6,47.0
+ab_14,8,Equilibrado,3.93,Ética Profesional y Ciudadanía,2.5,0,0.0,6.3,6.5,42.9
+ab_14,9,Equilibrado,3.93,Cálculo Multivariable,9.0,0,0.0,8.0,6.7,36.5
+ab_14,10,Equilibrado,3.93,Física Mecánica y Ondas,8.5,0,0.0,8.0,6.7,36.9
+ab_14,11,Equilibrado,3.93,Econometría Aplicada,8.0,0,0.0,8.0,6.7,40.0
+ab_14,12,Equilibrado,3.93,Estructuras de Datos y Algoritmos,7.5,0,0.0,7.9,6.5,38.8
+ab_14,13,Equilibrado,3.93,Estadística y Probabilidad,7.0,0,0.0,8.0,7.0,40.1
+ab_14,14,Equilibrado,3.93,Bases de Datos Relacionales,6.0,0,0.0,8.0,6.6,42.5
+ab_14,15,Equilibrado,3.93,Metodología de la Investigación,4.5,0,0.0,7.7,6.7,45.4
+ab_15,1,En Riesgo,2.66,Estadística y Probabilidad,7.0,0,0.0,5.5,4.5,20.0
+ab_15,2,En Riesgo,2.66,Bases de Datos Relacionales,6.0,0,0.0,5.2,4.6,21.3
+ab_15,3,En Riesgo,2.66,Metodología de la Investigación,4.5,0,0.0,4.9,5.1,22.2
+ab_15,4,En Riesgo,2.66,Fundamentos de Gestión y Finanzas,4.0,0,0.0,3.6,6.1,20.9
+ab_15,5,En Riesgo,2.66,Innovación y Emprendimiento,3.5,0,0.0,5.5,4.9,22.9
+ab_15,6,En Riesgo,2.66,Comunicación Oral y Escrita,3.0,0,0.0,4.2,5.9,26.7
+ab_15,7,En Riesgo,2.66,Ética Profesional y Ciudadanía,2.5,0,0.0,4.3,5.9,25.5
+ab_15,8,En Riesgo,2.66,Cálculo Multivariable,9.0,0,0.0,5.5,5.0,16.0
+ab_15,9,En Riesgo,2.66,Física Mecánica y Ondas,8.5,0,0.0,5.5,5.1,15.3
+ab_15,10,En Riesgo,2.66,Econometría Aplicada,8.0,0,0.0,5.5,4.9,14.4
+ab_15,11,En Riesgo,2.66,Estructuras de Datos y Algoritmos,7.5,0,0.0,5.5,5.3,17.1
+ab_15,12,En Riesgo,2.66,Estadística y Probabilidad,7.0,0,0.0,5.5,4.8,19.5
+ab_15,13,En Riesgo,2.66,Bases de Datos Relacionales,6.0,0,0.0,5.5,5.4,21.9
+ab_15,14,En Riesgo,2.66,Metodología de la Investigación,4.5,0,0.0,5.3,4.5,24.0
+ab_15,15,En Riesgo,2.66,Fundamentos de Gestión y Finanzas,4.0,0,0.0,5.4,4.5,23.3
+ab_16,1,Pragmatico,3.04,Bases de Datos Relacionales,6.0,1,4.0,2.7,8.3,27.9
+ab_16,2,Pragmatico,3.04,Metodología de la Investigación,4.5,1,4.0,2.5,8.0,26.0
+ab_16,3,Pragmatico,3.04,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.0,9.1,22.9
+ab_16,4,Pragmatico,3.04,Innovación y Emprendimiento,3.5,1,4.0,2.1,7.7,28.6
+ab_16,5,Pragmatico,3.04,Comunicación Oral y Escrita,3.0,1,4.0,0.8,8.9,24.5
+ab_16,6,Pragmatico,3.04,Ética Profesional y Ciudadanía,2.5,1,4.0,2.2,8.0,28.3
+ab_16,7,Pragmatico,3.04,Cálculo Multivariable,9.0,1,4.0,3.0,8.3,19.8
+ab_16,8,Pragmatico,3.04,Física Mecánica y Ondas,8.5,1,4.0,2.6,8.0,18.1
+ab_16,9,Pragmatico,3.04,Econometría Aplicada,8.0,1,4.0,2.4,8.0,22.2
+ab_16,10,Pragmatico,3.04,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.8,7.4,19.3
+ab_16,11,Pragmatico,3.04,Estadística y Probabilidad,7.0,1,4.0,2.7,8.1,21.9
+ab_16,12,Pragmatico,3.04,Bases de Datos Relacionales,6.0,1,4.0,1.6,7.5,19.5
+ab_16,13,Pragmatico,3.04,Metodología de la Investigación,4.5,1,4.0,0.7,8.6,22.9
+ab_16,14,Pragmatico,3.04,Fundamentos de Gestión y Finanzas,4.0,1,4.0,0.6,8.4,22.6
+ab_16,15,Pragmatico,3.04,Innovación y Emprendimiento,3.5,1,4.0,1.9,8.2,24.1
+ab_17,1,Sobreexigido,4.42,Metodología de la Investigación,4.5,0,0.0,11.7,3.6,43.1
+ab_17,2,Sobreexigido,4.42,Fundamentos de Gestión y Finanzas,4.0,0,0.0,12.0,3.1,40.3
+ab_17,3,Sobreexigido,4.42,Innovación y Emprendimiento,3.5,0,0.0,11.2,3.3,44.0
+ab_17,4,Sobreexigido,4.42,Comunicación Oral y Escrita,3.0,0,0.0,11.8,3.0,42.7
+ab_17,5,Sobreexigido,4.42,Ética Profesional y Ciudadanía,2.5,0,0.0,10.7,4.3,50.0
+ab_17,6,Sobreexigido,4.42,Cálculo Multivariable,9.0,0,0.0,13.6,3.3,33.5
+ab_17,7,Sobreexigido,4.42,Física Mecánica y Ondas,8.5,0,0.0,13.1,3.1,32.9
+ab_17,8,Sobreexigido,4.42,Econometría Aplicada,8.0,0,0.0,12.6,3.3,34.6
+ab_17,9,Sobreexigido,4.42,Estructuras de Datos y Algoritmos,7.5,0,0.0,12.8,3.3,36.9
+ab_17,10,Sobreexigido,4.42,Estadística y Probabilidad,7.0,0,0.0,13.2,2.6,33.3
+ab_17,11,Sobreexigido,4.42,Bases de Datos Relacionales,6.0,0,0.0,13.1,3.7,44.2
+ab_17,12,Sobreexigido,4.42,Metodología de la Investigación,4.5,0,0.0,11.7,4.1,50.0
+ab_17,13,Sobreexigido,4.42,Fundamentos de Gestión y Finanzas,4.0,0,0.0,11.6,3.2,41.0
+ab_17,14,Sobreexigido,4.42,Innovación y Emprendimiento,3.5,0,0.0,12.0,3.1,41.9
+ab_17,15,Sobreexigido,4.42,Comunicación Oral y Escrita,3.0,0,0.0,10.9,4.0,50.0
+ab_18,1,Equilibrado,3.77,Fundamentos de Gestión y Finanzas,4.0,0,0.0,7.6,6.5,45.1
+ab_18,2,Equilibrado,3.77,Innovación y Emprendimiento,3.5,0,0.0,8.0,6.5,47.2
+ab_18,3,Equilibrado,3.77,Comunicación Oral y Escrita,3.0,0,0.0,6.9,7.3,46.9
+ab_18,4,Equilibrado,3.77,Ética Profesional y Ciudadanía,2.5,0,0.0,6.1,7.6,45.3
+ab_18,5,Equilibrado,3.77,Cálculo Multivariable,9.0,0,0.0,8.0,6.5,35.0
+ab_18,6,Equilibrado,3.77,Física Mecánica y Ondas,8.5,0,0.0,8.0,6.6,37.0
+ab_18,7,Equilibrado,3.77,Econometría Aplicada,8.0,0,0.0,8.0,6.5,35.5
+ab_18,8,Equilibrado,3.77,Estructuras de Datos y Algoritmos,7.5,0,0.0,8.0,6.9,37.1
+ab_18,9,Equilibrado,3.77,Estadística y Probabilidad,7.0,0,0.0,7.6,6.5,38.5
+ab_18,10,Equilibrado,3.77,Bases de Datos Relacionales,6.0,0,0.0,7.8,6.8,41.0
+ab_18,11,Equilibrado,3.77,Metodología de la Investigación,4.5,0,0.0,6.6,7.1,40.4
+ab_18,12,Equilibrado,3.77,Fundamentos de Gestión y Finanzas,4.0,0,0.0,8.0,7.1,47.2
+ab_18,13,Equilibrado,3.77,Innovación y Emprendimiento,3.5,0,0.0,8.0,6.5,45.3
+ab_18,14,Equilibrado,3.77,Comunicación Oral y Escrita,3.0,0,0.0,7.2,6.5,46.3
+ab_18,15,Equilibrado,3.77,Ética Profesional y Ciudadanía,2.5,0,0.0,7.5,6.8,46.8
+ab_19,1,En Riesgo,2.87,Innovación y Emprendimiento,3.5,0,0.0,5.5,5.4,28.2
+ab_19,2,En Riesgo,2.87,Comunicación Oral y Escrita,3.0,0,0.0,4.6,5.5,27.1
+ab_19,3,En Riesgo,2.87,Ética Profesional y Ciudadanía,2.5,0,0.0,3.7,5.3,24.3
+ab_19,4,En Riesgo,2.87,Cálculo Multivariable,9.0,0,0.0,5.5,4.6,14.7
+ab_19,5,En Riesgo,2.87,Física Mecánica y Ondas,8.5,0,0.0,5.5,4.5,14.7
+ab_19,6,En Riesgo,2.87,Econometría Aplicada,8.0,0,0.0,5.4,4.6,18.8
+ab_19,7,En Riesgo,2.87,Estructuras de Datos y Algoritmos,7.5,0,0.0,5.5,4.8,18.8
+ab_19,8,En Riesgo,2.87,Estadística y Probabilidad,7.0,0,0.0,5.5,5.0,22.0
+ab_19,9,En Riesgo,2.87,Bases de Datos Relacionales,6.0,0,0.0,5.5,4.8,22.7
+ab_19,10,En Riesgo,2.87,Metodología de la Investigación,4.5,0,0.0,4.7,5.8,24.4
+ab_19,11,En Riesgo,2.87,Fundamentos de Gestión y Finanzas,4.0,0,0.0,5.5,4.6,25.7
+ab_19,12,En Riesgo,2.87,Innovación y Emprendimiento,3.5,0,0.0,5.3,5.2,27.0
+ab_19,13,En Riesgo,2.87,Comunicación Oral y Escrita,3.0,0,0.0,4.9,5.5,29.5
+ab_19,14,En Riesgo,2.87,Ética Profesional y Ciudadanía,2.5,0,0.0,4.4,5.8,26.8
+ab_19,15,En Riesgo,2.87,Cálculo Multivariable,9.0,0,0.0,5.5,4.9,18.6
+ab_20,1,Pragmatico,3.56,Comunicación Oral y Escrita,3.0,1,4.0,0.8,9.5,28.1
+ab_20,2,Pragmatico,3.56,Ética Profesional y Ciudadanía,2.5,1,4.0,1.4,9.3,33.1
+ab_20,3,Pragmatico,3.56,Cálculo Multivariable,9.0,1,4.0,3.4,7.7,22.7
+ab_20,4,Pragmatico,3.56,Física Mecánica y Ondas,8.5,1,4.0,2.6,8.6,21.6
+ab_20,5,Pragmatico,3.56,Econometría Aplicada,8.0,1,4.0,3.5,7.6,26.5
+ab_20,6,Pragmatico,3.56,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.9,8.5,26.6
+ab_20,7,Pragmatico,3.56,Estadística y Probabilidad,7.0,1,4.0,2.8,8.1,27.4
+ab_20,8,Pragmatico,3.56,Bases de Datos Relacionales,6.0,1,4.0,1.7,7.9,28.3
+ab_20,9,Pragmatico,3.56,Metodología de la Investigación,4.5,1,4.0,1.7,7.8,26.3
+ab_20,10,Pragmatico,3.56,Fundamentos de Gestión y Finanzas,4.0,1,4.0,2.3,7.5,31.1
+ab_20,11,Pragmatico,3.56,Innovación y Emprendimiento,3.5,1,4.0,1.4,8.5,30.6
+ab_20,12,Pragmatico,3.56,Comunicación Oral y Escrita,3.0,1,4.0,1.3,8.7,31.2
+ab_20,13,Pragmatico,3.56,Ética Profesional y Ciudadanía,2.5,1,4.0,1.5,8.4,34.5
+ab_20,14,Pragmatico,3.56,Cálculo Multivariable,9.0,1,4.0,2.9,8.0,21.8
+ab_20,15,Pragmatico,3.56,Física Mecánica y Ondas,8.5,1,4.0,2.4,8.1,24.1
+ab_21,1,Sobreexigido,4.2,Ética Profesional y Ciudadanía,2.5,1,4.0,8.3,5.0,50.0
+ab_21,2,Sobreexigido,4.2,Cálculo Multivariable,9.0,1,4.0,9.5,5.0,43.9
+ab_21,3,Sobreexigido,4.2,Física Mecánica y Ondas,8.5,1,4.0,10.5,4.0,48.1
+ab_21,4,Sobreexigido,4.2,Econometría Aplicada,8.0,1,4.0,10.0,5.0,47.6
+ab_21,5,Sobreexigido,4.2,Estructuras de Datos y Algoritmos,7.5,1,4.0,9.8,5.0,48.0
+ab_21,6,Sobreexigido,4.2,Estadística y Probabilidad,7.0,1,4.0,9.8,4.5,48.2
+ab_21,7,Sobreexigido,4.2,Bases de Datos Relacionales,6.0,1,4.0,9.1,4.7,46.9
+ab_21,8,Sobreexigido,4.2,Metodología de la Investigación,4.5,1,4.0,9.1,4.4,50.0
+ab_21,9,Sobreexigido,4.2,Fundamentos de Gestión y Finanzas,4.0,1,4.0,8.9,4.7,50.0
+ab_21,10,Sobreexigido,4.2,Innovación y Emprendimiento,3.5,1,4.0,8.4,5.0,50.0
+ab_21,11,Sobreexigido,4.2,Comunicación Oral y Escrita,3.0,1,4.0,8.3,4.8,50.0
+ab_21,12,Sobreexigido,4.2,Ética Profesional y Ciudadanía,2.5,1,4.0,8.6,4.7,50.0
+ab_21,13,Sobreexigido,4.2,Cálculo Multivariable,9.0,1,4.0,10.8,4.9,46.7
+ab_21,14,Sobreexigido,4.2,Física Mecánica y Ondas,8.5,1,4.0,9.5,4.3,43.8
+ab_21,15,Sobreexigido,4.2,Econometría Aplicada,8.0,1,4.0,9.6,4.6,45.8
+ab_22,1,Equilibrado,4.17,Cálculo Multivariable,9.0,1,4.0,5.7,8.1,33.2
+ab_22,2,Equilibrado,4.17,Física Mecánica y Ondas,8.5,1,4.0,5.9,7.5,34.4
+ab_22,3,Equilibrado,4.17,Econometría Aplicada,8.0,1,4.0,5.8,7.5,39.8
+ab_22,4,Equilibrado,4.17,Estructuras de Datos y Algoritmos,7.5,1,4.0,5.4,7.2,39.1
+ab_22,5,Equilibrado,4.17,Estadística y Probabilidad,7.0,1,4.0,5.1,7.4,37.6
+ab_22,6,Equilibrado,4.17,Bases de Datos Relacionales,6.0,1,4.0,4.0,7.8,37.3
+ab_22,7,Equilibrado,4.17,Metodología de la Investigación,4.5,1,4.0,4.7,8.2,46.1
+ab_22,8,Equilibrado,4.17,Fundamentos de Gestión y Finanzas,4.0,1,4.0,4.0,8.4,39.4
+ab_22,9,Equilibrado,4.17,Innovación y Emprendimiento,3.5,1,4.0,4.5,7.4,41.3
+ab_22,10,Equilibrado,4.17,Comunicación Oral y Escrita,3.0,1,4.0,4.0,7.9,43.5
+ab_22,11,Equilibrado,4.17,Ética Profesional y Ciudadanía,2.5,1,4.0,4.1,8.5,46.4
+ab_22,12,Equilibrado,4.17,Cálculo Multivariable,9.0,1,4.0,5.5,7.9,38.7
+ab_22,13,Equilibrado,4.17,Física Mecánica y Ondas,8.5,1,4.0,5.8,7.7,37.6
+ab_22,14,Equilibrado,4.17,Econometría Aplicada,8.0,1,4.0,5.2,7.8,37.4
+ab_22,15,Equilibrado,4.17,Estructuras de Datos y Algoritmos,7.5,1,4.0,4.9,7.2,38.5
+ab_23,1,En Riesgo,2.03,Física Mecánica y Ondas,8.5,1,4.0,3.5,6.2,10.1
+ab_23,2,En Riesgo,2.03,Econometría Aplicada,8.0,1,4.0,3.6,6.5,8.9
+ab_23,3,En Riesgo,2.03,Estructuras de Datos y Algoritmos,7.5,1,4.0,3.3,7.0,11.4
+ab_23,4,En Riesgo,2.03,Estadística y Probabilidad,7.0,1,4.0,3.5,6.7,12.4
+ab_23,5,En Riesgo,2.03,Bases de Datos Relacionales,6.0,1,4.0,2.0,6.9,11.9
+ab_23,6,En Riesgo,2.03,Metodología de la Investigación,4.5,1,4.0,2.0,7.0,14.6
+ab_23,7,En Riesgo,2.03,Fundamentos de Gestión y Finanzas,4.0,1,4.0,2.0,6.2,11.1
+ab_23,8,En Riesgo,2.03,Innovación y Emprendimiento,3.5,1,4.0,2.3,7.0,19.2
+ab_23,9,En Riesgo,2.03,Comunicación Oral y Escrita,3.0,1,4.0,2.0,5.9,12.4
+ab_23,10,En Riesgo,2.03,Ética Profesional y Ciudadanía,2.5,1,4.0,2.0,7.0,14.6
+ab_23,11,En Riesgo,2.03,Cálculo Multivariable,9.0,1,4.0,3.3,6.2,6.9
+ab_23,12,En Riesgo,2.03,Física Mecánica y Ondas,8.5,1,4.0,3.7,6.7,7.6
+ab_23,13,En Riesgo,2.03,Econometría Aplicada,8.0,1,4.0,2.5,7.0,8.9
+ab_23,14,En Riesgo,2.03,Estructuras de Datos y Algoritmos,7.5,1,4.0,3.4,5.8,8.1
+ab_23,15,En Riesgo,2.03,Estadística y Probabilidad,7.0,1,4.0,2.9,6.7,12.9
+ab_24,1,Pragmatico,3.46,Econometría Aplicada,8.0,1,4.0,2.5,8.7,25.3
+ab_24,2,Pragmatico,3.46,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.1,8.1,26.1
+ab_24,3,Pragmatico,3.46,Estadística y Probabilidad,7.0,1,4.0,2.9,7.8,27.3
+ab_24,4,Pragmatico,3.46,Bases de Datos Relacionales,6.0,1,4.0,2.6,8.1,26.2
+ab_24,5,Pragmatico,3.46,Metodología de la Investigación,4.5,1,4.0,2.9,8.1,33.7
+ab_24,6,Pragmatico,3.46,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.7,8.6,30.9
+ab_24,7,Pragmatico,3.46,Innovación y Emprendimiento,3.5,1,4.0,1.3,8.6,27.3
+ab_24,8,Pragmatico,3.46,Comunicación Oral y Escrita,3.0,1,4.0,0.9,8.7,29.5
+ab_24,9,Pragmatico,3.46,Ética Profesional y Ciudadanía,2.5,1,4.0,1.1,7.9,28.8
+ab_24,10,Pragmatico,3.46,Cálculo Multivariable,9.0,1,4.0,3.1,7.4,22.2
+ab_24,11,Pragmatico,3.46,Física Mecánica y Ondas,8.5,1,4.0,2.0,8.0,21.0
+ab_24,12,Pragmatico,3.46,Econometría Aplicada,8.0,1,4.0,1.7,7.7,23.5
+ab_24,13,Pragmatico,3.46,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.8,8.2,26.4
+ab_24,14,Pragmatico,3.46,Estadística y Probabilidad,7.0,1,4.0,2.8,8.5,24.8
+ab_24,15,Pragmatico,3.46,Bases de Datos Relacionales,6.0,1,4.0,1.9,8.4,26.5
+ab_25,1,Sobreexigido,3.88,Estructuras de Datos y Algoritmos,7.5,1,4.0,8.5,5.0,41.4
+ab_25,2,Sobreexigido,3.88,Estadística y Probabilidad,7.0,1,4.0,10.1,4.9,45.7
+ab_25,3,Sobreexigido,3.88,Bases de Datos Relacionales,6.0,1,4.0,8.9,4.3,44.8
+ab_25,4,Sobreexigido,3.88,Metodología de la Investigación,4.5,1,4.0,9.3,5.0,48.1
+ab_25,5,Sobreexigido,3.88,Fundamentos de Gestión y Finanzas,4.0,1,4.0,8.0,4.8,46.8
+ab_25,6,Sobreexigido,3.88,Innovación y Emprendimiento,3.5,1,4.0,8.0,5.0,45.6
+ab_25,7,Sobreexigido,3.88,Comunicación Oral y Escrita,3.0,1,4.0,9.2,4.6,50.0
+ab_25,8,Sobreexigido,3.88,Ética Profesional y Ciudadanía,2.5,1,4.0,8.5,4.9,48.9
+ab_25,9,Sobreexigido,3.88,Cálculo Multivariable,9.0,1,4.0,10.3,4.5,40.6
+ab_25,10,Sobreexigido,3.88,Física Mecánica y Ondas,8.5,1,4.0,10.2,4.5,41.7
+ab_25,11,Sobreexigido,3.88,Econometría Aplicada,8.0,1,4.0,10.5,4.6,44.4
+ab_25,12,Sobreexigido,3.88,Estructuras de Datos y Algoritmos,7.5,1,4.0,10.4,4.7,47.9
+ab_25,13,Sobreexigido,3.88,Estadística y Probabilidad,7.0,1,4.0,9.4,4.4,45.5
+ab_25,14,Sobreexigido,3.88,Bases de Datos Relacionales,6.0,1,4.0,8.6,4.8,43.6
+ab_25,15,Sobreexigido,3.88,Metodología de la Investigación,4.5,1,4.0,8.7,4.1,45.1
+ab_26,1,Equilibrado,3.82,Estadística y Probabilidad,7.0,0,0.0,8.0,7.0,39.8
+ab_26,2,Equilibrado,3.82,Bases de Datos Relacionales,6.0,0,0.0,8.0,6.5,41.2
+ab_26,3,Equilibrado,3.82,Metodología de la Investigación,4.5,0,0.0,6.6,7.1,43.0
+ab_26,4,Equilibrado,3.82,Fundamentos de Gestión y Finanzas,4.0,0,0.0,6.8,7.2,41.3
+ab_26,5,Equilibrado,3.82,Innovación y Emprendimiento,3.5,0,0.0,8.0,6.5,48.1
+ab_26,6,Equilibrado,3.82,Comunicación Oral y Escrita,3.0,0,0.0,6.8,6.7,46.7
+ab_26,7,Equilibrado,3.82,Ética Profesional y Ciudadanía,2.5,0,0.0,6.6,7.2,44.9
+ab_26,8,Equilibrado,3.82,Cálculo Multivariable,9.0,0,0.0,8.0,6.5,35.6
+ab_26,9,Equilibrado,3.82,Física Mecánica y Ondas,8.5,0,0.0,8.0,6.5,37.4
+ab_26,10,Equilibrado,3.82,Econometría Aplicada,8.0,0,0.0,8.0,6.5,36.1
+ab_26,11,Equilibrado,3.82,Estructuras de Datos y Algoritmos,7.5,0,0.0,8.0,6.7,38.3
+ab_26,12,Equilibrado,3.82,Estadística y Probabilidad,7.0,0,0.0,7.7,6.9,40.7
+ab_26,13,Equilibrado,3.82,Bases de Datos Relacionales,6.0,0,0.0,7.9,6.6,41.0
+ab_26,14,Equilibrado,3.82,Metodología de la Investigación,4.5,0,0.0,7.0,6.7,42.7
+ab_26,15,Equilibrado,3.82,Fundamentos de Gestión y Finanzas,4.0,0,0.0,7.4,6.5,45.4
+ab_27,1,En Riesgo,2.11,Bases de Datos Relacionales,6.0,0,0.0,5.4,4.9,15.8
+ab_27,2,En Riesgo,2.11,Metodología de la Investigación,4.5,0,0.0,4.7,5.0,17.9
+ab_27,3,En Riesgo,2.11,Fundamentos de Gestión y Finanzas,4.0,0,0.0,5.4,5.9,20.4
+ab_27,4,En Riesgo,2.11,Innovación y Emprendimiento,3.5,0,0.0,4.5,4.7,17.7
+ab_27,5,En Riesgo,2.11,Comunicación Oral y Escrita,3.0,0,0.0,4.1,5.5,17.7
+ab_27,6,En Riesgo,2.11,Ética Profesional y Ciudadanía,2.5,0,0.0,4.3,4.5,16.6
+ab_27,7,En Riesgo,2.11,Cálculo Multivariable,9.0,0,0.0,5.5,4.6,7.2
+ab_27,8,En Riesgo,2.11,Física Mecánica y Ondas,8.5,0,0.0,5.5,4.9,8.6
+ab_27,9,En Riesgo,2.11,Econometría Aplicada,8.0,0,0.0,5.5,5.6,13.7
+ab_27,10,En Riesgo,2.11,Estructuras de Datos y Algoritmos,7.5,0,0.0,5.5,4.8,12.1
+ab_27,11,En Riesgo,2.11,Estadística y Probabilidad,7.0,0,0.0,5.2,5.6,15.8
+ab_27,12,En Riesgo,2.11,Bases de Datos Relacionales,6.0,0,0.0,5.4,5.4,14.9
+ab_27,13,En Riesgo,2.11,Metodología de la Investigación,4.5,0,0.0,5.3,4.5,19.4
+ab_27,14,En Riesgo,2.11,Fundamentos de Gestión y Finanzas,4.0,0,0.0,5.5,5.1,17.9
+ab_27,15,En Riesgo,2.11,Innovación y Emprendimiento,3.5,0,0.0,4.8,4.7,18.9
+ab_28,1,Pragmatico,3.5,Metodología de la Investigación,4.5,1,4.0,1.4,8.4,26.8
+ab_28,2,Pragmatico,3.5,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.5,7.7,27.6
+ab_28,3,Pragmatico,3.5,Innovación y Emprendimiento,3.5,1,4.0,2.6,9.0,33.8
+ab_28,4,Pragmatico,3.5,Comunicación Oral y Escrita,3.0,1,4.0,1.8,8.2,28.2
+ab_28,5,Pragmatico,3.5,Ética Profesional y Ciudadanía,2.5,1,4.0,1.7,8.4,32.2
+ab_28,6,Pragmatico,3.5,Cálculo Multivariable,9.0,1,4.0,3.5,7.9,24.7
+ab_28,7,Pragmatico,3.5,Física Mecánica y Ondas,8.5,1,4.0,3.0,7.8,25.7
+ab_28,8,Pragmatico,3.5,Econometría Aplicada,8.0,1,4.0,2.2,7.9,19.9
+ab_28,9,Pragmatico,3.5,Estructuras de Datos y Algoritmos,7.5,1,4.0,2.2,9.0,26.3
+ab_28,10,Pragmatico,3.5,Estadística y Probabilidad,7.0,1,4.0,2.4,8.2,24.2
+ab_28,11,Pragmatico,3.5,Bases de Datos Relacionales,6.0,1,4.0,2.6,8.4,31.3
+ab_28,12,Pragmatico,3.5,Metodología de la Investigación,4.5,1,4.0,2.2,7.9,28.3
+ab_28,13,Pragmatico,3.5,Fundamentos de Gestión y Finanzas,4.0,1,4.0,1.9,8.1,28.2
+ab_28,14,Pragmatico,3.5,Innovación y Emprendimiento,3.5,1,4.0,1.2,8.5,31.4
+ab_28,15,Pragmatico,3.5,Comunicación Oral y Escrita,3.0,1,4.0,1.2,7.5,30.1
+ab_29,1,Sobreexigido,3.85,Fundamentos de Gestión y Finanzas,4.0,1,4.0,8.7,5.0,48.4
+ab_29,2,Sobreexigido,3.85,Innovación y Emprendimiento,3.5,1,4.0,8.3,4.7,48.0
+ab_29,3,Sobreexigido,3.85,Comunicación Oral y Escrita,3.0,1,4.0,8.0,5.0,49.1
+ab_29,4,Sobreexigido,3.85,Ética Profesional y Ciudadanía,2.5,1,4.0,8.0,5.0,48.3
+ab_29,5,Sobreexigido,3.85,Cálculo Multivariable,9.0,1,4.0,10.4,4.2,38.3
+ab_29,6,Sobreexigido,3.85,Física Mecánica y Ondas,8.5,1,4.0,9.0,5.0,39.4
+ab_29,7,Sobreexigido,3.85,Econometría Aplicada,8.0,1,4.0,9.5,4.3,43.0
+ab_29,8,Sobreexigido,3.85,Estructuras de Datos y Algoritmos,7.5,1,4.0,9.9,4.4,39.7
+ab_29,9,Sobreexigido,3.85,Estadística y Probabilidad,7.0,1,4.0,10.6,5.0,48.2
+ab_29,10,Sobreexigido,3.85,Bases de Datos Relacionales,6.0,1,4.0,8.9,3.9,41.7
+ab_29,11,Sobreexigido,3.85,Metodología de la Investigación,4.5,1,4.0,8.5,5.0,45.5
+ab_29,12,Sobreexigido,3.85,Fundamentos de Gestión y Finanzas,4.0,1,4.0,8.3,5.0,48.6
+ab_29,13,Sobreexigido,3.85,Innovación y Emprendimiento,3.5,1,4.0,8.1,4.7,45.7
+ab_29,14,Sobreexigido,3.85,Comunicación Oral y Escrita,3.0,1,4.0,8.7,4.9,49.5
+ab_29,15,Sobreexigido,3.85,Ética Profesional y Ciudadanía,2.5,1,4.0,8.2,4.9,50.0
+ab_30,1,Equilibrado,3.48,Innovación y Emprendimiento,3.5,1,4.0,4.4,8.5,36.7
+ab_30,2,Equilibrado,3.48,Comunicación Oral y Escrita,3.0,1,4.0,4.6,8.0,39.4
+ab_30,3,Equilibrado,3.48,Ética Profesional y Ciudadanía,2.5,1,4.0,4.0,8.1,37.4
+ab_30,4,Equilibrado,3.48,Cálculo Multivariable,9.0,1,4.0,6.1,8.0,33.6
+ab_30,5,Equilibrado,3.48,Física Mecánica y Ondas,8.5,1,4.0,6.0,7.3,29.6
+ab_30,6,Equilibrado,3.48,Econometría Aplicada,8.0,1,4.0,5.8,7.3,31.5
+ab_30,7,Equilibrado,3.48,Estructuras de Datos y Algoritmos,7.5,1,4.0,5.9,8.4,34.1
+ab_30,8,Equilibrado,3.48,Estadística y Probabilidad,7.0,1,4.0,6.1,8.3,34.2
+ab_30,9,Equilibrado,3.48,Bases de Datos Relacionales,6.0,1,4.0,5.3,8.1,33.2
+ab_30,10,Equilibrado,3.48,Metodología de la Investigación,4.5,1,4.0,4.0,8.4,31.8
+ab_30,11,Equilibrado,3.48,Fundamentos de Gestión y Finanzas,4.0,1,4.0,4.7,8.2,34.6
+ab_30,12,Equilibrado,3.48,Innovación y Emprendimiento,3.5,1,4.0,4.3,8.3,37.6
+ab_30,13,Equilibrado,3.48,Comunicación Oral y Escrita,3.0,1,4.0,4.2,7.9,35.7
+ab_30,14,Equilibrado,3.48,Ética Profesional y Ciudadanía,2.5,1,4.0,4.9,8.2,40.6
+ab_30,15,Equilibrado,3.48,Cálculo Multivariable,9.0,1,4.0,5.7,7.8,29.9

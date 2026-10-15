@@ -1,0 +1,451 @@
+estudiante_id,examen_nro,asignatura,complejidad,pga_previo,horas_bienestar_sem,nota_final,sala
+p01,1,Cálculo Multivariable,9.0,3.4,4.5,23.6,4
+p01,2,Física Mecánica y Ondas,8.5,3.4,4.5,20.5,4
+p01,3,Econometría Aplicada,8.0,3.4,4.5,23.8,4
+p01,4,Estructuras de Datos y Algoritmos,7.5,3.4,5.0,25.4,4
+p01,5,Estadística y Probabilidad,7.0,3.4,4.5,23.8,4
+p01,6,Bases de Datos Relacionales,6.0,3.4,4.5,27.2,4
+p01,7,Metodología de la Investigación,4.5,3.4,4.5,30.4,4
+p01,8,Fundamentos de Gestión y Finanzas,4.0,3.4,4.5,30.0,4
+p01,9,Innovación y Emprendimiento,3.5,3.4,4.5,29.6,4
+p01,10,Comunicación Oral y Escrita,3.0,3.4,5.0,34.8,4
+p01,11,Ética Profesional y Ciudadanía,2.5,3.4,4.0,35.4,4
+p01,12,Cálculo Multivariable,9.0,3.4,3.5,20.7,4
+p01,13,Física Mecánica y Ondas,8.5,3.4,5.0,21.6,4
+p01,14,Econometría Aplicada,8.0,3.4,4.0,23.5,4
+p01,15,Estructuras de Datos y Algoritmos,7.5,3.4,5.0,27.2,4
+p02,1,Cálculo Multivariable,9.0,4.2,2.5,34.3,5
+p02,2,Física Mecánica y Ondas,8.5,4.2,2.5,36.0,5
+p02,3,Econometría Aplicada,8.0,4.2,2.5,39.1,5
+p02,4,Estructuras de Datos y Algoritmos,7.5,4.2,2.5,43.1,5
+p02,5,Estadística y Probabilidad,7.0,4.2,2.5,40.1,5
+p02,6,Bases de Datos Relacionales,6.0,4.2,2.5,43.0,5
+p02,7,Metodología de la Investigación,4.5,4.2,2.5,43.5,5
+p02,8,Fundamentos de Gestión y Finanzas,4.0,4.2,2.5,44.5,5
+p02,9,Innovación y Emprendimiento,3.5,4.2,2.5,43.9,5
+p02,10,Comunicación Oral y Escrita,3.0,4.2,2.5,47.9,5
+p02,11,Ética Profesional y Ciudadanía,2.5,4.2,2.5,50.0,5
+p02,12,Cálculo Multivariable,9.0,4.2,2.5,36.6,5
+p02,13,Física Mecánica y Ondas,8.5,4.2,2.5,40.3,5
+p02,14,Econometría Aplicada,8.0,4.2,2.5,39.3,5
+p02,15,Estructuras de Datos y Algoritmos,7.5,4.2,2.5,39.8,5
+p03,1,Cálculo Multivariable,9.0,4.1,0.6,31.0,5
+p03,2,Física Mecánica y Ondas,8.5,4.1,0.6,31.0,5
+p03,3,Econometría Aplicada,8.0,4.1,0.6,31.3,5
+p03,4,Estructuras de Datos y Algoritmos,7.5,4.1,0.6,34.2,5
+p03,5,Estadística y Probabilidad,7.0,4.1,0.6,34.9,5
+p03,6,Bases de Datos Relacionales,6.0,4.1,0.6,37.8,5
+p03,7,Metodología de la Investigación,4.5,4.1,0.6,42.3,5
+p03,8,Fundamentos de Gestión y Finanzas,4.0,4.1,0.6,41.4,5
+p03,9,Innovación y Emprendimiento,3.5,4.1,0.6,43.5,5
+p03,10,Comunicación Oral y Escrita,3.0,4.1,0.6,44.6,5
+p03,11,Ética Profesional y Ciudadanía,2.5,4.1,0.6,45.1,5
+p03,12,Cálculo Multivariable,9.0,4.1,0.6,31.0,5
+p03,13,Física Mecánica y Ondas,8.5,4.1,0.6,31.3,5
+p03,14,Econometría Aplicada,8.0,4.1,0.6,32.4,5
+p03,15,Estructuras de Datos y Algoritmos,7.5,4.1,0.6,34.8,5
+p04,1,Cálculo Multivariable,9.0,2.7,4.0,21.5,3
+p04,2,Física Mecánica y Ondas,8.5,2.7,4.0,24.7,3
+p04,3,Econometría Aplicada,8.0,2.7,4.0,22.5,3
+p04,4,Estructuras de Datos y Algoritmos,7.5,2.7,4.0,22.2,3
+p04,5,Estadística y Probabilidad,7.0,2.7,4.0,21.5,3
+p04,6,Bases de Datos Relacionales,6.0,2.7,4.0,24.8,3
+p04,7,Metodología de la Investigación,4.5,2.7,4.0,30.6,3
+p04,8,Fundamentos de Gestión y Finanzas,4.0,2.7,4.0,27.9,3
+p04,9,Innovación y Emprendimiento,3.5,2.7,4.0,30.4,3
+p04,10,Comunicación Oral y Escrita,3.0,2.7,4.0,35.4,3
+p04,11,Ética Profesional y Ciudadanía,2.5,2.7,4.0,34.3,3
+p04,12,Cálculo Multivariable,9.0,2.7,4.0,24.1,3
+p04,13,Física Mecánica y Ondas,8.5,2.7,4.0,20.5,3
+p04,14,Econometría Aplicada,8.0,2.7,4.0,19.1,3
+p04,15,Estructuras de Datos y Algoritmos,7.5,2.7,4.0,26.3,3
+p05,1,Cálculo Multivariable,9.0,3.9,0.6,28.4,4
+p05,2,Física Mecánica y Ondas,8.5,3.9,0.6,29.0,4
+p05,3,Econometría Aplicada,8.0,3.9,0.6,31.8,4
+p05,4,Estructuras de Datos y Algoritmos,7.5,3.9,0.6,33.1,4
+p05,5,Estadística y Probabilidad,7.0,3.9,0.6,33.7,4
+p05,6,Bases de Datos Relacionales,6.0,3.9,0.6,35.8,4
+p05,7,Metodología de la Investigación,4.5,3.9,0.6,39.4,4
+p05,8,Fundamentos de Gestión y Finanzas,4.0,3.9,0.6,39.4,4
+p05,9,Innovación y Emprendimiento,3.5,3.9,0.6,40.9,4
+p05,10,Comunicación Oral y Escrita,3.0,3.9,0.6,41.9,4
+p05,11,Ética Profesional y Ciudadanía,2.5,3.9,0.6,42.2,4
+p05,12,Cálculo Multivariable,9.0,3.9,0.6,28.8,4
+p05,13,Física Mecánica y Ondas,8.5,3.9,0.6,28.6,4
+p05,14,Econometría Aplicada,8.0,3.9,0.6,30.5,4
+p05,15,Estructuras de Datos y Algoritmos,7.5,3.9,0.6,30.6,4
+p06,1,Cálculo Multivariable,9.0,3.4,1.5,33.5,4
+p06,2,Física Mecánica y Ondas,8.5,3.4,1.5,37.5,4
+p06,3,Econometría Aplicada,8.0,3.4,1.5,36.0,4
+p06,4,Estructuras de Datos y Algoritmos,7.5,3.4,1.5,34.2,4
+p06,5,Estadística y Probabilidad,7.0,3.4,1.5,40.2,4
+p06,6,Bases de Datos Relacionales,6.0,3.4,1.5,37.0,4
+p06,7,Metodología de la Investigación,4.5,3.4,1.5,42.4,4
+p06,8,Fundamentos de Gestión y Finanzas,4.0,3.4,1.5,43.2,4
+p06,9,Innovación y Emprendimiento,3.5,3.4,1.5,41.5,4
+p06,10,Comunicación Oral y Escrita,3.0,3.4,1.5,46.1,4
+p06,11,Ética Profesional y Ciudadanía,2.5,3.4,1.5,45.3,4
+p06,12,Cálculo Multivariable,9.0,3.4,1.5,33.5,4
+p06,13,Física Mecánica y Ondas,8.5,3.4,1.5,32.9,4
+p06,14,Econometría Aplicada,8.0,3.4,1.5,36.5,4
+p06,15,Estructuras de Datos y Algoritmos,7.5,3.4,1.5,34.4,4
+p07,1,Cálculo Multivariable,9.0,2.9,1.5,17.1,1
+p07,2,Física Mecánica y Ondas,8.5,2.9,1.5,18.7,1
+p07,3,Econometría Aplicada,8.0,2.9,1.5,22.1,1
+p07,4,Estructuras de Datos y Algoritmos,7.5,2.9,1.5,22.1,1
+p07,5,Estadística y Probabilidad,7.0,2.9,1.5,22.5,1
+p07,6,Bases de Datos Relacionales,6.0,2.9,1.5,25.1,1
+p07,7,Metodología de la Investigación,4.5,2.9,1.5,25.7,1
+p07,8,Fundamentos de Gestión y Finanzas,4.0,2.9,1.5,28.5,1
+p07,9,Innovación y Emprendimiento,3.5,2.9,1.5,29.9,1
+p07,10,Comunicación Oral y Escrita,3.0,2.9,1.5,30.3,1
+p07,11,Ética Profesional y Ciudadanía,2.5,2.9,1.5,30.0,1
+p07,12,Cálculo Multivariable,9.0,2.9,1.5,12.8,1
+p07,13,Física Mecánica y Ondas,8.5,2.9,1.5,19.4,1
+p07,14,Econometría Aplicada,8.0,2.9,1.5,19.8,1
+p07,15,Estructuras de Datos y Algoritmos,7.5,2.9,1.5,20.2,1
+p08,1,Cálculo Multivariable,9.0,3.4,6.0,26.3,2
+p08,2,Física Mecánica y Ondas,8.5,3.4,6.0,24.5,2
+p08,3,Econometría Aplicada,8.0,3.4,6.0,25.5,2
+p08,4,Estructuras de Datos y Algoritmos,7.5,3.4,6.0,29.3,2
+p08,5,Estadística y Probabilidad,7.0,3.4,6.0,29.7,2
+p08,6,Bases de Datos Relacionales,6.0,3.4,6.0,31.6,2
+p08,7,Metodología de la Investigación,4.5,3.4,6.0,34.4,2
+p08,8,Fundamentos de Gestión y Finanzas,4.0,3.4,6.0,35.7,2
+p08,9,Innovación y Emprendimiento,3.5,3.4,6.0,36.0,2
+p08,10,Comunicación Oral y Escrita,3.0,3.4,6.0,37.1,2
+p08,11,Ética Profesional y Ciudadanía,2.5,3.4,6.0,38.1,2
+p08,12,Cálculo Multivariable,9.0,3.4,6.0,27.5,2
+p08,13,Física Mecánica y Ondas,8.5,3.4,6.0,26.1,2
+p08,14,Econometría Aplicada,8.0,3.4,6.0,29.1,2
+p08,15,Estructuras de Datos y Algoritmos,7.5,3.4,6.0,29.7,2
+p09,1,Cálculo Multivariable,9.0,4.4,1.0,28.8,3
+p09,2,Física Mecánica y Ondas,8.5,4.4,1.5,29.9,3
+p09,3,Econometría Aplicada,8.0,4.4,0.5,30.4,3
+p09,4,Estructuras de Datos y Algoritmos,7.5,4.4,1.0,35.1,3
+p09,5,Estadística y Probabilidad,7.0,4.4,0.0,40.7,3
+p09,6,Bases de Datos Relacionales,6.0,4.4,0.0,31.2,3
+p09,7,Metodología de la Investigación,4.5,4.4,0.0,39.8,3
+p09,8,Fundamentos de Gestión y Finanzas,4.0,4.4,0.5,50.0,3
+p09,9,Innovación y Emprendimiento,3.5,4.4,1.5,50.0,3
+p09,10,Comunicación Oral y Escrita,3.0,4.4,1.0,50.0,3
+p09,11,Ética Profesional y Ciudadanía,2.5,4.4,1.5,40.5,3
+p09,12,Cálculo Multivariable,9.0,4.4,1.5,42.8,3
+p09,13,Física Mecánica y Ondas,8.5,4.4,0.0,39.4,3
+p09,14,Econometría Aplicada,8.0,4.4,1.0,30.1,3
+p09,15,Estructuras de Datos y Algoritmos,7.5,4.4,1.5,40.9,3
+p10,1,Cálculo Multivariable,9.0,4.1,1.5,39.3,5
+p10,2,Física Mecánica y Ondas,8.5,4.1,1.5,41.4,5
+p10,3,Econometría Aplicada,8.0,4.1,1.5,41.6,5
+p10,4,Estructuras de Datos y Algoritmos,7.5,4.1,1.5,42.0,5
+p10,5,Estadística y Probabilidad,7.0,4.1,1.5,43.3,5
+p10,6,Bases de Datos Relacionales,6.0,4.1,1.5,47.0,5
+p10,7,Metodología de la Investigación,4.5,4.1,1.5,46.5,5
+p10,8,Fundamentos de Gestión y Finanzas,4.0,4.1,1.5,50.0,5
+p10,9,Innovación y Emprendimiento,3.5,4.1,1.5,50.0,5
+p10,10,Comunicación Oral y Escrita,3.0,4.1,1.5,50.0,5
+p10,11,Ética Profesional y Ciudadanía,2.5,4.1,1.5,50.0,5
+p10,12,Cálculo Multivariable,9.0,4.1,1.5,37.8,5
+p10,13,Física Mecánica y Ondas,8.5,4.1,1.5,43.8,5
+p10,14,Econometría Aplicada,8.0,4.1,1.5,43.0,5
+p10,15,Estructuras de Datos y Algoritmos,7.5,4.1,1.5,43.0,5
+p11,1,Cálculo Multivariable,9.0,2.5,2.5,13.2,1
+p11,2,Física Mecánica y Ondas,8.5,2.5,2.5,12.3,1
+p11,3,Econometría Aplicada,8.0,2.5,2.5,14.7,1
+p11,4,Estructuras de Datos y Algoritmos,7.5,2.5,2.5,13.7,1
+p11,5,Estadística y Probabilidad,7.0,2.5,2.5,16.8,1
+p11,6,Bases de Datos Relacionales,6.0,2.5,2.5,16.8,1
+p11,7,Metodología de la Investigación,4.5,2.5,2.5,22.0,1
+p11,8,Fundamentos de Gestión y Finanzas,4.0,2.5,2.5,21.3,1
+p11,9,Innovación y Emprendimiento,3.5,2.5,2.5,22.8,1
+p11,10,Comunicación Oral y Escrita,3.0,2.5,2.5,28.0,1
+p11,11,Ética Profesional y Ciudadanía,2.5,2.5,2.5,25.4,1
+p11,12,Cálculo Multivariable,9.0,2.5,2.5,12.9,1
+p11,13,Física Mecánica y Ondas,8.5,2.5,2.5,13.4,1
+p11,14,Econometría Aplicada,8.0,2.5,2.5,12.6,1
+p11,15,Estructuras de Datos y Algoritmos,7.5,2.5,2.5,16.9,1
+p12,1,Cálculo Multivariable,9.0,3.5,5.5,22.3,2
+p12,2,Física Mecánica y Ondas,8.5,3.5,5.5,21.9,2
+p12,3,Econometría Aplicada,8.0,3.5,5.0,24.3,2
+p12,4,Estructuras de Datos y Algoritmos,7.5,3.5,4.5,22.1,2
+p12,5,Estadística y Probabilidad,7.0,3.5,6.0,30.1,2
+p12,6,Bases de Datos Relacionales,6.0,3.5,5.0,28.0,2
+p12,7,Metodología de la Investigación,4.5,3.5,5.5,27.4,2
+p12,8,Fundamentos de Gestión y Finanzas,4.0,3.5,4.5,31.7,2
+p12,9,Innovación y Emprendimiento,3.5,3.5,4.5,31.3,2
+p12,10,Comunicación Oral y Escrita,3.0,3.5,4.0,31.6,2
+p12,11,Ética Profesional y Ciudadanía,2.5,3.5,4.5,33.0,2
+p12,12,Cálculo Multivariable,9.0,3.5,4.0,22.2,2
+p12,13,Física Mecánica y Ondas,8.5,3.5,4.5,18.5,2
+p12,14,Econometría Aplicada,8.0,3.5,4.5,24.4,2
+p12,15,Estructuras de Datos y Algoritmos,7.5,3.5,5.0,26.2,2
+p13,1,Cálculo Multivariable,9.0,3.4,3.5,25.3,4
+p13,2,Física Mecánica y Ondas,8.5,3.4,2.0,27.8,4
+p13,3,Econometría Aplicada,8.0,3.4,3.0,31.0,4
+p13,4,Estructuras de Datos y Algoritmos,7.5,3.4,2.5,32.1,4
+p13,5,Estadística y Probabilidad,7.0,3.4,1.5,28.7,4
+p13,6,Bases de Datos Relacionales,6.0,3.4,3.0,37.8,4
+p13,7,Metodología de la Investigación,4.5,3.4,3.0,40.7,4
+p13,8,Fundamentos de Gestión y Finanzas,4.0,3.4,1.5,40.6,4
+p13,9,Innovación y Emprendimiento,3.5,3.4,2.5,39.7,4
+p13,10,Comunicación Oral y Escrita,3.0,3.4,3.0,41.0,4
+p13,11,Ética Profesional y Ciudadanía,2.5,3.4,1.5,36.5,4
+p13,12,Cálculo Multivariable,9.0,3.4,1.5,34.4,4
+p13,13,Física Mecánica y Ondas,8.5,3.4,2.0,33.7,4
+p13,14,Econometría Aplicada,8.0,3.4,2.5,27.2,4
+p13,15,Estructuras de Datos y Algoritmos,7.5,3.4,2.5,33.1,4
+p14,1,Cálculo Multivariable,9.0,2.2,4.0,14.3,1
+p14,2,Física Mecánica y Ondas,8.5,2.2,4.0,18.2,1
+p14,3,Econometría Aplicada,8.0,2.2,4.0,22.7,1
+p14,4,Estructuras de Datos y Algoritmos,7.5,2.2,4.0,21.3,1
+p14,5,Estadística y Probabilidad,7.0,2.2,4.0,21.0,1
+p14,6,Bases de Datos Relacionales,6.0,2.2,4.0,20.2,1
+p14,7,Metodología de la Investigación,4.5,2.2,4.0,24.9,1
+p14,8,Fundamentos de Gestión y Finanzas,4.0,2.2,4.0,27.1,1
+p14,9,Innovación y Emprendimiento,3.5,2.2,4.0,26.0,1
+p14,10,Comunicación Oral y Escrita,3.0,2.2,4.0,27.2,1
+p14,11,Ética Profesional y Ciudadanía,2.5,2.2,4.0,25.2,1
+p14,12,Cálculo Multivariable,9.0,2.2,4.0,14.8,1
+p14,13,Física Mecánica y Ondas,8.5,2.2,4.0,14.1,1
+p14,14,Econometría Aplicada,8.0,2.2,4.0,21.1,1
+p14,15,Estructuras de Datos y Algoritmos,7.5,2.2,4.0,19.7,1
+p15,1,Cálculo Multivariable,9.0,3.6,4.5,17.6,3
+p15,2,Física Mecánica y Ondas,8.5,3.6,4.5,17.9,3
+p15,3,Econometría Aplicada,8.0,3.6,4.5,19.6,3
+p15,4,Estructuras de Datos y Algoritmos,7.5,3.6,4.0,27.1,3
+p15,5,Estadística y Probabilidad,7.0,3.6,4.0,19.9,3
+p15,6,Bases de Datos Relacionales,6.0,3.6,3.5,20.6,3
+p15,7,Metodología de la Investigación,4.5,3.6,5.0,32.9,3
+p15,8,Fundamentos de Gestión y Finanzas,4.0,3.6,5.5,33.6,3
+p15,9,Innovación y Emprendimiento,3.5,3.6,4.0,32.7,3
+p15,10,Comunicación Oral y Escrita,3.0,3.6,5.5,37.0,3
+p15,11,Ética Profesional y Ciudadanía,2.5,3.6,4.5,31.9,3
+p15,12,Cálculo Multivariable,9.0,3.6,4.5,21.6,3
+p15,13,Física Mecánica y Ondas,8.5,3.6,5.0,21.8,3
+p15,14,Econometría Aplicada,8.0,3.6,5.0,27.0,3
+p15,15,Estructuras de Datos y Algoritmos,7.5,3.6,6.0,26.3,3
+p16,1,Cálculo Multivariable,9.0,4.2,0.5,50.0,2
+p16,2,Física Mecánica y Ondas,8.5,4.2,0.5,47.3,2
+p16,3,Econometría Aplicada,8.0,4.2,1.0,28.8,2
+p16,4,Estructuras de Datos y Algoritmos,7.5,4.2,1.0,48.7,2
+p16,5,Estadística y Probabilidad,7.0,4.2,1.0,32.3,2
+p16,6,Bases de Datos Relacionales,6.0,4.2,1.0,33.1,2
+p16,7,Metodología de la Investigación,4.5,4.2,0.5,37.1,2
+p16,8,Fundamentos de Gestión y Finanzas,4.0,4.2,1.0,50.0,2
+p16,9,Innovación y Emprendimiento,3.5,4.2,1.5,45.1,2
+p16,10,Comunicación Oral y Escrita,3.0,4.2,0.5,50.0,2
+p16,11,Ética Profesional y Ciudadanía,2.5,4.2,1.0,50.0,2
+p16,12,Cálculo Multivariable,9.0,4.2,1.0,45.2,2
+p16,13,Física Mecánica y Ondas,8.5,4.2,1.0,22.9,2
+p16,14,Econometría Aplicada,8.0,4.2,1.0,38.5,2
+p16,15,Estructuras de Datos y Algoritmos,7.5,4.2,1.0,32.2,2
+p17,1,Cálculo Multivariable,9.0,3.5,4.8,22.4,5
+p17,2,Física Mecánica y Ondas,8.5,3.5,4.8,23.1,5
+p17,3,Econometría Aplicada,8.0,3.5,4.8,24.1,5
+p17,4,Estructuras de Datos y Algoritmos,7.5,3.5,4.8,24.8,5
+p17,5,Estadística y Probabilidad,7.0,3.5,4.8,24.5,5
+p17,6,Bases de Datos Relacionales,6.0,3.5,4.8,25.5,5
+p17,7,Metodología de la Investigación,4.5,3.5,4.8,28.1,5
+p17,8,Fundamentos de Gestión y Finanzas,4.0,3.5,4.8,29.6,5
+p17,9,Innovación y Emprendimiento,3.5,3.5,4.8,31.0,5
+p17,10,Comunicación Oral y Escrita,3.0,3.5,4.8,29.2,5
+p17,11,Ética Profesional y Ciudadanía,2.5,3.5,4.8,31.7,5
+p17,12,Cálculo Multivariable,9.0,3.5,4.8,20.3,5
+p17,13,Física Mecánica y Ondas,8.5,3.5,4.8,21.5,5
+p17,14,Econometría Aplicada,8.0,3.5,4.8,21.7,5
+p17,15,Estructuras de Datos y Algoritmos,7.5,3.5,4.8,24.4,5
+p18,1,Cálculo Multivariable,9.0,3.9,1.5,36.1,2
+p18,2,Física Mecánica y Ondas,8.5,3.9,1.5,37.7,2
+p18,3,Econometría Aplicada,8.0,3.9,1.5,40.1,2
+p18,4,Estructuras de Datos y Algoritmos,7.5,3.9,1.5,40.9,2
+p18,5,Estadística y Probabilidad,7.0,3.9,1.5,38.4,2
+p18,6,Bases de Datos Relacionales,6.0,3.9,1.5,44.9,2
+p18,7,Metodología de la Investigación,4.5,3.9,1.5,45.0,2
+p18,8,Fundamentos de Gestión y Finanzas,4.0,3.9,1.5,45.6,2
+p18,9,Innovación y Emprendimiento,3.5,3.9,1.5,49.7,2
+p18,10,Comunicación Oral y Escrita,3.0,3.9,1.5,50.0,2
+p18,11,Ética Profesional y Ciudadanía,2.5,3.9,1.5,48.6,2
+p18,12,Cálculo Multivariable,9.0,3.9,1.5,37.3,2
+p18,13,Física Mecánica y Ondas,8.5,3.9,1.5,37.0,2
+p18,14,Econometría Aplicada,8.0,3.9,1.5,40.8,2
+p18,15,Estructuras de Datos y Algoritmos,7.5,3.9,1.5,41.9,2
+p19,1,Cálculo Multivariable,9.0,2.7,4.0,22.7,5
+p19,2,Física Mecánica y Ondas,8.5,2.7,4.0,21.9,5
+p19,3,Econometría Aplicada,8.0,2.7,4.0,24.2,5
+p19,4,Estructuras de Datos y Algoritmos,7.5,2.7,4.0,21.3,5
+p19,5,Estadística y Probabilidad,7.0,2.7,4.0,24.4,5
+p19,6,Bases de Datos Relacionales,6.0,2.7,4.0,27.0,5
+p19,7,Metodología de la Investigación,4.5,2.7,4.0,29.3,5
+p19,8,Fundamentos de Gestión y Finanzas,4.0,2.7,4.0,33.5,5
+p19,9,Innovación y Emprendimiento,3.5,2.7,4.0,31.6,5
+p19,10,Comunicación Oral y Escrita,3.0,2.7,4.0,32.6,5
+p19,11,Ética Profesional y Ciudadanía,2.5,2.7,4.0,30.8,5
+p19,12,Cálculo Multivariable,9.0,2.7,4.0,20.9,5
+p19,13,Física Mecánica y Ondas,8.5,2.7,4.0,20.8,5
+p19,14,Econometría Aplicada,8.0,2.7,4.0,26.8,5
+p19,15,Estructuras de Datos y Algoritmos,7.5,2.7,4.0,23.2,5
+p20,1,Cálculo Multivariable,9.0,4.2,0.6,31.7,4
+p20,2,Física Mecánica y Ondas,8.5,4.2,0.6,31.6,4
+p20,3,Econometría Aplicada,8.0,4.2,0.6,34.2,4
+p20,4,Estructuras de Datos y Algoritmos,7.5,4.2,0.6,35.5,4
+p20,5,Estadística y Probabilidad,7.0,4.2,0.6,36.2,4
+p20,6,Bases de Datos Relacionales,6.0,4.2,0.6,39.1,4
+p20,7,Metodología de la Investigación,4.5,4.2,0.6,42.3,4
+p20,8,Fundamentos de Gestión y Finanzas,4.0,4.2,0.6,42.2,4
+p20,9,Innovación y Emprendimiento,3.5,4.2,0.6,43.6,4
+p20,10,Comunicación Oral y Escrita,3.0,4.2,0.6,44.9,4
+p20,11,Ética Profesional y Ciudadanía,2.5,4.2,0.6,45.4,4
+p20,12,Cálculo Multivariable,9.0,4.2,0.6,31.6,4
+p20,13,Física Mecánica y Ondas,8.5,4.2,0.6,33.2,4
+p20,14,Econometría Aplicada,8.0,4.2,0.6,34.0,4
+p20,15,Estructuras de Datos y Algoritmos,7.5,4.2,0.6,34.8,4
+p21,1,Cálculo Multivariable,9.0,3.6,6.0,28.6,1
+p21,2,Física Mecánica y Ondas,8.5,3.6,6.0,27.7,1
+p21,3,Econometría Aplicada,8.0,3.6,6.0,29.5,1
+p21,4,Estructuras de Datos y Algoritmos,7.5,3.6,6.0,32.3,1
+p21,5,Estadística y Probabilidad,7.0,3.6,6.0,32.8,1
+p21,6,Bases de Datos Relacionales,6.0,3.6,6.0,33.1,1
+p21,7,Metodología de la Investigación,4.5,3.6,6.0,36.1,1
+p21,8,Fundamentos de Gestión y Finanzas,4.0,3.6,6.0,37.3,1
+p21,9,Innovación y Emprendimiento,3.5,3.6,6.0,36.4,1
+p21,10,Comunicación Oral y Escrita,3.0,3.6,6.0,38.5,1
+p21,11,Ética Profesional y Ciudadanía,2.5,3.6,6.0,38.9,1
+p21,12,Cálculo Multivariable,9.0,3.6,6.0,25.8,1
+p21,13,Física Mecánica y Ondas,8.5,3.6,6.0,29.1,1
+p21,14,Econometría Aplicada,8.0,3.6,6.0,29.6,1
+p21,15,Estructuras de Datos y Algoritmos,7.5,3.6,6.0,28.4,1
+p22,1,Cálculo Multivariable,9.0,4.2,0.6,30.8,4
+p22,2,Física Mecánica y Ondas,8.5,4.2,0.6,32.5,4
+p22,3,Econometría Aplicada,8.0,4.2,0.6,31.9,4
+p22,4,Estructuras de Datos y Algoritmos,7.5,4.2,0.6,35.2,4
+p22,5,Estadística y Probabilidad,7.0,4.2,0.6,36.5,4
+p22,6,Bases de Datos Relacionales,6.0,4.2,0.6,39.3,4
+p22,7,Metodología de la Investigación,4.5,4.2,0.6,41.8,4
+p22,8,Fundamentos de Gestión y Finanzas,4.0,4.2,0.6,42.1,4
+p22,9,Innovación y Emprendimiento,3.5,4.2,0.6,44.5,4
+p22,10,Comunicación Oral y Escrita,3.0,4.2,0.6,44.0,4
+p22,11,Ética Profesional y Ciudadanía,2.5,4.2,0.6,46.2,4
+p22,12,Cálculo Multivariable,9.0,4.2,0.6,30.9,4
+p22,13,Física Mecánica y Ondas,8.5,4.2,0.6,31.9,4
+p22,14,Econometría Aplicada,8.0,4.2,0.6,34.0,4
+p22,15,Estructuras de Datos y Algoritmos,7.5,4.2,0.6,35.8,4
+p23,1,Cálculo Multivariable,9.0,4.1,3.5,42.4,3
+p23,2,Física Mecánica y Ondas,8.5,4.1,3.5,43.2,3
+p23,3,Econometría Aplicada,8.0,4.1,3.5,41.7,3
+p23,4,Estructuras de Datos y Algoritmos,7.5,4.1,3.5,46.7,3
+p23,5,Estadística y Probabilidad,7.0,4.1,3.5,46.4,3
+p23,6,Bases de Datos Relacionales,6.0,4.1,3.5,47.6,3
+p23,7,Metodología de la Investigación,4.5,4.1,3.5,50.0,3
+p23,8,Fundamentos de Gestión y Finanzas,4.0,4.1,3.5,49.1,3
+p23,9,Innovación y Emprendimiento,3.5,4.1,3.5,50.0,3
+p23,10,Comunicación Oral y Escrita,3.0,4.1,3.5,50.0,3
+p23,11,Ética Profesional y Ciudadanía,2.5,4.1,3.5,50.0,3
+p23,12,Cálculo Multivariable,9.0,4.1,3.5,38.8,3
+p23,13,Física Mecánica y Ondas,8.5,4.1,3.5,44.1,3
+p23,14,Econometría Aplicada,8.0,4.1,3.5,44.4,3
+p23,15,Estructuras de Datos y Algoritmos,7.5,4.1,3.5,47.0,3
+p24,1,Cálculo Multivariable,9.0,3.0,2.5,18.1,1
+p24,2,Física Mecánica y Ondas,8.5,3.0,2.5,18.8,1
+p24,3,Econometría Aplicada,8.0,3.0,2.5,19.5,1
+p24,4,Estructuras de Datos y Algoritmos,7.5,3.0,2.5,19.9,1
+p24,5,Estadística y Probabilidad,7.0,3.0,2.5,21.7,1
+p24,6,Bases de Datos Relacionales,6.0,3.0,2.5,24.7,1
+p24,7,Metodología de la Investigación,4.5,3.0,2.5,24.2,1
+p24,8,Fundamentos de Gestión y Finanzas,4.0,3.0,2.5,29.5,1
+p24,9,Innovación y Emprendimiento,3.5,3.0,2.5,28.2,1
+p24,10,Comunicación Oral y Escrita,3.0,3.0,2.5,28.7,1
+p24,11,Ética Profesional y Ciudadanía,2.5,3.0,2.5,25.6,1
+p24,12,Cálculo Multivariable,9.0,3.0,2.5,17.4,1
+p24,13,Física Mecánica y Ondas,8.5,3.0,2.5,16.8,1
+p24,14,Econometría Aplicada,8.0,3.0,2.5,20.2,1
+p24,15,Estructuras de Datos y Algoritmos,7.5,3.0,2.5,21.7,1
+p25,1,Cálculo Multivariable,9.0,4.4,1.0,43.0,5
+p25,2,Física Mecánica y Ondas,8.5,4.4,0.5,29.8,5
+p25,3,Econometría Aplicada,8.0,4.4,1.0,38.2,5
+p25,4,Estructuras de Datos y Algoritmos,7.5,4.4,1.0,32.5,5
+p25,5,Estadística y Probabilidad,7.0,4.4,1.0,35.6,5
+p25,6,Bases de Datos Relacionales,6.0,4.4,1.5,36.4,5
+p25,7,Metodología de la Investigación,4.5,4.4,1.0,34.8,5
+p25,8,Fundamentos de Gestión y Finanzas,4.0,4.4,1.5,50.0,5
+p25,9,Innovación y Emprendimiento,3.5,4.4,1.5,50.0,5
+p25,10,Comunicación Oral y Escrita,3.0,4.4,0.0,50.0,5
+p25,11,Ética Profesional y Ciudadanía,2.5,4.4,1.0,50.0,5
+p25,12,Cálculo Multivariable,9.0,4.4,1.0,31.6,5
+p25,13,Física Mecánica y Ondas,8.5,4.4,1.0,49.4,5
+p25,14,Econometría Aplicada,8.0,4.4,0.5,37.6,5
+p25,15,Estructuras de Datos y Algoritmos,7.5,4.4,0.0,50.0,5
+p26,1,Cálculo Multivariable,9.0,3.0,6.0,13.6,2
+p26,2,Física Mecánica y Ondas,8.5,3.0,4.0,17.0,2
+p26,3,Econometría Aplicada,8.0,3.0,5.5,21.1,2
+p26,4,Estructuras de Datos y Algoritmos,7.5,3.0,5.5,19.0,2
+p26,5,Estadística y Probabilidad,7.0,3.0,4.5,21.4,2
+p26,6,Bases de Datos Relacionales,6.0,3.0,3.5,24.2,2
+p26,7,Metodología de la Investigación,4.5,3.0,4.0,29.0,2
+p26,8,Fundamentos de Gestión y Finanzas,4.0,3.0,4.0,22.9,2
+p26,9,Innovación y Emprendimiento,3.5,3.0,4.5,23.4,2
+p26,10,Comunicación Oral y Escrita,3.0,3.0,6.0,32.2,2
+p26,11,Ética Profesional y Ciudadanía,2.5,3.0,3.5,25.1,2
+p26,12,Cálculo Multivariable,9.0,3.0,5.0,19.2,2
+p26,13,Física Mecánica y Ondas,8.5,3.0,3.5,19.0,2
+p26,14,Econometría Aplicada,8.0,3.0,4.5,19.9,2
+p26,15,Estructuras de Datos y Algoritmos,7.5,3.0,5.0,22.7,2
+p27,1,Cálculo Multivariable,9.0,2.4,3.5,9.1,3
+p27,2,Física Mecánica y Ondas,8.5,2.4,3.0,10.8,3
+p27,3,Econometría Aplicada,8.0,2.4,3.5,11.2,3
+p27,4,Estructuras de Datos y Algoritmos,7.5,2.4,1.5,13.6,3
+p27,5,Estadística y Probabilidad,7.0,2.4,3.0,16.8,3
+p27,6,Bases de Datos Relacionales,6.0,2.4,1.5,17.9,3
+p27,7,Metodología de la Investigación,4.5,2.4,2.5,19.8,3
+p27,8,Fundamentos de Gestión y Finanzas,4.0,2.4,2.0,26.1,3
+p27,9,Innovación y Emprendimiento,3.5,2.4,3.5,20.6,3
+p27,10,Comunicación Oral y Escrita,3.0,2.4,2.5,24.3,3
+p27,11,Ética Profesional y Ciudadanía,2.5,2.4,4.0,28.8,3
+p27,12,Cálculo Multivariable,9.0,2.4,3.0,16.2,3
+p27,13,Física Mecánica y Ondas,8.5,2.4,1.5,10.0,3
+p27,14,Econometría Aplicada,8.0,2.4,2.5,15.3,3
+p27,15,Estructuras de Datos y Algoritmos,7.5,2.4,3.5,11.6,3
+p28,1,Cálculo Multivariable,9.0,3.8,2.5,32.8,2
+p28,2,Física Mecánica y Ondas,8.5,3.8,2.5,36.5,2
+p28,3,Econometría Aplicada,8.0,3.8,2.5,37.0,2
+p28,4,Estructuras de Datos y Algoritmos,7.5,3.8,2.5,36.8,2
+p28,5,Estadística y Probabilidad,7.0,3.8,2.5,39.9,2
+p28,6,Bases de Datos Relacionales,6.0,3.8,2.5,35.4,2
+p28,7,Metodología de la Investigación,4.5,3.8,2.5,41.7,2
+p28,8,Fundamentos de Gestión y Finanzas,4.0,3.8,2.5,41.5,2
+p28,9,Innovación y Emprendimiento,3.5,3.8,2.5,45.3,2
+p28,10,Comunicación Oral y Escrita,3.0,3.8,2.5,45.7,2
+p28,11,Ética Profesional y Ciudadanía,2.5,3.8,2.5,46.7,2
+p28,12,Cálculo Multivariable,9.0,3.8,2.5,32.2,2
+p28,13,Física Mecánica y Ondas,8.5,3.8,2.5,34.9,2
+p28,14,Econometría Aplicada,8.0,3.8,2.5,36.7,2
+p28,15,Estructuras de Datos y Algoritmos,7.5,3.8,2.5,37.9,2
+p29,1,Cálculo Multivariable,9.0,4.0,2.5,35.5,3
+p29,2,Física Mecánica y Ondas,8.5,4.0,2.5,38.3,3
+p29,3,Econometría Aplicada,8.0,4.0,2.5,37.9,3
+p29,4,Estructuras de Datos y Algoritmos,7.5,4.0,2.5,40.1,3
+p29,5,Estadística y Probabilidad,7.0,4.0,2.5,35.6,3
+p29,6,Bases de Datos Relacionales,6.0,4.0,2.5,40.1,3
+p29,7,Metodología de la Investigación,4.5,4.0,2.5,44.0,3
+p29,8,Fundamentos de Gestión y Finanzas,4.0,4.0,2.5,44.6,3
+p29,9,Innovación y Emprendimiento,3.5,4.0,2.5,42.0,3
+p29,10,Comunicación Oral y Escrita,3.0,4.0,2.5,47.7,3
+p29,11,Ética Profesional y Ciudadanía,2.5,4.0,2.5,47.4,3
+p29,12,Cálculo Multivariable,9.0,4.0,2.5,34.4,3
+p29,13,Física Mecánica y Ondas,8.5,4.0,2.5,38.0,3
+p29,14,Econometría Aplicada,8.0,4.0,2.5,34.2,3
+p29,15,Estructuras de Datos y Algoritmos,7.5,4.0,2.5,37.0,3
+p30,1,Cálculo Multivariable,9.0,3.0,2.5,17.1,1
+p30,2,Física Mecánica y Ondas,8.5,3.0,2.5,18.1,1
+p30,3,Econometría Aplicada,8.0,3.0,2.5,18.9,1
+p30,4,Estructuras de Datos y Algoritmos,7.5,3.0,2.5,21.5,1
+p30,5,Estadística y Probabilidad,7.0,3.0,2.5,20.6,1
+p30,6,Bases de Datos Relacionales,6.0,3.0,2.5,23.9,1
+p30,7,Metodología de la Investigación,4.5,3.0,2.5,22.2,1
+p30,8,Fundamentos de Gestión y Finanzas,4.0,3.0,2.5,28.4,1
+p30,9,Innovación y Emprendimiento,3.5,3.0,2.5,31.3,1
+p30,10,Comunicación Oral y Escrita,3.0,3.0,2.5,29.0,1
+p30,11,Ética Profesional y Ciudadanía,2.5,3.0,2.5,29.0,1
+p30,12,Cálculo Multivariable,9.0,3.0,2.5,16.6,1
+p30,13,Física Mecánica y Ondas,8.5,3.0,2.5,19.5,1
+p30,14,Econometría Aplicada,8.0,3.0,2.5,18.2,1
+p30,15,Estructuras de Datos y Algoritmos,7.5,3.0,2.5,18.8,1

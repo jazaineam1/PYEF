@@ -4,6 +4,8 @@ import './dean-cup.css';
 import './dean-cup-layout.css';
 import DeanCausalAtlas from './DeanCausalAtlas.jsx';
 import DeanSciencePython from './DeanSciencePython.jsx';
+import {DeanPredictiveContrast} from './DeanPredictiveTrap.jsx';
+import {abEstimate} from './dean-predictive-trap.js';
 import DeanEconMLPanel from './DeanEconMLPanel.jsx';
 import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall,DeanABDiscovery} from './DeanCausalMissions.jsx';
 import DeanQuizArena from './DeanQuizArena.jsx';
@@ -171,13 +173,13 @@ const deanGuides={
   },
   "rector": {
     "time": "30–55",
-    "teacher": "Libera el archivo del Rector. Explica MAE y R² mediante sus notas; pide hallar asociaciones, pero no atribuir causalidad.",
-    "student": "Descarga los exámenes disponibles de tu sala, aunque hayan asistido pocos estudiantes. Intenta anticipar notas y decide qué variables faltan.",
+    "teacher": "Libera el archivo del Rector. Explica MAE y R² mediante sus notas y pide ejecutar el Random Forest: importancia por permutación y simulación de B=0 frente a B=4 sobre las mismas filas. Que cada persona anote su recomendación antes del debrief; es la predicción que el A/B pondrá a prueba. No des por hecho el valor del R²: con pocos estudiantes el resultado de cada sala es inestable y comparar salas es parte de la lección.",
+    "student": "Descarga los exámenes disponibles de tu sala, aunque hayan asistido pocos estudiantes. Ejecuta el Random Forest, mira qué columna importa, simula B=0 frente a B=4 y anota qué le recomendarías al Rector. Con menos de 4 estudiantes verás una referencia sintética rotulada.",
     "visual": "El CSV del Rector omite deliberadamente horas de estudio, sueño, arquetipo y fatiga."
   },
   "survey": {
     "time": "55–80",
-    "teacher": "Revela la encuesta y únela por estudiante_id y examen_nro. Proyecta un DAG: confusores previos, mediadores posteriores y posibles colliders.",
+    "teacher": "Revela la encuesta y únela por estudiante_id y examen_nro. Pide repetir el bosque con estudio y sueño: el R² puede cambiar poco o mucho (en salas de 6 puede incluso ser negativo) y la simulación de B cambia porque congela los mediadores. Proyecta un DAG: confusores previos, mediadores posteriores y posibles colliders.",
     "student": "Cruza encuesta y Rector; identifica qué hábitos se relacionan con el resultado y cuáles son previos.",
     "visual": "Aparecen estudio, sueño y arquetipo; todavía faltan resiliencia y fatiga. Una correlación no prueba una flecha causal."
   },
@@ -220,7 +222,6 @@ const csvRows=text=>{
  return records.map(values=>Object.fromEntries(header.map((h,i)=>[h,values[i]])));
 };
 const mean=xs=>xs.reduce((a,b)=>a+b,0)/Math.max(1,xs.length);
-const variance=xs=>xs.length>1?xs.reduce((a,b)=>a+(b-mean(xs))**2,0)/(xs.length-1):NaN;
 const slope=(rows,x,y)=>{
  const valid=rows.map(r=>[Number(r[x]),Number(r[y])]).filter(pair=>pair.every(Number.isFinite));
  if(valid.length<3)return null;
@@ -229,19 +230,11 @@ const slope=(rows,x,y)=>{
  return den>1e-6?valid.reduce((n,v)=>n+(v[0]-mx)*(v[1]-my),0)/den:null
 };
 function ABFromObserved({rows}){
- const groups=new Map();
- for(const row of rows){
-  const id=row.estudiante_id,treated=Number(row.tratamiento);
-  if(!groups.has(id))groups.set(id,{treated,points:[]});
-  groups.get(id).points.push(Number(row.nota_final));
- }
- const entries=[...groups.values()].map(g=>({...g,score:mean(g.points)}));
- const t=entries.filter(x=>x.treated===1).map(x=>x.score),c=entries.filter(x=>x.treated===0).map(x=>x.score);
- if(t.length<2||c.length<2)return <p>No hay suficientes estudiantes por brazo para calcular el intervalo.</p>;
- const diff=mean(t)-mean(c),se=Math.sqrt(variance(t)/t.length+variance(c)/c.length);
- return <div className="dean-lab-stats"><strong>Diferencia observada: {diff.toFixed(2)} puntos</strong>
-  <p>IC 95 % aproximado: [{(diff-1.96*se).toFixed(2)}, {(diff+1.96*se).toFixed(2)}]. Unidad de aleatorización: estudiante, no examen.</p>
-  <small>{t.length} estudiantes tratados (4 h) y {c.length} controles (0 h), 15 exámenes por estudiante. Esta diferencia es una estimación; no equivale al efecto individual observado.</small>
+ const ab=abEstimate(rows);
+ if(!ab)return <p>No hay suficientes estudiantes por brazo para calcular el intervalo.</p>;
+ return <div className="dean-lab-stats"><strong>Diferencia observada: {ab.diff.toFixed(2)} puntos</strong>
+  <p>IC 95 % aproximado: [{ab.ciLow.toFixed(2)}, {ab.ciHigh.toFixed(2)}]. Unidad de aleatorización: estudiante, no examen.</p>
+  <small>{ab.treated} estudiantes tratados (4 h) y {ab.control} controles (0 h), 15 exámenes por estudiante. Esta diferencia es una estimación; no equivale al efecto individual observado.</small>
  </div>
 }
 function DeanCausalLab({phase,token,version,step='challenge',missions}){
@@ -277,7 +270,7 @@ function DeanCausalLab({phase,token,version,step='challenge',missions}){
  return <section className="dean-lab" aria-label="Laboratorio causal con datos de la Copa">
   <div className="dean-kicker">🔬 DEL TORNEO A LA EVIDENCIA · ZIP CANÓNICO</div>
   <h2>{phase==='rector'?'La trampa del Rector':phase==='survey'?'La trampa del modelo multivariable':'De correlación a experimento A/B'}</h2>
-  <p>{phase==='rector'?'El archivo administrativo solo ve historial, dificultad, bienestar y nota. ¿Podemos recomendar quitar bienestar viendo una pendiente?':phase==='survey'?'Ahora aparecen horas de estudio y sueño: pueden mediar el efecto del bienestar. Ajustar por todo indiscriminadamente no es una solución causal.':'Se intervienen 0 frente a 4 horas de bienestar, con asignación aleatoria por estudiante y resultados potenciales sintéticos.'}</p>
+  <p>{phase==='rector'?'El archivo administrativo solo ve historial, dificultad, bienestar y nota. ¿Podemos recomendar quitar bienestar viendo una pendiente o la importancia de un modelo? Entrena el Random Forest, simula B=0 frente a B=4 y anota tu recomendación.':phase==='survey'?'Ahora aparecen horas de estudio y sueño: pueden mediar el efecto del bienestar. Ajustar por todo indiscriminadamente no es una solución causal.':'Se intervienen 0 frente a 4 horas de bienestar, con asignación aleatoria por estudiante y resultados potenciales sintéticos.'}</p>
   <div className="dean-lab-controls">
    <button type="button" disabled={loading} onClick={()=>calculate('rector')}>1 · Analizar Rector</button>
    {phase!=='rector'&&<button type="button" disabled={loading} onClick={()=>calculate('survey')}>2 · Cruzar encuesta</button>}
@@ -293,7 +286,8 @@ function DeanCausalLab({phase,token,version,step='challenge',missions}){
   </div>}
   {rows&&layer!=='ab'&&<DeanCorrelationLab rows={rows} phase={phase} step={step} missions={missions} onSubmit={missions?.submit} busy={missions?.busy}/>}
   {rows&&layer==='ab'&&<DeanABDiscovery rows={rows} step={step}/>}
-  {rows&&<DeanSciencePython mode={layer} rows={rows}/>}
+  {rows&&layer==='ab'&&<DeanPredictiveContrast rows={rows} gameCode={code} step={step}/>}
+  {rows&&<DeanSciencePython mode={layer} rows={rows} gameCode={code}/>}
   {phase==='causal'&&layer==='ab'&&<DeanEconMLPanel/>}
   {phase!=='rector'&&<div className="dean-lab-dag" role="img" aria-label="DAG: historial previo influye en bienestar y nota; bienestar afecta estudio, sueño, fatiga y nota">
    <span>H · PGA previo</span><b>→</b><span>B · Bienestar</span><b>→</b><span>X₁ · Estudio</span><b>→</b><span>S · Sueño</span><b>→</b><span>U · Fatiga oculta</span><b>→</b><span>Y · Nota final</span>
@@ -353,7 +347,7 @@ function Player(){
     {lastAward&&<div key={lastAward.nonce} className="dean-score-flash" role="status">✨ EXAMEN COMPLETADO <strong>+{Number.isFinite(lastAward.score)?lastAward.score.toFixed(1):'—'} / 50</strong></div>}
    </>}
    </div>
-   <div className="dean-player-dock"><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></div>
+   <div className="dean-player-dock"><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno con huecos · Python / Colab <span aria-hidden="true">↗</span></a></div>
   </main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
@@ -510,7 +504,7 @@ function Teacher(){
   {state.dgp_version==='zip_dgp_2026'&&<DeanMissionTeacher missions={missions} phase={state.phase}/>} 
   {state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
   {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
-  <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Colab · Copa ↗</a>
+  <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno con huecos · Colab ↗</a>
   {state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<div className="dean-lab">
     <h3>🧬 Experimento A/B · 30 × 15</h3>
     <p>Asignación por estudiante; políticas B=0 y B=4 h. IC calculado entre estudiantes.</p>
