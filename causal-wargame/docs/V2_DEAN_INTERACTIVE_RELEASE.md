@@ -110,3 +110,17 @@ Las pruebas geométricas de Chromium utilizan respuestas simuladas del backend; 
 
 ## Actualización de benchmark EconML verificada (2026-10-15)
 El workflow `dean-cup-canonical-econml-training` entrenó efectivamente TLearner, DRLearner y CausalForestDML con EconML 0.16.0 y datos del generador estructural sintético `zip_dgp_2026`. Hay 1200 estudiantes sintéticos, 900 para entrenamiento y 300 para holdout; tratamiento asignado a nivel estudiante, B=0 vs B=4. El archivo `src/v2/econml-dean-verified.json` conserva métricas y SHA256 de datos. Estos resultados NO son ejecuciones en el navegador, NO son notas de participantes y NO son idénticos bit a bit al ruido Box-Muller de SQL. Las comparaciones aparecen en la final causal solo si el archivo indica `verified`.
+
+
+## Crear una COPA NUEVA desde un torneo terminado (no borrar la anterior)
+
+1. Abre `dean-teacher.html?game=FUTUROS` o el código de tu Copa actual; entra con su PIN docente si la sesión venció.
+2. En el **encabezado**, pulsa **«＋ Nueva Copa»**. Se puede hacer desde `finished`, `final` o cualquier fase; NO hay que pulsar «Reiniciar».
+3. Confirma **«Sí, crear Copa nueva»**. El backend verifica el token docente y el código de origen, crea un código aleatorio `COPA-XXXXXXXXXXXX`, una sesión docente nueva y un torneo `zip_dgp_2026` en lobby.
+4. El panel del docente cambia a la Copa nueva automáticamente y actualiza el parámetro `?game=`. Su código aparece arriba y los enlaces **Estudiantes** y **Wall** llevan a esa Copa, no a la vieja.
+5. Comparte el nuevo enlace de jugador y proyecta el nuevo Wall. Pueden entrar de 1 a 30 asistentes en cinco salas de máximo seis. Una persona nunca se traslada automáticamente desde el torneo antiguo; debe registrarse de nuevo.
+6. La Copa anterior, incluidos `FUTUROS`, el podio y sus resultados, NO se modifican. El nuevo torneo reutiliza **el mismo PIN docente**, sin descargarlo ni comunicarlo a alumnos.
+7. **«↻ Reiniciar»** es otra función: solo existe para la Copa canónica nueva, exige código exacto y casilla de consentimiento, y SÍ elimina sus estudiantes y puntuaciones. Ambos controles viven dentro del encabezado, sin botón fijo al borde de pantalla.
+8. Compatibilidad importante: `cw_games.max_humans` continúa con límite heredado de 28 para V1; **la Copa canónica permite 30 jugadores** usando la tabla independiente `cw_dean_players`. No cambiar las restricciones de V1.
+
+La prueba transaccional `BEGIN/ROLLBACK` confirmó la creación desde una Copa histórica finalizada y las 30 inscripciones (6 en cada una de cinco salas), sin dejar partidas de prueba persistidas.
