@@ -401,10 +401,11 @@ function DeanPracticeRoom({phase,version,token,step,missions,busy,download,downl
 function Player(){
  const [token,setToken]=useState(localStorage.getItem(storageKey)||'');
  const [lastAward,setLastAward]=useState(null);
- useEffect(()=>{if(!lastAward)return;const t=setTimeout(()=>setLastAward(null),4200);return()=>clearTimeout(t)},[lastAward]);
+ // Do not dismiss arcade achievements before the participant chooses the next round.
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  const me=state?.mine;
  const arcade=state?.game_mode==='real_hours_10_v1';
+ useEffect(()=>{if(!lastAward||arcade)return;const t=setTimeout(()=>setLastAward(null),4200);return()=>clearTimeout(t)},[lastAward,arcade]);
  const learning=useDeanLearning({token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'&&!arcade});
  const missions=useDeanMissions({call,token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'&&!arcade});
  async function join(){setBusy(true);setActionError('');const t=token||hexToken();localStorage.setItem(storageKey,t);
@@ -470,14 +471,14 @@ function Player(){
   </main>}
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
-function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'});
- const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available&&['final','finished'].includes(value.phase)
+function Wall(){const {value,error}=useBoard();const arcade=value?.game_mode==='real_hours_10_v1';const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});
+ const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
- <div className="dean-wall-grid"><Board groups={value.groups}/><aside className="dean-wall-story"><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
+ <div className="dean-wall-grid"><Board groups={value.groups} examCount={arcade?ARCADE_EXAMS:15}/><aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 10 EXÁMENES</h2><p>Compite, suma puntos y trae los datos a la sala principal.</p><strong>{value.phase==='finished'?'🏁 PARTIDA CERRADA':'🎮 COPA EN MARCHA'}</strong></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
  {value.phase==='final'&&value.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="wall"/>}
- {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}
+ {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}</>}
  </aside></div>
  </main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error" role="alert">{error}</p>}</div>}
 function DeanNewCupControl({game,disabled=false,onCreate}){
