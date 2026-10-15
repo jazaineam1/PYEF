@@ -665,7 +665,7 @@ function Teacher(){
  {state?.available&&(arcade?['lobby','exams'].includes(state.phase):actions[state.phase])&&<button className="dean-big dean-teacher-next"
  disabled={busy||(!arcade&&state.dgp_version==='zip_dgp_2026'&&['lobby','exams','rector','survey','causal'].includes(state.phase)&&learning.data?.step!=='debrief')}
  title={learning.data?.step!=='debrief'?'Antes de avanzar, proyecta evidencia y revela la conclusión del acto.':''}
- onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS {examCount} EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
+ onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS '+examCount+' EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
  {state?.available?<div className="dean-teacher-grid">
  <Board groups={state.groups} examCount={examCount}/>
  <aside className="dean-teacher-sidebar">
