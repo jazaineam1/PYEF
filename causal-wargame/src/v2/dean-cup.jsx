@@ -621,7 +621,16 @@ function Teacher(){
   return o.token;
  }
  async function login(){setBusy(true);setErr('');try{await authenticateWithPin(pin);setPin('')}catch(e){setErr(e.message)}finally{setBusy(false)}}
- async function direct(command){setBusy(true);setErr('');try{setState(await call(command==='finish_game'?'game_finish':'teacher',command==='finish_game'?{}:{command,game_code:game},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ async function direct(command){
+  setBusy(true);setErr('');
+  try{
+   await call(command==='finish_game'?'game_finish':'teacher',
+     command==='finish_game'?{}:{command,game_code:game},'',teacher);
+   // Always refresh canonical mode/phase, even after a legacy tab's "next" action.
+   // Otherwise a direct RPC snapshot can briefly show the 15-exam teaching UI.
+   setState(await call('state',{game_code:game},'',teacher));
+  }catch(e){setErr(e.message)}finally{setBusy(false)}
+ }
  async function createFreshCup(){
   setBusy(true);setErr('');
   try{
