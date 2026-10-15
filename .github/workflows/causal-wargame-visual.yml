@@ -1,0 +1,37 @@
+name: causal-wargame-visual
+
+on:
+  pull_request:
+    paths:
+      - 'causal-wargame/**'
+      - '.github/workflows/causal-wargame-visual.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: causal-wargame
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Generate visual report and contact sheet
+        run: npm run test:visual -- --project=report
+      - name: Upload visual artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: causal-wargame-visual
+          path: causal-wargame/artifacts/visual
+          if-no-files-found: warn
