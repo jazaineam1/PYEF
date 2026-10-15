@@ -57,7 +57,9 @@ test('15-minute exam deadline is server-governed and auto-completes absentees on
  'cw_dean_auto_finish_v3','clock_timestamp()<t.exam_deadline_at'])assert.ok(sql.includes(part),part)
  const api=read('supabase/functions/v2-dean-cup/index.ts')
  assert.match(api,/cw_dean_tick_v3/)
- assert.match(api,/cw_dean_teacher_next_v3/)
+ assert.match(api,/cw_dean_learning_next/);
+ assert.match(api,/cw_dean_game_start_v3/);
+ assert.match(read('supabase/migrations/202610150017_dean_arcade_real_hours_10.sql'),/cw_dean_teacher_next_v3/);
  const ui=read('src/v2/dean-cup.jsx')
  assert.match(ui,/function ExamCountdown/)
  assert.match(ui,/ExamCountdown deadline=/)
