@@ -1,6 +1,7 @@
 import React,{useEffect,useRef} from 'react';
 import {ARCADE_EXAMS,arcadeCheer,arcadeTitle} from './dean-arcade.js';
 import DeanArcadeMascot from './DeanArcadeMascot.jsx';
+import {decisionConsequence} from './dean-life.js';
 import './dean-arcade.css';
 
 // Full-screen mobile-game reveal. All grades and streaks come from verified exam records.
@@ -44,13 +45,17 @@ export default function DeanArcadeResult({award,onContinue,examCount=ARCADE_EXAM
      {Array.from({length:3},(_,i)=><span key={i} className={i<result.stars?'earned':''}>★</span>)}
     </span>
    </div>
+   {award.decisions&&<div className="dean-life-consequence" aria-label="Consecuencia de tus decisiones">
+    <strong>🎭 ASÍ TE FUE CON ESTA DECISIÓN</strong>
+    <p>{decisionConsequence(award.decisions,score,award.previousGrade)}</p>
+   </div>}
    <div className="dean-arcade-results-strip">
     <span>🏅 <strong>{arcadeTitle(Number(award.average)||0)}</strong></span>
     <span>🔥 Racha <strong>x{award.streak||0}</strong></span>
     <span>📈 Media <strong>{Number(award.average||0).toFixed(1)}</strong></span>
    </div>
    <button ref={action} type="button" className="dean-arcade-next" onClick={onContinue}>
-    {isFinal?'🏛️ DECISIÓN DEL RECTOR':'⚡ SIGUIENTE EXAMEN'} <span aria-hidden="true">➜</span>
+    {isFinal?'🏁 VER CÓMO SERÍA MI VIDA':'🎭 SEGUIR MI HISTORIA'} <span aria-hidden="true">➜</span>
    </button>
    <small className="arcade-result-footer">EXAMEN {award.exam} / {examCount} · ¡QUÉ JUGADA!</small>
   </section>
