@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          npm run test:visual -- --project=contract --reporter=json > contract-report.json
+          npx playwright test --project=contract --reporter=json > contract-report.json
           status=$?
           echo "status=$status" >> "$GITHUB_OUTPUT"
           exit 0
