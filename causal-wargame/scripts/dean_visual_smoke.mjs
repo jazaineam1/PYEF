@@ -221,7 +221,7 @@ async function testFinal(role,width,height,attendees){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const roomGroups=groupFixture(attendees);
- const sample={...fixture,groups:roomGroups,phase:'final'};
+ const sample={...fixture,game_code:code,groups:roomGroups,phase:'final'};
  let quizPhase='open',picked=null;
  const roster=Array.from({length:attendees},(_,i)=>({
   alias:'Jugador '+String(i+1).padStart(2,'0'),room_no:i%5+1,
