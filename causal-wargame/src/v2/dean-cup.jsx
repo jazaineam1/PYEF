@@ -4,6 +4,7 @@ import './dean-cup.css';
 import './dean-cup-layout.css';
 import DeanCausalAtlas from './DeanCausalAtlas.jsx';
 import DeanSciencePython from './DeanSciencePython.jsx';
+import DeanEconMLPanel from './DeanEconMLPanel.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -275,6 +276,7 @@ function DeanCausalLab({phase,token,version}){
     </>}
   </div>}
   {rows&&<DeanSciencePython mode={layer} rows={rows}/>}
+  {phase==='causal'&&layer==='ab'&&<DeanEconMLPanel/>}
   {phase!=='rector'&&<div className="dean-lab-dag" role="img" aria-label="DAG: historial previo influye en bienestar y nota; bienestar afecta estudio, sueño, fatiga y nota">
    <span>H · PGA previo</span><b>→</b><span>B · Bienestar</span><b>→</b><span>X₁ · Estudio</span><b>→</b><span>S · Sueño</span><b>→</b><span>U · Fatiga oculta</span><b>→</b><span>Y · Nota final</span>
    <small>Rutas adicionales: H→Y, Z→X₁, Z→Y, B→S, B→U y B→Y. X₁/S/U son descendientes mediadores; el DAG contiene más flechas que este esquema lineal.</small>
