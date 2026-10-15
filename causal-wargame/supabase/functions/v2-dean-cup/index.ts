@@ -21,6 +21,15 @@ Deno.serve(async(req)=>{
    return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_learning_next',{p_token:teacher}) /* wraps cw_dean_teacher_next_v3 with V2 learning gate */))
   }
   // Isolated teaching arc, stored on server; no correct option before debrief.
+  // Start a completely new tournament: no mutation or reset of the source game.
+  // Only a valid facilitator session for the currently displayed game may create it.
+  if(action==='new_cup'){
+   if(!teacher)return json({error:'Inicia sesión como facilitador para crear una Copa nueva'},401)
+   if(!code)return json({error:'Se necesita el código de la partida actual'},400)
+   return json(await rpc('cw_dean_create_fresh_cup',{
+    p_facilitator_token:teacher,p_source_code:code
+   }))
+  }
   if(action==='reset_confirmed'){
    if(!teacher)return json({error:'Autorización del facilitador requerida'},401)
    if(!code||String(b.confirmation_code||'')!==code)
