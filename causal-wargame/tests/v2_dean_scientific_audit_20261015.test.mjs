@@ -16,7 +16,7 @@ test('Observed DAG is scientifically aligned with original ZIP basal archetype m
  assert.match(atlas,/arquetipo y PGA/i);
  assert.match(atlas,/solapamiento/i);
  assert.match(missions,/Arquetipo de origen/);
- assert.match(missions,/ajustar solo PGA no basta/i);
+ assert.match(missions,/PGA solo no basta|ajustar solo PGA NO elimina/i);
  assert.match(missions,/positividad/i);
  assert.match(learning,/ARQUETIPO y PGA/);
 });
@@ -50,7 +50,7 @@ test('New AB is reproducible within a Copa, variable across Copas, stratified wi
 });
 test('Statements about RF and AB acknowledge low power, negative R² and uncertainty',()=>{
  assert.match(learning,/R² negativo/);
- assert.match(learning,/R² alto, bajo o negativo/);
+ assert.match(learning,/R² sea alto, bajo o negativo/);
  assert.match(learning,/Un A\/B pequeño ofrece una estimación imprecisa/);
  assert.match(learning,/30 alumnos aportan poca potencia/);
  assert.match(python,/if r2<0:/);
