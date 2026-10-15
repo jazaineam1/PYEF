@@ -318,8 +318,8 @@ function Player(){
 function Wall(){const {value,error}=useBoard();return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
  <div className="dean-wall-grid"><Board groups={value.groups}/><aside className="dean-wall-story">
- {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase}/>:<DeanGuidance phase={value.phase} role="wall"/>}
  {value.phase==='final'&&<CupQuiz role="wall"/>}
+ {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase}/>:<DeanGuidance phase={value.phase} role="wall"/>}
  </aside></div>
  </main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error" role="alert">{error}</p>}</div>}
 function Teacher(){
@@ -341,9 +341,9 @@ function Teacher(){
  {state?.available?<div className="dean-teacher-grid">
  <Board groups={state.groups}/>
  <aside className="dean-teacher-sidebar">
+  {state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
   {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
   <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Colab · Copa ↗</a>
-  {state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
   {state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<div className="dean-lab">
     <h3>🧬 Experimento A/B · 30 × 15</h3>
     <p>Asignación por estudiante; políticas B=0 y B=4 h. IC calculado entre estudiantes.</p>
