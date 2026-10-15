@@ -79,3 +79,10 @@ test('Zero-vote ceremony acknowledges participation instead of inventing a winne
  assert.ok(arena.includes("SIN PARTICIPANTES"));
  assert.ok(arena.includes("Todos terminaron con cero aciertos"));
 });
+
+
+test('Clock compensates network latency and local selection cannot leak into the next question',()=>{
+ assert.ok(arena.includes("(sentAt+receivedAt)/2"));
+ assert.ok(arena.includes("selected.question===data?.question_no"));
+ assert.ok(arena.includes("setSelected({question:data.question_no,choice:ch})"));
+});
