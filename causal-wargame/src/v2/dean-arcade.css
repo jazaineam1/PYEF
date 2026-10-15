@@ -1,0 +1,127 @@
+/* V3 arcade game surfaces. Historical V2 remains untouched. */
+.dean-arcade-player .dean-player-stage{position:relative;isolation:isolate;background:radial-gradient(ellipse at 75% 15%,#245c88,transparent 55%),linear-gradient(130deg,#0a1731,#071e29);border-color:#497c9b}
+.dean-arcade-player .dean-exam{position:relative;display:grid;grid-template-columns:.85fr 1.15fr;width:100%;max-width:none;height:100%;min-height:0;gap:clamp(10px,2vw,24px);padding:clamp(12px,2vw,28px);border:0;background:linear-gradient(125deg,#10294b,#081c33);border-radius:22px;box-shadow:0 20px 65px #0007,inset 0 0 80px #2a9ed30c}
+.dean-arcade-player .dean-exam-brief{position:relative;display:flex;flex-direction:column;gap:20px;justify-content:center;padding:clamp(15px,2.3vw,30px);border-radius:20px;border:1px solid #6088a6;background:radial-gradient(circle at 50% 40%,#3269a566,transparent 60%),linear-gradient(125deg,#213b63,#101d38)!important;overflow:hidden}
+.dean-arcade-player .dean-exam-brief::after{content:'🎓';position:absolute;right:-20px;bottom:-10px;font-size:clamp(100px,15vw,220px);opacity:.15;transform:rotate(-12deg);pointer-events:none}
+.dean-arcade-player .dean-exam-brief h2{font-size:clamp(24px,3vw,48px);line-height:1.07;max-width:13ch;z-index:1;text-wrap:balance}
+.dean-arcade-player .dean-exam-brief .dean-kicker{font-size:clamp(12px,1vw,16px);color:#ffe2a1}
+.dean-arcade-player .dean-exam-controls{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(6px,1.2vh,15px);padding:clamp(12px,1.7vw,22px);border:1px solid #376c8a;border-radius:20px;background:linear-gradient(145deg,#081c32,#142b42)}
+.dean-arcade-player .dean-exam-controls h3{margin:0;font-size:clamp(17px,1.5vw,22px)}
+.dean-arcade-player .dean-slider{min-height:0;padding:clamp(9px,1.1vw,14px);border:1px solid #365d7b;border-radius:14px;background:linear-gradient(95deg,#1b3253,#162943)}
+.dean-arcade-player .dean-slider strong{color:#ffe19b;font-size:clamp(20px,2vw,29px)}
+.dean-arcade-player .dean-slider input{accent-color:#ffcf74;cursor:grab;touch-action:pan-y}
+.dean-arcade-player .dean-slider small{font-size:11px}
+.dean-arcade-hours{padding:10px 14px;border:1px solid #66c6c3;border-radius:14px;background:linear-gradient(100deg,#134051,#132d46)}
+.dean-arcade-hours-line{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:900;font-size:clamp(12px,1.25vw,17px)}
+.dean-arcade-hours-line strong{color:#ffe2a6;font-size:clamp(20px,2vw,26px);font-variant-numeric:tabular-nums}
+.dean-arcade-hours-track{height:10px;border-radius:40px;background:#09192b;overflow:hidden;margin-top:8px}
+.dean-arcade-hours-track i{height:100%;display:block;background:linear-gradient(90deg,#46d4c4,#fbc76f);border-radius:40px;transition:width .16s}
+.dean-arcade-trade{min-height:19px;margin:0!important;font-size:clamp(11px,1.05vw,14px);font-weight:850;color:#ffe5a4!important;animation:arcade-trade-pop .3s}
+.dean-arcade-player .dean-exam-action{margin-top:auto;min-height:54px;border:2px solid #ffdf9d;background:linear-gradient(120deg,#ffedac,#ffb75d);color:#1b2d40;font-size:clamp(16px,1.5vw,23px);box-shadow:0 5px 0 #865524,0 11px 25px #f2bc6133;transition:transform .15s,box-shadow .15s}
+.dean-arcade-player .dean-exam-action:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 8px 0 #865524}
+.dean-arcade-player .dean-exam-action:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #865524}
+.dean-arcade-player .dean-meter i{background:linear-gradient(90deg,#5bd3c8,#ffdc8d)}
+.dean-arcade-player .dean-carnet{border-color:#ffd78c}
+.dean-arcade-finish{margin:auto;width:min(860px,100%);padding:clamp(20px,4vw,48px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,1.8vh,20px);text-align:center;border:2px solid #f4d18b;border-radius:26px;background:radial-gradient(circle,#224e6a,#101e38 70%);box-shadow:0 0 65px #56d8eb22}
+.dean-arcade-finish h2{font-size:clamp(27px,4vw,55px);line-height:1.05;margin:0;color:#ffe4a5}
+.dean-arcade-finish p{margin:0;max-width:45ch;font-size:clamp(13px,1.4vw,19px)}
+.dean-arcade-finish .dean-emoji{font-size:clamp(70px,9vw,105px)}
+.dean-arcade-finish-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.dean-arcade-finish-stats span{background:#102e47;border:1px solid #6c9db4;padding:11px 15px;border-radius:14px;font-weight:900}
+.dean-arcade-download,.dean-arcade-return{display:inline-flex;align-items:center;justify-content:center;min-height:52px;width:min(450px,100%);padding:13px 18px;border-radius:14px;font-size:clamp(16px,1.5vw,21px);text-decoration:none;font-weight:950}
+.dean-arcade-download{border:0;background:#ffda8a;color:#15263c}
+.dean-arcade-return{border:2px solid #6bcbc8;background:#174657;color:#e3fffc}
+.dean-arcade-overlay{position:absolute;z-index:15;inset:0;display:grid;place-items:center;overflow:auto;padding:15px;background:radial-gradient(circle,#294e6ad9,#060f20f5 75%);backdrop-filter:blur(8px);animation:arcade-overlay-in .25s ease-out}
+.dean-arcade-result{position:relative;z-index:2;width:min(550px,100%);padding:clamp(15px,2.5vw,30px);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:clamp(7px,1vh,14px);text-align:center;border:2px solid #ffe2a0;border-radius:28px;background:radial-gradient(circle at 50% 0%,#28567c,#111e3a 72%);box-shadow:0 0 75px #edc77150,0 30px 80px #0009;animation:arcade-card-enter .48s cubic-bezier(.19,1,.22,1)}
+.dean-arcade-result h2{font-size:clamp(26px,3.1vw,45px);line-height:1.03;margin:0;text-wrap:balance;color:#ffe6a0;text-shadow:0 5px 22px #e5aa6b55}
+.dean-arcade-overline{font-size:12px;letter-spacing:2px;font-weight:900;color:#b9ebf4}
+.dean-arcade-emblem{display:grid;place-items:center;width:clamp(74px,9vw,110px);height:clamp(74px,9vw,110px);font-size:clamp(48px,6vw,70px);border:2px solid #fbd994;border-radius:50%;background:linear-gradient(140deg,#264e78,#192b4c);box-shadow:0 0 0 9px #f5b95c18,0 0 42px #ffdb8877;animation:arcade-medal-enter .7s both}
+.dean-arcade-line{margin:0!important;color:#c8f6e9!important;font-size:clamp(14px,1.6vw,19px)}
+.dean-arcade-score{display:flex;gap:10px;align-items:baseline;color:white;text-shadow:0 0 25px #ffcf8599}
+.dean-arcade-score strong{font-size:clamp(66px,9vw,115px);font-variant-numeric:tabular-nums;line-height:.95;letter-spacing:-4px;font-weight:1000;animation:arcade-number-pop .6s .15s both}
+.dean-arcade-score span{font-size:clamp(20px,2vw,28px);color:#b8d5e6;font-weight:900}
+.dean-arcade-results-strip{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.dean-arcade-results-strip span{border:1px solid #638db1;border-radius:10px;background:#17334f;padding:8px 11px;font-size:clamp(11px,1vw,15px);font-weight:850}
+.dean-arcade-next{min-height:55px;width:100%;max-width:420px;border:0;border-radius:14px;background:linear-gradient(120deg,#ffedb2,#ffbb61);color:#18314b;font-weight:950;font-size:clamp(15px,1.5vw,20px);box-shadow:0 6px 0 #9c6929;transition:transform .16s}
+.dean-arcade-next:hover{transform:translateY(-3px)}
+.dean-arcade-rays{position:absolute;inset:-100%;background:repeating-conic-gradient(#fff0a014 0 9deg,transparent 9deg 22deg);animation:arcade-spin 22s linear infinite}
+.dean-arcade-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.dean-arcade-confetti span{position:absolute;left:calc(3% + var(--i)*4.4%);top:-20px;width:9px;height:15px;background:hsl(calc(22 + var(--i)*12),90%,70%);opacity:0;animation:arcade-confetti 1.5s calc(var(--i)*.04s) ease-out both}
+.tier-retry .dean-arcade-result,.tier-recover .dean-arcade-result{border-color:#8cd9e2;box-shadow:0 0 55px #58afed44}
+.tier-retry .dean-arcade-result h2,.tier-recover .dean-arcade-result h2{color:#bdeeff}
+.tier-retry .dean-arcade-confetti span,.tier-recover .dean-arcade-confetti span{display:none}
+@keyframes arcade-overlay-in{from{opacity:0}to{opacity:1}}
+@keyframes arcade-card-enter{from{opacity:0;transform:scale(.75) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes arcade-medal-enter{from{opacity:0;transform:rotate(-30deg) scale(.4)}to{opacity:1;transform:rotate(0) scale(1)}}
+@keyframes arcade-number-pop{from{opacity:0;transform:scale(1.3)}to{opacity:1;transform:scale(1)}}
+@keyframes arcade-spin{to{transform:rotate(360deg)}}
+@keyframes arcade-confetti{0%{opacity:0;transform:translateY(-30px) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translateY(90vh) rotate(680deg)}}
+@keyframes arcade-trade-pop{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:790px){.dean-arcade-player .dean-exam{display:flex;flex-direction:column;min-height:0!important;height:auto!important;gap:8px;padding:9px}.dean-arcade-player .dean-exam-brief{padding:12px;gap:7px;flex:0 0 auto}.dean-arcade-player .dean-exam-brief h2{font-size:23px;max-width:none}.dean-arcade-player .dean-exam-controls{padding:10px;gap:7px;flex:0 0 auto}.dean-arcade-player .dean-exam-controls .dean-slider{min-height:60px}.dean-arcade-player .dean-exam-controls .dean-exam-action{min-height:52px}.dean-arcade-overlay{position:fixed;z-index:99;inset:0}.dean-arcade-result{padding:18px 13px}}
+@media(max-height:680px){.dean-arcade-player .dean-exam-brief,.dean-arcade-player .dean-exam-controls{gap:6px}.dean-arcade-result{gap:6px}.dean-arcade-emblem{width:66px;height:66px;font-size:44px}}
+@media(prefers-reduced-motion:reduce){.dean-arcade-overlay,.dean-arcade-result,.dean-arcade-emblem,.dean-arcade-score strong,.dean-arcade-rays,.dean-arcade-confetti span,.dean-arcade-trade{animation:none!important}.dean-arcade-hours-track i,.dean-arcade-player .dean-exam-action{transition:none!important}}
+
+/* Bare routes are not game invitations: a visible Cup-code entrance avoids old FUTUROS. */
+.dean-arcade-entry-page .dean-arcade-entry{max-width:650px;width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;border:2px solid #e5c97f;border-radius:24px;background:radial-gradient(circle at 50% 20%,#276683,#0a1c32 70%);box-shadow:0 0 65px #49bfd52b}
+.dean-arcade-entry-page .dean-arcade-entry h2{font-size:clamp(30px,4vw,51px);color:#ffe6a1}
+.dean-arcade-entry-page .dean-arcade-entry p{max-width:42ch}
+.dean-arcade-entry-page .dean-arcade-entry form{display:flex;flex-direction:column;gap:12px;width:min(440px,100%);text-align:left}
+.dean-arcade-entry-page .dean-arcade-entry form label{font-weight:900;letter-spacing:1.5px;color:#c8ecf0;font-size:13px}
+.dean-arcade-entry-page .dean-arcade-entry form input{width:100%;min-height:56px;border:2px solid #71c9d4;border-radius:12px;background:#0e2b48;color:#fff;padding:10px 16px;font-size:clamp(18px,2vw,23px);font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.dean-arcade-entry-page .dean-arcade-entry form input:focus-visible{outline:3px solid #ffe6a1;outline-offset:3px}
+.dean-arcade-entry-page .dean-arcade-enter-btn{background:linear-gradient(110deg,#ffedb4,#ffc16b);border:0;color:#172942;font-weight:950;min-height:55px;font-size:19px}
+.dean-arcade-entry-page .dean-arcade-entry-help{color:#b6d6e3;font-size:13px}
+.dean-arcade-entry-page .dean-arcade-entry-help a{color:#ffe49c}
+
+/* Mobile-game reward reveal: original animated mascot + stars, NOT a lecture card. */
+.dean-arcade-overlay{background:radial-gradient(ellipse at 50% 40%,#286d9adf,#152958ed 48%,#041124f9 95%);--arcade-hue1:#ffc15f;--arcade-hue2:#fff2bd}
+.dean-arcade-overlay .dean-arcade-result{width:min(610px,100%);max-height:100%;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;gap:4px;padding:clamp(10px,1.6vw,18px);border:3px solid var(--arcade-hue1);background:radial-gradient(ellipse at 50% 5%,#2e7199,#1b315c 48%,#0b1532 100%);box-shadow:0 0 60px color-mix(in srgb,var(--arcade-hue1) 45%,transparent),0 7px 0 #030d21}
+.arcade-clear-head{display:grid;justify-items:center;gap:7px}
+.arcade-clear-label{font-size:clamp(13px,1.4vw,18px);font-weight:1000;letter-spacing:.15em;color:var(--arcade-hue2);text-shadow:0 2px 0 #142856,0 0 18px var(--arcade-hue1);animation:arcade-bounce-in .52s both}
+.arcade-exam-pills{display:flex;gap:5px;max-width:95%}
+.arcade-exam-pills i{height:7px;width:clamp(15px,2.5vw,29px);border:1px solid #6f8ba7;border-radius:40px;background:#0f2954}
+.arcade-exam-pills .cleared{background:linear-gradient(90deg,var(--arcade-hue1),var(--arcade-hue2));border-color:var(--arcade-hue2);box-shadow:0 0 10px var(--arcade-hue1)}
+.arcade-character-scene{width:min(310px,100%);height:clamp(135px,22vh,190px);min-height:135px;position:relative;display:grid;place-items:center;isolation:isolate}
+.dean-arcade-mascot{z-index:3;position:relative;width:clamp(140px,21vh,180px);height:clamp(140px,21vh,180px);display:grid;place-items:center;animation:arcade-mascot-float 2s ease-in-out infinite}
+.dean-arcade-mascot svg{height:100%;width:100%;filter:drop-shadow(0 10px 4px #030c2766)}
+.arcade-mascot-aura{z-index:-1;position:absolute;inset:20px;border-radius:50%;background:radial-gradient(circle,var(--arcade-hue1) 0%,#86cbff99 45%,transparent 74%);opacity:.65;filter:blur(18px);animation:arcade-aura-pulse 1.5s ease-in-out infinite alternate}
+.dean-arcade-mascot-base{position:absolute;bottom:5px;left:22px;right:22px;height:13px;background:#010c2bb5;border-radius:100%;filter:blur(8px)}
+.arcade-character-ribbon{z-index:5;position:absolute;bottom:-1px;left:50%;transform:translateX(-50%) rotate(-3deg);white-space:nowrap;border:2px solid #fff6d4;border-radius:12px;padding:6px 14px;font-size:clamp(12px,1.4vw,16px);font-weight:1000;color:#1b2d4c;background:linear-gradient(110deg,var(--arcade-hue1),var(--arcade-hue2));box-shadow:0 4px 0 #14366a,0 9px 18px #03132980;animation:arcade-ribbon-land .6s .2s both}
+.arcade-impact-ring{position:absolute;z-index:1;inset:50% auto auto 50%;width:125px;height:125px;border:3px solid var(--arcade-hue1);border-radius:50%;animation:arcade-ring-impact .9s .05s both}
+.arcade-spark{z-index:2;position:absolute;color:var(--arcade-hue2);font-size:32px;text-shadow:0 0 19px var(--arcade-hue1);animation:arcade-twinkle 1.8s ease-in-out infinite}
+.spark-one{top:10%;left:0}.spark-two{top:3%;right:4%;animation-delay:.4s}.spark-three{bottom:12%;right:2%;animation-delay:.8s}
+.arcade-celebration-copy{display:grid;gap:2px;justify-items:center}
+.dean-arcade-overlay .arcade-celebration-copy h2{font-size:clamp(25px,3vw,41px);line-height:1.04;margin:0;font-weight:1000;color:#fff2b5;text-shadow:0 3px 0 #6c471b,0 8px 16px #e6a73d77;animation:arcade-bounce-in .55s .12s both}
+.arcade-celebration-copy .dean-arcade-line{margin:0!important;font-size:clamp(12px,1.4vw,17px);font-weight:850;color:#e0f7ff!important}
+.arcade-big-grade{width:100%;display:grid;place-items:center;gap:0}
+.arcade-grade-caption{font-size:10px;letter-spacing:.25em;font-weight:1000;color:#c6e6ff}
+.arcade-big-grade .dean-arcade-score{display:flex;gap:8px;align-items:baseline}
+.arcade-big-grade .dean-arcade-score strong{font-size:clamp(56px,7vw,79px);line-height:.93;letter-spacing:-2px;font-weight:1000;color:#fff1b5}
+.arcade-big-grade .dean-arcade-score small{font-size:clamp(17px,2vw,23px);font-weight:850;color:#c5e7f4}
+.arcade-grade-stars{display:flex;gap:14px;font-size:22px;justify-content:center}
+.arcade-grade-stars span{color:#56708b;text-shadow:0 2px 2px #06132a}
+.arcade-grade-stars .earned{color:#ffdd65;text-shadow:0 0 17px #ffc250;animation:arcade-star-pop .45s .25s both}
+.dean-arcade-overlay .dean-arcade-results-strip{gap:5px}
+.dean-arcade-overlay .dean-arcade-results-strip span{padding:7px 10px;background:#102e53;border:1px solid #6490b4;font-size:clamp(10px,1vw,14px)}
+.dean-arcade-overlay .dean-arcade-next{border:2px solid #fff2c0;max-width:460px;min-height:50px;background:linear-gradient(180deg,#ffedab,#ffae4a);color:#162e4a;box-shadow:0 5px 0 #91531b,0 0 22px #f6cf7455;font-size:clamp(15px,1.5vw,19px)}
+.arcade-result-footer{font-size:10px;letter-spacing:.08em;color:#c0d6e7;font-weight:800}
+.tier-epic .dean-arcade-result{background:radial-gradient(ellipse at 50% 5%,#664aa0,#1b285b 50%,#111634)}
+.tier-solid .dean-arcade-result{background:radial-gradient(ellipse at 50% 5%,#1d7884,#15305a 50%,#0a1631)}
+.tier-retry .dean-arcade-result,.tier-recover .dean-arcade-result{background:radial-gradient(ellipse at 50% 5%,#265e8b,#152d51 50%,#0c1832)}
+@keyframes arcade-bounce-in{0%{opacity:0;transform:scale(.5) translateY(30px)}65%{transform:scale(1.09) translateY(-4px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes arcade-mascot-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+@keyframes arcade-aura-pulse{from{opacity:.3;transform:scale(.85)}to{opacity:.78;transform:scale(1.14)}}
+@keyframes arcade-ring-impact{0%{opacity:1;transform:translate(-50%,-50%) scale(.3)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.25)}}
+@keyframes arcade-twinkle{0%,100%{opacity:.3;transform:scale(.75)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes arcade-star-pop{0%{opacity:.2;transform:scale(.3) rotate(-20deg)}70%{transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@keyframes arcade-ribbon-land{from{opacity:0;transform:translateX(-50%) translateY(25px) rotate(8deg)}to{opacity:1;transform:translateX(-50%) rotate(-3deg)}}
+@media(max-width:480px){.dean-arcade-overlay{padding:6px}.dean-arcade-overlay .dean-arcade-result{padding:10px 8px;gap:3px}.arcade-character-scene{height:150px;min-height:0}.dean-arcade-mascot{width:145px;height:145px}.dean-arcade-overlay .arcade-celebration-copy h2{font-size:clamp(23px,6.5vw,32px)}.arcade-grade-stars{font-size:18px}.dean-arcade-overlay .dean-arcade-results-strip span{padding:5px 7px}}
+@media(max-height:640px){.arcade-character-scene{height:115px;min-height:0}.dean-arcade-mascot{width:115px;height:115px}.arcade-big-grade .dean-arcade-score strong{font-size:47px}.arcade-grade-stars{font-size:18px}.dean-arcade-overlay .dean-arcade-result{gap:2px}}
+@media(prefers-reduced-motion:reduce){.arcade-clear-label,.dean-arcade-mascot,.arcade-mascot-aura,.arcade-character-ribbon,.arcade-impact-ring,.arcade-spark,.arcade-celebration-copy h2,.arcade-grade-stars .earned{animation:none!important}}
+
+/* Decorative mascot in the live round. It never captures taps or slider focus. */
+.dean-arcade-player .dean-exam-brief::after{content:none!important;display:none!important}
+.dean-arcade-sidekick{position:absolute;right:0;bottom:0;z-index:0;pointer-events:none;opacity:.55;filter:drop-shadow(0 0 16px #32c4ff44)}
+.dean-arcade-sidekick .dean-arcade-mascot{width:170px;height:170px}
+.dean-arcade-player .dean-exam-brief>*:not(.dean-arcade-sidekick){position:relative;z-index:1}
+@media(max-width:790px){.dean-arcade-sidekick{display:none}}
