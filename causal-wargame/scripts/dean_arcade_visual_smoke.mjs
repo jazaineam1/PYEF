@@ -85,7 +85,7 @@ async function playerViewport(width,height){
  await page.close();
 }
 
-async function wallAndTeacher(){
+async function wallAndTeacher(mode='real_hours_10_v1'){
  for(const role of ['wall','teacher']){
   const page=await browser.newPage({viewport:{width:1366,height:768}});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -101,9 +101,12 @@ async function wallAndTeacher(){
    if(b.action==='teacher')assert.equal(b.game_code,code,'Teacher sends Cup code to backend');
    if(b.action==='teacher'){assert.equal(b.command,'next');phase='exams'}
    if(b.action==='game_finish')phase='finished';
-   const state={available:true,game_code:code,game_mode:'real_hours_10_v1',
-    dgp_version:'zip_dgp_2026',phase,groups,mine:null,agenda_enabled:true,
-    exam_count:10,server_now:new Date().toISOString()};
+   const isSix=mode==='real_hours_6_v1';
+   const people=Array.from({length:30},(_,i)=>({alias:'Jugador '+(i+1),room_no:1+Math.floor(i/6),avatar_no:i%12,ready:i%2===0}));
+   const state={available:true,game_code:code,game_mode:mode,
+    dgp_version:'zip_dgp_2026',phase,groups:groups.map(g=>({...g,target_exams:isSix?36:60})),mine:null,
+    lobby_players:people,agenda_enabled:true,
+    exam_count:isSix?6:10,server_now:new Date().toISOString()};
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(state)});
   });
   await page.goto(base+'/dean-'+(role==='wall'?'wall':'teacher')+'.html?game='+code,
@@ -111,7 +114,7 @@ async function wallAndTeacher(){
   if(role==='teacher'){
    const next=page.locator('.dean-teacher-next');
    await next.waitFor({state:'visible'});
-   assert.match(await next.innerText(),/ABRIR LOS 10 EXÁMENES/);
+   assert.match(await next.innerText(),mode==='real_hours_6_v1'?/ABRIR LOS 6 EXÁMENES/:/ABRIR LOS 10 EXÁMENES/);
    await next.click();
    await page.waitForFunction(()=>document.querySelector('.dean-teacher-next')?.textContent?.includes('CERRAR JUEGO'),{timeout:10000});
    await next.click();
@@ -122,6 +125,8 @@ async function wallAndTeacher(){
    assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5);
    assert.equal(await page.locator('.dean-quest-wall').count(),0);
   }
+  assert.equal(await page.locator('.dean-lobby-member').count(),30,'All 30 named animal players shown on '+role);
+  assert.equal(await page.locator('.dean-lobby-member').count(),30);
   assert.deepEqual(errors,[],role+' browser errors');
   await page.screenshot({path:'visual-qa/arcade-'+role+'.png',fullPage:false});
   console.log('ARCADE PASS',role);
@@ -249,6 +254,7 @@ try{
  await playerViewport(1366,768);
  await playerViewport(390,844);
  await wallAndTeacher();
+ await wallAndTeacher('real_hours_6_v1');
  await staleSessionRecovers();
  await sixRoundViewport(1366,768,false);
  await sixRoundViewport(1280,720,false);
