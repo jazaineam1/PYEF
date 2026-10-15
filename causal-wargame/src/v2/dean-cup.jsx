@@ -10,6 +10,7 @@ import DeanQuizArena from './DeanQuizArena.jsx';
 import {agendaCost,rebalanceAgenda,AGENDA_CAP} from './dean-agenda.js';
 import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeStreak,arcadeTitle} from './dean-arcade.js';
 import DeanArcadeResult from './DeanArcadeResult.jsx';
+import DeanArcadeMascot from './DeanArcadeMascot.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -144,6 +145,7 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
    <h2>{sourceSubjects[(n-1)%sourceSubjects.length]}</h2>
    <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+ARCADE_EXAMS}><i style={{width:(n-1)/ARCADE_EXAMS*100+'%'}}/></div>
    <span className="dean-game-clue">🎯 ¡Consigue la mejor nota de tu sala!</span>
+   <div className="dean-arcade-sidekick"><DeanArcadeMascot mood="solid"/></div>
    {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
   </div>
   <div className="dean-exam-controls">
