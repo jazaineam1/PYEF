@@ -183,8 +183,12 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
  const scene=DEAN_ARC[phase];
  if(!scene||!learning?.available)return null;
  const step=learning.step;
- const action=learning.paused?'resume':step==='challenge'?'evidence':step==='evidence'?'debrief':null;
- const title={resume:'Reanudar',evidence:'Mostrar pista y abrir revisión',debrief:'Cerrar revisión y revelar solución'}[action];
+ const initials=Number(learning.counts?.initial||0),revisions=Number(learning.counts?.revision||0);
+ const noEvidence=step==='challenge'?initials===0:step==='evidence'?revisions===0:false;
+ const action=learning.paused?'resume':step==='challenge'?(noEvidence?'demo':'evidence'):
+  step==='evidence'?(noEvidence?'demo':'debrief'):null;
+ const title={resume:'Reanudar',demo:'Modo demostración · cerrar sin puntos',
+  evidence:'Mostrar pista y abrir revisión',debrief:'Cerrar revisión y revelar solución'}[action];
  return <section className="dean-quest-control">
   <div className="dean-quest-chapter">🎓 GUION DOCENTE · {scene.time} MIN · {scene.act}</div>
   <h3>{scene.title}</h3>
@@ -195,6 +199,7 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
    <span>Intuiciones: <b>{learning.counts?.initial||0}/{learning.registered||0}</b></span>
    <span>Revisiones: <b>{learning.counts?.revision||0}/{learning.registered||0}</b></span>
   </div>
+  {noEvidence&&<p className="dean-quest-hint">⚠️ Aún no hay evidencias para cerrar este paso. Puedes esperar respuestas o proyectar una demostración SIN puntos.</p>}
   <div className="dean-quest-toolbar">
    {action&&<button type="button" disabled={busy} onClick={()=>onAction(action)}>{busy?'Procesando…':title+' →'}</button>}
    {!learning.paused&&step!=='debrief'&&<button type="button" className="dean-quest-secondary" disabled={busy} onClick={()=>onAction('pause')}>⏸ Pausar</button>}
