@@ -1,13 +1,78 @@
 {
-  "schema_version": 1,
-  "status": "pending",
-  "provenance": {
-    "engine": "EconML",
-    "dgp": "zip_dgp_2026",
-    "execution": "PRECOMPUTED BENCHMARK NOT YET TRAINED",
-    "source": "causal-wargame/scripts/precompute_econml_dean.py"
+  "metrics": {
+    "causal_forest": {
+      "ate_error_points": 0.1514,
+      "cate_rmse_points": 0.6812
+    },
+    "dr_learner": {
+      "ate_error_points": 0.0826,
+      "cate_rmse_points": 0.5947
+    },
+    "t_learner": {
+      "ate_error_points": 0.0499,
+      "cate_rmse_points": 1.1435
+    }
   },
-  "segments": [],
-  "metrics": {},
-  "note": "No afirmar entrenamiento EconML completado hasta que GitHub Actions publique datos verificados."
+  "note": "Resultados de simulación científica de referencia, NO estimaciones de participantes ni causalidad fuera del mundo sintético.",
+  "provenance": {
+    "data_sha256": "ed6eaebbfd010970b978c0837d8df722a759e0a6d7f3ebe2b2b11bd5513f840f",
+    "dgp": "zip_dgp_2026",
+    "econml_version": "0.16.0",
+    "engine": "EconML",
+    "exams_per_student": 15,
+    "execution": "CPython GitHub Actions — PRECOMPUTED BENCHMARK",
+    "holdout_students": 300,
+    "methods": [
+      "TLearner",
+      "DRLearner",
+      "CausalForestDML"
+    ],
+    "n_students": 1200,
+    "noise_note": "NumPy simulation uses same structural coefficients but is not bitwise equivalent to PostgreSQL deterministic Box-Muller.",
+    "numpy_version": "1.26.4",
+    "observations_for_model": 1200,
+    "randomized_at": "student",
+    "seed": 20261015,
+    "sklearn_version": "1.5.2",
+    "source": "causal-wargame/scripts/precompute_econml_dean.py",
+    "structural_source": "chapter-causalidad-master/config/simulation_parameters.toml",
+    "study_design": "T=1 B=4h vs T=0 B=0h, shared noise across potential outcomes",
+    "train_students": 900
+  },
+  "schema_version": 1,
+  "segments": [
+    {
+      "causal_forest": 12.133,
+      "dr_learner": 11.775,
+      "n_holdout": 75,
+      "segment": "over",
+      "t_learner": 11.601,
+      "true_cate_synthetic": 11.592
+    },
+    {
+      "causal_forest": -2.402,
+      "dr_learner": -2.431,
+      "n_holdout": 75,
+      "segment": "balanced",
+      "t_learner": -2.661,
+      "true_cate_synthetic": -2.504
+    },
+    {
+      "causal_forest": -1.583,
+      "dr_learner": -1.491,
+      "n_holdout": 75,
+      "segment": "risk",
+      "t_learner": -1.336,
+      "true_cate_synthetic": -1.382
+    },
+    {
+      "causal_forest": -0.072,
+      "dr_learner": -0.051,
+      "n_holdout": 75,
+      "segment": "pragmatic",
+      "t_learner": 0.068,
+      "true_cate_synthetic": -0.234
+    }
+  ],
+  "status": "verified"
 }
