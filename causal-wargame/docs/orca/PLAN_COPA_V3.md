@@ -11,7 +11,7 @@ Convertir la Copa del Decano en la mejor actividad de 120 minutos para enseñar 
 
 1. El contrato de pantalla única (sección 3) pasa en las 3 pantallas, 7 fases y 6 viewports.
 2. El mini-wall estilo Halo 2 (sección 4) está visible para el jugador y el docente.
-3. Hay una prueba de carga extremo a extremo con 30 sesiones concurrentes y umbrales cumplidos, primero en staging y después en producción con un código de partida dedicado.
+3. Hay una prueba de carga extremo a extremo con 30 sesiones concurrentes y umbrales cumplidos contra el Supabase del usuario, en una partida de QA dedicada (sección 2, invariante 2).
 4. Se hizo un ensayo real con 5–10 dispositivos, incluida la reconexión.
 5. La revisión científica y pedagógica cerró sin hallazgos bloqueantes.
 6. La revisión de release dio *go*, y `FUTUROS` y V1 permanecen intactos.
@@ -41,7 +41,10 @@ Convertir la Copa del Decano en la mejor actividad de 120 minutos para enseñar 
 ## 2. Invariantes (aplican a todos los agentes)
 
 1. **`FUTUROS` y V1 son intocables.** No se reinician, borran, archivan ni migran. Las partidas `legacy_v1` deben seguir funcionando y también se renderizan con el nuevo layout.
-2. **Producción solo con aprobación humana explícita.** Esto incluye aplicar migraciones, desplegar Edge Functions, pruebas de carga o smoke contra `nedsrnqwvxtelddmtvtv`, y hacer push o merge a `main`.
+2. **Infraestructura única: el Supabase del usuario (`nedsrnqwvxtelddmtvtv`), GitHub Pages y el repo de GitHub** (decisión del usuario, 14-oct). No se usan Docker, Supabase local ni ningún otro servicio.
+   - **Permitido sin más aprobación:** tráfico HTTP de prueba **solo** contra la partida de QA definida en `C:\Users\nib1l\Documents\diplocopia\_secrets\copa-v3.env` (`CW_DEAN_GAME`, o códigos que empiecen por ese valor).
+   - **Requiere aprobación humana explícita:** aplicar migraciones, desplegar o cambiar Edge Functions, tocar cualquier otra partida (en especial `FUTUROS` y `FLOWTEST26`), borrar o archivar datos y hacer push o merge a `main`.
+   - Los valores de `copa-v3.env` nunca se imprimen, se copian al repo, se escriben en informes ni se commitean.
 3. **Las migraciones solo se agregan.** Nunca se edita una migración existente. Las nuevas usan un timestamp mayor que `202610140010`.
 4. **No hay fugas causales para los estudiantes.** La fatiga `U`, `Y(0)`, `Y(1)` y el efecto verdadero nunca llegan al bundle de estudiante ni a sus endpoints. `npm run build:secure` y `scripts/assert_secure_bundle.mjs` deben pasar.
 5. **Pedagogía:**
@@ -154,6 +157,29 @@ Convertir la Copa del Decano en la mejor actividad de 120 minutos para enseñar 
 
 **Ruta corta, si la clase es inminente:** T0.1 → T0.2 → T1.1–T1.4 → T2.2 → T4.1 → G3. Con eso se cumplen todos los P0. T2.1, T2.3, T3.x y T2.4 quedan para la siguiente iteración.
 
+### 7.1 Ruta activa: corta (clase el viernes 16-oct-2026, 10:00–12:00 COT)
+
+Decidida el 14-oct. El usuario prohibió Docker: toda prueba usa su Supabase, GitHub Pages y GitHub.
+
+- **Activas:** T0.1, T0.2, T0.3b → **G0** → T1.1–T1.4 (+ revisiones cruzadas y V1) → **G1** → T2.2b + T4.1b → **G2/G3**.
+- **Sustituidas:** T0.3 → T0.3b, T2.2 → T2.2b, T4.1 → T4.1b. T4.2 queda absorbida por T2.2b (la carga ya se hace contra el Supabase real).
+- **Pospuestas para después de la clase:** T2.1, T2.3, T2.4, T3.1, T3.2 y una revisión de release posterior.
+
+**Calendario (hora de Colombia):**
+
+| Cuándo | Qué |
+|---|---|
+| Mié 14, noche | Ola 0: T0.1, T0.2, T0.3b |
+| Jue 15, hasta 08:00 | **G0** |
+| Jue 15, 08:00–13:00 | Ola 1 + revisiones cruzadas + V1 |
+| Jue 15, ~13:00 | **G1** (aprobación del diseño) |
+| Jue 15, 13:00–19:00 | T2.2b (la corrida de 30 termina **antes de las 20:00**) + T4.1b |
+| Jue 15, 19:00–21:30 | **G3** merge a `main` → Pages; ensayo **G2** con 5–10 dispositivos sobre Pages en la partida de QA; si es NO-GO, `git revert` del merge |
+| Jue 15, 22:00 | **Congelamiento:** nada más entra a `main` |
+| Vie 16, 10:00–12:00 | Clase. Solo lectura y monitoreo |
+
+No existe un Pages de staging, así que el ensayo real (G2) ocurre **después** del merge (G3), con la reversión como red de seguridad.
+
 ## 8. Reglas comunes para trabajadores (se copian dentro de cada `--spec`)
 
 ```
@@ -161,7 +187,7 @@ REGLAS COMUNES
 - Antes de empezar, lee las secciones 1–4 de causal-wargame/docs/orca/PLAN_COPA_V3.md (en tu worktree).
 - Trabaja en la rama copa-v3/<ID>-<slug> (créala desde tu HEAD si Orca le dio otro nombre). Nunca uses el prefijo v2/.
 - Edita SOLO las rutas listadas en "Propiedad". Si necesitas cambiar otra, usa el comando ask del preámbulo.
-- Invariantes: no tocar FUTUROS, V1 ni dos-futuros/; no hacer nada en producción (nedsrnqwvxtelddmtvtv); migraciones solo nuevas; sin fugas de U/Y0/Y1/efecto verdadero; sin dependencias nuevas de runtime.
+- Invariantes: no tocar FUTUROS, V1 ni dos-futuros/; sin Docker ni Supabase local; en el Supabase del usuario (nedsrnqwvxtelddmtvtv) solo el tráfico de prueba contra la partida de QA cuando tu spec lo pida (invariante 2), nunca migraciones ni despliegues; los valores de _secrets\copa-v3.env nunca se imprimen ni se commitean; migraciones solo nuevas; sin fugas de U/Y0/Y1/efecto verdadero; sin dependencias nuevas de runtime.
 - Verifica en causal-wargame/: npm run check (y npm run test:visual cuando exista). Adjunta la salida relevante.
 - Abre un PR: gh pr create --base copa-v3, con descripción Qué/Por qué/Evidencia (métricas o capturas)/Riesgos.
 - Si el mismo criterio de aceptación falla 2 veces, usa ask y no sigas iterando.
@@ -223,6 +249,8 @@ REGLAS COMUNES
   - Captura de la hoja de contactos en el PR.
 
 ### T0.3 · Staging local y prueba de carga de la Copa
+> **Sustituida por T0.3b el 14-oct** (el usuario prohibió Docker y Supabase local). Se conserva como historial.
+
 - **Agente:** Codex.
 - **Objetivo:** `causal-wargame/scripts/dean_cup_load.mjs`, `causal-wargame/scripts/staging/**` y `causal-wargame/docs/orca/STAGING.md`.
 - **Cambio:**
@@ -326,6 +354,8 @@ REGLAS COMUNES
   - Un test que verifique que el estado del personaje depende solo de estudio, sueño y bienestar.
 
 ### T2.2 · Concurrencia, resiliencia y polling
+> **Sustituida por T2.2b el 14-oct.** Se conserva como historial.
+
 - **Agente:** Codex.
 - **Objetivo:** `scripts/dean_cup_load.mjs`, `src/v2/dean/api.js`, `src/v2/dean/useBoard.js`, `src/v2/dean/CupQuiz.jsx` (solo el polling), `supabase/functions/v2-dean-cup/**` y migraciones **nuevas**.
 - **Cambio:**
@@ -407,6 +437,8 @@ REGLAS COMUNES
 - **Aceptación:** capturas de la fase causal en los 3 roles y `npm run check` en verde.
 
 ### T4.1 · Revisión de release (go/no-go)
+> **Sustituida por T4.1b en la ruta corta (14-oct).** Una revisión completa se hará después de la clase.
+
 - **Agente:** Claude Opus 5.5 · high.
 - **Objetivo:** el diff completo `main...copa-v3`.
 - **Cambio:**
@@ -426,6 +458,8 @@ REGLAS COMUNES
 - **Aceptación:** un informe con un veredicto **GO** o **NO-GO**, la lista de bloqueantes y el checklist.
 
 ### T4.2 · Carga en producción (solo con aprobación de G2)
+> **Absorbida por T2.2b el 14-oct:** sin staging aparte, la carga de 30 ya se ejecuta contra el Supabase real.
+
 - **Agente:** Codex.
 - **Objetivo:** producción, **solo** después de que el usuario lo apruebe explícitamente en el chat del coordinador.
 - **Cambio:**
@@ -436,11 +470,95 @@ REGLAS COMUNES
 - **Propiedad:** solo `docs/orca/reports/T4.2_prod_load.md`.
 - **Aceptación:** el informe con los números y una comparación con staging.
 
+### T0.3b · Arnés de carga HTTP contra el Supabase del usuario (partida de QA)
+- **Agente:** Codex.
+- **Sustituye a:** T0.3. El usuario prohibió Docker y Supabase local: todo se prueba contra su Supabase.
+- **Objetivo:** `causal-wargame/scripts/dean_cup_load.mjs`, `causal-wargame/scripts/dean_qa_setup.mjs` y `causal-wargame/docs/orca/QA_SUPABASE.md`.
+- **Cambio:**
+  - **Credenciales.** Leerlas de `C:\Users\nib1l\Documents\diplocopia\_secrets\copa-v3.env`, fuera del repo: `CW_BASE_URL`, `CW_DEAN_GAME`, `CW_DEAN_PIN` y, opcionalmente, `CW_BOOTSTRAP_SECRET`. Si falta el archivo o algún valor, usar `ask` y esperar. Nunca inventar valores ni reutilizar los de los scripts existentes.
+  - **`dean_qa_setup.mjs` (idempotente):**
+    - Si hay `CW_BOOTSTRAP_SECRET` y la partida no existe, crearla con `create-game`.
+    - Iniciar sesión como facilitador y crear la Copa (`teacher` → `create`).
+    - Investigar en las migraciones cómo obtener un torneo nuevo para cada corrida sin borrar datos (cada torneo admite como máximo 30 plazas). Si hace falta una partida nueva por corrida, solo se permiten códigos que empiecen por `CW_DEAN_GAME`. Si la única vía es borrar datos, usar `ask`.
+  - **`dean_cup_load.mjs`:**
+    - `CW_BASE_URL` es obligatoria y no tiene valor por defecto.
+    - **Se niega a ejecutarse** contra `FUTUROS`, `FLOWTEST26`, cualquier código usado en `scripts/` o `.github/workflows/`, o cualquier código que no empiece por `CW_DEAN_GAME`.
+    - Usuarios configurables de 1 a 30, con distribución por salas configurable (por ejemplo 6/6/6/6/6 y 1/0/5/6/2).
+    - Cada usuario se une, rinde 15 exámenes con 2–8 s de espera entre ellos y consulta `state` al ritmo real (2,7–4,0 s; en la fase `final`, también `quiz_state` cada 1,45–2,05 s).
+    - El docente avanza las fases. Se prueban las exportaciones por capa y el Kahoot con respuestas de todos.
+    - **Métricas:** p50, p95 y p99 por acción, tasa de errores y número de respuestas 5xx.
+    - **Invariantes que comprueba:** `fair_score = suma/(15·inscritos)`; se rechaza un séptimo asiento; no hay filas para ausentes; los CSV de estudiante no incluyen `U`, `Y0`, `Y1` ni el efecto verdadero.
+    - **Informe:** `artifacts/load/<fecha>.json` y `.md`, **sin valores secretos**.
+- **Restricciones:**
+  - Solo la partida de QA. Sin migraciones ni despliegues.
+  - No modificar `sustained_load.mjs` ni los smokes existentes.
+  - **En esta tarea, como máximo 5 usuarios simultáneos.** La corrida de 30 corresponde a T2.2b.
+- **Propiedad:** las rutas listadas y `.gitignore`, si hace falta para `artifacts/`.
+- **Aceptación:**
+  - Corridas reales con 1 y 5 usuarios en la partida de QA, con el informe en el PR y sin secretos.
+  - `node --check` de ambos scripts y `npm run check` en verde.
+
+### T2.2b · 30 concurrentes, reconexión y polling (Supabase del usuario)
+- **Agente:** Codex.
+- **Sustituye a:** T2.2 y absorbe T4.2.
+- **Objetivo:** `scripts/dean_cup_load.mjs`, `src/v2/dean/api.js`, `src/v2/dean/useBoard.js`, `src/v2/dean/CupQuiz.jsx` (solo el polling), `src/v2/dean/player/**` (solo el envío del examen) y migraciones **nuevas**, que solo se redactan.
+- **Cambio:**
+  - **Medir primero.** Correr 30 usuarios en la partida de QA, con 6/6/6/6/6 y con una distribución desigual, dos veces cada una.
+  - **Idempotencia.** Verificar en SQL (`cw_dean_exam_v3`) y en la práctica qué pasa con un doble clic y con un reintento tras un error de red.
+    - La corrección preferida va en el cliente: bloquear el envío mientras está en curso y reintentar solo si el servidor confirma que no se guardó.
+    - Si hace falta una migración, redactarla con su test y **escalar con `ask`**. No se aplica.
+  - **Reconexión.** Probarla con Playwright, usando la build local `vite --mode secure` contra la partida de QA:
+    - recargar a mitad de examen reanuda el mismo examen;
+    - tras 30 s sin red, el estado se recupera sin duplicados.
+  - **Optimizar el cliente** si fallan los umbrales o el `tick` escribe en exceso:
+    - pausar el polling con `document.hidden`;
+    - usar retroceso progresivo ante errores;
+    - eliminar el doble polling de la fase `final`.
+  - **Cambios de servidor** (throttle de `cw_dean_tick_v3`, distinguir 4xx de 5xx en la Edge Function): solo se redactan y se escalan. En la ruta corta no se despliegan.
+  - Comparar antes y después con números.
+- **Restricciones:**
+  - Solo la partida de QA.
+  - **La corrida de 30 debe terminar antes del jueves 15-oct a las 20:00 COT.**
+  - No se aplica ninguna migración ni se despliega nada.
+  - Compatible con `legacy_v1`.
+- **Propiedad:** las rutas listadas.
+- **Aceptación:**
+  - Informe de la corrida de 30 con p95 `state` < 800 ms, p95 `exam` < 1200 ms, errores < 0,5 % y 0 respuestas 5xx.
+  - Pruebas de reconexión e idempotencia en verde.
+  - Tabla de antes y después.
+
+### T4.1b · Revisión de release para la clase del viernes (GO/NO-GO)
+- **Agente:** Claude Opus 5.5 · high.
+- **Sustituye a:** T4.1 en la ruta corta.
+- **Objetivo:** el diff `main...copa-v3` cuando la ola 1 y T2.2b estén integradas.
+- **Cambio:**
+  - **Revisión de código** con `/code-review high` sobre el diff.
+  - **Seguridad:**
+    - alcance de tokens;
+    - CSV injection;
+    - datos exclusivos del docente;
+    - bundle seguro (`assert_secure_bundle`);
+    - que ninguna migración nueva modifique `FUTUROS`;
+    - **que ningún valor de `copa-v3.env` aparezca en el repo, en los informes ni en los artefactos**;
+    - el esquema de PIN derivable (hallazgo 5): informe y recomendación, sin cambiar PIN en vivo.
+  - **Pedagogía mínima para la clase:** el guion docente es visible en las 7 fases y ningún texto anticipa `U` antes de la fase causal.
+  - **Documentación:** `FACILITATOR_RUNBOOK.md` con el guion de la Copa V3 y capturas, y `CHANGELOG.md`.
+  - **Checklist del viernes:**
+    - URL y código de la partida real, y PIN (sin escribir su valor);
+    - el Wall en el proyector, a 1280×720 y a 1920×1080;
+    - el plan B: revertir `main` o usar la V2 anterior;
+    - quién hace qué durante la clase;
+    - el horario de congelamiento.
+  - **Plan de reversión:** el comando exacto `git revert -m 1 <merge>` y el tiempo estimado de publicación en Pages.
+- **Restricciones:** los hallazgos de código se enrutan a su dueño. Las ediciones directas se limitan a la documentación.
+- **Propiedad:** `docs/**`, `FACILITATOR_RUNBOOK.md`, `CHANGELOG.md` y `docs/orca/reports/T4.1b_release.md`.
+- **Aceptación:** un informe con veredicto GO/NO-GO, la lista de bloqueantes, el checklist y el plan de reversión.
+
 ## 10. Requisitos previos (usuario)
 
 - **Herramientas.** Orca 1.4.225 (en ejecución), Claude Code y Codex con sesión iniciada y `gh` autenticado como `jazaineam1`. Todo verificado.
-- **Docker Desktop abierto** para el Supabase local. La CLI de Supabase no está instalada; se usa con `npx supabase`.
-- **Credenciales de staging** en `causal-wargame/.env.staging.local`, que **nunca se commitea**.
+- **Sin Docker** (decisión del usuario del 14-oct). La única infraestructura es el Supabase del usuario, GitHub Pages y GitHub.
+- **Credenciales de QA** en `C:\Users\nib1l\Documents\diplocopia\_secrets\copa-v3.env`, fuera del repo y de los worktrees. **Nunca se commitean ni se imprimen.**
 - **ZIP** en `C:\Users\nib1l\Downloads\chapter-causalidad-master.zip` (presente).
 - **Fecha de la clase,** para decidir entre la ruta completa y la ruta corta.
 
@@ -452,5 +570,6 @@ REGLAS COMUNES
 | Conflictos de merge en la UI | T0.1 separa la propiedad por carpeta, y el shell y los tokens se congelan después de G0 |
 | El diseño "pasa las métricas" pero no gusta | G1 con revisión humana de la hoja de contactos y la referencia `SPECS_JUEGO_UX_UI.md` |
 | Afectar a la clase en producción | Merge a `main` y acciones de producción solo en G2 y G3, fuera de horario |
+| Carga sobre el Supabase real a menos de 24 h de la clase | Solo en la partida de QA; la corrida de 30 termina antes del jueves a las 20:00; sin migraciones ni despliegues; congelamiento desde el jueves a las 22:00 |
 | Datos causales filtrados a los estudiantes | Invariante 4, `assert_secure_bundle`, comprobación en T0.3 y T4.1 |
 | Pedagogía incorrecta | T2.3 con Opus contrastado con las especificaciones del ZIP |
