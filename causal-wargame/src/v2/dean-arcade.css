@@ -125,3 +125,108 @@
 .dean-arcade-sidekick .dean-arcade-mascot{width:170px;height:170px}
 .dean-arcade-player .dean-exam-brief>*:not(.dean-arcade-sidekick){position:relative;z-index:1}
 @media(max-width:790px){.dean-arcade-sidekick{display:none}}
+
+
+/* One decision at the end, styled like a boss finale, not a classroom quiz. */
+.dean-rector-final{max-width:1080px;width:100%;padding:clamp(12px,2vw,25px);gap:clamp(8px,1.5vh,14px);background:radial-gradient(circle at 18% 24%,#305d90,#14274b 54%,#0e1730 100%);box-shadow:0 0 55px #43c5ff22;max-height:100%;overflow:auto}
+.dean-rector-header{display:grid;justify-items:center;gap:5px}
+.dean-rector-header h2{font-size:clamp(22px,2.7vw,40px);letter-spacing:-.02em}
+.dean-rector-header p{max-width:60ch;font-size:clamp(12px,1.1vw,16px)}
+.dean-rector-content{display:grid;grid-template-columns:minmax(110px,.4fr) minmax(260px,1fr);align-items:center;gap:clamp(10px,1.8vw,23px);width:100%;min-width:0}
+.dean-rector-mascot{position:relative;min-width:0;display:grid;justify-items:center}
+.dean-rector-mascot .dean-arcade-mascot{width:clamp(118px,13vw,205px);height:clamp(118px,13vw,205px)}
+.dean-rector-mascot>span{color:#ffe09b;font-size:clamp(10px,1.3vw,16px);font-weight:1000;letter-spacing:.08em;text-shadow:0 0 18px #ffbb5a}
+.dean-rector-vote{display:grid;gap:clamp(6px,.9vh,12px);width:100%;min-width:0;text-align:left}
+.dean-rector-chapter{color:#b9faff;font-size:clamp(10px,1vw,13px);font-weight:1000;letter-spacing:.08em}
+.dean-rector-vote h3{font-size:clamp(17px,1.8vw,25px);line-height:1.2;text-wrap:balance;margin:0;color:#fff6d2}
+.dean-rector-vote .dean-arcade-download{width:100%;max-width:100%;min-height:45px;font-size:clamp(12px,1.2vw,17px);cursor:pointer}
+.dean-rector-help{color:#cce6f6;font-size:clamp(10px,.92vw,13px);line-height:1.3}
+.dean-rector-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dean-rector-choice{min-height:68px;border:2px solid #5f91b3;border-radius:15px;background:linear-gradient(155deg,#193b67,#122947);color:#e5f7ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;font-size:clamp(10px,1.05vw,15px);cursor:pointer;transition:transform .16s,border-color .16s,background .16s}
+.dean-rector-choice span{font-size:clamp(17px,2.2vw,29px)}
+.dean-rector-choice.is-selected{border-color:#ffe9a1;background:linear-gradient(150deg,#745a3f,#284975);box-shadow:inset 0 0 15px #ffe5a122,0 0 18px #ffe2a133;transform:translateY(-2px)}
+.dean-rector-choice:hover:not(:disabled){border-color:#ffdf97}
+.dean-rector-choice:focus-visible,.dean-rector-submit:focus-visible{outline:3px solid #fff1ae;outline-offset:3px}
+.dean-rector-submit{width:100%;max-width:none;min-height:45px;font-size:clamp(14px,1.2vw,18px)}
+.dean-rector-submit:disabled{cursor:not-allowed;opacity:.5}
+.dean-rector-answer{padding:10px 12px;display:grid;gap:3px;border:2px solid #74dfbb;border-radius:14px;background:#153c4b;color:#ddfff6;text-align:center}
+.dean-rector-answer strong{color:#aefcd7;font-size:17px}
+.dean-rector-return{display:flex;justify-content:center;width:100%;padding-top:4px}
+.dean-rector-return .dean-arcade-return{font-size:clamp(11px,1.05vw,16px);width:auto;max-width:100%;min-height:43px}
+.dean-arcade-player .dean-player-stage:has(.dean-rector-final){overflow:auto}
+@media(max-width:700px){.dean-rector-final{overflow:auto;max-height:none}.dean-rector-content{grid-template-columns:1fr}.dean-rector-mascot{display:none}.dean-rector-vote{text-align:center}.dean-rector-vote h3{font-size:clamp(17px,4.6vw,23px)}.dean-rector-choices{gap:5px}.dean-rector-choice{min-height:62px}.dean-rector-vote .dean-arcade-download{font-size:12px}}
+@media(max-width:365px){.dean-rector-choices{grid-template-columns:1fr}.dean-rector-choice{flex-direction:row;min-height:42px}}
+@media(prefers-reduced-motion:reduce){.dean-rector-choice{transition:none!important}}
+
+/* Six-round arcade fit: controls remain visible at 100% browser zoom (720/768px desktop). */
+.dean-page:has(.dean-arcade-player){grid-template-rows:54px minmax(0,1fr);gap:6px;padding:6px 9px}
+.dean-page:has(.dean-arcade-player)>.dean-banner{height:54px;padding:5px 12px}
+.dean-page:has(.dean-arcade-player) .dean-banner h1{font-size:clamp(18px,1.7vw,23px)}
+.dean-page main.dean-arcade-player{grid-template-rows:52px minmax(0,1fr) 26px;gap:5px}
+.dean-arcade-player .dean-hud>summary{height:52px;gap:1px;padding:4px 10px}
+.dean-arcade-player .dean-hud-label{font-size:8px}
+.dean-arcade-player .dean-hud-row>strong{font-size:13px}
+.dean-arcade-player .dean-hud-row>b{font-size:19px}
+.dean-arcade-player .dean-hud-foot{font-size:8px}
+.dean-arcade-player .dean-player-topbar{height:52px;min-height:0}
+.dean-arcade-player .dean-carnet{padding:4px 9px;gap:9px}
+.dean-arcade-player .dean-carnet>span{font-size:28px}
+.dean-arcade-player .dean-carnet h2{font-size:clamp(14px,1.2vw,19px)}
+.dean-arcade-player .dean-carnet small{font-size:9px}
+.dean-arcade-player .dean-player-stage{padding:6px;gap:5px;scrollbar-width:thin}
+.dean-arcade-player .dean-exam{gap:10px;padding:8px;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);border-radius:13px}
+.dean-arcade-player .dean-exam-brief{padding:12px;gap:10px;border-radius:12px}
+.dean-arcade-player .dean-exam-brief h2{font-size:clamp(21px,2.2vw,36px)}
+.dean-arcade-player .dean-exam-controls{justify-content:space-between;gap:clamp(3px,.65vh,7px);padding:10px 12px;border-radius:13px}
+.dean-arcade-player .dean-exam-controls h3{font-size:clamp(14px,1.25vw,19px)}
+.dean-arcade-player .dean-slider{padding:6px 10px;display:grid;gap:1px;min-height:58px}
+.dean-arcade-player .dean-slider>span{font-size:12px}
+.dean-arcade-player .dean-slider strong{font-size:19px}
+.dean-arcade-player .dean-slider input{width:100%;height:25px;min-height:25px;cursor:pointer;accent-color:#ffcf74}
+.dean-arcade-player .dean-slider small{font-size:10px}
+.dean-arcade-player .dean-arcade-hours{padding:6px 10px}
+.dean-arcade-player .dean-arcade-hours-line{font-size:12px}
+.dean-arcade-player .dean-arcade-hours-line strong{font-size:20px}
+.dean-arcade-player .dean-arcade-hours-track{height:7px;margin-top:5px}
+.dean-arcade-player .dean-arcade-trade{font-size:11px;min-height:15px}
+.dean-arcade-player .dean-exam-action{margin:0;min-height:43px;font-size:15px;box-shadow:0 3px 0 #865524}
+.dean-arcade-skip{width:100%;min-height:37px;padding:5px 10px;border:1px dashed #77b5d4;border-radius:10px;background:#153149;color:#ddf6ff;font-size:11px;font-weight:900;cursor:pointer;display:grid;gap:1px;place-items:center}
+.dean-arcade-skip small{color:#adcbe2;font-size:9px;font-weight:700}
+.dean-arcade-skip:hover:not(:disabled){background:#1b4861;border-color:#ffdf91}
+.dean-arcade-skip:disabled{opacity:.65}
+.dean-arcade-player .dean-player-dock{padding:2px 9px}
+.dean-arcade-player .dean-player-dock span{font-size:9px}
+/* Live pre-game lobby: all rosters are derived from the server, no invented participants. */
+.dean-arcade-lobby{width:100%;max-width:980px;min-height:0;margin:auto;padding:clamp(10px,1.5vw,20px);display:flex;flex-direction:column;gap:10px;border:2px solid #80d8d0;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,#245d79,#111c37 70%);overflow:auto}
+.dean-lobby-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#ffdc94;font-weight:950;letter-spacing:.04em;font-size:clamp(12px,1.4vw,19px)}
+.dean-lobby-heading strong{font-variant-numeric:tabular-nums;color:#b5fff0}
+.dean-lobby-ready-button{min-height:52px;border-radius:12px;border:2px solid #ffe9a7;background:linear-gradient(120deg,#ffda81,#ffb46b);color:#17263c;font-weight:1000;font-size:clamp(14px,1.5vw,20px);cursor:pointer}
+.dean-lobby-ready-button.is-ready{background:linear-gradient(120deg,#53dbbc,#9af2e0);border-color:#d5fff3}
+.dean-lobby-hint{margin:0;color:#ceeaf6;text-align:center;font-size:12px}
+.dean-lobby-room-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:9px;min-height:0}
+.dean-lobby-room{padding:10px;min-height:60px;border:1px solid #477c9d;border-radius:12px;background:#102943;display:flex;flex-direction:column;gap:7px}
+.dean-lobby-room-title{display:flex;justify-content:space-between;gap:8px;color:#ffdf9a;font-size:12px}
+.dean-lobby-room-title small{color:#acd2e1}
+.dean-lobby-members{display:grid;gap:5px}
+.dean-lobby-member{min-width:0;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:5px;align-items:center;padding:4px 5px;border:1px solid #305673;background:#163753;border-radius:9px}
+.dean-lobby-member strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(11px,1vw,15px);font-weight:850}
+.dean-lobby-avatar{font-size:22px}
+.dean-lobby-ready-pill{font-size:10px;white-space:nowrap;color:#ffce83;font-weight:950}
+.dean-lobby-ready-pill.is-ready{color:#8cffc6}
+.dean-lobby-empty{color:#8aa9c5;font-size:11px}
+.dean-lobby-footer{display:flex;gap:12px;justify-content:space-around;flex-wrap:wrap;border-top:1px solid #3a6584;padding-top:9px;font-size:11px}
+.dean-lobby-footer b{color:#9bf5d8}
+.dean-arcade-lobby.is-compact{padding:9px;border-radius:12px;gap:7px;overflow:auto;max-height:min(48vh,380px)}
+.dean-arcade-lobby.is-compact .dean-lobby-heading{font-size:12px;gap:4px;flex-wrap:wrap}
+.dean-arcade-lobby.is-compact .dean-lobby-room-grid{grid-template-columns:1fr;gap:5px}
+.dean-arcade-lobby.is-compact .dean-lobby-room{padding:7px;gap:4px}
+.dean-arcade-lobby.is-compact .dean-lobby-member{padding:3px 4px}
+.dean-arcade-lobby.is-compact .dean-lobby-avatar{font-size:18px}
+.dean-arcade-lobby.is-compact .dean-lobby-ready-pill{font-size:9px}
+@media(max-width:790px){.dean-page main.dean-arcade-player{grid-template-rows:50px minmax(0,1fr) 25px}.dean-arcade-player .dean-player-topbar{height:50px}.dean-arcade-player .dean-exam{display:flex;flex-direction:column;height:auto!important;min-height:0!important;gap:7px;padding:6px}.dean-arcade-player .dean-exam-brief{padding:8px;gap:5px;flex:0 0 auto}.dean-arcade-player .dean-exam-brief h2{font-size:20px;max-width:none}.dean-arcade-player .dean-exam-controls{padding:8px;gap:4px;flex:0 0 auto}.dean-arcade-player .dean-exam-controls .dean-slider{min-height:53px;padding:5px 8px}.dean-arcade-player .dean-exam-controls .dean-exam-action{min-height:42px}.dean-arcade-skip{min-height:34px}.dean-arcade-lobby{max-height:100%}}
+@media(max-height:700px) and (min-width:791px){.dean-page:has(.dean-arcade-player){grid-template-rows:48px minmax(0,1fr);padding:4px 8px}.dean-page:has(.dean-arcade-player)>.dean-banner{height:48px}.dean-page main.dean-arcade-player{grid-template-rows:46px minmax(0,1fr) 23px;gap:4px}.dean-arcade-player .dean-player-topbar,.dean-arcade-player .dean-hud>summary{height:46px}.dean-arcade-player .dean-exam-brief{padding:8px;gap:6px}.dean-arcade-player .dean-exam-controls{padding:7px 10px;gap:3px}.dean-arcade-player .dean-slider{min-height:52px;padding:4px 8px}.dean-arcade-player .dean-arcade-hours{padding:4px 9px}.dean-arcade-player .dean-exam-action{min-height:38px}.dean-arcade-skip{min-height:33px}}
+
+/* Optional study link appears only at the finish, never before or during the 6 exams. */
+.dean-rector-analysis-link{display:block;text-align:center;width:100%;padding:10px 12px;border-radius:12px;border:1px solid #87decf;background:#153e52;color:#e2fffa;font-size:clamp(11px,1.1vw,15px);font-weight:900;text-decoration:none}
+.dean-rector-analysis-link:hover{background:#1a5160;border-color:#ffe0a1}
+.dean-rector-analysis-link:focus-visible{outline:3px solid #ffe6af;outline-offset:3px}
