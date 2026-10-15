@@ -32,7 +32,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Build secure Pages app
         run: npm run build:secure
-      - name: Visual QA 1366x768, 1920x1080, mobile, three roles
+      - name: Visual QA 14, 18, 30 attendees, three resolutions and three roles
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/dean-vite-preview.log 2>&1 &
           sleep 4
