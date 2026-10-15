@@ -106,3 +106,7 @@ Las pruebas geométricas de Chromium utilizan respuestas simuladas del backend; 
 - `FUTUROS` y `legacy_v1` preservan la lógica manual anterior; solo `zip_dgp_2026` utiliza el reloj automático.
 - Efectos respetan `prefers-reduced-motion` y no bloquean el teclado ni el botón docente.
 - **Límite operacional:** `cw_dean_quiz_tick_v4` se ejecuta con el polling del jugador, Wall o facilitador; si todos están desconectados, la transición se resuelve al siguiente acceso, sin notificaciones en segundo plano.
+
+
+## Actualización de benchmark EconML verificada (2026-10-15)
+El workflow `dean-cup-canonical-econml-training` entrenó efectivamente TLearner, DRLearner y CausalForestDML con EconML 0.16.0 y datos del generador estructural sintético `zip_dgp_2026`. Hay 1200 estudiantes sintéticos, 900 para entrenamiento y 300 para holdout; tratamiento asignado a nivel estudiante, B=0 vs B=4. El archivo `src/v2/econml-dean-verified.json` conserva métricas y SHA256 de datos. Estos resultados NO son ejecuciones en el navegador, NO son notas de participantes y NO son idénticos bit a bit al ruido Box-Muller de SQL. Las comparaciones aparecen en la final causal solo si el archivo indica `verified`.
