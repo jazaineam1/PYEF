@@ -27,7 +27,9 @@ Deno.serve(async(req)=>{
      if(code){
       const requested=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
       if(['real_hours_10_v1','real_hours_6_v1'].includes(String(requested?.protocol||'')))
-       return json(await rpc('cw_dean_game_start_v3',{p_token:teacher}))
+       // Only the authenticated server phase determines whether to start or finish.
+       // Old open teacher tabs still sending 'next' now close correctly.
+       return json(await rpc('cw_dean_arcade_advance_v5',{p_token:teacher}))
      }
      return json(await rpc('cw_dean_learning_next',{p_token:teacher}))
   }
