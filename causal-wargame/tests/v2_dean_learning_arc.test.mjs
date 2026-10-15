@@ -35,3 +35,39 @@ test('Real-science Python uses learner/group split and DML cross-fitting',()=>{
   assert.ok(py.includes(p),p);
  assert.ok(ui.includes('<DeanSciencePython'));
 });
+
+
+test('Aggregated misconceptions stay hidden until teacher debrief',()=>{
+ const stateSql=file('supabase/migrations/202610150004_dean_learning_feedback.sql');
+ assert.ok(stateSql.includes("'distribution',case when current_step='debrief' then answers else null end"));
+ assert.ok(story.includes("learning.step==='debrief'&&learning.distribution"));
+ assert.ok(story.includes("step==='debrief'&&learning.distribution"));
+ assert.ok(!sql.includes("grant select on public.cw_dean_learning_choices to anon"));
+});
+test('Reveal, early evidence, and phase gates work without modifying historic rounds',()=>{
+ const gate=file('supabase/migrations/202610150002_dean_learning_transition_gate.sql');
+ const exportGate=file('supabase/migrations/202610150003_dean_early_evidence_guards.sql');
+ assert.ok(gate.includes("lesson_stage is distinct from 'debrief'"));
+ assert.ok(gate.includes("cw_dean_teacher_next_v3"));
+ assert.ok(exportGate.includes("cw_dean_learning_export"));
+ assert.ok(exportGate.includes("cw_dean_learning_ab_observed"));
+ assert.ok(exportGate.includes("is distinct from 'evidence'"));
+ assert.ok(!gate.includes("update public.cw_dean_tournaments"));
+});
+test('Emergency teaching guide remains honest and independent of backend',()=>{
+ const backup=file('public/dean-emergency.md');
+ for(const t of ['120 minutos','NO crea puntuaciones falsas','DAG detective','DML','CATE']){
+  assert.ok(backup.includes(t),t);
+ }
+});
+test('EconML only displays verified results with matching canonical source',()=>{
+ const panel=file('src/v2/DeanEconMLPanel.jsx');
+ const data=JSON.parse(file('src/v2/econml-dean-verified.json'));
+ const workflow=file('../.github/workflows/dean-cup-canonical-econml.yml');
+ assert.ok(panel.includes("status==='verified'"));
+ assert.ok(panel.includes("zip_dgp_2026"));
+ assert.ok(panel.includes("PRECOMPUTADO"));
+ assert.ok(['verified','pending'].includes(data.status));
+ assert.ok(workflow.includes("precompute_econml_dean.py"));
+ assert.ok(workflow.includes("python-version: '3.11'"));
+});
