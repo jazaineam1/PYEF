@@ -556,10 +556,14 @@ function Teacher(){
  <aside className="dean-teacher-sidebar">
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
-  {state.dgp_version==='zip_dgp_2026'&&<DeanLearningWall learning={learning.data} phase={state.phase}/>}
-  {state.dgp_version==='zip_dgp_2026'&&<DeanMissionTeacher missions={missions} phase={state.phase}/>} 
-  {state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
-  {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
+  <details className="dean-teacher-extras">
+   <summary>📊 Ver evidencias, guion y mapa causal</summary>
+   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningWall learning={learning.data} phase={state.phase}/>}
+   {state.dgp_version==='zip_dgp_2026'&&<DeanMissionTeacher missions={missions} phase={state.phase}/>}
+   {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?
+     <DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:
+     <DeanGuidance phase={state.phase} role="teacher"/>}
+  </details>
   <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Colab · Copa ↗</a>
   {state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<div className="dean-lab">
     <h3>🧬 Experimento A/B · 30 × 15</h3>
