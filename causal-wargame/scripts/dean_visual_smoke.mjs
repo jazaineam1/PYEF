@@ -254,6 +254,65 @@ async function testCausalScience(role,phase,width,height){
  await page.close();
 }
 
+async function testExpiredTeacherReset(){
+ const page=await browser.newPage({viewport:{width:1366,height:768}});
+ const pageErrors=[];page.on('pageerror',e=>pageErrors.push(e.message));
+ await page.addInitScript(code=>{
+  sessionStorage.setItem('df_facilitator_game_code',code);
+  sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
+ },code);
+ let rejected=0,confirmed=0,logins=0;
+ await page.route('**/facilitator-login',async route=>{
+  logins++;
+  const b=route.request().postDataJSON();
+  assert.equal(b.game_code,code,'Recovery logs into the same Copa');
+  assert.equal(b.pin,'1234','PIN typed explicitly by the facilitator');
+  await route.fulfill({status:200,contentType:'application/json',
+   body:JSON.stringify({token:'c'.repeat(64)})});
+ });
+ await page.route('**/v2-dean-cup',async route=>{
+  const request=route.request(),b=request.postDataJSON();
+  if(b.action==='reset_confirmed'){
+   assert.equal(b.game_code,code);assert.equal(b.confirmation_code,code);
+   if(request.headers()['x-facilitator-token']==='b'.repeat(64)){
+    rejected++;
+    return route.fulfill({status:401,contentType:'application/json',
+     body:JSON.stringify({error:'Solo el docente autenticado puede reiniciar la Copa'})});
+   }
+   assert.equal(request.headers()['x-facilitator-token'],'c'.repeat(64),'Renewed token used');
+   confirmed++;
+   return route.fulfill({status:200,contentType:'application/json',
+    body:JSON.stringify({reset:true,phase:'lobby',game_code:code})});
+  }
+  const result=b.action==='learning_state'?
+   {available:true,phase:'lobby',step:'challenge',registered:0,
+    counts:{initial:0,revision:0},rooms:[],mine:{}}:
+   b.action==='mission_state'?{available:false}:
+    {...fixture,available:true,dgp_version:'zip_dgp_2026',game_code:code,phase:confirmed?'lobby':'exams'};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
+ });
+ await page.goto(base+'/dean-teacher.html?game='+code,{waitUntil:'networkidle'});
+ await page.locator('.dean-reset-trigger').click();
+ const dialog=page.getByRole('dialog',{name:/Reiniciar la Copa/});
+ await dialog.locator('.dean-reset-agreement input').check();
+ await dialog.locator('.dean-reset-danger').click();
+ await dialog.locator('#dean-reauth-pin').waitFor({state:'visible'});
+ assert.equal(rejected,1,'Expired token was rejected by server');
+ assert.equal(confirmed,0,'No reset before reauthentication');
+ await dialog.locator('#dean-reauth-pin').fill('1234');
+ await dialog.getByRole('button',{name:/Recuperar acceso/}).click();
+ await dialog.getByText(/Acceso docente recuperado/).waitFor({state:'visible'});
+ assert.equal(logins,1,'PIN recovered once without leaving the screen');
+ assert.equal(confirmed,0,'No auto-reset after entering PIN');
+ await dialog.locator('.dean-reset-danger').click();
+ await dialog.waitFor({state:'detached'});
+ assert.equal(confirmed,1,'Only a second deliberate confirmation resets the fixture');
+ assert.deepEqual(pageErrors,[]);
+ console.log('PASS_EXPIRED_TEACHER_RESET');
+ await page.screenshot({path:'visual-qa/teacher-reset-recovered-1366x768.png',fullPage:false});
+ await page.close();
+}
+
 async function testNewCupFromHistoric(width,height){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -401,6 +460,7 @@ async function testFinal(role,width,height,attendees){
 }
 
 try{
+ try{await testExpiredTeacherReset()}catch(e){failures++;console.error('FAIL_EXPIRED_TEACHER_RESET',e.stack||e)}
  for(const [role,phase,w,h] of [
   ['player','rector',1366,768],['player','survey',1366,768],
   ['player','causal',1366,768],['player','causal',390,844],
