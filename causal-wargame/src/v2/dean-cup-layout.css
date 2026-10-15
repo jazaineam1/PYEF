@@ -343,3 +343,43 @@
 .dean-reset-actions .dean-reset-danger:disabled{opacity:.4;cursor:not-allowed}
 .dean-reset-error{color:#fff!important;background:#863743;padding:9px;border-radius:9px}
 @media(max-width:790px){.dean-reset-wrapper{bottom:6px;left:7px}.dean-reset-trigger{font-size:10px;padding:5px 7px}}
+
+
+/* FIX: the old fixed-bottom reset overlapped the podium and was clipped.
+   Keep all tournament lifecycle controls in the visible banner on ONE screen. */
+.dean-teacher-page .dean-banner{
+ display:grid;grid-template-columns:minmax(220px,1fr) auto auto;gap:16px;align-items:center
+}
+.dean-teacher-banner-actions{display:flex;flex-direction:column;align-items:stretch;
+ justify-content:center;gap:4px;min-width:0;max-width:430px}
+.dean-active-cup-code{font-size:11px;font-weight:900;letter-spacing:.7px;color:#e9f2ae;
+ text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dean-teacher-buttons{display:flex;gap:7px;align-items:stretch;justify-content:center}
+.dean-teacher-page .dean-reset-wrapper{position:static;bottom:auto;left:auto;z-index:auto;display:block}
+.dean-teacher-page .dean-new-cup-trigger,
+.dean-teacher-page .dean-reset-trigger{
+ display:inline-flex;justify-content:center;align-items:center;min-height:31px;
+ border-radius:9px;padding:5px 11px;line-height:1.15;
+ font-size:12px;font-weight:900;white-space:nowrap;box-shadow:none
+}
+.dean-teacher-page .dean-new-cup-trigger{border:1px solid #aeffe3;
+ color:#093c35;background:linear-gradient(100deg,#8beacc,#d0f9d7)}
+.dean-teacher-page .dean-new-cup-trigger:disabled{opacity:.48;cursor:not-allowed}
+.dean-new-cup-confirm{background:#287e68!important;border:1px solid #b6ffe0!important;color:#fff!important}
+.dean-new-cup-dialog{border-color:#85e2c0}
+.dean-teacher-banner-actions button:focus-visible{outline-offset:2px}
+@media(max-width:1100px){
+ .dean-teacher-page .dean-banner{grid-template-columns:minmax(150px,1fr) auto;gap:10px}
+ .dean-teacher-page .dean-banner-meta{display:none}
+}
+@media(max-width:600px){
+ .dean-teacher-page .dean-banner{gap:6px;padding:7px 10px}
+ .dean-teacher-page .dean-banner h1{font-size:clamp(14px,4vw,18px);white-space:normal}
+ .dean-teacher-page .dean-banner>div:first-child>small{font-size:8px;letter-spacing:.4px}
+ .dean-teacher-banner-actions{gap:3px}
+ .dean-active-cup-code{font-size:9px}
+ .dean-teacher-buttons{gap:4px}
+ .dean-teacher-page .dean-new-cup-trigger,
+ .dean-teacher-page .dean-reset-trigger{font-size:10px;padding:5px 6px;min-height:28px}
+ .dean-teacher-page .dean-reset-trigger{font-size:10px}
+}
