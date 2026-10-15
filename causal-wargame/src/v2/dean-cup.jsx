@@ -499,7 +499,7 @@ function DeanNewCupControl({game,disabled=false,onCreate}){
   {opened&&<div className="dean-reset-backdrop" role="presentation">
    <div className="dean-reset-dialog dean-new-cup-dialog" role="dialog" aria-modal="true" aria-labelledby="dean-new-cup-title">
     <h2 id="dean-new-cup-title">🏆 Comenzar una Copa nueva</h2>
-    <p>Se creará otra partida con un <strong>código único</strong>, cinco salas y cupos para 1–30 participantes. Empezará en el prólogo pedagógico.</p>
+    <p>Se creará otra partida con un <strong>código único</strong>, cinco salas y cupos para 1–30 participantes. Empezará en el lobby con 10 exámenes.</p>
     <p>La Copa <strong>{game}</strong> y todos sus resultados permanecerán intactos. Se conservará el PIN docente; el nuevo código aparecerá arriba para compartirlo con los jugadores.</p>
     {error&&<p role="alert" className="dean-reset-error">{error}</p>}
     <div className="dean-reset-actions">
@@ -575,8 +575,9 @@ function Teacher(){
  const [abSummary,setAbSummary]=useState(null);
  const [teacher,setTeacher]=useState(()=>sessionStorage.getItem('df_facilitator_game_code')===requestedGame?(sessionStorage.getItem('df_facilitator_token')||''):''),[game,setGame]=useState(requestedGame),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const {value:board}=useBoard('',!!teacher,game);
- const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026',teacherToken:teacher});
- const missions=useDeanMissions({call,gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'});
+ const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&state?.game_mode!=='real_hours_10_v1',teacherToken:teacher});
+ const missions=useDeanMissions({call,gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&state?.game_mode!=='real_hours_10_v1'});
+ const arcade=state?.game_mode==='real_hours_10_v1';
  useEffect(()=>{if(teacher&&board?.game_code===game)setState(board)},[teacher,board,game]);
  async function authenticateWithPin(nextPin){
   const base=endpoint.replace(/\/v2-dean-cup$/,'');
@@ -592,7 +593,7 @@ function Teacher(){
   return o.token;
  }
  async function login(){setBusy(true);setErr('');try{await authenticateWithPin(pin);setPin('')}catch(e){setErr(e.message)}finally{setBusy(false)}}
- async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ async function direct(command){setBusy(true);setErr('');try{setState(await call(command==='finish_game'?'game_finish':'teacher',command==='finish_game'?{}:{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function createFreshCup(){
   setBusy(true);setErr('');
   try{
@@ -637,19 +638,20 @@ function Teacher(){
    <DeanResetControl game={game} disabled={busy} onReset={resetCup} onReauthenticate={authenticateWithPin}/>}
  </div>
  </div>}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
- state?.available&&['final','finished'].includes(state.phase)
+ state?.available&&!arcade&&['final','finished'].includes(state.phase)
  ?<main className="dean-quiz-stage dean-quiz-teacher-stage"><CupQuiz role="teacher" canonical
   teacher={teacher} gameCode={game} onCloseTournament={()=>direct('next')}
   closedTournament={state.phase==='finished'}/></main>
  :<main className="dean-teacher">
  <div className="dean-teacher-toolbar"><div><small>🎛️ PANEL DEL CAPACITADOR · 120 MINUTOS</small><h2>Control de sesión</h2></div>
- {state?.available&&actions[state.phase]&&<button className="dean-big dean-teacher-next"
- disabled={busy||(state.dgp_version==='zip_dgp_2026'&&['lobby','exams','rector','survey','causal'].includes(state.phase)&&learning.data?.step!=='debrief')}
+ {state?.available&&(arcade?['lobby','exams'].includes(state.phase):actions[state.phase])&&<button className="dean-big dean-teacher-next"
+ disabled={busy||(!arcade&&state.dgp_version==='zip_dgp_2026'&&['lobby','exams','rector','survey','causal'].includes(state.phase)&&learning.data?.step!=='debrief')}
  title={learning.data?.step!=='debrief'?'Antes de avanzar, proyecta evidencia y revela la conclusión del acto.':''}
- onClick={()=>direct('next')}>{busy?'Actualizando…':actions[state.phase]} →</button>}</div>
+ onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS 10 EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
  {state?.available?<div className="dean-teacher-grid">
- <Board groups={state.groups}/>
+ <Board groups={state.groups} examCount={arcade?ARCADE_EXAMS:15}/>
  <aside className="dean-teacher-sidebar">
+  {arcade?<><h2>🎮 Modo juego</h2><p>10 parciales · límite conjunto de 14 horas · cinco salas.</p><p>Los jugadores ven una animación por nota y descargan datos. Los conceptos se explican fuera del juego.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
   <details className="dean-teacher-extras">
@@ -670,6 +672,7 @@ function Teacher(){
    </div>}
   {['causal','final','finished'].includes(state.phase)&&<button className="dean-big dean-teacher-truth" disabled={busy} onClick={downloadTruth}>🔒 Descargar fatiga oculta</button>}
   <div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ Wall / proyección</a><a href="./dean-emergency.md" target="_blank" rel="noreferrer" download>📄 Guion de contingencia</a></div>
+ </>}
  </aside></div>:
  <div className="dean-hero"><h2>Crear Copa para cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
