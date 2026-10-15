@@ -16,7 +16,14 @@ Deno.serve(async(req)=>{
    const state=await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}) as Record<string,unknown>
    if(state?.dgp_version==='zip_dgp_2026'){
     const schedule=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
-    return json({...state,agenda_enabled:schedule?.enabled===true,agenda_cap:Number(schedule?.cap||6),game_mode:schedule?.protocol||null})
+    // Personal decisions are visible only to their signed student.
+    // Public top-three names match the already public room roster.
+    const recap=schedule?.protocol==='real_hours_6_v1'
+      ?await rpc('cw_dean_arcade_recap_v6',{p_code:code,p_hash:hash})
+      :null
+    return json({...state,agenda_enabled:schedule?.enabled===true,
+      agenda_cap:Number(schedule?.cap||6),game_mode:schedule?.protocol||null,
+      life_recap:recap})
    }
    return json(state)
   }
