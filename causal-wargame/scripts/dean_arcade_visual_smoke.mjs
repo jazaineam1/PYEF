@@ -197,8 +197,13 @@ async function sixRoundViewport(width,height,skip=false){
   if(b.action==='auto_finish'){while(scores.length<6)scores.push(42);return reply({completed:6})}
   if(b.action==='policy_submit'){policy=b.choice;return reply({saved:true,choice:policy})}
   if(b.action==='game_export'){
+   const columns=['estudiante_id','sala','examen_nro','arquetipo','pga_previo','complejidad','horas_estudio_jornada','horas_sueno_jornada','horas_bienestar_jornada','nota_final','auto_simulado'];
+   const rows=Array.from({length:30},(_,i)=>{
+    const sala=Math.floor(i/6)+1,well=(i%6)/2;
+    return ['Alumno '+(i+1),sala,i%6+1,'balanced',3.5,1.2,4,8,well,49-well*8,false];
+   });
    return route.fulfill({status:200,contentType:'text/csv',
-     body:'sala,examen_nro,nota_final\r\n1,1,48\r\n5,6,41\r\n'});
+     body:[columns,...rows].map(row=>row.join(',')).join('\\r\\n')+'\\r\\n'});
   }
   return reply(buildState());
  });
@@ -234,8 +239,16 @@ async function sixRoundViewport(width,height,skip=false){
    await page.locator('.dean-arcade-result .dean-arcade-next').click();
   }
  }
- await page.locator('.dean-rector-final').waitFor({timeout:12000});
+ await page.locator('.corr-embedded').waitFor({timeout:12000});
  assert.equal(scores.length,6,'exactly six exams');
+ assert.equal(await page.locator('.corr-embedded input[type=file]').count(),0,
+  'Data must come from the server automatically; never ask players to upload CSV');
+ assert.match(await page.locator('.corr-embedded').innerText(),/5 SALAS|cinco salas|cinco/i);
+ await page.screenshot({path:'visual-qa/six-in-game-python-'+width+'.png',fullPage:false});
+ // The user may always continue even if CDN Pyodide is unavailable. Scientific
+ // Python correlation is independently checked against known data in node tests.
+ await page.getByRole('button',{name:/Ir a decisión/}).click();
+ await page.locator('.dean-rector-final').waitFor({timeout:12000});
  assert.equal(await page.locator('.dean-exam-action').count(),0,'no seventh exam');
  assert.match(await page.locator('.dean-rector-final h3').innerText(),/quitar los beneficios de bienestar/);
  const [dl]=await Promise.all([page.waitForEvent('download',{timeout:10000}),
@@ -250,24 +263,7 @@ async function sixRoundViewport(width,height,skip=false){
  console.log('SIX ARCADE PASS '+width+'x'+height+' skip='+skip+' lobby, six exams, 100% layout, full CSV, Rector');
  await page.close();
 }
-async function correlationPageSmoke(width,height){
- const page=await browser.newPage({viewport:{width,height}});
- const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto(base+'/dean-correlacion.html',{waitUntil:'networkidle',timeout:45000});
- await page.locator('.corr-page').waitFor({timeout:10000});
- assert.match(await page.locator('h1').innerText(),/Correlación/);
- assert.match(await page.locator('.corr-notebook').getAttribute('href'),/colab.research.google.com/);
- const sample='estudiante_id,sala,examen_nro,arquetipo,pga_previo,complejidad,horas_estudio_jornada,horas_sueno_jornada,horas_bienestar_jornada,nota_final,auto_simulado\\nQA,1,1,balanced,3.5,1.2,4,8,2,40,false\\n';
- await page.locator('input[type=file]').setInputFiles({name:'copa_decano_TODAS_LAS_SALAS_6_examenes.csv',mimeType:'text/csv',buffer:Buffer.from(sample)});
- await page.getByText(/Archivo listo/).waitFor({timeout:10000});
- assert.equal(await page.locator('button.corr-button').isDisabled(),false);
- const size=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));
- assert.ok(size.width<=size.viewport+2,'Correlation page must not overflow horizontally');
- await page.screenshot({path:'visual-qa/six-correlation-'+width+'.png',fullPage:false});
- assert.deepEqual(errors,[],'correlation page runtime errors');
- console.log('ARCADE CORRELATION UI PASS '+width+'x'+height);
- await page.close();
-}
+
 try{
  await playerViewport(1366,768);
  await playerViewport(390,844);
@@ -277,6 +273,5 @@ try{
  await sixRoundViewport(1366,768,false);
  await sixRoundViewport(1280,720,false);
  await sixRoundViewport(390,844,true);
- await correlationPageSmoke(1366,768);
- await correlationPageSmoke(390,844);
+
 }finally{await browser.close()}
