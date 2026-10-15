@@ -69,7 +69,7 @@ async function playerViewport(width,height){
    assert.match(await page.locator('.dean-arcade-result h2').innerText(),/MÁQUINA/);
    await page.screenshot({path:'visual-qa/arcade-result-'+width+'x'+height+'.png',fullPage:false});
   }
-  await page.locator('.dean-arcade-next').click();
+  await page.locator('.dean-arcade-result .dean-arcade-next').click();
  }
  await page.locator('.dean-arcade-finish').waitFor({state:'visible',timeout:10000});
  assert.equal(await page.locator('.dean-exam-action').count(),0,'No exam 11');
@@ -231,7 +231,7 @@ async function sixRoundViewport(width,height,skip=false){
   for(let n=1;n<=6;n++){
    await page.locator('.dean-exam-action').click();
    await page.locator('.dean-arcade-result').waitFor({timeout:10000});
-   await page.locator('.dean-arcade-next').click();
+   await page.locator('.dean-arcade-result .dean-arcade-next').click();
   }
  }
  await page.locator('.dean-rector-final').waitFor({timeout:12000});
