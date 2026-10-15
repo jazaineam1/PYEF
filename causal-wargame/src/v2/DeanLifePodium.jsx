@@ -13,7 +13,7 @@ export default function DeanLifePodium({recap=null,showMy=false,large=false}){
   <div className="dean-life-board-head">
    <span className="dean-kicker">🎮 SIMULADOR DE VIDA · GRAN FINAL</span>
    <h2>{complete?'🏆 CAMPEÓN DE LA COPA':'🏅 LÍDERES PROVISIONALES'}</h2>
-   <p>Las mejores decisiones del semestre: resultados reales del juego y una rutina que cuide tu tiempo.</p>
+   <p>🥇 TOP 3 · Las mejores decisiones del semestre: resultados reales del juego y una rutina que cuide tu tiempo.</p>
   </div>
   {top.length?<div className="dean-life-podium">
    {top.map((p,i)=><article key={p.place} className={'dean-life-medalist dean-life-rank-'+p.place}>
