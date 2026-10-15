@@ -77,6 +77,18 @@ Deno.serve(async(req)=>{
     for(const key of ['text','explanation']){
      if(typeof q[key]==='string')q[key]=fix(q[key])
     }
+    if(Number(snapshot.question_no)===8){
+     // Transfer: a DIFFERENT intervention, explicitly labelled so the main
+     // 0h vs 4h wellness story is not silently replaced by academic support.
+     q.text='MISIÓN DE TRANSFERENCIA · Una capacitación laboral se ofreció primero a empleados muy motivados. Los asistentes produjeron más. ¿Qué justifica recomendar la capacitación a todos?'
+     q.options={
+      a:'La correlación observada demuestra el efecto de capacitar.',
+      b:'Elegir a los de mayor productividad predicha resuelve la selección.',
+      c:'Usar un modelo complejo elimina automáticamente la motivación no medida.',
+      d:'Definir T/Y y comparador, examinar selección por motivación y diseñar una comparación causal válida.'
+     }
+     q.explanation='Este es OTRO tratamiento, distinto de B=4 horas de bienestar. La motivación previa puede explicar selección y resultados. La asociación no identifica por sí misma un efecto causal.'
+    }
     snapshot.question=q
    }
    return json(snapshot)
