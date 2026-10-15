@@ -125,3 +125,35 @@
 .dean-arcade-sidekick .dean-arcade-mascot{width:170px;height:170px}
 .dean-arcade-player .dean-exam-brief>*:not(.dean-arcade-sidekick){position:relative;z-index:1}
 @media(max-width:790px){.dean-arcade-sidekick{display:none}}
+
+
+/* One decision at the end, styled like a boss finale, not a classroom quiz. */
+.dean-rector-final{max-width:1080px;width:100%;padding:clamp(12px,2vw,25px);gap:clamp(8px,1.5vh,14px);background:radial-gradient(circle at 18% 24%,#305d90,#14274b 54%,#0e1730 100%);box-shadow:0 0 55px #43c5ff22;max-height:100%;overflow:auto}
+.dean-rector-header{display:grid;justify-items:center;gap:5px}
+.dean-rector-header h2{font-size:clamp(22px,2.7vw,40px);letter-spacing:-.02em}
+.dean-rector-header p{max-width:60ch;font-size:clamp(12px,1.1vw,16px)}
+.dean-rector-content{display:grid;grid-template-columns:minmax(110px,.4fr) minmax(260px,1fr);align-items:center;gap:clamp(10px,1.8vw,23px);width:100%;min-width:0}
+.dean-rector-mascot{position:relative;min-width:0;display:grid;justify-items:center}
+.dean-rector-mascot .dean-arcade-mascot{width:clamp(118px,13vw,205px);height:clamp(118px,13vw,205px)}
+.dean-rector-mascot>span{color:#ffe09b;font-size:clamp(10px,1.3vw,16px);font-weight:1000;letter-spacing:.08em;text-shadow:0 0 18px #ffbb5a}
+.dean-rector-vote{display:grid;gap:clamp(6px,.9vh,12px);width:100%;min-width:0;text-align:left}
+.dean-rector-chapter{color:#b9faff;font-size:clamp(10px,1vw,13px);font-weight:1000;letter-spacing:.08em}
+.dean-rector-vote h3{font-size:clamp(17px,1.8vw,25px);line-height:1.2;text-wrap:balance;margin:0;color:#fff6d2}
+.dean-rector-vote .dean-arcade-download{width:100%;max-width:100%;min-height:45px;font-size:clamp(12px,1.2vw,17px);cursor:pointer}
+.dean-rector-help{color:#cce6f6;font-size:clamp(10px,.92vw,13px);line-height:1.3}
+.dean-rector-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dean-rector-choice{min-height:68px;border:2px solid #5f91b3;border-radius:15px;background:linear-gradient(155deg,#193b67,#122947);color:#e5f7ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px;font-size:clamp(10px,1.05vw,15px);cursor:pointer;transition:transform .16s,border-color .16s,background .16s}
+.dean-rector-choice span{font-size:clamp(17px,2.2vw,29px)}
+.dean-rector-choice.is-selected{border-color:#ffe9a1;background:linear-gradient(150deg,#745a3f,#284975);box-shadow:inset 0 0 15px #ffe5a122,0 0 18px #ffe2a133;transform:translateY(-2px)}
+.dean-rector-choice:hover:not(:disabled){border-color:#ffdf97}
+.dean-rector-choice:focus-visible,.dean-rector-submit:focus-visible{outline:3px solid #fff1ae;outline-offset:3px}
+.dean-rector-submit{width:100%;max-width:none;min-height:45px;font-size:clamp(14px,1.2vw,18px)}
+.dean-rector-submit:disabled{cursor:not-allowed;opacity:.5}
+.dean-rector-answer{padding:10px 12px;display:grid;gap:3px;border:2px solid #74dfbb;border-radius:14px;background:#153c4b;color:#ddfff6;text-align:center}
+.dean-rector-answer strong{color:#aefcd7;font-size:17px}
+.dean-rector-return{display:flex;justify-content:center;width:100%;padding-top:4px}
+.dean-rector-return .dean-arcade-return{font-size:clamp(11px,1.05vw,16px);width:auto;max-width:100%;min-height:43px}
+.dean-arcade-player .dean-player-stage:has(.dean-rector-final){overflow:auto}
+@media(max-width:700px){.dean-rector-final{overflow:auto;max-height:none}.dean-rector-content{grid-template-columns:1fr}.dean-rector-mascot{display:none}.dean-rector-vote{text-align:center}.dean-rector-vote h3{font-size:clamp(17px,4.6vw,23px)}.dean-rector-choices{gap:5px}.dean-rector-choice{min-height:62px}.dean-rector-vote .dean-arcade-download{font-size:12px}}
+@media(max-width:365px){.dean-rector-choices{grid-template-columns:1fr}.dean-rector-choice{flex-direction:row;min-height:42px}}
+@media(prefers-reduced-motion:reduce){.dean-rector-choice{transition:none!important}}
