@@ -292,3 +292,12 @@
  .dean-exam-controls .dean-exam-action:hover:not(:disabled){transform:none}
  .dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{transition:none}
 }
+
+
+/* The exam is one complete interactive scene: never shrink behind a second lesson.
+   Further story content scrolls inside the stage, never over the submit control. */
+@media(min-width:791px){
+ .dean-player-stage.dean-is-exam .dean-exam{
+  flex:0 0 auto;height:calc(100% - 18px);min-height:420px
+ }
+}
