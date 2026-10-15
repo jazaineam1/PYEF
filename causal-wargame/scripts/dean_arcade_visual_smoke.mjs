@@ -250,6 +250,24 @@ async function sixRoundViewport(width,height,skip=false){
  console.log('SIX ARCADE PASS '+width+'x'+height+' skip='+skip+' lobby, six exams, 100% layout, full CSV, Rector');
  await page.close();
 }
+async function correlationPageSmoke(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(base+'/dean-correlacion.html',{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.corr-page').waitFor({timeout:10000});
+ assert.match(await page.locator('h1').innerText(),/Correlación/);
+ assert.match(await page.locator('.corr-notebook').getAttribute('href'),/colab.research.google.com/);
+ const sample='estudiante_id,sala,examen_nro,arquetipo,pga_previo,complejidad,horas_estudio_jornada,horas_sueno_jornada,horas_bienestar_jornada,nota_final,auto_simulado\\nQA,1,1,balanced,3.5,1.2,4,8,2,40,false\\n';
+ await page.locator('input[type=file]').setInputFiles({name:'copa_decano_TODAS_LAS_SALAS_6_examenes.csv',mimeType:'text/csv',buffer:Buffer.from(sample)});
+ await page.getByText(/Archivo listo/).waitFor({timeout:10000});
+ assert.equal(await page.locator('button.corr-button').isDisabled(),false);
+ const size=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));
+ assert.ok(size.width<=size.viewport+2,'Correlation page must not overflow horizontally');
+ await page.screenshot({path:'visual-qa/six-correlation-'+width+'.png',fullPage:false});
+ assert.deepEqual(errors,[],'correlation page runtime errors');
+ console.log('ARCADE CORRELATION UI PASS '+width+'x'+height);
+ await page.close();
+}
 try{
  await playerViewport(1366,768);
  await playerViewport(390,844);
@@ -259,4 +277,6 @@ try{
  await sixRoundViewport(1366,768,false);
  await sixRoundViewport(1280,720,false);
  await sixRoundViewport(390,844,true);
+ await correlationPageSmoke(1366,768);
+ await correlationPageSmoke(390,844);
 }finally{await browser.close()}
