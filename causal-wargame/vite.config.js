@@ -31,8 +31,7 @@ export default defineConfig(({ mode }) => {
           v2Simulator:'v2-simulator.html',
           deanPlay:'dean-play.html',
           deanTeacher:'dean-teacher.html',
-          deanWall:'dean-wall.html',
-          deanCorrelation:'dean-correlacion.html'
+          deanWall:'dean-wall.html'
         }
       }
     }
