@@ -8,6 +8,8 @@ import DeanEconMLPanel from './DeanEconMLPanel.jsx';
 import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall,DeanABDiscovery} from './DeanCausalMissions.jsx';
 import DeanQuizArena from './DeanQuizArena.jsx';
 import {agendaCost,rebalanceAgenda,AGENDA_CAP} from './dean-agenda.js';
+import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeStreak,arcadeTitle} from './dean-arcade.js';
+import DeanArcadeResult from './DeanArcadeResult.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -43,15 +45,15 @@ function useBoard(token='',enabled=true,gameCode=code){
  return{value,error,setValue};
 }
 function Banner({kind,phase,controls=null}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
-function Board({groups=[]}){
+function Board({groups=[],examCount=15}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
  const empty=groups.filter(g=>!Number(g.members)).sort((a,b)=>a.room_no-b.room_no)
  return <section className="dean-board"><h2>🏆 Clasificación en vivo</h2>
  <p>{attendees} inscritos de máximo 30. No hay asistencia mínima: cada sala avanza con quienes llegaron.</p>
- <p>Puntaje comparable: suma de notas / (15 × inscritos). Los exámenes pendientes cuentan provisionalmente como cero; la media de exámenes realizados se muestra aparte.</p>
+ <p>Puntaje comparable: suma de notas / ({examCount} × inscritos). Los exámenes pendientes cuentan provisionalmente como cero; la media de exámenes realizados se muestra aparte.</p>
  {ranked.length===0&&<p>Esperando al primer participante. Las salas vacías no compiten.</p>}
- {ranked.map((g,i)=>{const target=Number(g.target_exams??Number(g.members)*15),completed=Number(g.exams_completed||0),progress=target?Math.min(100,100*completed/target):0;return <article key={g.room_no}>
+ {ranked.map((g,i)=>{const target=Number(g.target_exams??Number(g.members)*examCount),completed=Number(g.exams_completed||0),progress=target?Math.min(100,100*completed/target):0;return <article key={g.room_no}>
  <div className="dean-medal">{['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>
  <div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b>
  <span>{g.members}/6 participantes · {completed}/{target} exámenes ({Math.round(progress)} %)</span>
@@ -67,12 +69,12 @@ function Board({groups=[]}){
 }
 
 // Score bug: a compact, always-visible room score. The full board is an optional popover.
-function MiniWall({groups=[],room,completed=0,lastAward=null}){
+function MiniWall({groups=[],room,completed=0,lastAward=null,examCount=15}){
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no);
  const mine=groups.find(g=>Number(g.room_no)===Number(room));
  const position=ranked.findIndex(g=>Number(g.room_no)===Number(room))+1;
  const score=mine?.fair_score==null?'—':Number(mine.fair_score).toFixed(1);
- const target=Number(mine?.target_exams??Number(mine?.members||0)*15);
+ const target=Number(mine?.target_exams??Number(mine?.members||0)*examCount);
  const done=Number(mine?.exams_completed||0);
  return <details className="dean-hud" aria-label="Marcador de salas en vivo">
   <summary><span className="dean-hud-label">● COPA EN VIVO</span><span className="dean-hud-row">
@@ -82,7 +84,7 @@ function MiniWall({groups=[],room,completed=0,lastAward=null}){
   <div className="dean-hud-popover"><b>🏆 Clasificación · cinco salas</b>
    {ranked.map((g,i)=><div key={g.room_no} className={Number(g.room_no)===Number(room)?'mine':''}><span>{i+1}. {names[g.room_no-1]}</span><strong>{g.fair_score==null?'—':Number(g.fair_score).toFixed(1)}</strong></div>)}
    {groups.filter(g=>!Number(g.members)).map(g=><div key={g.room_no} className="empty"><span>— {names[g.room_no-1]}</span><small>SIN PARTICIPANTES</small></div>)}
-   <small>Promedio normalizado del equipo · tu progreso: {completed}/15</small>
+   <small>Promedio normalizado del equipo · tu progreso: {completed}/{examCount}</small>
   </div>
  </details>
 }
@@ -100,17 +102,26 @@ function ExamCountdown({deadline,serverNow,receivedAt}){
  </div>;
 }
 
-function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,receivedAt}){
+function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,receivedAt,arcade=false}){
  const canonical=version==='zip_dgp_2026';
- const n=Number(person.completed||0)+1,range=(canonical?canonicalLimits:limits)[person.archetype];
+ const n=Number(person.completed||0)+1,range=arcade?[ARCADE_RANGES.study,ARCADE_RANGES.sleep,ARCADE_RANGES.wellness]:(canonical?canonicalLimits:limits)[person.archetype];
  const [s,setS]=useState(range[0][2]),[z,setZ]=useState(range[1][2]),[w,setW]=useState(range[2][2]);
  const [busy,setBusy]=useState(false),[err,setErr]=useState(''),[flash,setFlash]=useState(null);
  const [trade,setTrade]=useState('');
  const [budgetFlash,setBudgetFlash]=useState(0);
- const used=canonical&&agendaEnabled?agendaCost({study:s,sleep:z,wellness:w},person.archetype):0;
+ const used=arcade?arcadeCost({study:s,sleep:z,wellness:w}):canonical&&agendaEnabled?agendaCost({study:s,sleep:z,wellness:w},person.archetype):0;
  const budgetLeft=Math.max(0,AGENDA_CAP-used);
  const normalizedName={study:'estudio',sleep:'sueño',wellness:'bienestar'};
  function move(key,value){
+  if(arcade){
+   try{
+    const change=rebalanceArcade({study:s,sleep:z,wellness:w},key,value);
+    setS(change.values.study);setZ(change.values.sleep);setW(change.values.wellness);
+    setTrade(change.sacrificed.length?'⚡ '+change.sacrificed.map(x=>'−'+x.hours.toFixed(1)+' h '+normalizedName[x.activity]).join(' · '):'');
+    setBudgetFlash(v=>v+1);
+   }catch(e){setErr(e.message)}
+   return;
+  }
   if(!canonical||!agendaEnabled){
    ({study:setS,sleep:setZ,wellness:setW}[key])(value);return;
   }
@@ -124,9 +135,31 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
   }catch(e){setErr(e.message)}
  }
 
- useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null);setTrade('')},[n,person.archetype,canonical]);
- if(n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Completaste tus 15 exámenes. Tu sala no necesita seis personas para avanzar.</p></section>;
+ useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null);setTrade('')},[n,person.archetype,canonical,arcade]);
+ if(!arcade&&n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Completaste tus 15 exámenes. Tu sala no necesita seis personas para avanzar.</p></section>;
  async function submit(){setBusy(true);setErr('');try{setFlash(await onSubmit({exam:n,study:s,sleep:z,wellness:w}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ if(arcade)return <section className="dean-exam dean-arcade-exam">
+  <div className="dean-exam-brief">
+   <span className="dean-kicker">🏆 TEMPORADA · EXAMEN {n} / {ARCADE_EXAMS}</span>
+   <h2>{sourceSubjects[(n-1)%sourceSubjects.length]}</h2>
+   <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+ARCADE_EXAMS}><i style={{width:(n-1)/ARCADE_EXAMS*100+'%'}}/></div>
+   <span className="dean-game-clue">🎯 ¡Consigue la mejor nota de tu sala!</span>
+   {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
+  </div>
+  <div className="dean-exam-controls">
+   <h3>🎮 ARMA TU JUGADA</h3>
+   <div className="dean-arcade-hours" role="meter" aria-label="Horas utilizadas" aria-valuemin={0} aria-valuemax={ARCADE_CAP} aria-valuenow={used}>
+    <div className="dean-arcade-hours-line"><span>⏳ HORAS</span><strong>{used.toFixed(1)} / {ARCADE_CAP} h</strong></div>
+    <div className="dean-arcade-hours-track"><i style={{width:used/ARCADE_CAP*100+'%'}}/></div>
+   </div>
+   <Slider label="📚 Estudio" units="horas de la jornada" min={range[0][0]} max={range[0][1]} value={s} onChange={v=>move('study',v)}/>
+   <Slider label="😴 Sueño" units="horas de la jornada" min={range[1][0]} max={range[1][1]} value={z} onChange={v=>move('sleep',v)}/>
+   <Slider label="🏃 Bienestar" units="horas de la jornada" min={range[2][0]} max={range[2][1]} value={w} onChange={v=>move('wellness',v)}/>
+   <p key={budgetFlash} className="dean-arcade-trade" role="status">{trade||'⚡ Cada hora cuenta. Elige qué sacrificar.'}</p>
+   <button className="dean-big dean-exam-action" type="button" disabled={busy} onClick={submit}>{busy?'⏳ Calificando…':'⚡ PRESENTAR EXAMEN'}</button>
+   {err&&<p role="alert" className="dean-error">{err}</p>}
+  </div>
+ </section>;
  return <section className="dean-exam"><div className="dean-exam-brief">
   <div className="dean-kicker">MISIÓN ACADÉMICA · EXAMEN {n} DE 15</div>
   <h2>🎓 {canonical?sourceSubjects[(n-1)%11]:courses[n-1]}</h2>
