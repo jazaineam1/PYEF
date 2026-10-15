@@ -49,7 +49,7 @@ async function playerViewport(width,height){
  const sliders=page.locator('.dean-exam-controls input[type=range]');
  assert.equal(await sliders.nth(1).getAttribute('min'),'5.5','No 2-hour sleep');
  assert.match(await page.locator('.dean-arcade-hours').innerText(),/14/);
- await sliders.nth(0).fill('8');
+ await sliders.nth(0).focus();await sliders.nth(0).press('End');
  assert.match(await page.locator('.dean-arcade-trade').innerText(),/−/);
  assert.equal(await sliders.nth(0).inputValue(),'8');
  const total=await sliders.evaluateAll(items=>items.reduce((t,e)=>t+Number(e.value),0));
