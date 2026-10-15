@@ -7,7 +7,7 @@ test('V2 Dean Cup builds as three static GitHub Pages entries',()=>{
  for(const name of ['dean-play.html','dean-teacher.html','dean-wall.html'])assert.ok(config.includes(name),name)
  for(const name of ['dean-play.html','dean-teacher.html','dean-wall.html'])assert.ok(r(name).includes('/src/v2/dean-cup.jsx'),name)
  assert.match(r('src/v2/dean-cup.jsx'),/HASTA 30 PARTICIPANTES · \{examCount\} EXÁMENES/)
- assert.match(r('src/v2/dean-cup.jsx'),/examCount=\{arcade\?ARCADE_EXAMS:15\}/)
+ assert.match(r('src/v2/dean-cup.jsx'),/examCount=\{examCount\}/)
 })
 test('Five rooms exactly six each, each 15 subjects independent from legacy V1',()=>{
  const sql=r('supabase/migrations/202610140004_v2_deans_cup_30.sql')
