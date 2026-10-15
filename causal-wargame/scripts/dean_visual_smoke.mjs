@@ -164,6 +164,84 @@ async function testView(role,width,height,attendees=18){
  console.log('PASS',role,width+'x'+height,JSON.stringify(metrics));
  await page.close();
 }
+async function testCausalScience(role,phase,width,height){
+ const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(({role,code})=>{
+  if(role==='player')localStorage.setItem('cw-dean-v2-'+code,'a'.repeat(64));
+  if(role==='teacher'){
+   sessionStorage.setItem('df_facilitator_game_code',code);
+   sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
+  }
+ },{role,code});
+ let submitted={};
+ const csv=(head,rows)=>[head,...rows].map(a=>a.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')).join('\r\n');
+ const rectorRows=Array.from({length:75},(_,i)=>{
+  const id='qa'+String(Math.floor(i/15)+1),b=(i%5)+.5,z=(i%7)+2,h=(i%6)/5+3.2;
+  return[id,(i%15)+1,h,z,b,Math.max(0,Math.min(50,20+5*h-1.2*z-.7*b))];
+ });
+ const rectorCSV=csv(['estudiante_id','examen_nro','pga_previo','complejidad','horas_bienestar_sem','nota_final'],rectorRows);
+ const surveyCSV=csv(['estudiante_id','examen_nro','horas_estudio','horas_sueno'],
+   rectorRows.map(r=>[r[0],r[1],4+Number(r[4])*.1,6+Number(r[2])*.2]));
+ const abRows=Array.from({length:30*15},(_,i)=>{
+  const j=Math.floor(i/15),tr=j%2,profile=['over','balanced','risk','pragmatic'][j%4];
+  return['ab_'+j,i%15+1,profile,(3+(j%5)*.2).toFixed(2),'Asignatura',5.5,tr,4*tr,4,7,36+tr*2+j%4];
+ });
+ const abCSV=csv(['estudiante_id','examen_nro','arquetipo','pga_previo','asignatura',
+  'complejidad','tratamiento','horas_bienestar_sem','horas_estudio','horas_sueno','nota_final'],abRows);
+ await page.route('**/v2-dean-cup',async route=>{
+  const b=route.request().postDataJSON();
+  if(b.action==='export'||b.action==='ab_download'){
+   return route.fulfill({status:200,contentType:'text/csv; charset=utf-8',
+    body:b.action==='ab_download'?abCSV:b.layer==='survey'?surveyCSV:rectorCSV});
+  }
+  let out={...fixture,game_code:code,phase,groups:groupFixture(18)};
+  if(b.action==='learning_state')out={available:true,phase,step:'evidence',paused:false,
+   mine:{initial:'b',revision:null},registered:18,
+   counts:{initial:18,revision:0},rooms:[1,2,3,4,5].map(room_no=>({room_no,participants:3,learning_points:0}))};
+  if(b.action==='mission_state')out={available:true,phase,step:'evidence',mine:submitted,registered:18,
+   completed:{},rooms:[1,2,3,4,5].map(room_no=>({room_no,participants:3,verified_people:0,skill_points:0}))};
+  if(b.action==='mission_submit'){submitted={...submitted,[b.mission]:b.answer};out={accepted:true,duplicate:false,saved:true}}
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(out)});
+ });
+ await page.goto(base+'/'+(role==='player'?'dean-play':role==='wall'?'dean-wall':'dean-teacher')+'.html?game='+code,
+  {waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-page').waitFor();
+ if(role==='player'&&phase==='rector'){
+  await page.locator('.dean-association').waitFor({timeout:12000});
+  assert.match(await page.locator('.dean-association').innerText(),/r simple|r de Pearson/);
+  assert.equal(await page.locator('.dean-association-scatter').count(),1,'Real-scene scatter drawn from CSV');
+  await page.locator('.dean-source-select button').filter({hasText:'Referencia ZIP'}).click();
+  assert.match(await page.locator('.dean-reference-values').innerText(),/−0,468/);
+ }
+ if(role==='player'&&phase==='survey'){
+  await page.locator('[aria-label="Misión interactiva DAG evaluada"]').waitFor();
+  const block=page.locator('[aria-label="Misión interactiva DAG evaluada"]');
+  await block.getByRole('button',{name:/PGA previo/}).click();
+  await block.getByRole('button',{name:/Sí: evita condicionar/}).click();
+  await block.locator('.dean-mission-submit').click();
+  await block.locator('.dean-mission-receipt').waitFor();
+ }
+ if(role==='player'&&phase==='causal'){
+  await page.locator('[aria-label="Microjuego de Double Machine Learning"]').waitFor();
+  await page.locator('[aria-label="Política de seis cupos de bienestar"]').waitFor();
+  const dml=page.locator('[aria-label="Microjuego de Double Machine Learning"]');
+  for(const key of ['Separar en folds','Entrenar modelos','Construir residuos','Relacionar residuos'])
+   await dml.getByRole('button',{name:new RegExp(key)}).click();
+  await dml.getByRole('button',{name:/requiere un diseño/}).click();
+  await dml.locator('.dean-mission-submit').click();
+  await dml.locator('.dean-mission-receipt').waitFor();
+ }
+ if(role==='teacher')assert.ok(await page.locator('.dean-teacher-mission').isVisible(),'Teacher skill evidence is visible');
+ if(role==='wall')assert.ok(await page.locator('.dean-wall-mission').isVisible(),'Wall evidence separate from academic grade');
+ const metrics=await page.evaluate(()=>({sh:document.documentElement.scrollHeight,sw:document.documentElement.scrollWidth}));
+ assert.ok(metrics.sh<=height+3&&metrics.sw<=width+3,'Scientific stage causes global page overflow');
+ assert.deepEqual(errors,[],'No science-stage runtime JS error');
+ await page.screenshot({path:`visual-qa/causal-${phase}-${role}-${width}x${height}.png`,fullPage:false});
+ console.log('PASS_CAUSAL_SCIENCE',phase,role,width+'x'+height);
+ await page.close();
+}
+
 async function testNewCupFromHistoric(width,height){
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -311,6 +389,12 @@ async function testFinal(role,width,height,attendees){
 }
 
 try{
+ for(const [role,phase,w,h] of [
+  ['player','rector',1366,768],['player','survey',1366,768],
+  ['player','causal',1366,768],['player','causal',390,844],
+  ['teacher','survey',1366,768],['wall','causal',1366,768]]){
+  try{await testCausalScience(role,phase,w,h)}catch(e){failures++;console.error('FAIL_CAUSAL',role,phase,w+'x'+h,e.stack||e)}
+ }
  for(const [w,h] of [[1366,768],[390,844]]){
   try{await testNewCupFromHistoric(w,h)}catch(e){failures++;console.error('FAIL_NEW_CUP',w+'x'+h,e.stack||e)}
  }

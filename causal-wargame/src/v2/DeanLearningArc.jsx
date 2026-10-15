@@ -80,6 +80,43 @@ export const DEAN_ARC={
   example:'Dos perfiles con la misma nota esperada pueden responder de modo distinto. Toda estimación es sintética.'
  }
 };
+export const DEAN_CONCEPTS={
+ lobby:[
+  ['Tratamiento T','Una acción definida. En la Copa: asignar B=4 horas de bienestar frente a B=0 horas.'],
+  ['Resultado Y','Nota final de un examen, entre 0 y 50, generada por el simulador.'],
+  ['Contrafactual','Resultado alternativo bajo otro tratamiento. En personas reales no vemos ambos futuros de la misma persona.']
+ ],
+ exams:[
+  ['Correlación','Dos variables cambian juntas en los datos observados. No dice qué sucedería al intervenir.'],
+  ['Selección','Los alumnos eligen horarios y tienen PGA y arquetipos diferentes; los grupos observados pueden no ser comparables.'],
+  ['Fatiga artificial U','Variable generada mediante ecuaciones del juego, no diagnóstico clínico. Puede mediar efectos de bienestar.']
+ ],
+ rector:[
+  ['Pearson r','Mide asociación lineal entre −1 y +1. No son puntos de nota por hora ni demuestra causalidad.'],
+  ['Pendiente observacional','Coeficiente en puntos/hora del ajuste estadístico. Cambia al controlar variables y no equivale por sí mismo a do(B).'],
+  ['MAE y R²','MAE es error medio absoluto en puntos; R² resume calidad de predicción fuera de muestra, no efecto de una política.']
+ ],
+ survey:[
+  ['DAG','Grafo acíclico dirigido con flechas causales SUPUESTAS por el generador, no aprendidas de correlaciones.'],
+  ['Confusor','Antecedente que puede afectar selección del tratamiento y resultado, abriendo una ruta no causal.'],
+  ['Mediador','Variable posterior por la que transcurre parte del efecto total. Ajustarla puede quitar ese camino.'],
+  ['Collider','Variable causada por dos nodos; condicionarla puede abrir un camino espurio. El ejemplo de tutorías es externo al DGP.']
+ ],
+ causal:[
+  ['A/B aleatorizado','El tratamiento B=0 o B=4 se sortea una vez por estudiante sintético, no por cada examen.'],
+  ['ATE e intervalo','ATE es promedio poblacional objetivo; diferencia observada e IC son estimación con error, calculados entre alumnos.'],
+  ['DML','Modelos auxiliares T(X)/Y(X), folds, residuos y estimación. No corrige confusión no observada automáticamente.'],
+  ['CATE y política','Efecto promedio condicionado por perfil: orienta decisiones con cupos y equidad, pero no garantiza beneficio individual.']
+ ]
+};
+function DeanConcepts({phase}){
+ const items=DEAN_CONCEPTS[phase]||[];
+ return <details className="dean-concepts" aria-label="Glosario causal contextual de este acto">
+   <summary>📚 Conceptos desbloqueados · {items.length} definiciones útiles</summary>
+   <div>{items.map(([name,definition])=><article key={name}><strong>{name}</strong><p>{definition}</p></article>)}</div>
+  </details>
+}
+
 export const learningLabel=step=>({challenge:'DECIDE',evidence:'NUEVA EVIDENCIA',debrief:'DESCUBRIMIENTO'})[step]||'ESPERANDO';
 
 export function useDeanLearning({token='',gameCode,enabled=true,teacherToken=''}) {
@@ -115,6 +152,14 @@ export function useDeanLearning({token='',gameCode,enabled=true,teacherToken=''}
  return {data,error,busy,act};
 }
 
+function DeanLearningMap({phase}){
+ const items=[['lobby','Contrafactual'],['exams','Sesgo'],['rector','Correlación'],['survey','DAG'],
+  ['causal','A/B · DML · CATE'],['final','Kahoot']];
+ return <nav className="dean-learning-map" aria-label="Ruta de enseñanza del juego; el capacitador desbloquea cada acto">
+  {items.map(([id,label])=><span key={id} className={id===phase?'active':undefined}>
+   {id===phase?'◆ ':'○ '}{label}</span>)}
+ </nav>
+}
 function DeanMissionScene({phase,step}){
  const seen=step!=='challenge';
  return <div className={'dean-quest-scene dean-quest-scene-'+phase} aria-label="Escena del videojuego causal">
@@ -149,11 +194,13 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
    <span className="dean-quest-step">◆ {learningLabel(step)} {learning.paused?'· PAUSADO':''}</span>
   </div>
   <h2>{scene.title}</h2>
+  <DeanLearningMap phase={phase}/>
   <DeanMissionScene phase={phase} step={step}/>
   <p className="dean-quest-question">{scene.question}</p>
   {step!=='challenge'&&<div className="dean-quest-reveal">
    <strong>⚡ NUEVA PISTA DEL SIMULADOR</strong><p>{scene.evidence}</p>
   </div>}
+  {step!=='challenge'&&<DeanConcepts phase={phase}/>}
   <div className="dean-quest-choices" role="group" aria-label="Tu decisión causal">
    {scene.choices.map((option,i)=>{
      const key=['a','b','c'][i];
@@ -173,7 +220,7 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
   {step==='debrief'&&<div className="dean-quest-solution" role="status">
    <strong>🏆 RESPUESTA DEL DEBRIEF: {learning.correct?.toUpperCase()||'—'}</strong>
    <p>{scene.reveal}</p><p><b>Error frecuente:</b> {scene.trap}</p>
-   <small>Los puntos de maestría causal solo se otorgan a revisiones correctas confirmadas; la intuición no puntúa.</small>
+   <small>Maestría causal: 57 puntos por decisiones revisadas y 43 por prácticas verificadas. La primera intuición no puntúa.</small>
   </div>}
   {error&&<p className="dean-quest-error" role="alert">{error}</p>}
  </section>;
@@ -183,18 +230,25 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
  const scene=DEAN_ARC[phase];
  if(!scene||!learning?.available)return null;
  const step=learning.step;
- const action=learning.paused?'resume':step==='challenge'?'evidence':step==='evidence'?'debrief':null;
- const title={resume:'Reanudar',evidence:'Mostrar pista y abrir revisión',debrief:'Cerrar revisión y revelar solución'}[action];
+ const initials=Number(learning.counts?.initial||0),revisions=Number(learning.counts?.revision||0);
+ const noEvidence=step==='challenge'?initials===0:step==='evidence'?revisions===0:false;
+ const action=learning.paused?'resume':step==='challenge'?(noEvidence?'demo':'evidence'):
+  step==='evidence'?(noEvidence?'demo':'debrief'):null;
+ const title={resume:'Reanudar',demo:'Modo demostración · cerrar sin puntos',
+  evidence:'Mostrar pista y abrir revisión',debrief:'Cerrar revisión y revelar solución'}[action];
  return <section className="dean-quest-control">
   <div className="dean-quest-chapter">🎓 GUION DOCENTE · {scene.time} MIN · {scene.act}</div>
   <h3>{scene.title}</h3>
+  <DeanLearningMap phase={phase}/>
   <p><b>Di:</b> {scene.teacher}</p>
   <p><b>Proyecta:</b> {scene.example}</p>
   <p><b>Comprueba:</b> {scene.expected}</p>
+  <DeanConcepts phase={phase}/>
   <div className="dean-quest-counts">
    <span>Intuiciones: <b>{learning.counts?.initial||0}/{learning.registered||0}</b></span>
    <span>Revisiones: <b>{learning.counts?.revision||0}/{learning.registered||0}</b></span>
   </div>
+  {noEvidence&&<p className="dean-quest-hint">⚠️ Aún no hay evidencias para cerrar este paso. Puedes esperar respuestas o proyectar una demostración SIN puntos.</p>}
   <div className="dean-quest-toolbar">
    {action&&<button type="button" disabled={busy} onClick={()=>onAction(action)}>{busy?'Procesando…':title+' →'}</button>}
    {!learning.paused&&step!=='debrief'&&<button type="button" className="dean-quest-secondary" disabled={busy} onClick={()=>onAction('pause')}>⏸ Pausar</button>}

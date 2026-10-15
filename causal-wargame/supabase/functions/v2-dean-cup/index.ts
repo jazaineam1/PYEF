@@ -36,9 +36,19 @@ Deno.serve(async(req)=>{
      return json({error:'Para reiniciar escribe el código exacto de la Copa'},400)
    return json(await rpc('cw_dean_reset_confirmed',{p_token:teacher,p_confirmation_code:code}))
   }
+  if(action==='mission_state'){
+   if(!code)return json({error:'Código requerido'},400)
+   return json(await rpc('cw_dean_mission_state',{p_code:code,p_hash:hash}))
+  }
+  if(action==='mission_submit'){
+   if(!student)return json({error:'Credencial estudiantil obligatoria'},401)
+   return json(await rpc('cw_dean_mission_submit',{
+    p_hash:hash,p_mission:String(b.mission||''),p_answer:b.answer||{}
+   }))
+  }
   if(action==='learning_state'){
    if(!code)return json({error:'Código requerido'},400)
-   return json(await rpc('cw_dean_learning_state',{p_code:code,p_hash:hash}))
+   return json(await rpc('cw_dean_learning_state_v5',{p_code:code,p_hash:hash}))
   }
   if(action==='learning_submit'){
    if(!student)return json({error:'Credencial de estudiante requerida'},401)
@@ -48,13 +58,40 @@ Deno.serve(async(req)=>{
   if(action==='learning_teacher'){
    if(!teacher)return json({error:'Credencial docente requerida'},401)
    const command=String(b.command||'')
-   if(!['evidence','debrief','pause','resume'].includes(command))return json({error:'Acción de clase inválida'},400)
+   if(!['evidence','debrief','pause','resume','demo'].includes(command))return json({error:'Acción de clase inválida'},400)
    return json(await rpc('cw_dean_learning_teacher',{p_token:teacher,p_action:command}))
   }
   if(action==='quiz_state'){
    if(!code)return json({error:'Código requerido'},400)
    await rpc('cw_dean_quiz_tick_v4',{p_code:code})
-   return json(await rpc('cw_dean_quiz_state_v4',{p_code:code,p_hash:hash}))
+   const snapshot=await rpc('cw_dean_quiz_state_v4',{p_code:code,p_hash:hash}) as Record<string,unknown>
+   // Preserve historical FUTUROS word-for-word. Canonical Copas use ONE intervention:
+   // B=0 versus B=4 hours weekly of the institutional wellness programme.
+   if(snapshot.auto_mode===true&&snapshot.question&&typeof snapshot.question==='object'){
+    const q=snapshot.question as Record<string,unknown>
+    const fix=(v:unknown)=>String(v||'').replace(/ofrecer apoyo académico/gi,'ofrecer bienestar B=4 h frente a B=0 h')
+     .replace(/con y sin apoyo/gi,'con bienestar B=4 h frente a B=0 h')
+     .replace(/plan académico/gi,'programa de bienestar B=4 h frente a B=0 h')
+     .replace(/recibir apoyo/gi,'recibir bienestar B=4 h')
+     .replace(/después de recibir apoyo/gi,'después de asignar bienestar B=4 h')
+    for(const key of ['text','explanation']){
+     if(typeof q[key]==='string')q[key]=fix(q[key])
+    }
+    if(Number(snapshot.question_no)===8){
+     // Transfer: a DIFFERENT intervention, explicitly labelled so the main
+     // 0h vs 4h wellness story is not silently replaced by academic support.
+     q.text='MISIÓN DE TRANSFERENCIA · Una capacitación laboral se ofreció primero a empleados muy motivados. Los asistentes produjeron más. ¿Qué justifica recomendar la capacitación a todos?'
+     q.options={
+      a:'La correlación observada demuestra el efecto de capacitar.',
+      b:'Elegir a los de mayor productividad predicha resuelve la selección.',
+      c:'Usar un modelo complejo elimina automáticamente la motivación no medida.',
+      d:'Definir T/Y y comparador, examinar selección por motivación y diseñar una comparación causal válida.'
+     }
+     q.explanation='Este es OTRO tratamiento, distinto de B=4 horas de bienestar. La motivación previa puede explicar selección y resultados. La asociación no identifica por sí misma un efecto causal.'
+    }
+    snapshot.question=q
+   }
+   return json(snapshot)
   }
   if(action==='quiz_submit'){
    if(!student)return json({error:'Sesión de estudiante obligatoria'},401)
