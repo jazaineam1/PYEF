@@ -507,8 +507,9 @@ function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
- {arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'&&<DeanLifePodium recap={value.life_recap} large/>}
- <div className="dean-wall-grid"><Board groups={value.groups} examCount={examCount}/><aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
+ 
+ <div className="dean-wall-grid">{arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'
+ ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.groups} examCount={examCount}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
  {value.phase==='final'&&value.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="wall"/>}
  {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}</>}
  </aside></div>
@@ -702,8 +703,9 @@ function Teacher(){
  title={learning.data?.step!=='debrief'?'Antes de avanzar, proyecta evidencia y revela la conclusión del acto.':''}
  onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS '+examCount+' EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
  {state?.available?<div className="dean-teacher-grid">
- {arcade&&state.game_mode==='real_hours_6_v1'&&state.phase==='finished'&&<DeanLifePodium recap={state.life_recap} large/>}
- <Board groups={state.groups} examCount={examCount}/>
+ {arcade&&state.game_mode==='real_hours_6_v1'&&state.phase==='finished'
+   ?<DeanLifePodium recap={state.life_recap} large/>:
+   <Board groups={state.groups} examCount={examCount}/>} 
  <aside className="dean-teacher-sidebar">
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · cinco salas.</p>
      <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
