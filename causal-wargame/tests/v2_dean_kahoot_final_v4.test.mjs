@@ -57,3 +57,25 @@ test('Final points remain /120 from eight questions, rooms support up to 30 with
  assert.ok(arena.includes('participantCount'));
  assert.ok(arena.includes('30 segundos'));
 });
+
+
+test('Clock catches up to original absolute schedule if all browsers disconnect',()=>{
+ const migration=read('supabase/migrations/202610150006_dean_quiz_clock_catchup.sql');
+ for(const fragment of ['elapsed:=extract(epoch','floor((elapsed-9)/39)',
+  'floor(elapsed/39)','next_deadline:=record.deadline_at',
+  'next_deadline:=record.reveal_until','next_q>8','return \'legacy\''])
+  assert.ok(migration.includes(fragment),fragment);
+ assert.ok(!migration.includes("set phase='reveal',deadline_at=null,reveal_until=now_at+interval '9 seconds'"));
+});
+test('Instructor finishes the tournament itself only after the podium',()=>{
+ assert.ok(page.includes("onCloseTournament={()=>direct('next')}"));
+ assert.ok(page.includes("closedTournament={state.phase==='finished'}"));
+ assert.ok(arena.includes("onCloseTournament&&"));
+ assert.ok(arena.includes("phase==='finished'"));
+ assert.ok(arena.includes("Registrar cierre de la Copa en el servidor"));
+});
+test('Zero-vote ceremony acknowledges participation instead of inventing a winner',()=>{
+ assert.ok(arena.includes("const hasWinner=players.some(p=>Number(p.points)>0)"));
+ assert.ok(arena.includes("SIN PARTICIPANTES"));
+ assert.ok(arena.includes("Todos terminaron con cero aciertos"));
+});
