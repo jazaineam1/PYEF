@@ -53,7 +53,7 @@ Convertir la Copa del Decano en la mejor actividad de 120 minutos para enseñar 
    - Se mantienen los avisos de "datos sintéticos".
 6. **Dependencias.** No se agregan dependencias de runtime. La única dependencia de desarrollo nueva permitida es `@playwright/test` (T0.2), con versión exacta, igual que el resto de `package.json`.
 7. **No tocar `dos-futuros/`.** Lo genera la CI de publicación.
-8. **Ramas y PR.** Cada rama se llama `copa-v3/<id>-<slug>` y su PR apunta a `copa-v3`. Nunca se usa el prefijo `v2/`.
+8. **Ramas y PR.** Cada tarea usa la rama que Orca crea para su worktree (`jazaineam1/copa-v3-<id>`) y su PR apunta a `copa-v3`. `copa-v3/<id>` es imposible porque ya existe la rama `copa-v3`. Nunca se usa el prefijo `v2/`.
 9. **Calidad.** `npm run check` debe pasar dentro de `causal-wargame/`. Cuando exista el arnés visual, `npm run test:visual` debe pasar en las pantallas que toca la tarea.
 10. **Estilo.** React funcional, textos de interfaz en español, iconos de `lucide-react` o emoji. Los archivos nuevos pueden estar formateados de forma legible.
 
@@ -125,7 +125,7 @@ Convertir la Copa del Decano en la mejor actividad de 120 minutos para enseñar 
 
 ## 6. Ramas, worktrees e integración
 
-- **Integración.** `copa-v3` sale de `main` actualizado. Cada tarea que edita trabaja en un worktree propio, creado con `--worktree new-top-level --base-branch copa-v3` y una rama `copa-v3/<id>-<slug>`, y abre un PR con `gh pr create --base copa-v3`.
+- **Integración.** `copa-v3` sale de `main` actualizado. Cada tarea que edita trabaja en un worktree propio, creado con `--worktree new-top-level --base-branch copa-v3`, en la rama que Orca le asigna (`jazaineam1/copa-v3-<id>`), y abre un PR con `gh pr create --base copa-v3`.
 - **CI en los PR.** Corre tests unitarios y ambos builds, sin smokes en vivo, siempre que la rama no empiece por `v2/`. T0.2 añade además el job visual.
 - **Merge a `copa-v3`.** Lo hace el coordinador con `gh pr merge <n> --merge --delete-branch` cuando se cumplen tres condiciones: CI verde, revisión cruzada sin hallazgos bloqueantes y evidencia de aceptación adjunta. Si hay conflictos, vuelven al autor.
 - **Merge `copa-v3` → `main`.** Lo hace **solo el usuario** (gate G3) y **fuera del horario de clase**, porque despliega a Pages y ejecuta smokes contra producción.
@@ -185,7 +185,7 @@ No existe un Pages de staging, así que el ensayo real (G2) ocurre **después** 
 ```
 REGLAS COMUNES
 - Antes de empezar, lee las secciones 1–4 de causal-wargame/docs/orca/PLAN_COPA_V3.md (en tu worktree).
-- Trabaja en la rama copa-v3/<ID>-<slug> (créala desde tu HEAD si Orca le dio otro nombre). Nunca uses el prefijo v2/.
+- Trabaja en la rama que Orca creó para tu worktree (jazaineam1/copa-v3-<id>); no crees copa-v3/<id>, choca con la rama copa-v3. Nunca uses el prefijo v2/.
 - Edita SOLO las rutas listadas en "Propiedad". Si necesitas cambiar otra, usa el comando ask del preámbulo.
 - Invariantes: no tocar FUTUROS, V1 ni dos-futuros/; sin Docker ni Supabase local; en el Supabase del usuario (nedsrnqwvxtelddmtvtv) solo el tráfico de prueba contra la partida de QA cuando tu spec lo pida (invariante 2), nunca migraciones ni despliegues; los valores de _secrets\copa-v3.env nunca se imprimen ni se commitean; migraciones solo nuevas; sin fugas de U/Y0/Y1/efecto verdadero; sin dependencias nuevas de runtime.
 - Verifica en causal-wargame/: npm run check (y npm run test:visual cuando exista). Adjunta la salida relevante.
