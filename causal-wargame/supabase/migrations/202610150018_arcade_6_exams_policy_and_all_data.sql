@@ -260,3 +260,24 @@ update public.cw_dean_agenda_rules ar set protocol='real_hours_6_v1'
    and ar.protocol='real_hours_10_v1' and t.phase='lobby'
    and not exists(select 1 from public.cw_dean_players p where p.game_id=g.id)
    and not exists(select 1 from public.cw_dean_exam_records e where e.game_id=g.id);
+
+-- Facilitator may retrieve the entire observed dataset once any player has finished.
+-- Unlike a participant, the facilitator needs no player credentials.
+create or replace function public.cw_dean_game_export_facilitator_v4(p_token text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare gid uuid;protocol_name text;student_hash text;
+begin
+ select public.cw_validate_facilitator_token(p_token) into gid;
+ if gid is null then raise exception 'Credencial docente inválida';end if;
+ select protocol into protocol_name from public.cw_dean_agenda_rules where game_id=gid;
+ if protocol_name is distinct from 'real_hours_6_v1' then raise exception 'El exportador de esta Copa no está disponible';end if;
+ select p.token_hash into student_hash
+ from public.cw_dean_players p
+ where p.game_id=gid
+ and (select count(*) from public.cw_dean_exam_records e where e.player_id=p.id)>=6
+ order by p.joined_at,p.id limit 1;
+ if student_hash is null then raise exception 'Esperando a que termine el primer participante';end if;
+ return public.cw_dean_game_export_v3(student_hash);
+end $f$;
+revoke all on function public.cw_dean_game_export_facilitator_v4(text) from public,anon,authenticated;
+grant execute on function public.cw_dean_game_export_facilitator_v4(text) to service_role;
