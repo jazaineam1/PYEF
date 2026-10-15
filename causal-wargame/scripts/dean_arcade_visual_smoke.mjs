@@ -128,8 +128,38 @@ async function wallAndTeacher(){
   await page.close();
  }
 }
+async function staleSessionRecovers(){
+ const page=await browser.newPage({viewport:{width:1280,height:800}});
+ const stale='a'.repeat(64);
+ await page.addInitScript(({code,stale})=>localStorage.setItem('cw-dean-v2-'+code,stale),{code,stale});
+ let joined=false;
+ await page.route('**/v2-dean-cup',async route=>{
+  const input=bodyOf(route.request());
+  const session=route.request().headers()['x-game-token']||'';
+  if(input.action==='state'&&session===stale){
+   return route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({error:'Sesión inválida'})});
+  }
+  if(input.action==='join')joined=true;
+  const mine=joined?{alias:'Recuperado',room:1,archetype:'balanced',pga:3.6,completed:0,average_score:null,scores:[]}:null;
+  const value={available:true,game_code:code,game_mode:'real_hours_10_v1',dgp_version:'zip_dgp_2026',
+   phase:'lobby',groups,mine,exam_count:10,agenda_enabled:true,server_now:new Date().toISOString()};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(value)});
+ });
+ await page.goto(base+'/dean-play.html?game='+code,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-join').waitFor({timeout:10000});
+ assert.equal(await page.evaluate(code=>localStorage.getItem('cw-dean-v2-'+code),code),null,
+  'Stale player credential should be discarded automatically');
+ await page.locator('.dean-label input').fill('Recuperado');
+ await page.getByRole('button',{name:/ENTRAR A LA COPA/}).click();
+ await page.locator('.dean-arcade-player').waitFor({timeout:10000});
+ const stored=await page.evaluate(code=>localStorage.getItem('cw-dean-v2-'+code),code);
+ assert.ok(stored&&stored!==stale,'Rejoined player gets a new token');
+ console.log('ARCADE PASS expired local token repaired without cache clearing or teacher clicks');
+ await page.close();
+}
 try{
  await playerViewport(1366,768);
  await playerViewport(390,844);
  await wallAndTeacher();
+ await staleSessionRecovers();
 }finally{await browser.close()}
