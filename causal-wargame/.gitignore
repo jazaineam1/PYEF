@@ -12,3 +12,4 @@ scenario-private.sql
 !.env.secure
 !.env.secure.example
 .env.secure.local
+artifacts/
