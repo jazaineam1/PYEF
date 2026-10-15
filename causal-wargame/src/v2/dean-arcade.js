@@ -1,6 +1,6 @@
 // Versioned arcade mechanics. A fictional 14-hour preparation-day budget.
 // This differs from the historical weekly-wellness model.
-export const ARCADE_PROTOCOL='real_hours_10_v1';
+export const ARCADE_PROTOCOL='real_hours_6_v1';
 export const ARCADE_EXAMS=6;
 export const arcadeExamCount=mode=>mode==='real_hours_10_v1'?10:mode==='real_hours_6_v1'?6:ARCADE_EXAMS;
 export const ARCADE_CAP=14;
