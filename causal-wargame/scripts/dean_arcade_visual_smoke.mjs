@@ -203,7 +203,7 @@ async function sixRoundViewport(width,height,skip=false){
     return ['Alumno '+(i+1),sala,i%6+1,'balanced',3.5,1.2,4,8,well,49-well*8,false];
    });
    return route.fulfill({status:200,contentType:'text/csv',
-     body:[columns,...rows].map(row=>row.join(',')).join('\\r\\n')+'\\r\\n'});
+     body:[columns,...rows].map(row=>row.join(',')).join('\r\n')+'\r\n'});
   }
   return reply(buildState());
  });
