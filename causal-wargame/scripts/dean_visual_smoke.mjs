@@ -96,8 +96,9 @@ async function testView(role,width,height,attendees=18){
   assert.ok(last && last.y+last.height<=height+2,`Last room outside screen: ${JSON.stringify(last)}`);
  }
  if(role==='player'){
-  await page.locator('.dean-quest').waitFor();
-  assert.equal(await page.locator('.dean-quest-option').count(),3,'Exactly three contextual choices');
+  await page.locator('.dean-game-science-tools>summary').first().waitFor();
+  assert.equal(await page.locator('.dean-quest-option').count(),3,'Exactly three contextual choices, available for the required learning challenge');
+  assert.equal(await page.locator('.dean-quest').isVisible(),false,'Theory must not interrupt active exams');
   const hud=page.locator('.dean-hud');
   assert.equal(await hud.count(),1,'One compact HUD');
   const box=await hud.boundingBox();
