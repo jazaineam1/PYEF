@@ -686,7 +686,7 @@ function Teacher(){
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · cinco salas.</p>
      <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
      {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LAS 5 SALAS</button>}
-     <p>Un clic para iniciar, ninguno entre exámenes.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
+     <p>Un clic para iniciar, ninguno entre exámenes. El análisis de correlaciones se realiza después de jugar.</p><div className="dean-actions"><a href="./dean-correlacion.html" target="_blank" rel="noreferrer">🐍 LABORATORIO PYODIDE ↗</a><a href="./notebooks/copa_decano_6_examenes_correlaciones.ipynb" download>📓 DESCARGAR NOTEBOOK ↗</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
   <details className="dean-teacher-extras">
