@@ -169,7 +169,7 @@ begin
  select ar.protocol into game_protocol from public.cw_dean_agenda_rules ar where ar.game_id=p.game_id;
  if game_protocol not in ('real_hours_6_v1','real_hours_10_v1') then raise exception 'Exportación exclusiva del juego arcade';end if;
  select count(*) into total from public.cw_dean_exam_records where player_id=p.id;
- if total<case when game_protocol='real_hours_6_v1' then 6 else 10 end then raise exception 'Completa tus exámenes antes de descargar';end if;
+ if total < (case when game_protocol='real_hours_6_v1' then 6 else 10 end) then raise exception 'Completa tus exámenes antes de descargar';end if;
  select coalesce(jsonb_agg(jsonb_build_array(q.alias,q.room_no,e.exam_no,e.subject_name,
     e.complexity,q.pga_prior,q.archetype,e.study_hours,e.sleep_hours,e.wellness_hours,
     e.exam_score,e.auto_simulated,
