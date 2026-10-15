@@ -21,6 +21,12 @@ Deno.serve(async(req)=>{
    return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_learning_next',{p_token:teacher}) /* wraps cw_dean_teacher_next_v3 with V2 learning gate */))
   }
   // Isolated teaching arc, stored on server; no correct option before debrief.
+  if(action==='reset_confirmed'){
+   if(!teacher)return json({error:'Autorización del facilitador requerida'},401)
+   if(!code||String(b.confirmation_code||'')!==code)
+     return json({error:'Para reiniciar escribe el código exacto de la Copa'},400)
+   return json(await rpc('cw_dean_reset_confirmed',{p_token:teacher,p_confirmation_code:code}))
+  }
   if(action==='learning_state'){
    if(!code)return json({error:'Código requerido'},400)
    return json(await rpc('cw_dean_learning_state',{p_code:code,p_hash:hash}))
