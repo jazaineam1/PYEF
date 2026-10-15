@@ -8,10 +8,11 @@ import DeanEconMLPanel from './DeanEconMLPanel.jsx';
 import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall,DeanABDiscovery} from './DeanCausalMissions.jsx';
 import DeanQuizArena from './DeanQuizArena.jsx';
 import {agendaCost,rebalanceAgenda,AGENDA_CAP} from './dean-agenda.js';
-import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeStreak,arcadeTitle,arcadeExamCount} from './dean-arcade.js';
+import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeStreak,arcadeTitle,arcadeExamCount,arcadeRanges} from './dean-arcade.js';
 import DeanArcadeResult from './DeanArcadeResult.jsx';
 import DeanArcadeMascot from './DeanArcadeMascot.jsx';
 import DeanRectorFinal from './DeanRectorFinal.jsx';
+import DeanArcadeLobby,{lobbyAvatar} from './DeanArcadeLobby.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -104,9 +105,9 @@ function ExamCountdown({deadline,serverNow,receivedAt}){
  </div>;
 }
 
-function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,receivedAt,arcade=false,examCount=ARCADE_EXAMS}){
+function Exam({person,onSubmit,onSkip=null,version,gameMode='real_hours_10_v1',agendaEnabled=false,deadline,serverNow,receivedAt,arcade=false,examCount=ARCADE_EXAMS}){
  const canonical=version==='zip_dgp_2026';
- const n=Number(person.completed||0)+1,range=arcade?[ARCADE_RANGES.study,ARCADE_RANGES.sleep,ARCADE_RANGES.wellness]:(canonical?canonicalLimits:limits)[person.archetype];
+ const n=Number(person.completed||0)+1,arcadeLimits=arcadeRanges(person.archetype,gameMode),range=arcade?[arcadeLimits.study,arcadeLimits.sleep,arcadeLimits.wellness]:(canonical?canonicalLimits:limits)[person.archetype];
  const [s,setS]=useState(range[0][2]),[z,setZ]=useState(range[1][2]),[w,setW]=useState(range[2][2]);
  const [busy,setBusy]=useState(false),[err,setErr]=useState(''),[flash,setFlash]=useState(null);
  const [trade,setTrade]=useState('');
@@ -117,7 +118,7 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
  function move(key,value){
   if(arcade){
    try{
-    const change=rebalanceArcade({study:s,sleep:z,wellness:w},key,value);
+    const change=rebalanceArcade({study:s,sleep:z,wellness:w},key,value,person.archetype,gameMode);
     setS(change.values.study);setZ(change.values.sleep);setW(change.values.wellness);
     setTrade(change.sacrificed.length?'⚡ '+change.sacrificed.map(x=>'−'+x.hours.toFixed(1)+' h '+normalizedName[x.activity]).join(' · '):'');
     setBudgetFlash(v=>v+1);
@@ -137,14 +138,14 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
   }catch(e){setErr(e.message)}
  }
 
- useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null);setTrade('')},[n,person.archetype,canonical,arcade]);
+ useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null);setTrade('')},[n,person.archetype,canonical,arcade,gameMode]);
  if(!arcade&&n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Completaste tus 15 exámenes. Tu sala no necesita seis personas para avanzar.</p></section>;
  async function submit(){setBusy(true);setErr('');try{setFlash(await onSubmit({exam:n,study:s,sleep:z,wellness:w}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  if(arcade)return <section className="dean-exam dean-arcade-exam">
   <div className="dean-exam-brief">
    <span className="dean-kicker">🏆 TEMPORADA · EXAMEN {n} / {examCount}</span>
    <h2>{sourceSubjects[(n-1)%sourceSubjects.length]}</h2>
-   <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+ARCADE_EXAMS}><i style={{width:(n-1)/examCount*100+'%'}}/></div>
+   <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+examCount}><i style={{width:(n-1)/examCount*100+'%'}}/></div>
    <span className="dean-game-clue">🎯 ¡Consigue la mejor nota de tu sala!</span>
    <div className="dean-arcade-sidekick"><DeanArcadeMascot mood="solid"/></div>
    {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
@@ -160,6 +161,10 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
    <Slider label="🏃 Bienestar" units="horas de la jornada" min={range[2][0]} max={range[2][1]} value={w} onChange={v=>move('wellness',v)}/>
    <p key={budgetFlash} className="dean-arcade-trade" role="status">{trade||'⚡ Cada hora cuenta. Elige qué sacrificar.'}</p>
    <button className="dean-big dean-exam-action" type="button" disabled={busy} onClick={submit}>{busy?'⏳ Calificando…':'⚡ PRESENTAR EXAMEN'}</button>
+   {onSkip&&<button type="button" className="dean-arcade-skip" disabled={busy} onClick={onSkip}>
+    😴 ME DA PEREZA, NO ME GUSTA EL JUEGO
+    <small>GENERAR MIS EXÁMENES RESTANTES AUTOMÁTICAMENTE</small>
+   </button>}
    {err&&<p role="alert" className="dean-error">{err}</p>}
   </div>
  </section>;
@@ -404,6 +409,7 @@ function DeanPracticeRoom({phase,version,token,step,missions,busy,download,downl
 function Player(){
  const [token,setToken]=useState(localStorage.getItem(storageKey)||'');
  const [lastAward,setLastAward]=useState(null);
+ const [readyBusy,setReadyBusy]=useState(false);
  // Do not dismiss arcade achievements before the participant chooses the next round.
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  const me=state?.mine;
@@ -424,9 +430,10 @@ function Player(){
  async function join(){setBusy(true);setActionError('');const t=token||hexToken();
  try{const s=await call('join',{game_code:code,alias:alias.trim(),room},t);localStorage.setItem(storageKey,t);setToken(t);setValue(s)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function submit(v){const r=await call('exam',v,token);const snap=await call('state',{game_code:code},token);const scores=Array.isArray(snap?.mine?.scores)?snap.mine.scores.map(Number):[Number(r.score)];setLastAward({score:Number(r.score),exam:Number(r.exam_no),average:scores.reduce((a,b)=>a+b,0)/scores.length,streak:arcadeStreak(scores),nonce:Date.now()});setValue(snap);return r}
- async function quickComplete(){if(!window.confirm('¿Simular los exámenes restantes usando la estrategia predeterminada de tu arquetipo? Los registros quedarán marcados como simulados automáticamente.'))return;
+ async function quickComplete({skipConfirm=false}={}){if(!skipConfirm&&!window.confirm('¿Simular los exámenes restantes usando la estrategia predeterminada de tu arquetipo? Los registros quedarán marcados como simulados automáticamente.'))return;
  setBusy(true);setActionError('');try{await call('auto_finish',{},token);setValue(await call('state',{game_code:code},token))}
  catch(e){setActionError(e.message)}finally{setBusy(false)}}
+ async function markReady(next){setReadyBusy(true);setActionError('');try{setValue(await call('lobby_ready',{ready:next},token))}catch(e){setActionError(e.message)}finally{setReadyBusy(false)}}
  async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+(state?.game_mode==='real_hours_6_v1'?'_TODAS_LAS_SALAS_6_examenes.csv':'_sala_'+me.room+'_10_examenes.csv');a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function answerRector(choice){setBusy(true);setActionError('');try{await call('policy_submit',{choice},token);setValue(await call('state',{game_code:code},token))}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function downloadAB(){setBusy(true);setActionError('');try{const blob=await call('ab_download',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_test_2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
@@ -439,7 +446,7 @@ function Player(){
  <div className="dean-rooms">{state.groups.map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
  <main className={'dean-player'+(arcade?' dean-arcade-player':'')}>
    <div className="dean-player-topbar">
-    <div className="dean-carnet"><span aria-hidden="true">{icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
+    <div className="dean-carnet"><span aria-hidden="true">{arcade?lobbyAvatar(state.my_avatar_no):icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
     <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward} examCount={examCount}/>
    </div>
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')+(['final','finished'].includes(state.phase)?' dean-quiz-only':'')} tabIndex={0} aria-label="Escena principal de la Copa">
