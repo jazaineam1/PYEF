@@ -369,7 +369,7 @@ function Teacher(){
     <button type="button" disabled={busy} onClick={downloadABTruth}>🔒 Exportar contrafactuales · docente</button>
    </div>}
   {['causal','final','finished'].includes(state.phase)&&<button className="dean-big dean-teacher-truth" disabled={busy} onClick={downloadTruth}>🔒 Descargar fatiga oculta</button>}
-  <div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ Wall / proyección</a></div>
+  <div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ Wall / proyección</a><a href="./dean-emergency.md" target="_blank" rel="noreferrer" download>📄 Guion de contingencia</a></div>
  </aside></div>:
  <div className="dean-hero"><h2>Crear Copa para cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
