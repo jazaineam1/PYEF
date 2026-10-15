@@ -60,3 +60,15 @@
 @media(max-width:790px){.dean-arcade-player .dean-exam{display:flex;flex-direction:column;min-height:0!important;height:auto!important;gap:8px;padding:9px}.dean-arcade-player .dean-exam-brief{padding:12px;gap:7px;flex:0 0 auto}.dean-arcade-player .dean-exam-brief h2{font-size:23px;max-width:none}.dean-arcade-player .dean-exam-controls{padding:10px;gap:7px;flex:0 0 auto}.dean-arcade-player .dean-exam-controls .dean-slider{min-height:60px}.dean-arcade-player .dean-exam-controls .dean-exam-action{min-height:52px}.dean-arcade-overlay{position:fixed;z-index:99;inset:0}.dean-arcade-result{padding:18px 13px}}
 @media(max-height:680px){.dean-arcade-player .dean-exam-brief,.dean-arcade-player .dean-exam-controls{gap:6px}.dean-arcade-result{gap:6px}.dean-arcade-emblem{width:66px;height:66px;font-size:44px}}
 @media(prefers-reduced-motion:reduce){.dean-arcade-overlay,.dean-arcade-result,.dean-arcade-emblem,.dean-arcade-score strong,.dean-arcade-rays,.dean-arcade-confetti span,.dean-arcade-trade{animation:none!important}.dean-arcade-hours-track i,.dean-arcade-player .dean-exam-action{transition:none!important}}
+
+/* Bare routes are not game invitations: a visible Cup-code entrance avoids old FUTUROS. */
+.dean-arcade-entry-page .dean-arcade-entry{max-width:650px;width:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;border:2px solid #e5c97f;border-radius:24px;background:radial-gradient(circle at 50% 20%,#276683,#0a1c32 70%);box-shadow:0 0 65px #49bfd52b}
+.dean-arcade-entry-page .dean-arcade-entry h2{font-size:clamp(30px,4vw,51px);color:#ffe6a1}
+.dean-arcade-entry-page .dean-arcade-entry p{max-width:42ch}
+.dean-arcade-entry-page .dean-arcade-entry form{display:flex;flex-direction:column;gap:12px;width:min(440px,100%);text-align:left}
+.dean-arcade-entry-page .dean-arcade-entry form label{font-weight:900;letter-spacing:1.5px;color:#c8ecf0;font-size:13px}
+.dean-arcade-entry-page .dean-arcade-entry form input{width:100%;min-height:56px;border:2px solid #71c9d4;border-radius:12px;background:#0e2b48;color:#fff;padding:10px 16px;font-size:clamp(18px,2vw,23px);font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.dean-arcade-entry-page .dean-arcade-entry form input:focus-visible{outline:3px solid #ffe6a1;outline-offset:3px}
+.dean-arcade-entry-page .dean-arcade-enter-btn{background:linear-gradient(110deg,#ffedb4,#ffc16b);border:0;color:#172942;font-weight:950;min-height:55px;font-size:19px}
+.dean-arcade-entry-page .dean-arcade-entry-help{color:#b6d6e3;font-size:13px}
+.dean-arcade-entry-page .dean-arcade-entry-help a{color:#ffe49c}
