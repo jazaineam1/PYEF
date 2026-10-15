@@ -112,8 +112,11 @@ async function wallAndTeacher(){
    const next=page.locator('.dean-teacher-next');
    await next.waitFor({state:'visible'});
    assert.match(await next.innerText(),/ABRIR LOS 10 EXÁMENES/);
-   await next.click();assert.match(await next.innerText(),/CERRAR JUEGO/);
-   await next.click();assert.equal(phase,'finished');
+   await next.click();
+   await page.waitForFunction(()=>document.querySelector('.dean-teacher-next')?.textContent?.includes('CERRAR JUEGO'),{timeout:10000});
+   await next.click();
+   await next.waitFor({state:'detached',timeout:10000});
+   assert.equal(phase,'finished');
    assert.equal(await page.locator('.dean-quest-control').count(),0);
   }else{
    assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5);
