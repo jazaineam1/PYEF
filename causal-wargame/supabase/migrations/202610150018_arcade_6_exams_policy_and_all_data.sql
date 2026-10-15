@@ -82,7 +82,7 @@ begin
  h,s,b,(outcome->>'fatiga_latente')::numeric,(outcome->>'nota_final')::numeric,coalesce(p_auto,false));
  return jsonb_build_object('exam_no',p_exam,'subject',exam_subject->>'name','score',outcome->'nota_final',
  'submitted',true,'already_submitted',false,'completed',p_exam,'dgp','zip_dgp_2026');
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_auto_finish_v3(p_token_hash text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -110,7 +110,7 @@ begin
  end loop;
  return jsonb_build_object('completed',(select count(*) from public.cw_dean_exam_records where player_id=p.id),
   'auto_generated_from',next_exam,'dgp',ver);
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_state_v3(p_code text,p_hash text default null)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -158,7 +158,7 @@ begin
   'dgp_updated_on','2026-10-14',
  'exam_deadline_at',(select tt.exam_deadline_at from public.cw_dean_tournaments tt where tt.game_id=gid),
  'server_now',clock_timestamp());
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_game_export_v3(p_hash text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -183,7 +183,7 @@ begin
     'pga_previo','arquetipo','horas_estudio_jornada','horas_sueno_jornada',
     'horas_bienestar_jornada','nota_final','auto_simulado','decision_rector'),
   'rows',data);
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_game_start_v3(p_token text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -197,7 +197,7 @@ begin
  if game_protocol not in ('real_hours_10_v1','real_hours_6_v1') or stage<>'lobby' then
   raise exception 'Inicio de juego no autorizado';end if;
  return public.cw_dean_teacher_next_v3(p_token);
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_game_finish_v3(p_token text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -218,7 +218,7 @@ begin
  update public.cw_dean_tournaments set phase='finished',revision=revision+1,
  exam_auto_filled_at=clock_timestamp() where game_id=gid;
  return public.cw_dean_state_v3(game_code,null);
-end $f$
+end $f$;
 
 create or replace function public.cw_dean_arcade_policy_submit_v4(p_hash text,p_choice text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
