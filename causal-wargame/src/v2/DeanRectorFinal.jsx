@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
 import DeanArcadeMascot from './DeanArcadeMascot.jsx';
+import {CopaCorrelation} from './dean-correlation.jsx';
 import './dean-arcade.css';
 
 export const RECTOR_CHOICES=[
@@ -9,10 +10,12 @@ export const RECTOR_CHOICES=[
 ];
 const returnLink=import.meta.env.VITE_DEAN_MAIN_ROOM_URL||'';
 
-export default function DeanRectorFinal({player,busy=false,onDownload,onSubmit,error=''}) {
+export default function DeanRectorFinal({player,busy=false,onDownload,onGetCsv,onSubmit,error=''}) {
  const [selected,setSelected]=useState(null);
+ const [scene,setScene]=useState('correlation');
  const answer=player?.policy_choice||null;
  const complete=Number(player?.completed||0)>=6;
+ if(scene==='correlation')return <CopaCorrelation embedded loadCsv={onGetCsv} onContinue={()=>setScene('decision')}/>;
  return <section className="dean-arcade-finish dean-rector-final" aria-labelledby="arcade-rector-heading">
   <div className="dean-rector-header">
    <span className="dean-kicker">🏁 SEIS EXÁMENES COMPLETADOS</span>
@@ -28,9 +31,7 @@ export default function DeanRectorFinal({player,busy=false,onDownload,onSubmit,e
      📥 DESCARGAR TODOS LOS DATOS DE LAS 5 SALAS
     </button>
     <small className="dean-rector-help">Descarga el CSV de toda la Copa. Incluye los registros disponibles hasta este momento; vuelve a descargarlo cuando tus compañeros terminen.</small>
-    <a className="dean-rector-analysis-link" href="./dean-correlacion.html" target="_blank" rel="noreferrer">
-     🐍 ANALIZAR CORRELACIONES CON PYTHON ↗
-    </a>
+    <button type="button" className="dean-rector-analysis-link" onClick={()=>setScene('correlation')}>📉 REVISAR CORRELACIONES REALES DE LA COPA</button>
     {answer?<div className="dean-rector-answer" role="status">
       <strong>✅ DECISIÓN GUARDADA</strong>
       <span>{RECTOR_CHOICES.find(c=>c.id===answer)?.label||'Registrada'}</span>

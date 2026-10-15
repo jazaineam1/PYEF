@@ -12,6 +12,7 @@ import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeS
 import DeanArcadeResult from './DeanArcadeResult.jsx';
 import DeanArcadeMascot from './DeanArcadeMascot.jsx';
 import DeanRectorFinal from './DeanRectorFinal.jsx';
+import {CopaCorrelation} from './dean-correlation.jsx';
 import DeanArcadeLobby,{lobbyAvatar} from './DeanArcadeLobby.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
@@ -453,7 +454,7 @@ function Player(){
     {arcade?
     (Number(me.completed)>=examCount || !['lobby','exams'].includes(state.phase)?
      state.game_mode==='real_hours_6_v1'?
-     <DeanRectorFinal player={me} busy={busy} onDownload={downloadGameData} onSubmit={answerRector} error={actionError}/>:
+     <DeanRectorFinal player={me} busy={busy} onDownload={downloadGameData} onGetCsv={()=>call('game_export',{},token)} onSubmit={answerRector} error={actionError}/>:
      <section className="dean-arcade-finish">
       <div className="dean-emoji" aria-hidden="true">🏆</div>
       <h2>¡TEMPORADA COMPLETADA!</h2>
@@ -598,6 +599,7 @@ function DeanResetControl({game,disabled=false,onReset,onReauthenticate}){
 function Teacher(){
  const requestedGame=(new URLSearchParams(location.search).get('game')||sessionStorage.getItem('df_facilitator_game_code')||code).trim().toUpperCase();
  const [abSummary,setAbSummary]=useState(null);
+ const [showCorrelation,setShowCorrelation]=useState(false);
  const [teacher,setTeacher]=useState(()=>sessionStorage.getItem('df_facilitator_game_code')===requestedGame?(sessionStorage.getItem('df_facilitator_token')||''):''),[game,setGame]=useState(requestedGame),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const {value:board}=useBoard('',!!teacher,game);
  const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&!['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode),teacherToken:teacher});
@@ -674,6 +676,10 @@ function Teacher(){
  ?<main className="dean-quiz-stage dean-quiz-teacher-stage"><CupQuiz role="teacher" canonical
   teacher={teacher} gameCode={game} onCloseTournament={()=>direct('next')}
   closedTournament={state.phase==='finished'}/></main>
+ :showCorrelation&&state?.game_mode==='real_hours_6_v1'?
+ <main className="dean-internal-analysis">
+  <CopaCorrelation embedded loadCsv={()=>call('teacher_game_export',{},'',teacher)} onContinue={()=>setShowCorrelation(false)}/>
+ </main>
  :<main className="dean-teacher">
  <div className="dean-teacher-toolbar"><div><small>🎛️ PANEL DEL CAPACITADOR · 120 MINUTOS</small><h2>Control de sesión</h2></div>
  {state?.available&&(arcade?['lobby','exams'].includes(state.phase):actions[state.phase])&&<button className="dean-big dean-teacher-next"
@@ -686,7 +692,9 @@ function Teacher(){
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · cinco salas.</p>
      <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
      {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LAS 5 SALAS</button>}
-     <p>Un clic para iniciar, ninguno entre exámenes. El análisis de correlaciones se realiza después de jugar.</p><div className="dean-actions"><a href="./dean-correlacion.html" target="_blank" rel="noreferrer">🐍 LABORATORIO PYODIDE ↗</a><a href="./notebooks/copa_decano_6_examenes_correlaciones.ipynb" download>📓 DESCARGAR NOTEBOOK ↗</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
+     <p>Un clic para iniciar, ninguno entre exámenes. La correlación se calcula dentro del juego con datos del servidor.</p>
+     {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={state.phase==='lobby'} onClick={()=>setShowCorrelation(true)}>📉 VER CORRELACIÓN DE LAS CINCO SALAS</button>}
+     <div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
   <details className="dean-teacher-extras">

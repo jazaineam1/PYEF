@@ -30,4 +30,15 @@ test('Actual Python correlation computes Pearson/Spearman and recognizes repeate
  assert.equal(result.n_rooms,2);
  assert.equal(result.n_simulated,0);
  assert.ok(Number.isFinite(result.r_within));
+ // A second, real Python execution proves a negative correlation for the
+ // observable 14-hour tradeoff; no grade values or coefficients are faked.
+ const negativePrefix=prefix.replace("selected_var='horas_bienestar_jornada'",
+  "selected_var='horas_estudio_jornada'\nselected_y='horas_bienestar_jornada'");
+ const negative=spawnSync('python3',['-c',negativePrefix+source+'\nprint(json.dumps(result,ensure_ascii=False))'],
+  {encoding:'utf8',timeout:10000});
+ assert.equal(negative.status,0,negative.stderr);
+ const actual=JSON.parse(negative.stdout.trim().split('\n').at(-1));
+ assert.ok(actual.factors.sacrificio_estudio_bienestar.r<-.99,'study/wellbeing negative r');
+ assert.ok(actual.linear.slope<0,'negative regression slope in observed tradeoffs');
+
 });
