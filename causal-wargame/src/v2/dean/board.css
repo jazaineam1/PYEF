@@ -1,0 +1,5 @@
+.dean-board h2{margin:0}.dean-board>article{display:grid;grid-template-columns:60px minmax(0,1fr) 104px;gap:12px;align-items:center;padding:16px 0;border-top:1px solid #446077}.dean-medal{font-size:27px}.dean-board-main{display:grid;gap:6px}.dean-board-main strong{font-size:clamp(14px,1.6vw,21px)}.dean-board-main span{font-size:14px;color:#c3dbe5}.dean-rating{text-align:right;display:grid;gap:6px}.dean-rating strong{font-size:clamp(23px,2.5vw,36px);font-variant-numeric:tabular-nums}.dean-rating small{font-size:10px;color:#a6eddb;letter-spacing:1px}
+
+/* Dynamic team sizes; empty rooms do not compete. */
+.dean-team-empty{opacity:.63}.dean-board-main small{color:#b8dbe5;font-size:12px}
+@media(max-width:700px){.dean-board>article{grid-template-columns:32px minmax(0,1fr) 70px;gap:7px}.dean-board-main span{font-size:11px}.dean-rating strong{font-size:24px}}

@@ -1,3 +1,4 @@
+import {readDeanSources,readDeanStyles} from './helpers/dean-sources.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
@@ -5,7 +6,7 @@ const read=p=>readFileSync(p,'utf8')
 const canonical=read('supabase/migrations/202610140006_dean_zip_canonical_dgp.sql')
 const ab=read('supabase/migrations/202610140007_dean_ab_potential_outcomes.sql')
 const edge=read('supabase/functions/v2-dean-cup/index.ts')
-const jsx=read('src/v2/dean-cup.jsx')
+const jsx=readDeanSources()
 test('ZIP scorer and fatigue are versioned; historical FUTUROS never regraded',()=>{
  assert.match(canonical,/dgp_version text not null default 'legacy_v1'/)
  assert.match(canonical,/zip_dgp_2026/)
@@ -42,7 +43,7 @@ test('AB teacher truth never leaks via public observed CSV and only service role
  for(const s of ["action==='ab_generate'","action==='ab_download'","action==='ab_truth'","cw_dean_score_v3","cw_dean_exam_v3","cw_dean_join_v3","cw_dean_create_v3"])assert.ok((edge+canonical).includes(s),s)
 })
 test('Live game keeps all five phases plus final and notebook is bundled in Pages',()=>{
- for(const s of ['DeanCausalLab','ABFromObserved','Rector','cohorte_ab_test_2026.csv','sourceSubjects','dgp_version','DGP canónico'])assert.ok(jsx.includes(s)||read('src/v2/dean-cup.css').includes(s),s)
+ for(const s of ['DeanCausalLab','ABFromObserved','Rector','cohorte_ab_test_2026.csv','sourceSubjects','dgp_version','DGP canónico'])assert.ok(jsx.includes(s)||readDeanStyles().includes(s),s)
  const notebook=JSON.parse(read('public/notebooks/causalidad_copa_decano_scaffold.ipynb'))
  assert.equal(notebook.nbformat,4)
  assert.ok(notebook.cells.length>=10)
@@ -58,7 +59,7 @@ test('15-minute exam deadline is server-governed and auto-completes absentees on
  const api=read('supabase/functions/v2-dean-cup/index.ts')
  assert.match(api,/cw_dean_tick_v3/)
  assert.match(api,/cw_dean_teacher_next_v3/)
- const ui=read('src/v2/dean-cup.jsx')
+ const ui=readDeanSources()
  assert.match(ui,/function ExamCountdown/)
  assert.match(ui,/ExamCountdown deadline=/)
 })

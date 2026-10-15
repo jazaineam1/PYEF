@@ -1,0 +1,6 @@
+/* One phase-level facilitator explanation, not 30 substeps. */
+.dean-guidance{display:grid;gap:12px;background:linear-gradient(125deg,#152b43,#173b46);border:1px solid #76adbc;border-radius:20px;padding:clamp(17px,2.4vw,29px)}
+.dean-guidance h2{font-size:clamp(22px,2.1vw,29px);margin:2px 0}
+.dean-guidance p{font-size:clamp(16px,1.4vw,20px);line-height:1.55;margin:0}
+.dean-guidance-project{background:#103544;padding:15px;border-radius:12px;border:1px solid #69b0bd}
+.dean-guidance small{font-size:13px;color:#b7dde4}

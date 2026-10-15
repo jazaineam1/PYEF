@@ -34,7 +34,7 @@ export default function DeanCausalAtlas({phase}){
  const meta=scopes[phase], [lens,setLens]=useState(phase==='rector'?'pre':phase==='survey'?'mediator':'latent')
  useEffect(()=>setLens(phase==='rector'?'pre':phase==='survey'?'mediator':'latent'),[phase])
  if(!meta)return null
- return <section className="dean-atlas" aria-label="Mapa causal interactivo de la Copa del Decano">
+ return <section className="dean-atlas" data-testid="dean-causal-atlas" aria-label="Mapa causal interactivo de la Copa del Decano">
   <div className="dean-atlas-eyebrow">{meta.stamp}</div><h2>{meta.title}</h2>
   <p className="dean-atlas-lead">{meta.lead}</p>
   {phase==='rector'&&<div className="dean-atlas-layers">

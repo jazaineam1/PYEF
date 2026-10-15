@@ -1,3 +1,4 @@
+import {readDeanSources} from './helpers/dean-sources.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
@@ -21,14 +22,14 @@ test('Classic V2 remains an explicit fallback and a way to create Dean Cup',()=>
  assert.match(read('src/v2/V2Facilitator.jsx'),/Abrir Copa del Decano/)
 })
 test('Teacher board uses authenticated selected game, not fixed FUTUROS code',()=>{
- const ui=read('src/v2/dean-cup.jsx')
+ const ui=readDeanSources()
  assert.match(ui,/function useBoard\(token='',enabled=true,gameCode=code\)/)
  assert.match(ui,/game_code:gameCode/)
  assert.match(ui,/useBoard\('',!!teacher,game\)/)
  assert.match(ui,/\[token,enabled,gameCode\]/)
 })
 test('Course has one clear instructor explanation per phase',()=>{
- const ui=read('src/v2/dean-cup.jsx')
+ const ui=readDeanSources()
  for(const phase of ['lobby','exams','rector','survey','causal','final','finished'])assert.ok(ui.includes('"'+phase+'": {'),phase)
  assert.match(ui,/function DeanGuidance/)
  assert.match(ui,/role="teacher"/)

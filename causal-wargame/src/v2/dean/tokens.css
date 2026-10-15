@@ -1,0 +1,45 @@
+/* Copa del Decano design tokens: current palette, team colours, type scale and spacing. */
+:root{
+ /* surfaces */
+ --dean-bg:#090f24;
+ --dean-bg-deep:#080e1d;
+ --dean-surface:#11243c;
+ --dean-card-a:#142843;
+ --dean-card-b:#15374b;
+ --dean-input:#091d34;
+ --dean-border:#4d7d9c;
+ --dean-border-soft:#446077;
+ /* text */
+ --dean-text:#f6fbff;
+ --dean-text-soft:#d6e4ef;
+ --dean-text-dim:#c3dbe5;
+ /* accents */
+ --dean-accent:#63dcc3;
+ --dean-accent-soft:#a5e5d9;
+ --dean-accent-ink:#06302d;
+ --dean-gold:#f8d892;
+ --dean-focus:#ffe18d;
+ --dean-danger:#6c2930;
+ /* team colours, rooms 1..5 (Alpha, Beta, Gamma, Delta, Épsilon) */
+ --dean-team-1:#ff7a59;
+ --dean-team-2:#4cc9f0;
+ --dean-team-3:#b388ff;
+ --dean-team-4:#ffd166;
+ --dean-team-5:#6ee7a8;
+ /* type scale */
+ --dean-fs-xs:clamp(11px,.8vw,12px);
+ --dean-fs-sm:clamp(13px,1vw,14px);
+ --dean-fs-md:clamp(15px,1.3vw,18px);
+ --dean-fs-lg:clamp(18px,1.8vw,24px);
+ --dean-fs-xl:clamp(23px,2.7vw,37px);
+ --dean-fs-score:clamp(23px,2.5vw,36px);
+ /* spacing */
+ --dean-space-1:4px;
+ --dean-space-2:8px;
+ --dean-space-3:12px;
+ --dean-space-4:16px;
+ --dean-space-5:24px;
+ --dean-space-6:40px;
+ --dean-gutter:clamp(12px,3vw,46px);
+ --dean-radius:18px;
+}
