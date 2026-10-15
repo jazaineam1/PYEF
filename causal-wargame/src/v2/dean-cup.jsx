@@ -440,8 +440,9 @@ function Player(){
        <span>🏅 {arcadeTitle(Number(me.average_score||0))}</span>
       </div>
       <button type="button" className="dean-arcade-download" disabled={busy||Number(me.completed)<ARCADE_EXAMS} onClick={downloadGameData}>📥 DESCARGAR DATOS DE MI SALA</button>
-      <a className="dean-arcade-return" href={import.meta.env.VITE_DEAN_MAIN_ROOM_URL||'https://teams.microsoft.com/'} target="_blank" rel="noreferrer">↗ VOLVER A TEAMS</a>
-      <small>Regresa a la sala principal de tu reunión de Teams.</small>
+      {import.meta.env.VITE_DEAN_MAIN_ROOM_URL
+        ?<a className="dean-arcade-return" href={import.meta.env.VITE_DEAN_MAIN_ROOM_URL} target="_blank" rel="noreferrer">↗ ABRIR REUNIÓN PRINCIPAL</a>
+        :<div className="dean-arcade-return">🎧 En Teams, elige «Regresar» para volver a la sala principal</div>}
      </section>:
      state.phase==='lobby'?<section className="dean-arcade-finish"><div className="dean-emoji" aria-hidden="true">🎮</div><h2>¡A CALENTAR MOTORES!</h2><p>10 parciales. Una Copa. Tu sala va por la gloria.</p><p>El docente iniciará la partida.</p></section>:
      <Exam person={me} version={state.dgp_version} arcade agendaEnabled deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>)
