@@ -78,6 +78,7 @@ Nunca committear `scenario-private.sql`.
 - [GAME_DESIGN.md](GAME_DESIGN.md) — mecánica, scoring y aprendizaje.
 - [TEACHING_NOTE.md](TEACHING_NOTE.md) — teoría mínima y debrief por ronda.
 - [FACILITATOR_RUNBOOK.md](FACILITATOR_RUNBOOK.md) — operación minuto a minuto.
+- [docs/V2_DEAN_TRAMPA_PREDICTIVA_Y_CUADERNO.md](docs/V2_DEAN_TRAMPA_PREDICTIVA_Y_CUADERNO.md) — Copa del Decano: trampa predictiva con Random Forest, contraste con el A/B y cuaderno con huecos.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitectura y modelo de datos.
 - [SECURITY.md](SECURITY.md) — modelo de amenazas.
 - [TEST_PLAN.md](TEST_PLAN.md) — pruebas técnicas/pedagógicas y go/no-go.

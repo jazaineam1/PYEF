@@ -47,7 +47,7 @@ A. Declarar causalidad por correlación. B. Definir T/Y y controlar el sesgo de 
 **Cierre:** primero identifica, luego estima y valida, por último decide.
 
 ## Recuperación
-- Pyodide lento: proyecta la interpretación y conserva los cálculos como «demostración no ejecutada».
+- Pyodide lento: proyecta la interpretación y conserva los cálculos como «demostración no ejecutada». Sin Python, la simulación do(B) se explica en la pizarra como dos futuros hipotéticos (B=0 h y B=4 h sobre las mismas filas) y se pide una recomendación a mano alzada; no se inventan cifras ni se reportan puntos.
 - Supabase fuera de servicio: usa esta guía y voto manual, NO reportes puntajes como sincronizados.
 - Proyector falla: abrir esta guía desde otro dispositivo o imprimir antes de clase.
 - Menos de 30 asistentes: todos los grupos pueden quedar desiguales o vacíos; nunca crear bots que parezcan alumnos.

@@ -1,6 +1,7 @@
 # DOS FUTUROS CAMPUS V2 — implementación de la Copa Causal (14–30 asistentes, admisión 1–30)
 **Ruta:** `/dos-futuros/dean-play.html` · `dean-wall.html` · `dean-teacher.html`
 **Alcance:** exclusivamente torneos nuevos `zip_dgp_2026` · **No modifica V1 ni FUTUROS**.
+**Guion actualizado de los actos Rector, Encuesta y A/B (trampa predictiva con Random Forest, contraste con el A/B y cuaderno con huecos):** ver [V2_DEAN_TRAMPA_PREDICTIVA_Y_CUADERNO.md](V2_DEAN_TRAMPA_PREDICTIVA_Y_CUADERNO.md).
 **PR de implementación:** #51. Estas instrucciones son un checklist de operación y aceptación: los controles e interacciones no sustituyen la certificación real de 120 minutos y 30 dispositivos.
 
 ## 1. Qué significa «aprender jugando»
@@ -19,9 +20,9 @@
 5. En el PRÓLOGO seleccionar una primera respuesta sin puntaje, explicar los dos futuros, pulsar «Mostrar pista y abrir revisión», permitir cambiar el razonamiento, después «Cerrar revisión y revelar solución».
 6. Solo tras el debrief, usar el botón grande del docente para el acto siguiente. El servidor **rechaza el salto de fase** en torneos canónicos sin debrief, no solo la UI.
 7. Repetir **una decisión inicial, una evidencia, una revisión y un cierre** por acto. La fase de exámenes permite que cada persona complete hasta 15 parciales o use simulación opcional marcada, no son 15 lecciones de causalidad.
-8. El acto Rector habilita los CSV únicamente después de liberar evidencia, ejecutar Python real en el navegador, mostrar MAE/R² y su limitación causal. En salas demasiado pequeñas el laboratorio predice con un **ejemplo independiente claramente etiquetado**, no inventa registros del equipo.
+8. El acto Rector habilita los CSV únicamente después de liberar evidencia. Cada participante ejecuta Python real en el navegador: entrena un **Random Forest**, mira MAE/R², la **importancia por permutación** y **simula do(B)** (mismas filas con B=0 h y B=4 h, con rango bootstrap por estudiantes), y **anota su recomendación** (nota local; no puntúa). En salas con menos de 4 estudiantes el laboratorio usa una **referencia didáctica independiente claramente etiquetada**, no inventa registros del equipo. En el acto Encuesta se repite con estudio y sueño: sube el R² pero la simulación congela los mediadores.
 9. El acto DAG presenta un ajuste seleccionable de variables, diferencia antecedentes y mediadores, añade una viñeta de collider y explica por qué una asociación no demuestra una flecha causal.
-10. En el acto A/B el docente pulsa **Generar/revisar A/B**; ese experimento usa siempre 30 estudiantes SINTÉTICOS independientes de los asistentes. El laboratorio ejecuta Python para ATE, IC95, residualización DML con tres folds, diferencia entre ATE/CATE, cupos e incertidumbre.
+10. En el acto A/B el docente pulsa **Generar/revisar A/B**; ese experimento usa siempre 30 estudiantes SINTÉTICOS independientes de los asistentes. El laboratorio ejecuta Python para ATE, IC95, residualización DML con tres folds, diferencia entre ATE/CATE, cupos e incertidumbre, y la tarjeta **«Tu predicción frente al experimento»** contrasta la simulación do(B) del Random Forest de cada participante con el ATE y su IC95 entre estudiantes.
 11. EconML: T-Learner, DR-Learner y Causal Forest solo si el JSON publicado consta como **verified** (entrenamiento real en CPython, holdout de 300 estudiantes y SHA256). No se afirma ejecución en Pyodide. El benchmark no es idéntico bit a bit a PostgreSQL.
 12. Fase final: 8 preguntas tipo Kahoot, control del docente para abrir, cerrar, revelar y continuar. Respuestas únicas por alumno, nunca se revela la clave antes del servidor y hay podio 0–120.
 13. Dejar dos minutos de transferencia: caso de capacitación laboral seleccionado, intervención no aleatoria y recomendación de cómo evaluar efecto. Terminar con **Identifica → estima → valida → decide**.
@@ -32,9 +33,9 @@
 |---|---|---|---|---|
 | 00–10 | Dos futuros | Contrafactual, T/Y | Una apuesta inicial y su revisión | Diferencia predicción/efecto |
 | 10–30 | Copa | Fatiga sintética, autoselección | 15 exámenes por persona; estrategia individual y reflexión | No universalizar al equipo ganador |
-| 30–55 | Rector | Predicción MAE/R² vs causalidad | Python RandomForest + reevaluación | R² alto no identifica `do(B)` |
+| 30–55 | Rector | Predicción MAE/R² vs causalidad | Python RandomForest, importancia por permutación, simulación do(B) y recomendación anotada | R² alto y una simulación predictiva no identifican `do(B)` |
 | 55–80 | DAG detective | Pretratamiento, mediador, collider, efecto total | Ajuste seleccionable y decisión revisada | Evitar ajuste indiscriminado |
-| 80–105 | Dos futuros | A/B, ATE, IC, DML, CATE y política | Laboratorio Python, incertidumbre y cupos | Priorizar beneficio incremental con límites |
+| 80–105 | Dos futuros | A/B, ATE, IC, DML, CATE y política | Laboratorio Python, contraste de su simulación con el A/B, incertidumbre y cupos | Priorizar beneficio incremental con límites |
 | 105–120 | Batalla final | Corregir conceptos y transferir | Ocho respuestas cerradas y podio | Aplicar conceptos en caso diferente |
 
 Nota: la única fuente de verdad de las notas es Supabase y el DGP canónico ZIP. El benchmark EconML se genera separadamente y se rotula. El aprendizaje es verificable con decisiones persistidas; las evidencias de ejecución Python son locales y no se puntúan sin verificación servidor.

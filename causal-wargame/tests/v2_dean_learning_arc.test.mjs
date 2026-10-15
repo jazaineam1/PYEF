@@ -5,7 +5,7 @@ const file=p=>readFileSync(p,'utf8');
 const story=file('src/v2/DeanLearningArc.jsx');
 const sql=file('supabase/migrations/202610150001_dean_causal_learning_arc.sql');
 const ui=file('src/v2/dean-cup.jsx');
-const py=file('src/v2/DeanSciencePython.jsx');
+const py=file('src/v2/DeanSciencePython.jsx')+file('src/v2/dean-science-programs.js');
 const edge=file('supabase/functions/v2-dean-cup/index.ts');
 
 test('Five causal acts and genuine learning loop',()=>{
