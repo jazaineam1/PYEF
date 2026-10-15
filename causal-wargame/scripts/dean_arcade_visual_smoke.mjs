@@ -157,9 +157,100 @@ async function staleSessionRecovers(){
  console.log('ARCADE PASS expired local token repaired without cache clearing or teacher clicks');
  await page.close();
 }
+
+async function sixRoundViewport(width,height,skip=false){
+ const page=await browser.newPage({viewport:{width,height},acceptDownloads:true});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const scores=[];let phase='lobby',ready=false,policy=null;
+ const sixCode='QA6ARCADE';
+ await page.addInitScript(c=>localStorage.setItem('cw-dean-v2-'+c,'a'.repeat(64)),sixCode);
+ const roster=[
+  {alias:'QA Player',room_no:1,avatar_no:3,ready:false},
+  {alias:'Companera',room_no:1,avatar_no:8,ready:true},
+  {alias:'Sala Delta',room_no:4,avatar_no:6,ready:true}
+ ];
+ const buildState=()=>({available:true,game_code:sixCode,game_mode:'real_hours_6_v1',
+  phase,dgp_version:'zip_dgp_2026',exam_count:6,agenda_enabled:true,
+  groups:groups.map(g=>({...g,target_exams:36})),lobby_players:roster.map((p,i)=>i===0?{...p,ready}:p),
+  my_avatar_no:3,my_lobby_ready:ready,
+  mine:{alias:'QA Player',room:1,archetype:'balanced',pga:3.6,completed:scores.length,
+   scores:[...scores],policy_choice:policy,average_score:scores.length?scores.reduce((a,n)=>a+n,0)/scores.length:null},
+  server_now:new Date().toISOString(),
+  exam_deadline_at:new Date(Date.now()+20*60*1000).toISOString()});
+ await page.route('**/v2-dean-cup',async route=>{
+  const b=bodyOf(route.request());
+  const reply=o=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(o)});
+  if(b.action==='lobby_ready'){ready=b.ready===true;return reply(buildState())}
+  if(b.action==='exam'){
+   assert.ok(scores.length<6);assert.equal(b.exam,scores.length+1);
+   assert.ok(b.study>=1&&b.study<=6);assert.ok(b.sleep>=7&&b.sleep<=9);
+   assert.ok(b.wellness>=0&&b.wellness<=4);
+   assert.ok(Number(b.study)+Number(b.sleep)+Number(b.wellness)<=14.00001);
+   scores.push(scores.length===0?48:42);
+   return reply({score:scores[scores.length-1],exam_no:b.exam,completed:scores.length});
+  }
+  if(b.action==='auto_finish'){while(scores.length<6)scores.push(42);return reply({completed:6})}
+  if(b.action==='policy_submit'){policy=b.choice;return reply({saved:true,choice:policy})}
+  if(b.action==='game_export'){
+   return route.fulfill({status:200,contentType:'text/csv',
+     body:'sala,examen_nro,nota_final\r\n1,1,48\r\n5,6,41\r\n'});
+  }
+  return reply(buildState());
+ });
+ await page.goto(base+'/dean-play.html?game='+sixCode,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-arcade-lobby').waitFor({timeout:12000});
+ assert.equal(await page.locator('.dean-lobby-member').count(),2);
+ await page.locator('.dean-lobby-ready-button').click();
+ await page.getByText(/¡ESTOY LISTO!/).first().waitFor({timeout:10000});
+ await page.screenshot({path:'visual-qa/six-lobby-'+width+'.png',fullPage:false});
+ phase='exams';
+ await page.reload({waitUntil:'networkidle'});
+ await page.locator('.dean-arcade-exam').waitFor({timeout:12000});
+ const sliders=page.locator('.dean-exam-controls input[type=range]');
+ assert.equal(await sliders.count(),3);
+ assert.equal(await sliders.nth(0).getAttribute('max'),'6');
+ assert.equal(await sliders.nth(1).getAttribute('min'),'7');
+ await sliders.nth(0).focus();await sliders.nth(0).press('End');
+ assert.equal(await sliders.nth(0).inputValue(),'6');
+ assert.match(await page.locator('.dean-arcade-trade').innerText(),/−/);
+ const visible=page.locator('.dean-exam-action, .dean-exam-controls .dean-slider input, .dean-arcade-skip');
+ for(const control of await visible.all()){
+  const bounds=await control.boundingBox();
+  assert.ok(bounds,'Every main control must be laid out');
+  if(width>=790)assert.ok(bounds.y+bounds.height<=height+2,'Controls need 100% zoom, not 75%');
+ }
+ await page.screenshot({path:'visual-qa/six-exam-'+width+'.png',fullPage:false});
+ if(skip){
+  await page.locator('.dean-arcade-skip').click();
+ }else{
+  for(let n=1;n<=6;n++){
+   await page.locator('.dean-exam-action').click();
+   await page.locator('.dean-arcade-result').waitFor({timeout:10000});
+   await page.locator('.dean-arcade-next').click();
+  }
+ }
+ await page.locator('.dean-rector-final').waitFor({timeout:12000});
+ assert.equal(scores.length,6,'exactly six exams');
+ assert.equal(await page.locator('.dean-exam-action').count(),0,'no seventh exam');
+ assert.match(await page.locator('.dean-rector-final h3').innerText(),/quitar los beneficios de bienestar/);
+ const [dl]=await Promise.all([page.waitForEvent('download',{timeout:10000}),
+  page.locator('.dean-arcade-download').click()]);
+ assert.match(dl.suggestedFilename(),/TODAS_LAS_SALAS_6_examenes/);
+ await page.locator('.dean-rector-choice').last().click();
+ await page.locator('.dean-rector-submit').click();
+ await page.getByText(/DECISIÓN GUARDADA/).waitFor({timeout:10000});
+ assert.equal(policy,'evidencia_insuficiente');
+ await page.screenshot({path:'visual-qa/six-rector-'+width+'.png',fullPage:false});
+ assert.deepEqual(errors,[]);
+ console.log('SIX ARCADE PASS '+width+'x'+height+' skip='+skip+' lobby, six exams, 100% layout, full CSV, Rector');
+ await page.close();
+}
 try{
  await playerViewport(1366,768);
  await playerViewport(390,844);
  await wallAndTeacher();
  await staleSessionRecovers();
+ await sixRoundViewport(1366,768,false);
+ await sixRoundViewport(1280,720,false);
+ await sixRoundViewport(390,844,true);
 }finally{await browser.close()}
