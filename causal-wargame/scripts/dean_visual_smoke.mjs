@@ -33,10 +33,30 @@ async function testView(role,width,height){
    sessionStorage.setItem('df_facilitator_token','b'.repeat(64));
   }
  },{role,code});
+ let lessonStep='challenge', lessonInitial=null, lessonRevision=null;
+ const lessonState=()=>({
+  available:true,phase:'exams',step:lessonStep,paused:false,
+  mine:{initial:lessonInitial,revision:lessonRevision},
+  counts:{initial:Number(Boolean(lessonInitial)),revision:Number(Boolean(lessonRevision))},
+  correct:lessonStep==='debrief'?'b':null,registered:18,
+  rooms:[1,2,3,4,5].map(i=>({room_no:i,participants:groups[i-1].members,learning_points:0}))
+ });
  await page.route('**/v2-dean-cup',async route=>{
   const req=route.request();let input={};
   try{input=req.postDataJSON()}catch{}
-  const output=input.action==='exam'?{score:43.2}:fixture;
+  let output=fixture;
+  if(input.action==='exam')output={score:43.2};
+  if(input.action==='learning_state')output=lessonState();
+  if(input.action==='learning_submit'){
+   if(input.kind==='initial')lessonInitial=input.choice;
+   else lessonRevision=input.choice;
+   output={accepted:true,already_submitted:false,choice:input.choice};
+  }
+  if(input.action==='learning_teacher'){
+   if(input.command==='evidence')lessonStep='evidence';
+   else if(input.command==='debrief')lessonStep='debrief';
+   output=lessonState();
+  }
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(output)});
  });
  const file=role==='player'?'dean-play':role==='wall'?'dean-wall':'dean-teacher';
@@ -60,10 +80,13 @@ async function testView(role,width,height){
   const clipped=await page.locator('.dean-wall .dean-team-empty .dean-rating').evaluateAll(nodes=>nodes.map(el=>({client:el.clientWidth,scroll:el.scrollWidth})));
   assert.ok(clipped.every(x=>x.scroll<=x.client+3),'Empty-room labels are clipped');
   assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5,'Wall needs exactly five rooms');
+  assert.equal(await page.locator('.dean-wall .dean-quest-wall-rooms>div').count(),5,'Five learning teams in Wall');
   const last=await page.locator('.dean-wall .dean-board>article').last().boundingBox();
   assert.ok(last && last.y+last.height<=height+2,`Last room outside screen: ${JSON.stringify(last)}`);
  }
  if(role==='player'){
+  await page.locator('.dean-quest').waitFor();
+  assert.equal(await page.locator('.dean-quest-option').count(),3,'Exactly three contextual choices');
   const hud=page.locator('.dean-hud');
   assert.equal(await hud.count(),1,'One compact HUD');
   const box=await hud.boundingBox();
@@ -93,6 +116,7 @@ async function testView(role,width,height){
   assert.ok(exam&&grade&&grade.y+grade.height<=exam.y+exam.height+2,'Grade feedback overlaps exam container');
  }
  if(role==='teacher'){
+  assert.ok(await page.locator('.dean-quest-control').isVisible(),'Teacher can teach and reveal evidence');
   const control=page.locator('.dean-teacher-toolbar .dean-teacher-next');
   assert.ok(await control.isVisible(),'Primary teacher action visible');
   if(width>=790){const b=await control.boundingBox();assert.ok(b && b.y+b.height<=height+2,'Teacher control below viewport')}
