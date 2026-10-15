@@ -149,10 +149,10 @@ function Exam({person,onSubmit,onSkip=null,version,gameMode='real_hours_10_v1',a
    <span className="dean-kicker">🏆 TEMPORADA · EXAMEN {n} / {examCount}</span>
    <h2>{sourceSubjects[(n-1)%sourceSubjects.length]}</h2>
    <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+examCount}><i style={{width:(n-1)/examCount*100+'%'}}/></div>
-   <div className="dean-life-scene" aria-label="Situación de la vida simulada">
+   {gameMode==='real_hours_6_v1'?<div className="dean-life-scene" aria-label="Situación de la vida simulada">
      <strong>🎭 {lifeScene(n).title}</strong>
      <p>{lifeScene(n).story}</p>
-   </div>
+   </div>:<span className="dean-game-clue">🎯 ¡Consigue la mejor nota de tu sala!</span>}
    <div className="dean-arcade-sidekick"><DeanArcadeMascot mood="solid"/></div>
    {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
   </div>
@@ -435,7 +435,7 @@ function Player(){
  const missions=useDeanMissions({call,token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'&&!arcade});
  async function join(){setBusy(true);setActionError('');const t=token||hexToken();
  try{const s=await call('join',{game_code:code,alias:alias.trim(),room},t);localStorage.setItem(storageKey,t);setToken(t);setValue(s)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
- async function submit(v){const r=await call('exam',v,token);const snap=await call('state',{game_code:code},token);const scores=Array.isArray(snap?.mine?.scores)?snap.mine.scores.map(Number):[Number(r.score)];setLastAward({score:Number(r.score),exam:Number(r.exam_no),average:scores.reduce((a,b)=>a+b,0)/scores.length,streak:arcadeStreak(scores),decisions:v,previousGrade:scores.length>1?scores[scores.length-2]:null,nonce:Date.now()});setValue(snap);return r}
+ async function submit(v){const r=await call('exam',v,token);const snap=await call('state',{game_code:code},token);const scores=Array.isArray(snap?.mine?.scores)?snap.mine.scores.map(Number):[Number(r.score)];setLastAward({score:Number(r.score),exam:Number(r.exam_no),average:scores.reduce((a,b)=>a+b,0)/scores.length,streak:arcadeStreak(scores),decisions:state?.game_mode==='real_hours_6_v1'?v:null,previousGrade:scores.length>1?scores[scores.length-2]:null,nonce:Date.now()});setValue(snap);return r}
  async function quickComplete({skipConfirm=false}={}){if(!skipConfirm&&!window.confirm('¿Simular los exámenes restantes usando la estrategia predeterminada de tu arquetipo? Los registros quedarán marcados como simulados automáticamente.'))return;
  setBusy(true);setActionError('');try{await call('auto_finish',{},token);setValue(await call('state',{game_code:code},token))}
  catch(e){setActionError(e.message)}finally{setBusy(false)}}
@@ -496,7 +496,7 @@ function Player(){
     {state.phase==='final'&&state.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="student" token={token}/>}
     {lastAward&&<div key={lastAward.nonce} className="dean-score-flash" role="status">✨ EXAMEN COMPLETADO <strong>+{Number.isFinite(lastAward.score)?lastAward.score.toFixed(1):'—'} / 50</strong></div>}
    </>}
-   {arcade&&lastAward&&<DeanArcadeResult award={lastAward} examCount={examCount} onContinue={()=>setLastAward(null)}/>}
+   {arcade&&lastAward&&<DeanArcadeResult award={lastAward} examCount={examCount} lifeMode={state.game_mode==='real_hours_6_v1'} onContinue={()=>setLastAward(null)}/>}
    </div>
    <div className="dean-player-dock">{arcade?<span>🏆 {examCount} EXÁMENES · JUEGA Y DESCARGA LOS DATOS</span>:<><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></>}</div>
   </main>}
