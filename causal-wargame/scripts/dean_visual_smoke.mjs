@@ -22,7 +22,18 @@ const fixture={
 await mkdir('visual-qa',{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 let failures=0;
-async function testView(role,width,height){
+function groupFixture(n){
+ const distribution=Array.from({length:5},(_,i)=>Math.floor(n/5)+(i<n%5?1:0));
+ return distribution.map((members,i)=>({
+  room_no:i+1,members,target_exams:15*members,exams_completed:6*members,
+  coverage_pct:members?40:0,fair_score:members?Number((38-i*2)*.4.toFixed(1)):null,
+  average_score:members?38-i*2:null,is_complete:false
+ }));
+}
+async function testView(role,width,height,attendees=18){
+ const roomGroups=groupFixture(attendees);
+ const sample={...fixture,groups:roomGroups};
+
  const errors=[];
  const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
  page.on('pageerror',e=>errors.push(e.message));
@@ -39,12 +50,12 @@ async function testView(role,width,height){
   mine:{initial:lessonInitial,revision:lessonRevision},
   counts:{initial:Number(Boolean(lessonInitial)),revision:Number(Boolean(lessonRevision))},
   correct:lessonStep==='debrief'?'b':null,registered:18,
-  rooms:[1,2,3,4,5].map(i=>({room_no:i,participants:groups[i-1].members,learning_points:0}))
+  rooms:[1,2,3,4,5].map(i=>({room_no:i,participants:roomGroups[i-1].members,learning_points:0}))
  });
  await page.route('**/v2-dean-cup',async route=>{
   const req=route.request();let input={};
   try{input=req.postDataJSON()}catch{}
-  let output=fixture;
+  let output=sample;
   if(input.action==='exam')output={score:43.2};
   if(input.action==='learning_state')output=lessonState();
   if(input.action==='learning_submit'){
@@ -123,16 +134,18 @@ async function testView(role,width,height){
   assert.equal(await page.locator('.dean-teacher-page .dean-board>article').count(),5);
  }
  assert.deepEqual(errors,[],`${role} errors: ${errors.join('; ')}`);
- await page.screenshot({path:`visual-qa/${role}-${width}x${height}.png`,fullPage:false});
+ await page.screenshot({path:`visual-qa/${role}-${attendees}-${width}x${height}.png`,fullPage:false});
  console.log('PASS',role,width+'x'+height,JSON.stringify(metrics));
  await page.close();
 }
 try{
- for(const [w,h] of [[1366,768],[1920,1080],[390,844]]){
-  for(const role of ['player','wall','teacher']){
-   try{await testView(role,w,h)}catch(e){failures++;console.error('FAIL',role,w+'x'+h,e.stack||e)}
+ for(const attendees of [14,18,30]){
+  for(const [w,h] of [[1366,768],[1920,1080],[390,844]]){
+   for(const role of ['player','wall','teacher']){
+    try{await testView(role,w,h,attendees)}catch(e){failures++;console.error('FAIL',role,w+'x'+h,attendees,e.stack||e)}
+   }
   }
  }
 }finally{await browser.close()}
 assert.equal(failures,0,`Visual viewport smoke failed for ${failures} cases`);
-console.log('DEAN_VISUAL_QA_OK · nine viewport/role checks · no production mutation');
+console.log('DEAN_VISUAL_QA_OK · 27 viewport/role/attendance checks · no production mutation');
