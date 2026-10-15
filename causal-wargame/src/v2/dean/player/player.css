@@ -2,3 +2,83 @@
 .dean-notebook-link{display:block;color:#b5f5ec;text-decoration:underline;font-size:16px;padding:13px;border:1px solid #5e9a9e;border-radius:12px;background:#14384d;font-weight:800}
 .dean-notebook-link:focus-visible{outline:3px solid #ffe18d}
 @media(max-width:700px){.dean-rooms{grid-template-columns:repeat(2,minmax(0,1fr))}.dean-carnet>span{font-size:45px}}
+
+/* ===== T1.2 · Jugador en pantalla única (todo bajo .dean-player-shell) ===== */
+.dean-player-shell{--pl-gap:10px}
+.dean-player-shell .dean-banner{padding:6px 16px;border-radius:12px}
+.dean-player-shell .dean-banner h1{font-size:clamp(16px,1.8vw,22px);margin:0}
+.dean-player-shell .dean-banner-meta{grid-auto-flow:column;align-items:center;gap:12px}
+.dean-player-shell .dean-banner-meta small{display:none}
+.dean-player-shell .dean-shell-stage{padding:var(--pl-gap) 0;overflow:auto}
+.dean-player-shell .dean-shell-actions{padding:10px 0 12px}
+.dean-player-shell .dean-shell-stage>.dean-error{margin:6px 0 0}
+.dean-player-shell .dean-hero,.dean-player-shell .dean-join{margin:0 auto;max-width:900px}
+.dean-player-shell .dean-hero{min-height:0}
+.dean-player-shell .dean-join{padding:clamp(12px,2vw,24px);gap:12px}
+.dean-player-shell .dean-join h2{margin:4px 0}.dean-player-shell .dean-join p{margin:0}
+.dean-player-shell .dean-rooms button{min-height:80px;padding:8px 4px}
+
+/* Escena: carné arriba, una escena por fase debajo */
+.dean-player-shell main.dean-player{max-width:none;margin:0;height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:var(--pl-gap)}
+.dean-player-shell .dean-carnet{padding:6px 14px;gap:12px;border-radius:14px;border-width:1px;flex-wrap:wrap}
+.dean-player-shell .dean-carnet>span{font-size:30px;line-height:1}
+.dean-player-shell .dean-carnet-id{min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dean-player-shell .dean-carnet h2{margin:0;font-size:clamp(17px,1.6vw,22px)}
+.dean-player-shell .dean-carnet small{font-size:11px}
+.dean-player-shell .dean-chip{margin:0 0 0 auto;padding:3px 12px;border-radius:99px;background:#0e3340;border:1px solid #81dacb;font-size:13px;color:#e6f5fb}
+.dean-player-shell .dean-scene{min-height:0;overflow:auto;display:grid;gap:var(--pl-gap);align-content:start}
+.dean-player-shell .dean-scene>.dean-quiz{margin:0;align-self:stretch}
+
+/* Barra de acciones fija */
+.dean-player-actions{display:flex;gap:10px;align-items:stretch;justify-content:flex-end;flex-wrap:nowrap}
+.dean-player-actions .dean-player-cta{flex:1 1 auto;display:flex;min-width:0}
+.dean-player-actions .dean-player-cta:empty{display:none}
+.dean-player-actions .dean-big{flex:1 1 auto;min-height:48px;padding:8px 18px;font-size:clamp(15px,1.4vw,19px);border-radius:14px;border:2px solid #a5f8e1;background:linear-gradient(120deg,#2fc7a5,#63dcc3);color:#06302d;font-weight:900;min-width:0}
+.dean-player-actions .dean-big:disabled{opacity:.55;cursor:not-allowed}
+.dean-player-actions .dean-secondary{flex:0 1 auto;min-height:48px;padding:6px 14px;border-radius:14px;border:2px solid #5688a5;background:#14384d;color:#e6f5fb;font-weight:800;font-size:14px}
+.dean-player-actions .dean-secondary:disabled{opacity:.55}
+.dean-player-actions .dean-evidence-toggle{margin-left:auto}
+
+/* Drawer Evidencia */
+.dean-player-drawer{position:fixed;z-index:30;top:0;right:0;bottom:0;width:min(520px,100%);overflow:auto;padding:18px;display:grid;gap:12px;align-content:start;background:#0b1a30;border-left:2px solid #5688a5;box-shadow:-18px 0 40px #0009}
+.dean-player-drawer .dean-drawer-close{justify-self:end;width:40px;height:40px;border-radius:10px;border:1px solid #5688a5;background:#14384d;color:#fff}
+.dean-player-drawer .dean-board,.dean-player-drawer .dean-download,.dean-player-drawer .dean-guidance{padding:14px}
+
+/* Examen: tarjeta, 3 deslizadores en fila, reloj y resultado */
+.dean-player-shell .dean-exam{max-width:none;margin:0;width:100%;grid-template-columns:repeat(3,minmax(0,1fr));align-content:start;gap:8px 12px;padding:clamp(10px,1.6vw,20px)}
+.dean-player-shell .dean-exam>*{grid-column:1/-1;margin:0}
+.dean-player-shell .dean-exam>.dean-slider{grid-column:auto;gap:6px;padding:10px}
+.dean-player-shell .dean-exam h2{font-size:clamp(20px,2.2vw,30px)}
+.dean-player-shell .dean-exam h3{font-size:16px}
+.dean-player-shell .dean-exam-clock{padding:8px 14px;gap:2px}
+.dean-player-shell .dean-exam-clock strong{font-size:clamp(18px,1.8vw,24px)}
+.dean-player-shell .dean-state{padding:8px 12px}
+.dean-player-shell .dean-grade{font-size:18px!important;margin:0}
+
+/* rector / survey / causal: atlas y laboratorio lado a lado */
+.dean-player-shell .dean-split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:var(--pl-gap);min-height:0;height:100%}
+.dean-player-shell .dean-split-end{grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+.dean-player-shell .dean-pane{min-height:0;overflow:auto}
+.dean-player-shell .dean-tabs{display:none}
+.dean-player-shell .dean-scene:has(>.dean-split){grid-template-rows:minmax(0,1fr)}
+.dean-player-shell .dean-atlas,.dean-player-shell .dean-lab,.dean-player-shell .dean-guidance{margin:0}
+
+@media(max-width:900px){
+ .dean-player-shell .dean-tabs{display:flex;gap:8px}
+ .dean-player-shell .dean-tabs button{flex:1;min-height:42px;border-radius:12px;border:2px solid #5688a5;background:#14384d;color:#fff;font-weight:800}
+ .dean-player-shell .dean-tabs button[aria-selected=true]{background:#28575c;border-color:#8cf0cf}
+ .dean-player-shell .dean-scene:has(>.dean-tabs){grid-template-rows:auto minmax(0,1fr)}
+ .dean-player-shell .dean-split{grid-template-columns:minmax(0,1fr)}
+ .dean-player-shell .dean-split[data-tab=atlas] .dean-pane-lab,.dean-player-shell .dean-split[data-tab=lab] .dean-pane-atlas{display:none}
+}
+@media(max-width:700px){
+ .dean-player-shell .dean-exam{grid-template-columns:minmax(0,1fr)}
+ .dean-player-shell .dean-exam>.dean-slider{grid-column:1/-1}
+ .dean-player-shell .dean-banner-meta{display:none}
+ .dean-player-shell .dean-chip{margin-left:0}
+ .dean-player-actions{flex-wrap:wrap}
+ .dean-player-actions .dean-secondary{flex:1 1 40%;min-height:42px;font-size:13px}
+ .dean-player-actions .dean-evidence-toggle{margin-left:0}
+}
+@media(prefers-reduced-motion:no-preference){.dean-player-drawer{animation:dean-drawer-in .18s ease-out}}
+@keyframes dean-drawer-in{from{transform:translateX(24px);opacity:0}}

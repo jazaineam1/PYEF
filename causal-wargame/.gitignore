@@ -13,3 +13,5 @@ scenario-private.sql
 !.env.secure.example
 .env.secure.local
 artifacts/
+package-lock.json
+test-results/
