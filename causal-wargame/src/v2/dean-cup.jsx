@@ -309,7 +309,7 @@ function Player(){
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')} tabIndex={0} aria-label="Escena principal de la Copa">
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
 
-    {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:state.phase!=='exams'?<DeanGuidance phase={state.phase}/>:<details className="dean-player-hint"><summary>💡 ¿Qué estoy descubriendo?</summary><DeanGuidance phase={state.phase}/></details>}
+    {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:state.phase!=='exams'?<DeanGuidance phase={state.phase}/>:<details className="dean-player-hint"><summary>💡 ¿Qué estoy descubriendo?</summary><DeanGuidance phase={state.phase}/></details>}
     {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
     {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
     {state.dgp_version==='zip_dgp_2026'&&state.phase==='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
@@ -326,7 +326,7 @@ function Wall(){const {value,error}=useBoard();const learning=useDeanLearning({g
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
  <div className="dean-wall-grid"><Board groups={value.groups}/><aside className="dean-wall-story"><DeanLearningWall learning={learning.data} phase={value.phase}/>
  {value.phase==='final'&&<CupQuiz role="wall"/>}
- {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase}/>:<DeanGuidance phase={value.phase} role="wall"/>}
+ {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}
  </aside></div>
  </main>:<main className="dean-hero"><h2>🎓 Esperando la Copa del Decano</h2></main>}{error&&<p className="dean-error" role="alert">{error}</p>}</div>}
 function Teacher(){
@@ -356,7 +356,7 @@ function Teacher(){
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningWall learning={learning.data} phase={state.phase}/>}
   {state.phase==='final'&&<CupQuiz role="teacher" teacher={teacher} gameCode={game}/>}
-  {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
+  {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={state.phase} role="teacher"/>}
   <a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Colab · Copa ↗</a>
   {state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<div className="dean-lab">
     <h3>🧬 Experimento A/B · 30 × 15</h3>
