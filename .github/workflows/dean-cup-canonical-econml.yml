@@ -49,5 +49,18 @@ jobs:
           git add causal-wargame/src/v2/econml-dean-verified.json
           if ! git diff --cached --quiet; then
             git commit -m 'data(v2): verified canonical Copa EconML benchmark [skip ci]'
-            git push
+            # Other publishing workflows may have pushed to main since checkout.
+            # Rebase the generated JSON commit; do not force-push or overwrite history.
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                echo 'Canonical verified EconML artifact published safely'
+                exit 0
+              fi
+              echo "Concurrent main update; retrying $attempt/3"
+              sleep 3
+            done
+            echo 'Could not publish verified artifact without overwriting remote commits' >&2
+            exit 1
           fi
