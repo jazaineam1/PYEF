@@ -62,6 +62,10 @@ begin
      left join public.cw_dean_arcade_lobby_ready rd on rd.player_id=p.id
      where p.game_id=gid)
     else '[]'::jsonb end,
+  'my_avatar_no',case when p_hash is not null then
+    (select mod(get_byte(decode(substr(md5(p.id::text),1,2),'hex'),0),12)
+     from public.cw_dean_players p where p.game_id=gid and p.token_hash=p_hash)
+    else null end,
   'my_lobby_ready',case when p_hash is not null then
     (select coalesce(rd.ready,false)
      from public.cw_dean_players p
