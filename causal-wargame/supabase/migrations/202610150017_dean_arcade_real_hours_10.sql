@@ -191,6 +191,22 @@ begin
   'rows',data);
 end $f$;
 
+-- Start a new arcade tournament without the teaching-arc debrief gate.
+-- The facilitator token is checked against the actual game's mode, never client-supplied mode.
+create or replace function public.cw_dean_game_start_v3(p_token text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare gid uuid;game_protocol text;stage text;
+begin
+ select public.cw_validate_facilitator_token(p_token) into gid;
+ if gid is null then raise exception 'Sesión docente inválida';end if;
+ select t.phase,ar.protocol into stage,game_protocol
+ from public.cw_dean_tournaments t join public.cw_dean_agenda_rules ar on ar.game_id=t.game_id
+ where t.game_id=gid for update of t;
+ if game_protocol is distinct from 'real_hours_10_v1' or stage<>'lobby' then
+  raise exception 'Inicio de juego no autorizado';end if;
+ return public.cw_dean_teacher_next_v3(p_token);
+end $f$;
+
 -- The facilitator ends the arcade here; no quiz, learning gate, or forced extra acts.
 create or replace function public.cw_dean_game_finish_v3(p_token text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
@@ -215,5 +231,7 @@ end $f$;
 
 revoke all on function public.cw_dean_game_export_v3(text) from public,anon,authenticated;
 revoke all on function public.cw_dean_game_finish_v3(text) from public,anon,authenticated;
+revoke all on function public.cw_dean_game_start_v3(text) from public,anon,authenticated;
 grant execute on function public.cw_dean_game_export_v3(text) to service_role;
 grant execute on function public.cw_dean_game_finish_v3(text) to service_role;
+grant execute on function public.cw_dean_game_start_v3(text) to service_role;
