@@ -48,7 +48,7 @@ Deno.serve(async(req)=>{
   }
   if(action==='learning_state'){
    if(!code)return json({error:'Código requerido'},400)
-   return json(await rpc('cw_dean_learning_state',{p_code:code,p_hash:hash}))
+   return json(await rpc('cw_dean_learning_state_v5',{p_code:code,p_hash:hash}))
   }
   if(action==='learning_submit'){
    if(!student)return json({error:'Credencial de estudiante requerida'},401)
