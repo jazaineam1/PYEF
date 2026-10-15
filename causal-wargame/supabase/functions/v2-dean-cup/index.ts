@@ -58,7 +58,7 @@ Deno.serve(async(req)=>{
   if(action==='learning_teacher'){
    if(!teacher)return json({error:'Credencial docente requerida'},401)
    const command=String(b.command||'')
-   if(!['evidence','debrief','pause','resume'].includes(command))return json({error:'Acción de clase inválida'},400)
+   if(!['evidence','debrief','pause','resume','demo'].includes(command))return json({error:'Acción de clase inválida'},400)
    return json(await rpc('cw_dean_learning_teacher',{p_token:teacher,p_action:command}))
   }
   if(action==='quiz_state'){
