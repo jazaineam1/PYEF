@@ -1,0 +1,46 @@
+name: dean-cup-visual-smoke
+
+on:
+  pull_request:
+    paths:
+      - 'causal-wargame/src/v2/dean-cup.jsx'
+      - 'causal-wargame/src/v2/dean-cup-layout.css'
+      - 'causal-wargame/scripts/dean_visual_smoke.mjs'
+      - '.github/workflows/dean-cup-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: causal-wargame
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install app dependencies
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Install pinned Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Build secure Pages app
+        run: npm run build:secure
+      - name: Visual QA 1366x768, 1920x1080, mobile, three roles
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/dean-vite-preview.log 2>&1 &
+          sleep 4
+          node scripts/dean_visual_smoke.mjs
+      - name: Upload screenshots and diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dean-cup-visual-screenshots
+          path: causal-wargame/visual-qa/
+          if-no-files-found: ignore
