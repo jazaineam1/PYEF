@@ -7,6 +7,7 @@ import DeanSciencePython from './DeanSciencePython.jsx';
 import DeanEconMLPanel from './DeanEconMLPanel.jsx';
 import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall,DeanABDiscovery} from './DeanCausalMissions.jsx';
 import DeanQuizArena from './DeanQuizArena.jsx';
+import {agendaCost,rebalanceAgenda,AGENDA_CAP} from './dean-agenda.js';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -99,12 +100,31 @@ function ExamCountdown({deadline,serverNow,receivedAt}){
  </div>;
 }
 
-function Exam({person,onSubmit,version,deadline,serverNow,receivedAt}){
+function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,receivedAt}){
  const canonical=version==='zip_dgp_2026';
  const n=Number(person.completed||0)+1,range=(canonical?canonicalLimits:limits)[person.archetype];
  const [s,setS]=useState(range[0][2]),[z,setZ]=useState(range[1][2]),[w,setW]=useState(range[2][2]);
  const [busy,setBusy]=useState(false),[err,setErr]=useState(''),[flash,setFlash]=useState(null);
- useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null)},[n,person.archetype,canonical]);
+ const [trade,setTrade]=useState('');
+ const [budgetFlash,setBudgetFlash]=useState(0);
+ const used=canonical&&agendaEnabled?agendaCost({study:s,sleep:z,wellness:w},person.archetype):0;
+ const budgetLeft=Math.max(0,AGENDA_CAP-used);
+ const normalizedName={study:'estudio',sleep:'sueño',wellness:'bienestar'};
+ function move(key,value){
+  if(!canonical||!agendaEnabled){
+   ({study:setS,sleep:setZ,wellness:setW}[key])(value);return;
+  }
+  try{
+   const result=rebalanceAgenda({study:s,sleep:z,wellness:w},person.archetype,key,value);
+   setS(result.values.study);setZ(result.values.sleep);setW(result.values.wellness);
+   const sacrificed=result.sacrificed.map(d=>'-'+d.hours.toFixed(1)+' h '+normalizedName[d.activity]).join(' · ');
+   if(sacrificed){setTrade('⚡ Sacrificio: '+sacrificed);setBudgetFlash(v=>v+1)}
+   else if(value>result.values[key]+.01)setTrade('🔒 Agenda llena: libera fichas en otra actividad.');
+   else setTrade('');
+  }catch(e){setErr(e.message)}
+ }
+
+ useEffect(()=>{setS(range[0][2]);setZ(range[1][2]);setW(range[2][2]);setFlash(null);setTrade('')},[n,person.archetype,canonical]);
  if(n>15)return <section className="dean-finish"><div className="dean-emoji">🎓</div><h2>¡Semestre completo!</h2><p>Completaste tus 15 exámenes. Tu sala no necesita seis personas para avanzar.</p></section>;
  async function submit(){setBusy(true);setErr('');try{setFlash(await onSubmit({exam:n,study:s,sleep:z,wellness:w}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  return <section className="dean-exam"><div className="dean-exam-brief">
@@ -112,12 +132,22 @@ function Exam({person,onSubmit,version,deadline,serverNow,receivedAt}){
   <h2>🎓 {canonical?sourceSubjects[(n-1)%11]:courses[n-1]}</h2>
   {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
   <div className="dean-meter"><i style={{width:(n-1)/15*100+'%'}}/></div>
-  <div className={'dean-state '+(z<6||s>9?'alert':'')}>{z<6||s>9?'⚠️ Puede acumularse fatiga simulada. Dormir poco no es una estrategia saludable.':'🟢 Condiciones de recuperación favorables en este mundo sintético.'}</div>
+  <div className={'dean-state '+(z<6||s>9?'alert':'')}>
+   {z<6||s>9?'⚠️ Fatiga alta posible. Tu nota también depende de tu descanso.':'⚡ Protege tu descanso: también puede mejorar tu nota.'}
+  </div>
   </div><div className="dean-exam-controls">
-  <h3>⚡ Configura tu estrategia</h3>
-  <Slider label="📚 Horas de estudio" units="para este parcial" min={range[0][0]} max={range[0][1]} value={s} onChange={setS}/>
-  <Slider label="😴 Sueño" units="la noche anterior" min={range[1][0]} max={range[1][1]} value={z} onChange={setZ}/>
-  <Slider label="🏃 Bienestar" units="horas semanales" min={range[2][0]} max={range[2][1]} value={w} onChange={setW}/>
+  <h3>🎮 DISEÑA TU ESTRATEGIA</h3>
+  {canonical&&agendaEnabled&&<div className="dean-agenda-hud" aria-label={'Agenda del examen: '+used.toFixed(1)+' de 6 fichas usadas'}>
+    <div className="dean-agenda-topline"><strong>⌛ AGENDA · {used.toFixed(1)} / 6 fichas</strong><b>{budgetLeft.toFixed(1)} libres</b></div>
+    <div className="dean-agenda-chips" role="meter" aria-valuemin={0} aria-valuemax={6} aria-valuenow={used} aria-label="Fichas de agenda utilizadas">
+     {Array.from({length:6},(_,i)=><span key={i} className={i<Math.ceil(used-1e-5)?'spent':''}/>)}
+    </div>
+    <small>Subir una actividad quita fichas de otra. Horas de estudio, noche y semana se normalizan a fichas del juego.</small>
+  </div>}
+  <Slider label="📚 Estudio" units="para este examen" min={range[0][0]} max={range[0][1]} value={s} onChange={v=>move('study',v)}/>
+  <Slider label="😴 Sueño" units="noche anterior" min={range[1][0]} max={range[1][1]} value={z} onChange={v=>move('sleep',v)}/>
+  <Slider label="🏃 Bienestar" units="por semana" min={range[2][0]} max={range[2][1]} value={w} onChange={v=>move('wellness',v)}/>
+  {canonical&&agendaEnabled&&<p key={budgetFlash} className="dean-agenda-trade" role="status">{trade||'⚡ Prueba subir estudio: verás qué sacrificas.'}</p>}
   <button className="dean-big dean-exam-action" type="button" disabled={busy} onClick={submit}>{busy?'Evaluando…':'⚡ RENDIR EXAMEN'}</button>
   {flash&&<p className="dean-grade" role="status">Nota guardada: <b>{Number(flash.score).toFixed(1)} / 50</b></p>}{err&&<p role="alert" className="dean-error">{err}</p>}
   </div></section>;
@@ -351,7 +381,7 @@ function Player(){
       </>}
     {missions.error&&<p role="alert" className="dean-error">{missions.error}</p>}
      {state.phase==='lobby'&&<p className="dean-game-wait">🎮 Decide primero. El docente abrirá la siguiente ronda.</p>}
-    {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
+    {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} agendaEnabled={state.agenda_enabled===true} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
      {state.dgp_version==='zip_dgp_2026'&&state.phase==='exams'&&
       <details className="dean-game-science-tools" open={Number(me.completed)>=15}>
        <summary>🎯 Reto causal · obligatorio antes de avanzar</summary>
