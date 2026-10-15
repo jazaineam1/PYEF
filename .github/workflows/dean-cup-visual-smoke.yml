@@ -5,9 +5,16 @@ on:
     paths:
       - 'causal-wargame/src/v2/dean-cup.jsx'
       - 'causal-wargame/src/v2/dean-cup-layout.css'
+      - 'causal-wargame/src/v2/DeanQuizArena.jsx'
+      - 'causal-wargame/src/v2/dean-quiz-arena.css'
+      - 'causal-wargame/supabase/migrations/202610150005_dean_kahoot_automatic_podium.sql'
       - 'causal-wargame/scripts/dean_visual_smoke.mjs'
       - '.github/workflows/dean-cup-visual-smoke.yml'
   workflow_dispatch:
+
+concurrency:
+  group: dean-cup-visual-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
