@@ -28,6 +28,9 @@ export default function DeanRectorFinal({player,busy=false,onDownload,onSubmit,e
      📥 DESCARGAR TODOS LOS DATOS DE LAS 5 SALAS
     </button>
     <small className="dean-rector-help">Descarga el CSV de toda la Copa. Incluye los registros disponibles hasta este momento; vuelve a descargarlo cuando tus compañeros terminen.</small>
+    <a className="dean-rector-analysis-link" href="./dean-correlacion.html" target="_blank" rel="noreferrer">
+     🐍 ANALIZAR CORRELACIONES CON PYTHON ↗
+    </a>
     {answer?<div className="dean-rector-answer" role="status">
       <strong>✅ DECISIÓN GUARDADA</strong>
       <span>{RECTOR_CHOICES.find(c=>c.id===answer)?.label||'Registrada'}</span>
