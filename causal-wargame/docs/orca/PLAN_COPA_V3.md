@@ -128,6 +128,7 @@ Convertir la Copa del Decano en la mejor actividad de 120 minutos para enseñar 
 - **Integración.** `copa-v3` sale de `main` actualizado. Cada tarea que edita trabaja en un worktree propio, creado con `--worktree new-top-level --base-branch copa-v3`, en la rama que Orca le asigna (`jazaineam1/copa-v3-<id>`), y abre un PR con `gh pr create --base copa-v3`.
 - **CI en los PR.** Corre tests unitarios y ambos builds, sin smokes en vivo, siempre que la rama no empiece por `v2/`. T0.2 añade además el job visual.
 - **Merge a `copa-v3`.** Lo hace el coordinador con `gh pr merge <n> --merge --delete-branch` cuando se cumplen tres condiciones: CI verde, revisión cruzada sin hallazgos bloqueantes y evidencia de aceptación adjunta. Si hay conflictos, vuelven al autor.
+- **Limpieza tras cada merge** (pedido del usuario, 14-oct): el coordinador quita el worktree con `orca worktree rm`, borra la rama local y la remota (`git push origin --delete <rama>`) y apaga los servidores que haya dejado el trabajador. En el repo no entran `debug.log`, `package-lock.json`, `artifacts/` ni builds.
 - **Merge `copa-v3` → `main`.** Lo hace **solo el usuario** (gate G3) y **fuera del horario de clase**, porque despliega a Pages y ejecuta smokes contra producción.
 
 ## 7. DAG de tareas y gates
