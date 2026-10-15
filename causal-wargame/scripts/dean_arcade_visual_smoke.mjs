@@ -106,7 +106,11 @@ async function wallAndTeacher(mode='real_hours_10_v1'){
    const state={available:true,game_code:code,game_mode:mode,
     dgp_version:'zip_dgp_2026',phase,groups:groups.map(g=>({...g,target_exams:isSix?36:60})),mine:null,
     lobby_players:people,agenda_enabled:true,
-    exam_count:isSix?6:10,server_now:new Date().toISOString()};
+    exam_count:isSix?6:10,server_now:new Date().toISOString(),
+    life_recap:isSix?{finished:phase==='finished',eligible_count:3,
+      top3:[{place:1,alias:'Jugador 1',room_no:1,avatar_no:1,decision_index:43.2,avg_grade:46},
+            {place:2,alias:'Jugador 9',room_no:2,avatar_no:4,decision_index:41.1,avg_grade:43},
+            {place:3,alias:'Jugador 16',room_no:3,avatar_no:7,decision_index:39.4,avg_grade:40}],my:null}:null};
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(state)});
   });
   await page.goto(base+'/dean-'+(role==='wall'?'wall':'teacher')+'.html?game='+code,
@@ -120,10 +124,21 @@ async function wallAndTeacher(mode='real_hours_10_v1'){
    await next.click();
    await next.waitFor({state:'detached',timeout:10000});
    assert.equal(phase,'finished');
+   if(mode==='real_hours_6_v1'){
+    await page.locator('.dean-life-medalist').first().waitFor({timeout:10000});
+    assert.equal(await page.locator('.dean-life-medalist').count(),3,'Teacher sees real Top 3 podium');
+    assert.match(await page.locator('.dean-life-board').innerText(),/CAMPEÓN DE LA COPA/);
+   }
    assert.equal(await page.locator('.dean-quest-control').count(),0);
   }else{
    assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5);
    assert.equal(await page.locator('.dean-quest-wall').count(),0);
+   if(mode==='real_hours_6_v1'){
+    phase='finished';
+    await page.reload({waitUntil:'networkidle'});
+    await page.locator('.dean-life-medalist').first().waitFor({timeout:10000});
+    assert.equal(await page.locator('.dean-life-medalist').count(),3,'Wall shows three real champions');
+   }
   }
   assert.equal(await page.locator('.dean-lobby-member').count(),30,'All 30 named animal players shown on '+role);
   assert.equal(await page.locator('.dean-lobby-member').count(),30);
@@ -180,6 +195,13 @@ async function sixRoundViewport(width,height,skip=false){
   my_avatar_no:3,my_lobby_ready:ready,
   mine:{alias:'QA Player',room:1,archetype:'balanced',pga:3.6,completed:scores.length,
    scores:[...scores],policy_choice:policy,average_score:scores.length?scores.reduce((a,n)=>a+n,0)/scores.length:null},
+  life_recap:{finished:phase==='finished',eligible_count:skip?0:3,
+   top3:skip?[]:[{place:1,alias:'QA Player',room_no:1,avatar_no:3,decision_index:43,avg_grade:43},
+                 {place:2,alias:'Companera',room_no:1,avatar_no:8,decision_index:41,avg_grade:42},
+                 {place:3,alias:'Sala Delta',room_no:4,avatar_no:6,decision_index:39,avg_grade:40}],
+   my:{alias:'QA Player',archetype:'balanced',exams:scores.length,simulated_exams:skip?6:0,
+      avg_grade:scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:0,
+      avg_study:4,avg_sleep:8,avg_wellness:2,place:skip?null:1}},
   server_now:new Date().toISOString(),
   exam_deadline_at:new Date(Date.now()+20*60*1000).toISOString()});
  await page.route('**/v2-dean-cup',async route=>{
@@ -268,6 +290,12 @@ async function sixRoundViewport(width,height,skip=false){
  await page.locator('.dean-rector-submit').click();
  await page.getByText(/DECISIÓN GUARDADA/).waitFor({timeout:10000});
  assert.equal(policy,'evidencia_insuficiente');
+ phase='finished';
+ await page.reload({waitUntil:'networkidle'});
+ await page.locator('.dean-life-board').waitFor({timeout:12000});
+ assert.equal(await page.locator('.dean-life-medalist').count(),skip?0:3);
+ if(skip)assert.match(await page.locator('.dean-life-board').innerText(),/no hay seis exámenes completos/i);
+ else assert.match(await page.locator('.dean-life-board').innerText(),/CAMPEÓN DE LA COPA/);
  await page.screenshot({path:'visual-qa/six-rector-'+width+'.png',fullPage:false});
  assert.deepEqual(errors,[]);
  console.log('SIX ARCADE PASS '+width+'x'+height+' skip='+skip+' lobby, six exams, 100% layout, full CSV, Rector');

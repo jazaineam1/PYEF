@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
 import DeanArcadeMascot from './DeanArcadeMascot.jsx';
+import DeanLifePodium from './DeanLifePodium.jsx';
 import {CopaCorrelation} from './dean-correlation.jsx';
 import './dean-arcade.css';
 
@@ -10,9 +11,9 @@ export const RECTOR_CHOICES=[
 ];
 const returnLink=import.meta.env.VITE_DEAN_MAIN_ROOM_URL||'';
 
-export default function DeanRectorFinal({player,busy=false,onDownload,onGetCsv,onSubmit,error=''}) {
+export default function DeanRectorFinal({player,recap=null,phase='exams',busy=false,onDownload,onGetCsv,onSubmit,error=''}) {
  const [selected,setSelected]=useState(null);
- const [scene,setScene]=useState('correlation');
+ const [scene,setScene]=useState(player?.policy_choice?'decision':'correlation');
  const answer=player?.policy_choice||null;
  const complete=Number(player?.completed||0)>=6;
  if(scene==='correlation')return <CopaCorrelation embedded loadCsv={onGetCsv} onContinue={()=>setScene('decision')}/>;
@@ -52,6 +53,7 @@ export default function DeanRectorFinal({player,busy=false,onDownload,onGetCsv,o
     {error&&<p className="dean-error" role="alert">{error}</p>}
    </div>
   </div>
+  {(Boolean(answer)||phase==='finished')&&<DeanLifePodium recap={recap} showMy/>}
   <div className="dean-rector-return">
    {returnLink?<a className="dean-arcade-return" href={returnLink} target="_blank" rel="noreferrer">↗ REGRESAR A LA REUNIÓN PRINCIPAL</a>
     :<span className="dean-arcade-return">🎧 Teams: elige «Regresar» a la sala principal</span>}
