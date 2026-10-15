@@ -27,7 +27,7 @@ function Podium({players=[],role='student',mine=null,participants=0,myPosition=n
      <strong>{p.alias}</strong><small>Sala {ROOM_NAMES[Number(p.room_no)-1]||p.room_no}</small>
      <b>{p.points} <small>/ 120 puntos</small></b>
      <div className="dean-final-stand">PUESTO #{p.position}</div>
-    </article>):<p>Esperando el resultado.</p>}
+    </article> ):<p>{players.length?'Todos participaron; no hay un campeón por aciertos.':'Esperando el resultado.'}</p>}
    </div>
    {role==='student'&&<div className="dean-my-place" role="status">
     <b>{myPosition===1?'🏆 ¡GANASTE LA COPA!':myPosition&&myPosition<=3?'🎉 ¡LLEGASTE AL PODIO!':'🎓 ¡TERMINASTE LA BATALLA CAUSAL!'}</b>
