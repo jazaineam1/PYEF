@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ARCADE_PROTOCOL,ARCADE_CAP,ARCADE_EXAMS,ARCADE_RANGES,arcadeDefault,
- arcadeValid,arcadeCost,rebalanceArcade,arcadeTier,arcadeCheer,arcadeTitle,arcadeStreak} from '../src/v2/dean-arcade.js';
+ arcadeValid,arcadeCost,rebalanceArcade,arcadeTier,arcadeCheer,arcadeTitle,arcadeStreak,ARCADE_ARCHETYPES,arcadeRanges} from '../src/v2/dean-arcade.js';
 const read=p=>readFileSync(p,'utf8');
 test('New Cup has ten exams and a real 14-hour limit',()=>{
  assert.equal(ARCADE_EXAMS,6);assert.equal(ARCADE_CAP,14);assert.equal(ARCADE_PROTOCOL,'real_hours_6_v1');
@@ -78,4 +78,29 @@ test('Arcade hides pedagogy: six rounds to Rector, no prologue',()=>{
  assert.doesNotMatch(arcadeMarkup,/PRÓLOGO|DAG|Python|explicación|definición/i);
  assert.match(player,/real_hours_6_v1/);
  assert.match(player,/state\.phase==='lobby'\?<DeanArcadeLobby/);
+});
+
+test('All four six-exam archetypes have safe, distinct slider ranges and validated defaults',()=>{
+ const starts=new Set();
+ for(const profile of Object.keys(ARCADE_ARCHETYPES)){
+  const ranges=arcadeRanges(profile,'real_hours_6_v1');
+  const initial=arcadeDefault(profile,'real_hours_6_v1');
+  starts.add([initial.study,initial.sleep,initial.wellness].join('-'));
+  assert.ok(arcadeValid(initial,profile,'real_hours_6_v1'));
+  assert.ok(initial.sleep>=6);
+  for(const key of ['study','sleep','wellness']){
+   const x=rebalanceArcade(initial,key,ranges[key][1],profile,'real_hours_6_v1');
+   assert.ok(arcadeValid(x.values,profile,'real_hours_6_v1'),profile+' '+key);
+  }
+ }
+ assert.equal(starts.size,4);
+ const sql=read('supabase/migrations/202610150018_arcade_6_exams_policy_and_all_data.sql');
+ assert.match(sql,/when 'over' then lo_h:=2;hi_h:=8/);
+ assert.match(sql,/when 'risk' then lo_h:=0;hi_h:=5/);
+ assert.match(sql,/cw_dean_arcade_policy_submit_v4/);
+ assert.match(sql,/game_protocol='real_hours_6_v1' or q.room_no=p.room_no/);
+ const lobby=read('supabase/migrations/202610150019_arcade_lobby_ready_roster.sql');
+ assert.match(lobby,/cw_dean_arcade_ready_v4/);
+ assert.match(lobby,/lobby_players/);
+ assert.match(read('src/v2/dean-cup.jsx'),/quickComplete\(\{skipConfirm:true\}\)/);
 });
