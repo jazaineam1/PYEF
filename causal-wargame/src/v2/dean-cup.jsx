@@ -592,8 +592,8 @@ function Teacher(){
  const [abSummary,setAbSummary]=useState(null);
  const [teacher,setTeacher]=useState(()=>sessionStorage.getItem('df_facilitator_game_code')===requestedGame?(sessionStorage.getItem('df_facilitator_token')||''):''),[game,setGame]=useState(requestedGame),[pin,setPin]=useState(''),[state,setState]=useState(null),[err,setErr]=useState(''),[busy,setBusy]=useState(false);
  const {value:board}=useBoard('',!!teacher,game);
- const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&state?.game_mode!=='real_hours_10_v1',teacherToken:teacher});
- const missions=useDeanMissions({call,gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&state?.game_mode!=='real_hours_10_v1'});
+ const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&!['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode),teacherToken:teacher});
+ const missions=useDeanMissions({call,gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&!['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode)});
  const arcade=['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode);
  const examCount=arcade?arcadeExamCount(state.game_mode):15;
  useEffect(()=>{if(teacher&&board?.game_code===game)setState(board)},[teacher,board,game]);
@@ -665,11 +665,11 @@ function Teacher(){
  {state?.available&&(arcade?['lobby','exams'].includes(state.phase):actions[state.phase])&&<button className="dean-big dean-teacher-next"
  disabled={busy||(!arcade&&state.dgp_version==='zip_dgp_2026'&&['lobby','exams','rector','survey','causal'].includes(state.phase)&&learning.data?.step!=='debrief')}
  title={learning.data?.step!=='debrief'?'Antes de avanzar, proyecta evidencia y revela la conclusión del acto.':''}
- onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS 10 EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
+ onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS {examCount} EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
  {state?.available?<div className="dean-teacher-grid">
  <Board groups={state.groups} examCount={examCount}/>
  <aside className="dean-teacher-sidebar">
-  {arcade?<><h2>🎮 Modo juego</h2><p>10 parciales · límite conjunto de 14 horas · cinco salas.</p><p>Los jugadores ven una animación por nota y descargan datos. Los conceptos se explican fuera del juego.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
+  {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite conjunto de 14 horas · cinco salas.</p><p>Los jugadores ven una animación por nota y descargan datos. Los conceptos se explican fuera del juego.</p><div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
   <details className="dean-teacher-extras">
@@ -711,7 +711,7 @@ function EnterCupCode({roleName}){
   <Banner kind="COPA DEL DECANO" phase="ELIGE TU PARTIDA" examCount={ARCADE_EXAMS} showCode={false}/>
   <main className="dean-join dean-arcade-entry">
    <div className="dean-emoji" aria-hidden="true">🏆</div>
-   <span className="dean-kicker">10 EXÁMENES · 5 SALAS · UNA SOLA COPA</span>
+   <span className="dean-kicker">{ARCADE_EXAMS} EXÁMENES · 5 SALAS · UNA SOLA COPA</span>
    <h2>¿Listo para competir?</h2>
    <p>Escribe el código que te compartió el docente para entrar a tu torneo.</p>
    <form onSubmit={enter}>
