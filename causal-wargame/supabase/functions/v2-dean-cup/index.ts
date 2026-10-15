@@ -16,14 +16,20 @@ Deno.serve(async(req)=>{
    const state=await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}) as Record<string,unknown>
    if(state?.dgp_version==='zip_dgp_2026'){
     const schedule=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
-    return json({...state,agenda_enabled:schedule?.enabled===true,agenda_cap:6})
+    return json({...state,agenda_enabled:schedule?.enabled===true,agenda_cap:Number(schedule?.cap||6),game_mode:schedule?.protocol||null})
    }
    return json(state)
   }
   if(action==='teacher'){
    if(!teacher)return json({error:'Credencial del docente requerida'},401)
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
-   return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_learning_next',{p_token:teacher}) /* wraps cw_dean_teacher_next_v3 with V2 learning gate */))
+   if(b.command==='create')return json(await rpc('cw_dean_create_v3',{p_token:teacher}))
+     if(code){
+      const requested=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
+      if(requested?.protocol==='real_hours_10_v1')
+       return json(await rpc('cw_dean_game_start_v3',{p_token:teacher}))
+     }
+     return json(await rpc('cw_dean_learning_next',{p_token:teacher}))
   }
   // Isolated teaching arc, stored on server; no correct option before debrief.
   // Start a completely new tournament: no mutation or reset of the source game.
@@ -35,7 +41,19 @@ Deno.serve(async(req)=>{
     p_facilitator_token:teacher,p_source_code:code
    }))
   }
-  if(action==='reset_confirmed'){
+  if(action==='game_finish'){
+    if(!teacher)return json({error:'Sesión docente requerida'},401)
+    return json(await rpc('cw_dean_game_finish_v3',{p_token:teacher}))
+   }
+   if(action==='game_export'){
+    if(!student)return json({error:'Sesión de jugador requerida'},401)
+    const data=await rpc('cw_dean_game_export_v3',{p_hash:hash}) as {columns:unknown[],rows:unknown[][]}
+    const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
+    return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
+     'content-type':'text/csv; charset=utf-8',
+     'content-disposition':'attachment; filename="copa_decano_datos_sala.csv"'}})
+   }
+   if(action==='reset_confirmed'){
    if(!teacher)return json({error:'Autorización del facilitador requerida'},401)
    if(!code||String(b.confirmation_code||'')!==code)
      return json({error:'Para reiniciar escribe el código exacto de la Copa'},400)
