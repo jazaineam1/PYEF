@@ -41,6 +41,18 @@ export const VARIANTS = ['legacy_v1', 'zip_dgp_2026']
 export const VIEWPORTS = { desktop1280: { width: 1280, height: 720 }, desktop1366: { width: 1366, height: 768 }, desktop1920: { width: 1920, height: 1080 }, tablet: { width: 768, height: 1024 }, mobile390: { width: 390, height: 844 }, mobile360: { width: 360, height: 740 } }
 export const ROLE_VIEWPORTS = { player: Object.keys(VIEWPORTS), teacher: ['desktop1280', 'desktop1366', 'desktop1920', 'tablet'], wall: ['desktop1280', 'desktop1366', 'desktop1920'] }
 
+// Estos estados no tienen una acción primaria por diseño; el contrato no debe
+// deducirlo de la cantidad de botones que renderice la pantalla.
+export const NO_ACTION_FIXTURES = [
+  { role: 'wall', phase: '*', noAction: true },
+  { role: 'player', phase: 'lobby', noAction: true }
+]
+
+export function fixtureFor(role, phase, variant, viewport) {
+  const match = NO_ACTION_FIXTURES.find((fixture) => fixture.role === role && (fixture.phase === '*' || fixture.phase === phase))
+  return { role, phase, variant, viewport, noAction: Boolean(match?.noAction) }
+}
+
 export async function prepareRole(page, role, phase, variant) {
   await page.addInitScript(({ role }) => {
     localStorage.setItem('cw-dean-v2-VISUALQA', 'a'.repeat(64))
