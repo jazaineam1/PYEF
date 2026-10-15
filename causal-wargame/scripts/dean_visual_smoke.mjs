@@ -147,7 +147,7 @@ async function testFinal(role,width,height,attendees){
  let quizPhase='open',picked=null;
  const roster=Array.from({length:attendees},(_,i)=>({
   alias:'Jugador '+String(i+1).padStart(2,'0'),room_no:i%5+1,
-  points:120-i*5,position:i+1
+  points:Math.max(0,120-i*5),position:i+1
  }));
  await page.addInitScript(({role,code})=>{
   if(role==='player')localStorage.setItem('cw-dean-v2-'+code,'a'.repeat(64));
@@ -200,6 +200,8 @@ async function testFinal(role,width,height,attendees){
  await page.screenshot({path:`visual-qa/final-reveal-${role}-${attendees}-${width}x${height}.png`,fullPage:false});
  quizPhase='podium';
  await page.locator('.dean-final-ceremony').waitFor({timeout:5000});
+ // Capture only the COMPLETE celebration; never certify a podium mid-animation.
+ await page.waitForTimeout(1250);
  assert.ok(await page.locator('.dean-final-medalist').count()>=1,'Winners get animated podium');
  if(role!=='player'){
   assert.equal(await page.locator('.dean-final-player').count(),attendees,'Facilitator and wall must show EVERY player');
@@ -211,6 +213,13 @@ async function testFinal(role,width,height,attendees){
   }
  }else{
   assert.match(await page.locator('.dean-my-place').innerText(),/Puesto #/,'Every participant sees their final position');
+ }
+ const podiumBounds=await page.locator('.dean-final-medalist').evaluateAll(items=>
+    items.map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}}));
+ const rosterBounds=await page.locator('.dean-final-all').boundingBox();
+ if(rosterBounds){
+  assert.ok(podiumBounds.every(r=>r.bottom<=rosterBounds.y+3),
+   'Celebration podium overlaps full rankings after entrance animation: '+JSON.stringify({podiumBounds,rosterBounds}));
  }
  assert.ok(await page.locator('.dean-final-hero').isVisible(),'Celebration visible');
  assert.ok(await page.locator('.dean-confetti').count()===1,'Winner confetti present');
