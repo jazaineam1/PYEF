@@ -135,7 +135,7 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
   <div className={'dean-state '+(z<6||s>9?'alert':'')}>
    {z<6||s>9?'⚠️ Dormir poco no es una estrategia saludable. Podrías acumular fatiga.':'⚡ Protege tu descanso: también puede mejorar tu nota.'}
   </div>
-  </div><div className="dean-exam-controls">
+  </div><div className={'dean-exam-controls'+(canonical&&agendaEnabled?' has-agenda':'')}>
   <h3>🎮 DISEÑA TU ESTRATEGIA</h3>
   {canonical&&agendaEnabled&&<div className="dean-agenda-hud" aria-label={'Agenda del examen: '+used.toFixed(1)+' de 6 fichas usadas'}>
     <div className="dean-agenda-topline"><strong>⌛ AGENDA · {used.toFixed(1)} / 6 fichas</strong><b>{budgetLeft.toFixed(1)} libres</b></div>
