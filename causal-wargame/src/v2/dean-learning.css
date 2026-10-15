@@ -213,3 +213,15 @@
 @media(prefers-reduced-motion:reduce){
  .dean-rector-avatar,.dean-rector-revealed .dean-rector-lock,.dean-game-victory{animation:none}
 }
+
+
+.dean-rector-consequence{display:flex;align-items:center;gap:14px;border:2px solid #f5c77c;
+ border-radius:12px;padding:12px;background:linear-gradient(110deg,#494133,#203949);
+ animation:deanBossReveal .6s cubic-bezier(.2,1.4,.35,1) both}
+.dean-rector-consequence>span{font-size:clamp(31px,3vw,50px)}
+.dean-rector-consequence>div{display:grid;gap:3px}
+.dean-rector-consequence strong{font-size:clamp(14px,1.5vw,21px);color:#ffe2a0}
+.dean-rector-consequence small{font-size:clamp(11px,1vw,14px);line-height:1.3;color:#fff}
+.dean-rector-consequence-c{background:linear-gradient(110deg,#225b48,#124556);border-color:#91ffcb}
+.dean-rector-consequence-c strong{color:#d2ffdf}
+@media(prefers-reduced-motion:reduce){.dean-rector-consequence{animation:none}}
