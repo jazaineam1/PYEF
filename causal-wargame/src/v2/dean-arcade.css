@@ -230,3 +230,57 @@
 .dean-rector-analysis-link{display:block;text-align:center;width:100%;padding:10px 12px;border-radius:12px;border:1px solid #87decf;background:#153e52;color:#e2fffa;font-size:clamp(11px,1.1vw,15px);font-weight:900;text-decoration:none}
 .dean-rector-analysis-link:hover{background:#1a5160;border-color:#ffe0a1}
 .dean-rector-analysis-link:focus-visible{outline:3px solid #ffe6af;outline-offset:3px}
+
+
+/* LIFE SIMULATOR · all graphics remain inside the existing three game views. */
+.dean-arcade-player .dean-life-scene{position:relative;z-index:1;max-width:48ch;display:grid;gap:5px;padding:10px 12px;background:#183b598c;border:1px solid #7cb2b0;border-radius:12px}
+.dean-life-scene strong{color:#ffe2a1;font-size:clamp(12px,1.1vw,16px)}
+.dean-life-scene p{font-size:clamp(11px,1vw,14px);line-height:1.36;color:#e3f7fb!important;margin:0}
+.dean-life-consequence{width:100%;border-radius:14px;border:1px solid #88e5d9;background:linear-gradient(120deg,#193f57,#163149);padding:10px 14px;text-align:left;max-height:min(21vh,135px);overflow:auto}
+.dean-life-consequence strong{display:block;color:#ffdda1;font-size:12px;margin-bottom:5px}
+.dean-life-consequence p{margin:0!important;font-size:clamp(11px,1.1vw,14px)!important;line-height:1.35;color:#e6fbff!important}
+.dean-life-board{width:100%;max-width:1100px;margin:0 auto;min-width:0;min-height:0;display:flex;flex-direction:column;gap:clamp(7px,1.5vh,13px);border:1px solid #d4b87c;border-radius:19px;background:radial-gradient(ellipse at 50% 0%,#34577a,#17263f 65%,#101d35);padding:clamp(10px,1.4vw,20px);color:#ecfbff;overflow:auto;text-align:center}
+.dean-life-board-head{display:grid;gap:3px}
+.dean-life-board-head h2{font-size:clamp(20px,2.5vw,37px)!important;line-height:1.12;margin:0;color:#ffdc94!important}
+.dean-life-board-head p{font-size:clamp(11px,1.1vw,14px);margin:0;color:#c9eaf2}
+.dean-life-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(5px,1vw,15px);align-items:stretch}
+.dean-life-medalist{min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:clamp(8px,1.2vw,15px);border-radius:16px;border:1px solid #6288ae;background:linear-gradient(170deg,#254669,#192945);box-shadow:inset 0 -4px 15px #0e1a2e}
+.dean-life-rank-1{border:2px solid #ffdc89;background:linear-gradient(150deg,#685236,#2a4463);box-shadow:0 0 26px #ffcb6730}
+.dean-life-medal{font-size:clamp(26px,3.2vw,46px);line-height:1.2}
+.dean-life-avatar{font-size:clamp(35px,4vw,58px);line-height:1.1}
+.dean-life-name{font-size:clamp(12px,1.5vw,20px);line-height:1.2;overflow-wrap:anywhere}
+.dean-life-medalist small{font-size:clamp(9px,.92vw,12px);color:#c8e3ef}
+.dean-life-index{color:#ffe8b8;font-size:clamp(22px,2.5vw,38px);font-weight:1000;font-variant-numeric:tabular-nums}
+.dean-life-index span{font-size:clamp(11px,1vw,15px);color:#b9cedb}
+.dean-life-rules{display:grid;justify-items:center;gap:4px;padding:9px;border:1px solid #598a96;border-radius:11px;background:#163949}
+.dean-life-rules strong{font-size:clamp(11px,1.2vw,15px);color:#9ef2dd}
+.dean-life-rules span{font-size:clamp(10px,.92vw,12px);line-height:1.4}
+.dean-life-waiting{padding:20px;color:#c8e2f6;font-size:14px}
+.dean-life-my{width:100%;display:grid;grid-template-columns:66px 1fr;gap:12px;align-items:start;text-align:left;padding:15px;border:1px solid #8bd6d3;border-radius:14px;background:#153c4e}
+.dean-life-my-emoji{font-size:clamp(35px,4vw,55px)}
+.dean-life-my h3{margin:4px 0 7px;color:#ffe19a;font-size:clamp(17px,1.7vw,24px)}
+.dean-life-my p{font-size:clamp(12px,1.1vw,16px);line-height:1.4;color:#e3f4fd;max-width:none}
+.dean-life-my small{color:#bfe8ef;font-size:11px}
+.dean-life-personal-stats{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}
+.dean-life-personal-stats span{border:1px solid #68a4b0;background:#102e45;border-radius:8px;padding:5px 9px;font-size:clamp(10px,1vw,13px)}
+.dean-rector-final:has(.dean-life-board){max-width:1100px;max-height:none;overflow:auto}
+.dean-rector-final .dean-life-board{flex:0 0 auto}
+.dean-wall-grid>.dean-life-board,.dean-teacher-grid>.dean-life-board{height:100%;max-height:100%;min-height:0}
+@media(max-height:740px) and (min-width:800px){
+ .dean-arcade-player .dean-exam-brief{gap:7px!important}
+ .dean-arcade-player .dean-life-scene{padding:7px 10px}
+ .dean-arcade-player .dean-life-scene p{font-size:11px}
+ .dean-arcade-result .dean-life-consequence{max-height:95px}
+ .dean-life-board{gap:6px;padding:9px}
+ .dean-life-medalist{padding:8px}
+ .dean-life-avatar{font-size:36px}
+ .dean-life-medal{font-size:28px}
+}
+@media(max-width:690px){
+ .dean-life-podium{gap:4px}
+ .dean-life-medalist{padding:7px 4px}
+ .dean-life-index{font-size:22px}
+ .dean-life-my{grid-template-columns:1fr;text-align:center;justify-items:center}
+ .dean-life-personal-stats{justify-content:center}
+ .dean-life-board{overflow:auto}
+}
