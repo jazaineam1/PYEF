@@ -4,13 +4,13 @@ import DeanArcadeMascot from './DeanArcadeMascot.jsx';
 import './dean-arcade.css';
 
 // Full-screen mobile-game reveal. All grades and streaks come from verified exam records.
-export default function DeanArcadeResult({award,onContinue}){
+export default function DeanArcadeResult({award,onContinue,examCount=ARCADE_EXAMS}){
  const action=useRef(null);
  useEffect(()=>{action.current?.focus()},[award?.nonce]);
  if(!award)return null;
  const score=Number(award.score);
  const result=arcadeCheer(score,Number(award.exam));
- const isFinal=Number(award.exam)>=ARCADE_EXAMS;
+ const isFinal=Number(award.exam)>=examCount;
  const [hue1,hue2]=result.id==='legend'?['#ffbb46','#ffed9f']:result.id==='epic'?['#df8dff','#8b6dff']:result.id==='solid'?['#58e7e0','#76caff']:['#68d0ff','#b0ecff'];
  return <div className={'dean-arcade-overlay tier-'+result.id} role="presentation"
   style={{'--arcade-hue1':hue1,'--arcade-hue2':hue2}}>
@@ -21,8 +21,8 @@ export default function DeanArcadeResult({award,onContinue}){
   <section className="dean-arcade-result" role="dialog" aria-modal="true" aria-labelledby="arcade-result-heading">
    <div className="arcade-clear-head">
     <div className="arcade-clear-label">✦ ¡ROUND COMPLETADO! ✦</div>
-    <div className="arcade-exam-pills" aria-label={'Examen '+award.exam+' de '+ARCADE_EXAMS}>
-     {Array.from({length:ARCADE_EXAMS},(_,i)=><i key={i} className={i<Number(award.exam)?'cleared':''}/>)}
+    <div className="arcade-exam-pills" aria-label={'Examen '+award.exam+' de '+examCount}>
+     {Array.from({length:examCount},(_,i)=><i key={i} className={i<Number(award.exam)?'cleared':''}/>)}
     </div>
    </div>
    <div className="arcade-character-scene">
@@ -50,9 +50,9 @@ export default function DeanArcadeResult({award,onContinue}){
     <span>📈 Media <strong>{Number(award.average||0).toFixed(1)}</strong></span>
    </div>
    <button ref={action} type="button" className="dean-arcade-next" onClick={onContinue}>
-    {isFinal?'🏆 VER MI TEMPORADA':'⚡ SIGUIENTE EXAMEN'} <span aria-hidden="true">➜</span>
+    {isFinal?'🏛️ DECISIÓN DEL RECTOR':'⚡ SIGUIENTE EXAMEN'} <span aria-hidden="true">➜</span>
    </button>
-   <small className="arcade-result-footer">EXAMEN {award.exam} / {ARCADE_EXAMS} · ¡LA COPA CONTINÚA!</small>
+   <small className="arcade-result-footer">EXAMEN {award.exam} / {examCount} · ¡QUÉ JUGADA!</small>
   </section>
  </div>;
 }
