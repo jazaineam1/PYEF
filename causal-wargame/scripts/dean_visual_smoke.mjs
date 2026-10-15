@@ -78,8 +78,13 @@ async function testView(role,width,height){
   assert.equal(await page.locator('.dean-hud-popover>div').count(),5,'HUD dropdown must show five rooms');
   await page.locator('.dean-hud>summary').click();
   await action.click();
-  await page.locator('.dean-score-flash').waitFor({timeout:4000});
-  assert.match(await page.locator('.dean-score-flash').innerText(),/43\.2/,'Flash must show actual mock server grade');
+  const flash=page.locator('.dean-score-flash');
+  await flash.waitFor({state:'attached',timeout:4000});
+  assert.match(await flash.textContent(),/43\.2/,'Score source must match server');
+  if(width<790){
+   assert.equal(await flash.isVisible(),false,'Mobile toast must not cover the exam button');
+   assert.match(await page.locator('.dean-hud-earned').innerText(),/43\.2/,'The mobile HUD should display the latest score');
+  }else{assert.ok(await flash.isVisible(),'Desktop arcade score toast visible')}
   const exam=await page.locator('.dean-exam').boundingBox();
   const grade=await page.locator('.dean-grade').boundingBox();
   assert.ok(exam&&grade&&grade.y+grade.height<=exam.y+exam.height+2,'Grade feedback overlaps exam container');

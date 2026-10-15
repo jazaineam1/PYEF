@@ -23,7 +23,8 @@ test('Single viewport layout is scoped exclusively to the Dean Cup V2 entry',()=
 test('Player room score bug replaces full leaderboard without duplicating it',()=>{
  const player=section('function Player(){','function Wall(){');
  const hud=section('function MiniWall({','function Slider({');
- assert.match(player,/<MiniWall groups=\{state\.groups\} room=\{me\.room\} completed=\{me\.completed\}/);
+ assert.match(player,/<MiniWall groups=\{state\.groups\} room=\{me\.room\} completed=\{me\.completed\} lastAward=\{lastAward\}/);
+ assert.match(hud,/dean-hud-earned/);
  assert.doesNotMatch(player,/<Board groups=\{state\.groups\}/);
  assert.match(player,/dean-player-topbar/);
  assert.match(player,/dean-player-stage/);

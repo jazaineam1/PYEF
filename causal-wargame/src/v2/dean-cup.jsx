@@ -61,7 +61,7 @@ function Board({groups=[]}){
 }
 
 // Score bug: a compact, always-visible room score. The full board is an optional popover.
-function MiniWall({groups=[],room,completed=0}){
+function MiniWall({groups=[],room,completed=0,lastAward=null}){
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no);
  const mine=groups.find(g=>Number(g.room_no)===Number(room));
  const position=ranked.findIndex(g=>Number(g.room_no)===Number(room))+1;
@@ -72,7 +72,7 @@ function MiniWall({groups=[],room,completed=0}){
   <summary><span className="dean-hud-label">● COPA EN VIVO</span><span className="dean-hud-row">
    <strong>{position?'#'+position:'—'} · {names[Number(room)-1]||'Sin sala'}</strong>
    <b>{score}<small> / 50</small></b>
-  </span><span className="dean-hud-foot">TU SALA · {done}/{target||0} EXÁMENES <span>▾ VER RANKING</span></span></summary>
+  </span><span className="dean-hud-foot">{lastAward?<strong className="dean-hud-earned" role="status">✨ NOTA {Number.isFinite(lastAward.score)?lastAward.score.toFixed(1):'—'}/50</strong>:<>TU SALA · {done}/{target||0} EXÁMENES</>} <span>▾ VER RANKING</span></span></summary>
   <div className="dean-hud-popover"><b>🏆 Clasificación · cinco salas</b>
    {ranked.map((g,i)=><div key={g.room_no} className={Number(g.room_no)===Number(room)?'mine':''}><span>{i+1}. {names[g.room_no-1]}</span><strong>{g.fair_score==null?'—':Number(g.fair_score).toFixed(1)}</strong></div>)}
    {groups.filter(g=>!Number(g.members)).map(g=><div key={g.room_no} className="empty"><span>— {names[g.room_no-1]}</span><small>SIN PARTICIPANTES</small></div>)}
@@ -300,7 +300,7 @@ function Player(){
  <main className="dean-player">
    <div className="dean-player-topbar">
     <div className="dean-carnet"><span aria-hidden="true">{icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
-    <MiniWall groups={state.groups} room={me.room} completed={me.completed}/>
+    <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward}/>
    </div>
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')} tabIndex={0} aria-label="Escena principal de la Copa">
     {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase}/>:state.phase!=='exams'?<DeanGuidance phase={state.phase}/>:<details className="dean-player-hint"><summary>💡 ¿Qué estoy descubriendo?</summary><DeanGuidance phase={state.phase}/></details>}
