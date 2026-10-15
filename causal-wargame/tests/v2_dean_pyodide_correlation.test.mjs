@@ -2,16 +2,25 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import{readFileSync}from'node:fs';
 const read=p=>readFileSync(p,'utf8');
-test('Python correlation lab is a separate Pages route, not a stage of gameplay',()=>{
+test('Pyodide is an embedded auto-loading scene in play and teacher, only three published game views',()=>{
  const vite=read('vite.config.js');
- const page=read('dean-correlacion.html');
  const game=read('src/v2/dean-cup.jsx');
  const final=read('src/v2/DeanRectorFinal.jsx');
- assert.match(vite,/deanCorrelation:'dean-correlacion.html'/);
- assert.match(page,/src\/v2\/dean-correlation.jsx/);
- assert.match(game,/LABORATORIO PYODIDE/);
- assert.match(final,/dean-correlacion.html/);
- assert.doesNotMatch(game.slice(game.indexOf('if(arcade)return <section'),game.indexOf('return <section className="dean-exam">')),/Pyodide|Pearson|Spearman/);
+ const lab=read('src/v2/dean-correlation.jsx');
+ assert.doesNotMatch(vite,/deanCorrelation:/);
+ assert.match(vite,/deanPlay:'dean-play.html'/);
+ assert.match(vite,/deanTeacher:'dean-teacher.html'/);
+ assert.match(vite,/deanWall:'dean-wall.html'/);
+ assert.match(game,/onGetCsv=\{\(\)=>call\('game_export'/);
+ assert.match(game,/call\('teacher_game_export'/);
+ assert.match(game,/CopaCorrelation embedded/);
+ assert.match(final,/scene==='correlation'/);
+ assert.match(final,/CopaCorrelation embedded loadCsv=\{onGetCsv\}/);
+ assert.doesNotMatch(final,/href=".\/dean-correlacion.html"/);
+ assert.match(lab,/loadCsv\(\)/);
+ assert.match(lab,/blob\.text\(\)/);
+ assert.match(lab,/useEffect\(\(\)=>\{if\(embedded&&csvText\)void analyse\(\)/);
+ assert.match(lab,/CORRELACIÓN NEGATIVA OBSERVADA/);
 });
 test('Python computes real Pearson, Spearman, within-person correlations and never asserts a causal effect',()=>{
  const src=read('src/v2/dean-correlation.jsx');
@@ -34,5 +43,5 @@ test('Easy notebook is valid ipynb and includes full analysis for downloaded 5-r
  'estudiante_id','sala','examen_nro','6 exámenes','no identifican']){
   assert.ok(txt.includes(x),x);
  }
- assert.match(read('src/v2/DeanRectorFinal.jsx'),/ANALIZAR CORRELACIONES CON PYTHON/);
+ assert.match(read('src/v2/DeanRectorFinal.jsx'),/REVISAR CORRELACIONES REALES DE LA COPA/);
 });
