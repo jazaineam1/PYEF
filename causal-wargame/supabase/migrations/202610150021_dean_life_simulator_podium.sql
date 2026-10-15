@@ -1,0 +1,2 @@
+-- Copa de la vida: read-only ranking of six completed manual exams.
+-- No reset or modification to existing game records.
