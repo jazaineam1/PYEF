@@ -80,6 +80,43 @@ export const DEAN_ARC={
   example:'Dos perfiles con la misma nota esperada pueden responder de modo distinto. Toda estimación es sintética.'
  }
 };
+export const DEAN_CONCEPTS={
+ lobby:[
+  ['Tratamiento T','Una acción definida. En la Copa: asignar B=4 horas de bienestar frente a B=0 horas.'],
+  ['Resultado Y','Nota final de un examen, entre 0 y 50, generada por el simulador.'],
+  ['Contrafactual','Resultado alternativo bajo otro tratamiento. En personas reales no vemos ambos futuros de la misma persona.']
+ ],
+ exams:[
+  ['Correlación','Dos variables cambian juntas en los datos observados. No dice qué sucedería al intervenir.'],
+  ['Selección','Los alumnos eligen horarios y tienen PGA y arquetipos diferentes; los grupos observados pueden no ser comparables.'],
+  ['Fatiga artificial U','Variable generada mediante ecuaciones del juego, no diagnóstico clínico. Puede mediar efectos de bienestar.']
+ ],
+ rector:[
+  ['Pearson r','Mide asociación lineal entre −1 y +1. No son puntos de nota por hora ni demuestra causalidad.'],
+  ['Pendiente observacional','Coeficiente en puntos/hora del ajuste estadístico. Cambia al controlar variables y no equivale por sí mismo a do(B).'],
+  ['MAE y R²','MAE es error medio absoluto en puntos; R² resume calidad de predicción fuera de muestra, no efecto de una política.']
+ ],
+ survey:[
+  ['DAG','Grafo acíclico dirigido con flechas causales SUPUESTAS por el generador, no aprendidas de correlaciones.'],
+  ['Confusor','Antecedente que puede afectar selección del tratamiento y resultado, abriendo una ruta no causal.'],
+  ['Mediador','Variable posterior por la que transcurre parte del efecto total. Ajustarla puede quitar ese camino.'],
+  ['Collider','Variable causada por dos nodos; condicionarla puede abrir un camino espurio. El ejemplo de tutorías es externo al DGP.']
+ ],
+ causal:[
+  ['A/B aleatorizado','El tratamiento B=0 o B=4 se sortea una vez por estudiante sintético, no por cada examen.'],
+  ['ATE e intervalo','ATE es promedio poblacional objetivo; diferencia observada e IC son estimación con error, calculados entre alumnos.'],
+  ['DML','Modelos auxiliares T(X)/Y(X), folds, residuos y estimación. No corrige confusión no observada automáticamente.'],
+  ['CATE y política','Efecto promedio condicionado por perfil: orienta decisiones con cupos y equidad, pero no garantiza beneficio individual.']
+ ]
+};
+function DeanConcepts({phase}){
+ const items=DEAN_CONCEPTS[phase]||[];
+ return <details className="dean-concepts" aria-label="Glosario causal contextual de este acto">
+   <summary>📚 Conceptos desbloqueados · {items.length} definiciones útiles</summary>
+   <div>{items.map(([name,definition])=><article key={name}><strong>{name}</strong><p>{definition}</p></article>)}</div>
+  </details>
+}
+
 export const learningLabel=step=>({challenge:'DECIDE',evidence:'NUEVA EVIDENCIA',debrief:'DESCUBRIMIENTO'})[step]||'ESPERANDO';
 
 export function useDeanLearning({token='',gameCode,enabled=true,teacherToken=''}) {
@@ -154,6 +191,7 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
   {step!=='challenge'&&<div className="dean-quest-reveal">
    <strong>⚡ NUEVA PISTA DEL SIMULADOR</strong><p>{scene.evidence}</p>
   </div>}
+  {step!=='challenge'&&<DeanConcepts phase={phase}/>}
   <div className="dean-quest-choices" role="group" aria-label="Tu decisión causal">
    {scene.choices.map((option,i)=>{
      const key=['a','b','c'][i];
@@ -195,6 +233,7 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
   <p><b>Di:</b> {scene.teacher}</p>
   <p><b>Proyecta:</b> {scene.example}</p>
   <p><b>Comprueba:</b> {scene.expected}</p>
+  <DeanConcepts phase={phase}/>
   <div className="dean-quest-counts">
    <span>Intuiciones: <b>{learning.counts?.initial||0}/{learning.registered||0}</b></span>
    <span>Revisiones: <b>{learning.counts?.revision||0}/{learning.registered||0}</b></span>
