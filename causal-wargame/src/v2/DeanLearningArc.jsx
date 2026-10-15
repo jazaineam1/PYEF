@@ -152,6 +152,14 @@ export function useDeanLearning({token='',gameCode,enabled=true,teacherToken=''}
  return {data,error,busy,act};
 }
 
+function DeanLearningMap({phase}){
+ const items=[['lobby','Contrafactual'],['exams','Sesgo'],['rector','Correlación'],['survey','DAG'],
+  ['causal','A/B · DML · CATE'],['final','Kahoot']];
+ return <nav className="dean-learning-map" aria-label="Ruta de enseñanza del juego; el capacitador desbloquea cada acto">
+  {items.map(([id,label])=><span key={id} className={id===phase?'active':undefined}>
+   {id===phase?'◆ ':'○ '}{label}</span>)}
+ </nav>
+}
 function DeanMissionScene({phase,step}){
  const seen=step!=='challenge';
  return <div className={'dean-quest-scene dean-quest-scene-'+phase} aria-label="Escena del videojuego causal">
@@ -186,6 +194,7 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
    <span className="dean-quest-step">◆ {learningLabel(step)} {learning.paused?'· PAUSADO':''}</span>
   </div>
   <h2>{scene.title}</h2>
+  <DeanLearningMap phase={phase}/>
   <DeanMissionScene phase={phase} step={step}/>
   <p className="dean-quest-question">{scene.question}</p>
   {step!=='challenge'&&<div className="dean-quest-reveal">
@@ -230,6 +239,7 @@ export function DeanLearningInstructor({learning,phase,onAction,busy,error}) {
  return <section className="dean-quest-control">
   <div className="dean-quest-chapter">🎓 GUION DOCENTE · {scene.time} MIN · {scene.act}</div>
   <h3>{scene.title}</h3>
+  <DeanLearningMap phase={phase}/>
   <p><b>Di:</b> {scene.teacher}</p>
   <p><b>Proyecta:</b> {scene.example}</p>
   <p><b>Comprueba:</b> {scene.expected}</p>
