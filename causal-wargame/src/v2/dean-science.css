@@ -1,0 +1,22 @@
+.dean-science{flex-shrink:0;min-width:0;border:1px solid #67bba7;border-radius:13px;
+ background:linear-gradient(145deg,#102c42,#154a47);box-shadow:inset 3px 0 #b3ecb6}
+.dean-science>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;
+ gap:10px;padding:11px 14px;color:#eafff6;font-size:14px;font-weight:850}
+.dean-science>summary::-webkit-details-marker{display:none}
+.dean-science>summary>span{font-size:10px;color:#dfebb3;font-weight:800}
+.dean-science-body{display:grid;gap:11px;padding:12px 14px 16px;border-top:1px solid #518781}
+.dean-science-body p{margin:0;font-size:13px;color:#dfebed;line-height:1.4}
+.dean-science-body>button{background:#90edc9;color:#163a3a;border:1px solid #b0fbd7;
+ font-weight:950;border-radius:10px;padding:10px;font-size:13px;min-height:42px}
+.dean-science-body>button:disabled{opacity:.5;cursor:wait}
+.dean-science-body>small{font-size:11px;line-height:1.4;color:#d2ecdf}
+.dean-science-output{white-space:pre-wrap;word-break:break-word;max-height:230px;overflow:auto;
+ padding:12px;background:#071d30;border:1px solid #547f87;border-radius:9px;
+ font-size:12px;color:#bcf8d3;line-height:1.5}
+.dean-science-error{font-size:12px;background:#6a2833;color:white;padding:10px;border-radius:9px}
+.dean-science-dml{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.dean-science-dml>div{padding:10px 7px;background:#153c55;border:1px solid #508999;border-radius:9px;display:grid;gap:4px}
+.dean-science-dml b{color:#cfffe9;font-size:13px}
+.dean-science-dml small{color:#b1cfdb;font-size:11px}
+@media(max-width:690px){.dean-science-dml{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dean-science>summary{font-size:12px}.dean-science>summary span{font-size:9px}}
