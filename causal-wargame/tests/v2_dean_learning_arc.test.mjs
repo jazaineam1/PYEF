@@ -13,7 +13,7 @@ test('Five causal acts and genuine learning loop',()=>{
  for(const p of ['challenge','evidence','debrief','initial','revision']) assert.ok(story.includes(p),p);
  assert.ok(story.includes('GAME_CHOICES'));
  assert.ok(story.includes('dean-game-learn-more'));
- assert.ok(story.includes('step===\'debrief\'&&<div className="dean-quest-solution"'));
+ assert.ok(story.includes('step===\'debrief\'&&<div className="dean-quest-solution dean-game-victory"'));
  assert.ok(!story.includes('>{scene.evidence}</p>'));
 });
 test('Server authorization, idempotent decisions and protected scoring',()=>{
