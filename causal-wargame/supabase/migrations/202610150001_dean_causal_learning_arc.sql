@@ -46,7 +46,7 @@ $f$;
 create or replace function public.cw_dean_learning_state(p_code text,p_hash text default null)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
 declare gid uuid; current_phase text; current_step text; stopped boolean;
- result jsonb; own jsonb:=null; player_id uuid; correct text; cohorts jsonb; room_scores jsonb;
+ result jsonb; own jsonb:=null; own_pid uuid; correct text; cohorts jsonb; room_scores jsonb;
 begin
  select g.id,t.phase into gid,current_phase
  from public.cw_games g join public.cw_dean_tournaments t on t.game_id=g.id
@@ -61,13 +61,13 @@ begin
   where game_id=gid and phase=current_phase;
  else current_step:='debrief';stopped:=false; end if;
  if p_hash is not null then
-  select id into player_id from public.cw_dean_players where game_id=gid and token_hash=p_hash;
-  if player_id is null then raise exception 'Credencial de estudiante inválida'; end if;
+  select id into own_pid from public.cw_dean_players where game_id=gid and token_hash=p_hash;
+  if own_pid is null then raise exception 'Credencial de estudiante inválida'; end if;
   select jsonb_build_object(
    'initial',(select choice from public.cw_dean_learning_choices
-             where player_id=player_id and phase=current_phase and kind='initial'),
+             where player_id=own_pid and phase=current_phase and kind='initial'),
    'revision',(select choice from public.cw_dean_learning_choices
-             where player_id=player_id and phase=current_phase and kind='revision')
+             where player_id=own_pid and phase=current_phase and kind='revision')
   ) into own;
  end if;
  select coalesce(jsonb_agg(to_jsonb(z) order by z.room_no),'[]'::jsonb) into room_scores
