@@ -47,3 +47,11 @@ test('Server owns scoring, completion and per-room export',()=>{
  assert.match(jsx,/dean-arcade-finish/);
  assert.match(jsx,/ARCADE_EXAMS/);
 });
+
+test('Bare Cup URL opens code entry, while explicit FUTUROS still accesses history',()=>{
+ const jsx=read('src/v2/dean-cup.jsx');
+ assert.match(jsx,/const explicitCode=new URLSearchParams\(location\.search\)\.get\('game'\)/);
+ assert.match(jsx,/!explicitCode\?<EnterCupCode/);
+ assert.match(jsx,/dean-teacher\.html\?game=FUTUROS/);
+ assert.match(jsx,/COPA DEL DECANO/);
+});
