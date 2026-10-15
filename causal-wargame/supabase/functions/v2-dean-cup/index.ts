@@ -20,6 +20,22 @@ Deno.serve(async(req)=>{
    if(!['create','next'].includes(String(b.command)))return json({error:'Acción no admitida'},400)
    return json(await (b.command==='create'?rpc('cw_dean_create_v3',{p_token:teacher}):rpc('cw_dean_teacher_next_v3',{p_token:teacher})))
   }
+  // Isolated teaching arc, stored on server; no correct option before debrief.
+  if(action==='learning_state'){
+   if(!code)return json({error:'Código requerido'},400)
+   return json(await rpc('cw_dean_learning_state',{p_code:code,p_hash:hash}))
+  }
+  if(action==='learning_submit'){
+   if(!student)return json({error:'Credencial de estudiante requerida'},401)
+   return json(await rpc('cw_dean_learning_submit',{p_hash:hash,p_phase:String(b.phase||''),
+    p_kind:String(b.kind||''),p_choice:String(b.choice||'').toLowerCase()}))
+  }
+  if(action==='learning_teacher'){
+   if(!teacher)return json({error:'Credencial docente requerida'},401)
+   const command=String(b.command||'')
+   if(!['evidence','debrief','pause','resume'].includes(command))return json({error:'Acción de clase inválida'},400)
+   return json(await rpc('cw_dean_learning_teacher',{p_token:teacher,p_action:command}))
+  }
   if(action==='quiz_state'){
    if(!code)return json({error:'Código requerido'},400)
    return json(await rpc('cw_dean_quiz_state',{p_code:code,p_hash:hash}))
