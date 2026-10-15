@@ -1,1 +1,24 @@
-.dean-wall main{max-width:1600px}.dean-wall .dean-board>article{grid-template-columns:90px minmax(0,1fr) 170px}.dean-wall .dean-board-main strong{font-size:clamp(23px,2.5vw,39px)}.dean-wall .dean-rating strong{font-size:53px}
+/* The projection is one deliberate 16:9 composition: ranking on the left,
+   phase guide/atlas on the right. The shell owns the only scroll container. */
+.dean-wall .dean-banner{padding:7px 18px;border-radius:12px;gap:10px}
+.dean-wall .dean-banner h1{font-size:clamp(18px,1.9vw,26px);margin:1px 0}
+.dean-wall .dean-banner small{font-size:11px}.dean-wall .dean-banner-meta{gap:2px}.dean-wall .dean-banner-meta small{font-size:10px}
+.dean-wall main{max-width:1800px;height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px}
+.dean-wall-title{font-size:clamp(20px,2vw,30px);margin:0}
+.dean-wall-layout{display:grid;grid-template-columns:minmax(0,3fr) minmax(360px,2fr);gap:18px;min-height:0;align-items:stretch}
+.dean-wall-ranking,.dean-wall-panel{min-width:0;min-height:0;overflow:auto;border:1px solid #4d7d9c;border-radius:16px;background:rgba(17,36,60,.72);padding:14px}
+.dean-wall .dean-board{display:grid;gap:4px}.dean-wall .dean-board h2{font-size:clamp(20px,1.8vw,28px)}
+.dean-wall .dean-board>p{font-size:18px;line-height:1.3;margin:4px 0;color:#d6e4ef}
+.dean-wall .dean-board>article{grid-template-columns:58px minmax(0,1fr) 118px;gap:12px;padding:11px 0}
+.dean-wall .dean-board-main{gap:4px}.dean-wall .dean-board-main>b{font-size:clamp(18px,1.7vw,25px)}
+.dean-wall .dean-board-main span{font-size:18px}.dean-wall .dean-board-main small{font-size:16px}
+.dean-wall .dean-rating strong{font-size:clamp(32px,3.3vw,52px)}.dean-wall .dean-rating small{font-size:13px}
+.dean-wall .dean-medal{font-size:30px}.dean-wall .dean-meter{height:9px}
+.dean-wall-panel>.dean-guidance,.dean-wall-panel>.dean-atlas{min-height:100%;box-sizing:border-box}
+.dean-wall-final main{grid-template-rows:minmax(0,1fr) auto;gap:8px}
+.dean-wall-quiz{min-height:0;overflow:auto}.dean-wall-quiz .dean-quiz{margin:0;min-height:100%;box-sizing:border-box;align-content:center}
+.dean-wall-ranking-strip{max-height:178px;padding:8px 14px}.dean-wall-ranking-strip .dean-board{display:grid;grid-template-columns:auto 1fr;gap:4px 20px;align-items:center}.dean-wall-ranking-strip .dean-board h2{margin:0}.dean-wall-ranking-strip .dean-board>p{display:none}
+.dean-wall-ranking-strip .dean-board>article{grid-column:1/-1;display:grid;grid-template-columns:34px minmax(0,1fr) 100px;padding:5px 0;gap:8px}
+.dean-wall-ranking-strip .dean-board-main>b{font-size:18px}.dean-wall-ranking-strip .dean-board-main span{font-size:16px}.dean-wall-ranking-strip .dean-board-main small{display:none}.dean-wall-ranking-strip .dean-rating strong{font-size:32px}
+@media(max-width:1100px){.dean-wall-layout{grid-template-columns:minmax(0,1fr) minmax(310px,42%)}}
+@media(max-width:800px){.dean-wall .dean-board>article{grid-template-columns:38px minmax(0,1fr) 90px}.dean-wall-layout{grid-template-columns:1fr}.dean-wall-panel{min-height:380px}.dean-wall .dean-board-main span{font-size:16px}}
