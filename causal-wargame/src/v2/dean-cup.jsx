@@ -122,8 +122,9 @@ function Exam({person,onSubmit,version,deadline,serverNow,receivedAt}){
   </div></section>;
 }
 
-function CupQuiz(props){
- return props.canonical?<DeanQuizArena {...props} gameCode={props.gameCode||code} call={call}/> :<CupQuizLegacy {...props}/>;
+function CupQuiz({role='student',token='',teacher='',gameCode=code,canonical=false}){
+ return canonical?<DeanQuizArena role={role} token={token} teacher={teacher} gameCode={gameCode} call={call}/>
+  :<CupQuizLegacy role={role} token={token} teacher={teacher} gameCode={gameCode}/>;
 }
 function CupQuizLegacy({role='student',token='',teacher='',gameCode=code}) {
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[seconds,setSeconds]=useState(0),[receipt,setReceipt]=useState('');
