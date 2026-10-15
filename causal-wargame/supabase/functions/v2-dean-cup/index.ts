@@ -26,7 +26,7 @@ Deno.serve(async(req)=>{
    if(b.command==='create')return json(await rpc('cw_dean_create_v3',{p_token:teacher}))
      if(code){
       const requested=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
-      if(requested?.protocol==='real_hours_10_v1')
+      if(['real_hours_10_v1','real_hours_6_v1'].includes(String(requested?.protocol||'')))
        return json(await rpc('cw_dean_game_start_v3',{p_token:teacher}))
      }
      return json(await rpc('cw_dean_learning_next',{p_token:teacher}))
@@ -45,13 +45,19 @@ Deno.serve(async(req)=>{
     if(!teacher)return json({error:'Sesión docente requerida'},401)
     return json(await rpc('cw_dean_game_finish_v3',{p_token:teacher}))
    }
+   if(action==='policy_submit'){
+    if(!student)return json({error:'Sesión de jugador requerida'},401)
+    return json(await rpc('cw_dean_arcade_policy_submit_v4',{
+      p_hash:hash,p_choice:String(b.choice||'')
+    }))
+   }
    if(action==='game_export'){
     if(!student)return json({error:'Sesión de jugador requerida'},401)
     const data=await rpc('cw_dean_game_export_v3',{p_hash:hash}) as {columns:unknown[],rows:unknown[][]}
     const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
     return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
      'content-type':'text/csv; charset=utf-8',
-     'content-disposition':'attachment; filename="copa_decano_datos_sala.csv"'}})
+     'content-disposition':'attachment; filename="copa_decano_datos_observados.csv"'}})
    }
    if(action==='reset_confirmed'){
    if(!teacher)return json({error:'Autorización del facilitador requerida'},401)
