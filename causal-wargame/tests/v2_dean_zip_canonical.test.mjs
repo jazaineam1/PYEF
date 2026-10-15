@@ -58,7 +58,8 @@ test('15-minute exam deadline is server-governed and auto-completes absentees on
  const api=read('supabase/functions/v2-dean-cup/index.ts')
  assert.match(api,/cw_dean_tick_v3/)
  assert.match(api,/cw_dean_learning_next/);
- assert.match(api,/cw_dean_game_start_v3/);
+ assert.match(api,/cw_dean_arcade_advance_v5/);
+ assert.match(read('supabase/migrations/202610150020_dean_safe_teacher_advance.sql'),/cw_dean_game_start_v3/);
  assert.match(read('supabase/migrations/202610150017_dean_arcade_real_hours_10.sql'),/cw_dean_teacher_next_v3/);
  const ui=read('src/v2/dean-cup.jsx')
  assert.match(ui,/function ExamCountdown/)
