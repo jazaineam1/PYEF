@@ -44,7 +44,7 @@ function useBoard(token='',enabled=true,gameCode=code){
  },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
-function Banner({kind,phase,controls=null}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>5 SALAS · HASTA 30 PARTICIPANTES · 15 EXÁMENES</small></div></header>}
+function Banner({kind,phase,controls=null,examCount=15}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>5 SALAS · HASTA 30 PARTICIPANTES · {examCount} EXÁMENES</small></div></header>}
 function Board({groups=[],examCount=15}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
@@ -417,7 +417,7 @@ function Player(){
  async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+'_sala_'+me.room+'_10_examenes.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function downloadAB(){setBusy(true);setActionError('');try{const blob=await call('ab_download',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_test_2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function download(layer){setBusy(true);setActionError('');try{const blob=await call('export',{layer},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
- return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan (hasta 30). No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: hasta 6 plazas por equipo. No es necesario llenarlas. Recibirás un arquetipo académico ficticio.</p></div>
+ return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase} examCount={arcade?ARCADE_EXAMS:15}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan (hasta 30). No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: hasta 6 plazas por equipo. No es necesario llenarlas. Recibirás un arquetipo académico ficticio.</p></div>
  <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: maria_ds"/></label>
  <p className="dean-room-recommendation">🎯 Sala sugerida (menor ocupación):
  <b> {names[(state.groups.filter(g=>g.members<6).sort((a,b)=>a.members-b.members||a.room_no-b.room_no)[0]?.room_no||1)-1]}</b>.
@@ -473,7 +473,7 @@ function Player(){
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
 function Wall(){const {value,error}=useBoard();const arcade=value?.game_mode==='real_hours_10_v1';const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});
- const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
+ const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase} examCount={arcade?ARCADE_EXAMS:15}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>¿Qué sala dominará el semestre?</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
@@ -631,7 +631,7 @@ function Teacher(){
  async function downloadABTruth(){setBusy(true);setErr('');try{const blob=await call('ab_truth',{},'',teacher),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_doctor_strange.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
- return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} controls={teacher&&<div className="dean-teacher-banner-actions">
+ return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} examCount={arcade?ARCADE_EXAMS:15} controls={teacher&&<div className="dean-teacher-banner-actions">
  <span className="dean-active-cup-code" title="Código para compartir con participantes">🎮 {game}</span>
  <div className="dean-teacher-buttons">
   <DeanNewCupControl game={game} disabled={busy} onCreate={createFreshCup}/>
