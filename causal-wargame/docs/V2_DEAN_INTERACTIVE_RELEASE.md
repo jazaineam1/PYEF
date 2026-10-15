@@ -33,7 +33,7 @@
 |---|---|---|---|---|
 | 00–10 | Dos futuros | Contrafactual, T/Y | Una apuesta inicial y su revisión | Diferencia predicción/efecto |
 | 10–30 | Copa | Fatiga sintética, autoselección | 15 exámenes por persona; estrategia individual y reflexión | No universalizar al equipo ganador |
-| 30–55 | Rector | Predicción MAE/R² vs causalidad | Python RandomForest, importancia por permutación, simulación do(B) y recomendación anotada | R² alto y una simulación predictiva no identifican `do(B)` |
+| 30–55 | Rector | Predicción MAE/R² vs causalidad | Python RandomForest, importancia por permutación, simulación do(B) y recomendación anotada | Ni el R² (sea cual sea) ni una simulación predictiva identifican `do(B)` |
 | 55–80 | DAG detective | Pretratamiento, mediador, collider, efecto total | Ajuste seleccionable y decisión revisada | Evitar ajuste indiscriminado |
 | 80–105 | Dos futuros | A/B, ATE, IC, DML, CATE y política | Laboratorio Python, contraste de su simulación con el A/B, incertidumbre y cupos | Priorizar beneficio incremental con límites |
 | 105–120 | Batalla final | Corregir conceptos y transferir | Ocho respuestas cerradas y podio | Aplicar conceptos en caso diferente |

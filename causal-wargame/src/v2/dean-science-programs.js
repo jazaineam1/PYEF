@@ -84,7 +84,7 @@ def barra(valor, escala):
     n = int(round(max(0.0, valor) / max(escala, 1e-9) * 12))
     return "#" * min(n, 12)
 
-def analizar_rf(d, features, etiqueta_modelo):
+def analizar_rf(d, features, etiqueta_modelo, avisos=True):
     X = d[features].to_numpy(dtype=float)
     y = d.nota_final.to_numpy(dtype=float)
     grupos = d.estudiante_id.to_numpy()
@@ -95,8 +95,14 @@ def analizar_rf(d, features, etiqueta_modelo):
     mae, r2 = mean_absolute_error(y[b], pred), r2_score(y[b], pred)
     print(etiqueta_modelo, "· variables:", ", ".join(features))
     print("Muestra:", len(d), "registros de", d.estudiante_id.nunique(), "estudiantes; prueba:", len(b))
+    if "arquetipo" in d:
+        print("Arquetipos presentes en la muestra:", d.arquetipo.nunique(), "(el arquetipo fija qué B puede elegir cada quien)")
     print("MAE de prueba:", round(mae, 2), "puntos")
     print("R² de prueba:", round(r2, 3))
+    if avisos and r2 < 0.3:
+        print("AVISO: R² de prueba bajo o negativo: el bosque casi no generaliza a estudiantes nuevos; la importancia y la simulación de abajo son poco fiables.")
+    if avisos and d.estudiante_id.nunique() <= 6:
+        print("AVISO SALA PEQUEÑA: con pocos estudiantes el R² de prueba es muy inestable (en salas simuladas de 6 jugadores varió de −2.5 a +0.82) y el signo de B depende de qué arquetipos haya. Compara tu resultado con el de otras salas.")
     # Importancia por permutación: cuánto R² se pierde al barajar una columna (en prueba si hay filas suficientes).
     Xi, yi, donde = (X[b], y[b], "prueba") if len(b) >= 30 else (X[a], y[a], "ENTRENAMIENTO (muestra pequeña: optimista)")
     imp = permutation_importance(evaluador, Xi, yi, n_repeats=8, random_state=7, scoring="r2", n_jobs=1)
@@ -166,7 +172,7 @@ print(texto)
 r = analizar_rf(d, ["pga_previo", "complejidad", "horas_bienestar_sem"], "ACTO RECTOR · modelo con los datos administrativos")
 lecturas(r)
 print("POR QUÉ NO ES do(B): (1) cada estudiante ELIGIÓ su B según su perfil, no se asignó al azar;")
-print("(2) el Rector no ve estudio, sueño ni fatiga, que dependen de B; (3) arriba se ve cuánto se extrapola.")
+print("(2) el Rector no ve el arquetipo, ni estudio, sueño ni fatiga, que pueden depender de B; (3) arriba se ve cuánto se extrapola.")
 print("PREDICCIÓN: nota prevista. No hay T aleatorizado; NO es efecto causal. Anota tu recomendación abajo.")
 emitir("rector", origen, r, False)
 `,
@@ -175,25 +181,32 @@ d, origen, texto = cargar_sala(["pga_previo", "complejidad", "horas_bienestar_se
 print(texto)
 print("Datos:", len(d), "exámenes; estudiantes:", d.estudiante_id.nunique())
 base = ["pga_previo", "complejidad", "horas_bienestar_sem"]
-rector3 = analizar_rf(d, base, "Referencia: modelo del Rector (3 variables)")
+rector3 = analizar_rf(d, base, "Referencia: modelo del Rector (3 variables)", avisos=False)
 print("")
 r = analizar_rf(d, base + ["horas_estudio", "horas_sueno"], "ACTO ENCUESTA · modelo con estudio y sueño añadidos")
 print("R² pasó de %.3f a %.3f al añadir X1 y S; el efecto simulado de B pasó de %+.2f a %+.2f." % (rector3["r2"], r["r2"], rector3["ate_sim"], r["ate_sim"]))
 lecturas(r)
 print("MEDIADORES CONGELADOS: al fijar X1 y S en lo observado, la simulación solo conserva la parte del efecto de B que NO pasa por")
 print("estudio y sueño (caminos B→X1 y B→S→U→Y). Si B actúa a través de ellos, ese efecto TOTAL puede quedar bloqueado.")
-print("Un R² más alto NO vuelve causal la simulación: el bosque solo repite la asociación observada.")
+print("Ni el R² ni el número de variables vuelven causal la simulación: el bosque solo repite la asociación observada.")
 print("— TRES COEFICIENTES OLS (para comparar con la simulación) —")
-def pendiente(variables):
-    x = np.column_stack([np.ones(len(d)), d[variables].to_numpy(dtype=float)])
-    return float(np.linalg.lstsq(x, d.nota_final.to_numpy(dtype=float), rcond=None)[0][1])
-crudo = pendiente(["horas_bienestar_sem"])
-previo = pendiente(["horas_bienestar_sem", "pga_previo", "complejidad"])
-posterior = pendiente(["horas_bienestar_sem", "pga_previo", "complejidad", "horas_estudio", "horas_sueno"])
-print("Asociación cruda B→nota:", round(crudo, 2))
-print("Asociación con antecedentes:", round(previo, 2))
-print("Asociación con mediadores posteriores:", round(posterior, 2))
-print("Tres COEFICIENTES OBSERVACIONALES. Ninguno identifica por sí solo do(B).")
+def pendiente(variables, datos=None):
+    datos = d if datos is None else datos
+    x = np.column_stack([np.ones(len(datos)), datos[variables].to_numpy(dtype=float)])
+    if np.linalg.matrix_rank(x) < x.shape[1]:
+        return None
+    return float(np.linalg.lstsq(x, datos.nota_final.to_numpy(dtype=float), rcond=None)[0][1])
+def mostrar(texto, valor):
+    print(texto, "no estimable (columnas colineales en tu sala)" if valor is None else round(valor, 2))
+antecedentes = ["horas_bienestar_sem", "pga_previo", "complejidad"]
+mostrar("Asociación cruda B→nota:", pendiente(["horas_bienestar_sem"]))
+mostrar("Asociación con antecedentes (PGA y complejidad):", pendiente(antecedentes))
+mostrar("Asociación con mediadores posteriores:", pendiente(antecedentes + ["horas_estudio", "horas_sueno"]))
+if "arquetipo" in d:
+    dummies = pd.get_dummies(d.arquetipo, prefix="arq", drop_first=True, dtype=float)
+    mostrar("Asociación con antecedentes + ARQUETIPO (está en la encuesta):", pendiente(antecedentes + list(dummies.columns), pd.concat([d, dummies], axis=1)))
+    print("El arquetipo fija el PGA y qué B puede elegir cada persona: ajustar solo PGA y complejidad puede dejar confusión; en pocos estudiantes el signo de cualquiera de estos coeficientes es inestable.")
+print("COEFICIENTES OBSERVACIONALES. Ninguno identifica por sí solo do(B).")
 print("REGLA DAG: no ajustes automáticamente mediadores si buscas el efecto TOTAL.")
 emitir("survey", origen, r, True)
 `,

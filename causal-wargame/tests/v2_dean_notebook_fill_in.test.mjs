@@ -80,27 +80,28 @@ test('el cuaderno compila como Python (con y sin huecos resueltos)',needPython,(
  }
 });
 
-function inGameFolder(students,scriptText,fn){
+function inGameFolder(mode,scriptText,fn){
  const dir=mkdtempSync(join(tmpdir(),'cw-nb-'));
  try{
-  writeFileSync(join(dir,'prelude.py'),LAB_PRELUDE,'utf8');
-  const made=runPython(python.cmd,[join(process.cwd(),'tests/helpers/make_game_csv.py'),dir,join(dir,'prelude.py'),String(students)]);
+  const made=runPython(python.cmd,[join(process.cwd(),'tests/helpers/make_game_csv.py'),dir,mode]);
   assert.equal(made.status,0,made.stderr);
   writeFileSync(join(dir,'cuaderno.py'),scriptText,'utf8');
   return fn(runPython(python.cmd,['cuaderno.py'],{cwd:dir}));
  }finally{rmSync(dir,{recursive:true,force:true})}
 }
+const near=(actual,expected,tol,label)=>assert.ok(Math.abs(actual-expected)<=tol,label+': esperado '+expected+' ± '+tol+', obtenido '+actual);
+const num=(text,pattern)=>Number(pattern.exec(text)?.[1]);
 
 test('sin resolver, el primer autocorrector falla con una pista y no con un error críptico',needStack,()=>{
- const out=inGameFolder(8,notebookScript(nb),r=>r);
+ const out=inGameFolder('sala:4',notebookScript(nb),r=>r);
  assert.notEqual(out.status,0);
  assert.match(out.stderr,/AssertionError: ❌ a1: completa el hueco/);
 });
 
 test('resuelto, los 24 autocorrectores pasan con datos en formato del juego y el tablero queda completo',needStack,()=>{
- const out=inGameFolder(8,notebookScript(solveNotebook(nb,solutions)),r=>r);
+ const out=inGameFolder('sala:4',notebookScript(solveNotebook(nb,solutions)),r=>r);
  assert.equal(out.status,0,out.stderr);
- assert.match(out.stdout,/Origen de los datos de las partes A–C: TU SALA/);
+ assert.match(out.stdout,/Origen de los datos de las partes A–C: TUS DATOS/);
  assert.match(out.stdout,/Huecos resueltos: 24 de 24/);
  for(const id of EXPECTED)assert.ok(out.stdout.includes('✅ '+id),id);
  assert.ok(!out.stdout.includes('⬜'));
@@ -109,10 +110,58 @@ test('resuelto, los 24 autocorrectores pasan con datos en formato del juego y el
 });
 
 test('con menos de 4 estudiantes el cuaderno usa la referencia didáctica rotulada y sigue funcionando',needStack,()=>{
- const out=inGameFolder(3,notebookScript(solveNotebook(nb,solutions)),r=>r);
+ const out=inGameFolder('n:3',notebookScript(solveNotebook(nb,solutions)),r=>r);
  assert.equal(out.status,0,out.stderr);
  assert.match(out.stdout,/Origen de los datos de las partes A–C: REFERENCIA DIDÁCTICA INDEPENDIENTE · 30 estudiantes sintéticos · NO es tu sala/);
  assert.match(out.stdout,/Huecos resueltos: 24 de 24/);
+});
+
+test('ningún autocorrector exige un signo: pasan salas con pendiente de H,Z negativa y positiva, y la clase completa',needStack,()=>{
+ // sala 2: H,Z = −0,66; sala 3: H,Z = +0,57; sala 4: H,Z = −2,92 (valores del análisis del DGP).
+ for(const [mode,pre] of [['sala:2',-0.66],['sala:3',0.57],['sala:4',-2.92],['sala:5',-1.86]]){
+  const out=inGameFolder(mode,notebookScript(solveNotebook(nb,solutions)),r=>r);
+  assert.equal(out.status,0,mode+'\n'+out.stderr);
+  assert.match(out.stdout,/Huecos resueltos: 24 de 24/);
+  near(num(out.stdout,/con antecedentes ([+-][\d.]+) · con mediadores/),pre,0.011,mode+' pendiente con H,Z');
+ }
+});
+
+test('con la clase completa el cuaderno reproduce el análisis (−2,28 / −0,35 / −1,95 y +1,84 con arquetipo) y el A/B exacto de cada Copa',needStack,()=>{
+ const out=inGameFolder('clase',notebookScript(solveNotebook(nb,solutions)),r=>r);
+ assert.equal(out.status,0,out.stderr);
+ assert.match(out.stdout,/Huecos resueltos: 24 de 24/);
+ near(num(out.stdout,/Crudo ([+-][\d.]+) ·/),-2.28,0.011,'cruda');
+ near(num(out.stdout,/con antecedentes ([+-][\d.]+) ·/),-0.35,0.011,'con H,Z');
+ near(num(out.stdout,/con mediadores ([+-][\d.]+) \(/),-1.95,0.011,'con mediadores');
+ near(num(out.stdout,/Con arquetipo: ([+-][\d.]+) pts\/h/),1.84,0.011,'con arquetipo');
+ // A/B exacto: 17 tratados / 13 control, +0,51 con IC95 [−7,63; +8,65]; el error ingenuo es menor (falsa precisión).
+ assert.match(out.stdout,/17 tratados \/ 13 controles/);
+ near(num(out.stdout,/ATE observado ([+-][\d.]+) puntos/),0.51,0.006,'ATE');
+ const ci=/IC95 entre estudiantes \[([+-][\d.]+), ([+-][\d.]+)\]/.exec(out.stdout);
+ near(Number(ci[1]),-7.63,0.011,'IC inferior');near(Number(ci[2]),8.65,0.011,'IC superior');
+ assert.match(out.stdout,/Error ingenuo [\d.]+ < error correcto [\d.]+/);
+ assert.match(out.stdout,/Puerta trasera .* \(300 remuestreos estimables de 300\)/);
+});
+
+test('una sala con columnas colineales (modelo completo no estimable) cae a la referencia rotulada en vez de inventar pendientes',needStack,()=>{
+ const out=inGameFolder('sala:1',notebookScript(solveNotebook(nb,solutions)),r=>r);
+ assert.equal(out.status,0,out.stderr);
+ assert.match(out.stdout,/Uso la referencia porque las columnas son colineales/);
+ assert.match(out.stdout,/REFERENCIA DIDÁCTICA INDEPENDIENTE/);
+ assert.match(out.stdout,/Huecos resueltos: 24 de 24/);
+});
+
+test('el texto del cuaderno no da por hecho un R² alto ni un signo, y reconoce al arquetipo como confusor medido',()=>{
+ const text=nb.cells.map(c=>c.source.join('')).join('\n');
+ assert.ok(!/R² (alto|elevado)|el R² sube/i.test(text.replace(/No asumas un R² alto/g,'')),'presupone un R² alto');
+ assert.ok(text.includes('No asumas un R² alto'));
+ assert.ok(text.includes('R² de prueba bajo o negativo'));
+ assert.ok(text.includes('ningún autocorrector de este cuaderno exige un signo'));
+ assert.ok(text.includes('arquetipo')&&text.includes('confusor medido'));
+ assert.ok(text.includes('todas las Copas ven el mismo experimento'));
+ // Ninguna verificación compara un coeficiente con cero.
+ const checks=text.split('\n').filter(l=>l.includes('verificar("'));
+ assert.ok(checks.length>=24&&checks.every(l=>!/[<>]=? *0(\.0)?\b/.test(l)),'una verificación exige signo');
 });
 
 test('respuestas incorrectas se rechazan con el identificador del hueco y una pista',needStack,()=>{
@@ -128,7 +177,7 @@ test('respuestas incorrectas se rechazan con el identificador del hueco y una pi
  ];
  for(const [id,expression,pattern] of wrong){
   const mutated=solveNotebook(nb,{...solutions,[id]:expression});
-  const out=inGameFolder(8,notebookScript(mutated),r=>r);
+  const out=inGameFolder('sala:4',notebookScript(mutated),r=>r);
   assert.notEqual(out.status,0,id+' debería fallar con la respuesta incorrecta');
   assert.match(out.stderr,/AssertionError: ❌/,id);
   assert.match(out.stderr,pattern,id+'\n'+out.stderr.slice(-600));

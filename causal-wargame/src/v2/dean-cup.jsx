@@ -173,13 +173,13 @@ const deanGuides={
   },
   "rector": {
     "time": "30–55",
-    "teacher": "Libera el archivo del Rector. Explica MAE y R² mediante sus notas y pide ejecutar el Random Forest: importancia por permutación y simulación de B=0 frente a B=4 sobre las mismas filas. Que cada persona anote su recomendación antes del debrief; es la predicción que el A/B pondrá a prueba.",
+    "teacher": "Libera el archivo del Rector. Explica MAE y R² mediante sus notas y pide ejecutar el Random Forest: importancia por permutación y simulación de B=0 frente a B=4 sobre las mismas filas. Que cada persona anote su recomendación antes del debrief; es la predicción que el A/B pondrá a prueba. No des por hecho el valor del R²: con pocos estudiantes el resultado de cada sala es inestable y comparar salas es parte de la lección.",
     "student": "Descarga los exámenes disponibles de tu sala, aunque hayan asistido pocos estudiantes. Ejecuta el Random Forest, mira qué columna importa, simula B=0 frente a B=4 y anota qué le recomendarías al Rector. Con menos de 4 estudiantes verás una referencia sintética rotulada.",
     "visual": "El CSV del Rector omite deliberadamente horas de estudio, sueño, arquetipo y fatiga."
   },
   "survey": {
     "time": "55–80",
-    "teacher": "Revela la encuesta y únela por estudiante_id y examen_nro. Pide repetir el bosque con estudio y sueño: el R² sube pero la simulación de B cambia, porque congela los mediadores. Proyecta un DAG: confusores previos, mediadores posteriores y posibles colliders.",
+    "teacher": "Revela la encuesta y únela por estudiante_id y examen_nro. Pide repetir el bosque con estudio y sueño: el R² puede cambiar poco o mucho (en salas de 6 puede incluso ser negativo) y la simulación de B cambia porque congela los mediadores. Proyecta un DAG: confusores previos, mediadores posteriores y posibles colliders.",
     "student": "Cruza encuesta y Rector; identifica qué hábitos se relacionan con el resultado y cuáles son previos.",
     "visual": "Aparecen estudio, sueño y arquetipo; todavía faltan resiliencia y fatiga. Una correlación no prueba una flecha causal."
   },

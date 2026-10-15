@@ -143,82 +143,157 @@ test('cada programa Python compila (lo que enviamos al navegador es sintaxis vá
  }
 });
 
-function withGameCsv(students,fn){
+function csvFile(path){
+ const [head,...lines]=readFileSync(path,'utf8').replace(/^﻿/,'').trim().split(/\r?\n/);
+ const cols=head.split(',');
+ return lines.map(l=>Object.fromEntries(l.split(',').map((v,i)=>[cols[i],v])));
+}
+const near=(actual,expected,tol,label)=>assert.ok(Math.abs(actual-expected)<=tol,label+': esperado '+expected+' ± '+tol+', obtenido '+actual);
+
+test('el A/B exacto de cada Copa (semilla fija 2026): 17/13, +0,51 con IC95 [−7,63; +8,65] y Pragmático sin controles',()=>{
+ const rows=csvFile('tests/fixtures/copa_ab_observado_semilla_2026.csv');
+ assert.equal(rows.length,450);
+ const ab=abEstimate(rows);
+ assert.equal(ab.treated,17);assert.equal(ab.control,13);
+ near(ab.diff,0.51,0.006,'ATE observado');
+ near(ab.se,4.15,0.006,'error estándar entre estudiantes');
+ near(ab.ciLow,-7.63,0.011,'IC95 inferior');near(ab.ciHigh,8.65,0.011,'IC95 superior');
+ // Pragmático: 7 tratados y 0 controles (no estimable); la celda vacía existe en cada Copa.
+ const arms={};
+ for(const key of new Set(rows.map(r=>[r.estudiante_id,r.tratamiento,r.arquetipo].join('|')))){
+  const [,t,a]=key.split('|');arms[a]??={0:0,1:0};arms[a][t]++;
+ }
+ assert.deepEqual(arms.Pragmatico,{0:0,1:7});
+ // Con un IC tan amplio, una simulación positiva cae dentro y el texto no la presenta como validada.
+ const contrast=contrastPrediction(sample({ate_sim:1.41,p10:-8.7,p90:2.5}),ab);
+ assert.equal(contrast.inside,true);assert.equal(contrast.sameSign,true);
+ near(contrast.width,16.28,0.03,'ancho del IC');
+ assert.match(contrast.verdict,/muy amplio/);assert.match(contrast.verdict,/no valida el modelo/);
+ // El ATE verdadero (+1,34) es solo docente: los módulos del participante no lo contienen.
+ assert.ok(!/1[.,]34/.test(read('src/v2/dean-predictive-trap.js')+read('src/v2/DeanPredictiveTrap.jsx')));
+});
+
+function withGameCsv(mode,fn){
  const dir=mkdtempSync(join(tmpdir(),'cw-lab-'));
  try{
-  writeFileSync(join(dir,'prelude.py'),LAB_PRELUDE,'utf8');
-  for(const [mode,code] of Object.entries(PYTHON_PROGRAMS))writeFileSync(join(dir,mode+'.py'),code,'utf8');
-  const made=runPython(python.cmd,['tests/helpers/make_game_csv.py',dir,join(dir,'prelude.py'),String(students)]);
+  for(const [name,code] of Object.entries(PYTHON_PROGRAMS))writeFileSync(join(dir,name+'.py'),code,'utf8');
+  const made=runPython(python.cmd,['tests/helpers/make_game_csv.py',dir,mode]);
   assert.equal(made.status,0,made.stderr);
-  const run=(mode,layer=mode)=>{
-   const out=runPython(python.cmd,['tests/helpers/run_lab_program.py',join(dir,mode+'.py'),layer,dir]);
-   assert.equal(out.status,0,mode+' falló:\n'+out.stderr+out.stdout);
+  const run=(program,layer=program)=>{
+   const out=runPython(python.cmd,['tests/helpers/run_lab_program.py',join(dir,program+'.py'),layer,dir]);
+   assert.equal(out.status,0,program+' falló:\n'+out.stderr+out.stdout);
    return extractTrapResult(out.stdout);
   };
   return fn(run);
  }finally{rmSync(dir,{recursive:true,force:true})}
 }
+const firstNumber=(text,pattern)=>Number(pattern.exec(text)?.[1]);
 
-test('Random Forest sobre tu sala: split por estudiante, importancia, do(B) simulado y rango bootstrap',needStack,()=>{
- withGameCsv(8,run=>{
-  const rector=run('rector');
-  assert.ok(rector.result,'el programa debe emitir un resultado válido');
-  assert.equal(rector.result.modo,'rector');
-  assert.equal(rector.result.origen,'sala');
-  assert.equal(rector.result.n_estudiantes,8);
-  assert.equal(rector.result.n_filas,120);
-  assert.equal(rector.result.mediadores_congelados,false);
-  assert.ok(rector.result.p10<=rector.result.p90);
-  assert.ok(rector.result.r2>0.5&&rector.result.mae<8,'el bosque debe predecir razonablemente notas sintéticas');
-  assert.equal(rector.result.top,'pga_previo','el historial domina la importancia predictiva en este DGP');
-  assert.ok(rector.result.b_relativa<0.25,'B pesa poco como predictor aunque la simulación dé otro número');
-  for(const line of ['OBSERVACIONES DE TU SALA','IMPORTANCIA POR PERMUTACIÓN','SIMULACIÓN do(B) CON EL RANDOM FOREST',
-   'EFECTO SIMULADO (B=4 − B=0)','DEPENDENCIA PARCIAL DE B','COBERTURA','EXTRAPOLACIÓN','LECTURA 1','LECTURA 2','NO es efecto causal'])
-   assert.ok(rector.text.includes(line),line);
-  assert.ok(!rector.text.includes('##RESULT'));
-  // Determinismo: misma sala, misma simulación (semillas fijas).
-  assert.deepEqual(run('rector').result,rector.result);
+// Valores del análisis cuantitativo del DGP sobre la sesión simulada de 30 jugadores (salas de 6, RF de 45 árboles,
+// GroupShuffleSplit .33): MAE y R² de prueba del modelo del Rector; pendientes cruda / con H,Z / con mediadores.
+const ROOMS={
+ 1:{mae:2.91,r2:0.469,slopes:[2.30,1.52,null],arq:2},
+ 2:{mae:8.21,r2:-2.534,slopes:[-3.27,-0.66,-1.53],arq:3},
+ 3:{mae:8.77,r2:0.403,slopes:[-2.04,0.57,-0.59],arq:4},
+ 4:{mae:1.76,r2:0.818,slopes:[-2.33,-2.92,-0.80],arq:3},
+ 5:{mae:4.54,r2:0.381,slopes:[-3.86,-1.86,-2.99],arq:4}
+};
+const slopesOf=text=>[
+ firstNumber(text,/Asociación cruda B→nota: (-?[\d.]+)/),
+ firstNumber(text,/Asociación con antecedentes \(PGA y complejidad\): (-?[\d.]+)/),
+ /Asociación con mediadores posteriores: no estimable/.test(text)?null:firstNumber(text,/Asociación con mediadores posteriores: (-?[\d.]+)/)];
 
+test('las cinco salas de la sesión simulada reproducen MAE, R² y pendientes del análisis (incluso R² negativo y modelo no estimable)',needStack,()=>{
+ for(const [room,expected] of Object.entries(ROOMS))withGameCsv('sala:'+room,run=>{
   const survey=run('survey');
-  assert.equal(survey.result.modo,'survey');
-  assert.equal(survey.result.mediadores_congelados,true);
-  assert.equal(survey.result.origen,'sala');
-  assert.ok(survey.result.r2>=rector.result.r2-0.05,'con más variables el ajuste no debería empeorar de forma material');
-  const raw=Number(/Asociación cruda B→nota: (-?[\d.]+)/.exec(survey.text)[1]);
-  assert.ok(raw<0,'la asociación cruda es negativa por la selección de arquetipos: la trampa existe en los datos');
-  assert.ok(survey.text.includes('MEDIADORES CONGELADOS'));
+  assert.equal(survey.result.origen,'sala','sala '+room);
+  assert.equal(survey.result.n_estudiantes,6);assert.equal(survey.result.n_filas,90);
+  // El primer bloque del programa es el modelo de 3 variables = el del acto Rector.
+  near(firstNumber(survey.text,/MAE de prueba: (-?[\d.]+) puntos/),expected.mae,0.011,'sala '+room+' MAE');
+  near(firstNumber(survey.text,/R² de prueba: (-?[\d.]+)/),expected.r2,0.0011,'sala '+room+' R²');
+  expected.slopes.forEach((value,i)=>{
+   const got=slopesOf(survey.text)[i];
+   if(value===null)assert.equal(got,null,'sala '+room+': debe ser no estimable');
+   else near(got,value,0.011,'sala '+room+' pendiente '+i);
+  });
+  assert.ok(survey.text.includes('Arquetipos presentes en la muestra: '+expected.arq),'sala '+room+' arquetipos');
+  assert.ok(survey.text.includes('AVISO SALA PEQUEÑA'),'sala '+room+': debe avisar que 6 jugadores es poco');
+  assert.ok(survey.text.includes('Asociación con antecedentes + ARQUETIPO'));
+  // El rango bootstrap siempre se publica y es coherente.
+  assert.ok(Number.isFinite(survey.result.p10)&&survey.result.p10<=survey.result.p90);
+ });
+});
+
+test('ningún enunciado supone un R² alto: R² bajo o negativo muestra un aviso y la sala colineal no inventa pendientes',needStack,()=>{
+ withGameCsv('sala:2',run=>{
+  const rector=run('rector');
+  near(rector.result.r2,-2.534,0.0011,'R² de la sala 2');
+  assert.ok(rector.text.includes('AVISO: R² de prueba bajo o negativo'));
+  assert.ok(rector.text.includes('AVISO SALA PEQUEÑA'));
+  assert.ok(!/R² alto/i.test(rector.text),'el texto no puede dar por hecho un R² alto');
+  assert.ok(rector.result.r2<0&&rector.result.origen==='sala');
+ });
+ withGameCsv('sala:1',run=>{
+  const survey=run('survey');
+  assert.ok(survey.text.includes('no estimable (columnas colineales en tu sala)'));
+  assert.ok(survey.result&&survey.result.mediadores_congelados===true,'el bosque sí corre aunque el OLS no sea estimable');
+  assert.ok(!/R² alto/i.test(survey.text));
+ });
+ const joined=PYTHON_PROGRAMS.rector+PYTHON_PROGRAMS.survey+LAB_PRELUDE+read('src/v2/dean-cup.jsx')+read('src/v2/DeanPredictiveTrap.jsx');
+ assert.ok(!/R² (alto|elevado)|el R² sube|un R² más alto/i.test(joined.replace(/No (des por hecho|asumas) un R² alto/gi,'')),'texto que presupone un R² alto');
+});
+
+test('con la clase completa (30 jugadores) el bosque es estable y reproduce el análisis; el arquetipo cambia la pendiente',needStack,()=>{
+ withGameCsv('clase',run=>{
+  const survey=run('survey');
+  assert.equal(survey.result.n_estudiantes,30);
+  near(firstNumber(survey.text,/MAE de prueba: (-?[\d.]+) puntos/),3.97,0.011,'MAE clase');
+  near(firstNumber(survey.text,/R² de prueba: (-?[\d.]+)/),0.644,0.0011,'R² clase');
+  const [raw,pre,post]=slopesOf(survey.text);
+  near(raw,-2.28,0.011,'cruda');near(pre,-0.35,0.011,'con H,Z');near(post,-1.95,0.011,'con mediadores');
+  near(firstNumber(survey.text,/ARQUETIPO \(está en la encuesta\): (-?[\d.]+)/),1.84,0.011,'con arquetipo');
+  assert.ok(!survey.text.includes('AVISO SALA PEQUEÑA'));
+  const rector=run('rector');
+  assert.equal(rector.result.top,'pga_previo','el historial domina la importancia predictiva');
+  assert.ok(rector.result.b_relativa<0.25);
+  assert.equal(rector.result.mediadores_congelados,false);
+  assert.deepEqual(run('rector').result,rector.result,'misma sala, misma simulación (semillas fijas)');
  });
 });
 
 test('salas con menos de 4 estudiantes usan la referencia didáctica rotulada, nunca registros inventados de la sala',needStack,()=>{
- for(const students of [2,3])withGameCsv(students,run=>{
+ for(const mode of ['n:2','n:3'])withGameCsv(mode,run=>{
   const rector=run('rector');
-  assert.equal(rector.result.origen,'referencia');
+  assert.equal(rector.result.origen,'referencia',mode);
   assert.equal(rector.result.n_estudiantes,30);
   assert.ok(rector.text.startsWith('REFERENCIA DIDÁCTICA INDEPENDIENTE'));
   assert.ok(rector.text.includes('NO es tu sala'));
   assert.equal(run('survey').result.origen,'referencia');
+  assert.ok(!rector.text.includes('AVISO SALA PEQUEÑA'),'la referencia tiene 30 estudiantes');
  });
- // Sin ninguna fila (p. ej. CSV vacío) tampoco falla: usa la referencia.
- withGameCsv(0,run=>{
-  const empty=run('rector','vacio');
-  assert.equal(empty.result.origen,'referencia');
- });
- // Con exactamente 4 estudiantes ya usa la sala (split por estudiante) y el rango bootstrap muestra su inestabilidad.
- withGameCsv(4,run=>{
+ // Sin ninguna fila (CSV vacío) tampoco falla: usa la referencia.
+ withGameCsv('ninguna',run=>{assert.equal(run('rector','vacio').result.origen,'referencia')});
+ // Con exactamente 4 estudiantes ya usa la sala, con su aviso y un rango bootstrap que muestra la inestabilidad.
+ withGameCsv('n:4',run=>{
   const rector=run('rector');
-  assert.equal(rector.result.origen,'sala');
-  assert.equal(rector.result.n_estudiantes,4);
+  assert.equal(rector.result.origen,'sala');assert.equal(rector.result.n_estudiantes,4);
+  assert.ok(rector.text.includes('AVISO SALA PEQUEÑA'));
   assert.ok(rector.result.p10<=rector.result.p90);
-  assert.ok(rector.text.includes('Split por estudiante'));
  });
 });
 
-test('el laboratorio A/B conserva ATE entre estudiantes, DML con cross-fitting y heterogeneidad',needStack,()=>{
- withGameCsv(0,run=>{
+test('el laboratorio A/B reproduce el experimento exacto de cada Copa: 17/13, +0,51 [−7,63; +8,65], DML 1,51 y Pragmático no estimable',needStack,()=>{
+ withGameCsv('ninguna',run=>{
   const ab=run('ab');
   assert.equal(ab.result,null);
-  for(const line of ['30 estudiantes sintéticos × 15 exámenes','ATE observado:','IC 95% aproximado entre ESTUDIANTES','No se trataron 450 exámenes',
-   'Coeficiente residualizado','HETEROGENEIDAD','POLÍTICA'])assert.ok(ab.text.includes(line),line);
+  for(const line of ['30 estudiantes sintéticos × 15 exámenes','Tratamiento B=4 h: 17 personas; control B=0 h: 13 personas',
+   'No se trataron 450 exámenes','HETEROGENEIDAD','POLÍTICA','Pragmatico : muestra pequeña; NO estimable con estabilidad'])assert.ok(ab.text.includes(line),line);
+  near(firstNumber(ab.text,/ATE observado: (-?[\d.]+) puntos/),0.51,0.006,'ATE');
+  const ci=/IC 95% aproximado entre ESTUDIANTES: (-?[\d.]+) (-?[\d.]+)/.exec(ab.text);
+  near(Number(ci[1]),-7.63,0.011,'IC inferior');near(Number(ci[2]),8.65,0.011,'IC superior');
+  near(firstNumber(ab.text,/Coeficiente residualizado: (-?[\d.]+) puntos/),1.51,0.011,'DML ilustrativo');
+  near(firstNumber(ab.text,/Sobreexigido : (-?[\d.]+) \(n= 5 \+ 3/),9.72,0.011,'Sobreexigido');
+  near(firstNumber(ab.text,/Equilibrado : (-?[\d.]+) \(n= 3 \+ 5/),-3.53,0.011,'Equilibrado');
+  near(firstNumber(ab.text,/En Riesgo : (-?[\d.]+) \(n= 2 \+ 5/),-5.39,0.011,'En Riesgo');
  });
 });
