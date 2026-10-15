@@ -91,3 +91,18 @@ Las pruebas geométricas de Chromium utilizan respuestas simuladas del backend; 
 - `scripts/dean_visual_smoke.mjs`, `tests/v2_dean_learning_arc.test.mjs` — QA;
 - `public/dean-emergency.md` — respaldo imprimible y manual;
 - ruta inicial `dean-cup.jsx` y tres roles, V1 intacta.
+
+
+## Final competitiva automática (implementación V4)
+- **Un solo clic:** «Iniciar batalla» en el facilitador. Inicia de inmediato la pregunta 1.
+- **30 segundos exactos por pregunta**, medidos en el servidor Supabase; el cliente muestra cuenta regresiva ajustada a `server_now`.
+- Al vencer el plazo, la API `quiz_state` llama al reloj `cw_dean_quiz_tick_v4`; pasa de `open` a `reveal`, bloquea votos tardíos sin clic del docente y revela la clave junto con sus 4 barras A/B/C/D. Todos reciben la misma fase.
+- La explicación de la respuesta correcta se muestra **9 segundos** antes de abrir automáticamente la pregunta siguiente. Después de la 8.ª aparece el podio.
+- Los botones del docente «Cerrar ahora» y «Pasar a la siguiente ahora» son controles de contingencia; no son obligatorios.
+- Los colores de las respuestas reflejan **estados**, no evaluación anticipada: neutro = opción disponible; **amarillo = elegida**; en reveal **verde = correcta** y **rojo = elegida incorrecta**. Antes del reveal jamás se muestra la solución.
+- **Facilitador / Wall:** pantalla completa de ceremonia, animación de podio y confeti, campeón(es) felicitados y clasificación de **todos** los inscritos, de 1 a 30. **Jugador:** su puesto y puntaje individual, podio de mejores jugadores y clasificación general desplegable. Empates comparten puesto competitivo.
+- En escritorio a 1366×768 y 1920×1080, los 30 nombres deben caber en la vista final. En teléfonos el listado interno puede desplazarse, pero nunca todo el documento.
+- **Nada de datos artificiales en el ranking:** puestos y puntos provienen de `cw_dean_quiz_answers` y `cw_v2_quiz_questions`, con `rank()`; preguntas no respondidas valen cero, el total máximo es 120.
+- `FUTUROS` y `legacy_v1` preservan la lógica manual anterior; solo `zip_dgp_2026` utiliza el reloj automático.
+- Efectos respetan `prefers-reduced-motion` y no bloquean el teclado ni el botón docente.
+- **Límite operacional:** `cw_dean_quiz_tick_v4` se ejecuta con el polling del jugador, Wall o facilitador; si todos están desconectados, la transición se resuelve al siguiente acceso, sin notificaciones en segundo plano.
