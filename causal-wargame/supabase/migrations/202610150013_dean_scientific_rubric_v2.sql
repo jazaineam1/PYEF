@@ -16,7 +16,7 @@ begin
    return (case when (ans->>'rubric'='20261015_v2' and 'h'=any(arr) and 'archetype'=any(arr)
        and not ('study'=any(arr) or 'sleep'=any(arr) or 'u'=any(arr))) 
        or (coalesce(ans->>'rubric','')<>'20261015_v2' and 'h'=any(arr)
-       and not ('study'=any(arr) or 'sleep'=any(arr) or 'u'=any(arr))
+       and not ('study'=any(arr) or 'sleep'=any(arr) or 'u'=any(arr)))
        then 12 else 0 end)
       +(case when ans->>'collider'='avoid' then 8 else 0 end);
   when 'dml' then
