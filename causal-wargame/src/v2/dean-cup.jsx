@@ -593,7 +593,7 @@ function Teacher(){
   return o.token;
  }
  async function login(){setBusy(true);setErr('');try{await authenticateWithPin(pin);setPin('')}catch(e){setErr(e.message)}finally{setBusy(false)}}
- async function direct(command){setBusy(true);setErr('');try{setState(await call(command==='finish_game'?'game_finish':'teacher',command==='finish_game'?{}:{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ async function direct(command){setBusy(true);setErr('');try{setState(await call(command==='finish_game'?'game_finish':'teacher',command==='finish_game'?{}:{command,game_code:game},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function createFreshCup(){
   setBusy(true);setErr('');
   try{
