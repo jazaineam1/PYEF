@@ -334,7 +334,13 @@ function Player(){
     {['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
 
-    {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?<DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>:state.phase!=='exams'?<DeanGuidance phase={state.phase}/>:<details className="dean-player-hint"><summary>💡 ¿Qué estoy descubriendo?</summary><DeanGuidance phase={state.phase}/></details>}
+     {state.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(state.phase)?
+       <details className="dean-game-science-tools">
+        <summary>🗺️ VER EL MAPA CAUSAL (DAG)</summary>
+        <DeanCausalAtlas phase={state.phase} teachingStep={learning.data?.step}/>
+       </details>:
+       state.phase!=='exams'&&state.dgp_version!=='zip_dgp_2026'?
+        <details className="dean-game-science-tools"><summary>💡 Pistas extra</summary><DeanGuidance phase={state.phase}/></details>:null}
     {state.dgp_version==='zip_dgp_2026'&&state.phase==='survey'&&
       ['evidence','debrief'].includes(learning.data?.step)&&
       <DeanDAGChallenge missions={missions} step={learning.data?.step} onSubmit={missions.submit} busy={missions.busy}/>}
@@ -344,12 +350,24 @@ function Player(){
        <DeanPolicyMission missions={missions} step={learning.data?.step} onSubmit={missions.submit} busy={missions.busy}/>
       </>}
     {missions.error&&<p role="alert" className="dean-error">{missions.error}</p>}
-    {state.phase==='lobby'&&<div className="dean-hero"><h2>🛡️ Reúne a tu escuadrón</h2><p>El facilitador abrirá la temporada de exámenes.</p></div>}
+     {state.phase==='lobby'&&<p className="dean-game-wait">🎮 Decide primero. El docente abrirá la siguiente ronda.</p>}
     {state.phase==='exams'&&<><Exam person={me} version={state.dgp_version} deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit}/>{Number(me.completed)<15&&<button type="button" className="dean-quick-complete" disabled={busy} onClick={quickComplete}>⚡ Simular mis exámenes restantes · OPCIONAL</button>}</>}
-    {state.dgp_version==='zip_dgp_2026'&&state.phase==='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
+     {state.dgp_version==='zip_dgp_2026'&&state.phase==='exams'&&
+      <details className="dean-game-science-tools">
+       <summary>🎯 Reto causal de la Copa</summary>
+       <DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>
+      </details>}
     {(state.dgp_version!=='zip_dgp_2026'||['final','finished'].includes(state.phase)||['evidence','debrief'].includes(learning.data?.step))&&<DeanCausalLab phase={state.phase} token={token} version={state.dgp_version} step={learning.data?.step} missions={missions}/>}
     {state.phase==='final'&&state.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="student" token={token}/>}
-    {['rector','survey','causal','final','finished'].includes(state.phase)&&(state.dgp_version!=='zip_dgp_2026'||['evidence','debrief'].includes(learning.data?.step)||['final','finished'].includes(state.phase))&&<div className="dean-download"><h2>📦 Evidencia del semestre</h2><p>Datos sintéticos de tu partida; nunca datos de personas reales.</p><button onClick={()=>download('rector')} disabled={busy}>📥 Archivo del Rector · CSV</button>{['survey','causal','final','finished'].includes(state.phase)&&<button onClick={()=>download('survey')} disabled={busy}>📥 Encuesta de Hábitos · CSV</button>}{state.dgp_version==='zip_dgp_2026'&&['causal','final','finished'].includes(state.phase)&&<button onClick={downloadAB} disabled={busy}>📥 Experimento A/B observado · CSV</button>}</div>}
+     {['rector','survey','causal'].includes(state.phase)&&
+      (state.dgp_version!=='zip_dgp_2026'||['evidence','debrief'].includes(learning.data?.step))&&
+      <details className="dean-game-science-tools">
+       <summary>📥 Descargar datos de la misión</summary>
+       <div className="dean-download"><button onClick={()=>download('rector')} disabled={busy}>Rector CSV</button>
+        {['survey','causal'].includes(state.phase)&&<button onClick={()=>download('survey')} disabled={busy}>Encuesta CSV</button>}
+        {state.dgp_version==='zip_dgp_2026'&&state.phase==='causal'&&<button onClick={downloadAB} disabled={busy}>A/B CSV</button>}
+       </div>
+      </details>}
     {lastAward&&<div key={lastAward.nonce} className="dean-score-flash" role="status">✨ EXAMEN COMPLETADO <strong>+{Number.isFinite(lastAward.score)?lastAward.score.toFixed(1):'—'} / 50</strong></div>}
    </>}
    </div>
