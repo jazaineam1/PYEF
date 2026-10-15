@@ -399,41 +399,60 @@ function DeanNewCupControl({game,disabled=false,onCreate}){
  </>;
 }
 
-function DeanResetControl({game,disabled=false,onReset}){
- const [opened,setOpened]=useState(false);
- const [typed,setTyped]=useState('');
- const [ack,setAck]=useState(false);
- const [running,setRunning]=useState(false);
- const [error,setError]=useState('');
- const close=()=>{if(running)return;setOpened(false);setTyped('');setAck(false);setError('')};
+function DeanResetControl({game,disabled=false,onReset,onReauthenticate}){
+ const [opened,setOpened]=useState(false),[ack,setAck]=useState(false),
+ [running,setRunning]=useState(false),[error,setError]=useState(''),
+ [reauthRequired,setReauthRequired]=useState(false),
+ [reauthPin,setReauthPin]=useState(''),[reauthing,setReauthing]=useState(false);
+ const close=()=>{if(running||reauthing)return;setOpened(false);setAck(false);
+   setReauthRequired(false);setReauthPin('');setError('')};
  async function confirm(){
-  if(running||typed!==game||!ack)return;
+  if(running||!ack||reauthRequired)return;
   setRunning(true);setError('');
-  try{await onReset();closeAfterSuccess()}
-  catch(e){setError(e.message||'No se pudo reiniciar')}finally{setRunning(false)}
+  try{await onReset();close()}
+  catch(e){
+   const message=String(e?.message||'No se pudo reiniciar');
+   if(/docente autenticado|credencial docente inv[aá]lida|sesi[oó]n.*(venci|expir)|token.*(inv[aá]lid|expir)/i.test(message)){
+    setReauthRequired(true);
+    setError('La sesión docente venció. Introduce tu PIN aquí; la Copa NO se ha reiniciado.');
+   }else setError(message);
+  }finally{setRunning(false)}
  }
- function closeAfterSuccess(){setOpened(false);setTyped('');setAck(false);setError('')}
+ async function renew(e){
+  e.preventDefault();
+  if(!reauthPin.trim()||reauthing)return;
+  setReauthing(true);setError('');
+  try{
+   await onReauthenticate(reauthPin);
+   setReauthRequired(false);setReauthPin('');
+   setError('✓ Acceso docente recuperado. Pulsa confirmar nuevamente para reiniciar.');
+  }catch(e){setError(e?.message||'PIN docente incorrecto')}finally{setReauthing(false)}
+ }
  return <div className="dean-reset-wrapper">
   <button type="button" className="dean-reset-trigger" disabled={disabled}
-   onClick={()=>{setOpened(true);setTyped('');setAck(false);setError('')}}>↻ Reiniciar partida</button>
+   onClick={()=>{setOpened(true);setAck(false);setError('');setReauthRequired(false);setReauthPin('')}}>↻ Reiniciar partida</button>
   {opened&&<div className="dean-reset-backdrop" role="presentation">
-    <div className="dean-reset-dialog" role="dialog" aria-modal="true" aria-labelledby="dean-reset-title">
-     <h2 id="dean-reset-title">⚠️ ¿Reiniciar esta Copa?</h2>
-     <p>La partida <strong>{game}</strong> volverá al inicio. Se borrarán los jugadores, sus 15 exámenes, decisiones causales, respuestas del Kahoot y podio. Esta acción no se puede deshacer.</p>
-     <p>Se conserva el código y acceso docente. Todos los estudiantes deberán volver a registrarse. Otras partidas y V1 permanecen intactas.</p>
-     <label htmlFor="dean-reset-code">Escribe <strong>{game}</strong> para confirmar</label>
-     <input id="dean-reset-code" autoFocus autoComplete="off" spellCheck={false}
-      value={typed} onChange={e=>setTyped(e.target.value.toUpperCase())} placeholder="Código exacto"/>
-     <label className="dean-reset-agreement"><input type="checkbox" checked={ack}
-      onChange={e=>setAck(e.target.checked)}/> Comprendo que se perderán todos los resultados de esta Copa.</label>
-     {error&&<p role="alert" className="dean-reset-error">{error}</p>}
-     <div className="dean-reset-actions">
-      <button type="button" disabled={running} onClick={close}>Cancelar, conservar partida</button>
-      <button type="button" className="dean-reset-danger" disabled={running||!ack||typed!==game}
-       onClick={confirm}>{running?'Reiniciando…':'Sí, reiniciar '+game}</button>
-     </div>
+   <div className="dean-reset-dialog" role="dialog" aria-modal="true" aria-labelledby="dean-reset-title">
+    <h2 id="dean-reset-title">¿Reiniciar la Copa?</h2>
+    <p><strong>{game}</strong>: se borrarán jugadores, exámenes, decisiones y podio de ESTA Copa. Las otras partidas no cambian.</p>
+    <label className="dean-reset-agreement"><input type="checkbox" checked={ack}
+     onChange={e=>setAck(e.target.checked)}/> Sí, entiendo que este reinicio es irreversible.</label>
+    {error&&<p role="alert" className={reauthRequired?'dean-reset-error':'dean-reset-notice'}>{error}</p>}
+    {reauthRequired&&<form className="dean-reauth-inline" onSubmit={renew}>
+     <label htmlFor="dean-reauth-pin">🔑 Recuperar acceso docente con tu PIN</label>
+     <input id="dean-reauth-pin" type="password" autoFocus autoComplete="off"
+      value={reauthPin} onChange={e=>setReauthPin(e.target.value)} placeholder="PIN del docente"/>
+     <button type="submit" disabled={reauthing||!reauthPin.trim()}>
+      {reauthing?'Verificando…':'Recuperar acceso →'}
+     </button>
+    </form>}
+    <div className="dean-reset-actions">
+     <button type="button" disabled={running||reauthing} onClick={close}>Cancelar · conservar Copa</button>
+     <button type="button" className="dean-reset-danger" disabled={running||reauthRequired||!ack}
+       onClick={confirm}>{running?'Reiniciando…':'Sí, reiniciar Copa'}</button>
     </div>
-   </div>}
+   </div>
+  </div>}
  </div>;
 }
 
@@ -445,7 +464,20 @@ function Teacher(){
  const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026',teacherToken:teacher});
  const missions=useDeanMissions({call,gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'});
  useEffect(()=>{if(teacher&&board?.game_code===game)setState(board)},[teacher,board,game]);
- async function login(){setBusy(true);setErr('');try{const base=endpoint.replace(/\/v2-dean-cup$/,'');const r=await fetch(base+'/facilitator-login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({game_code:game.toUpperCase(),pin})}),o=await r.json();if(!r.ok)throw Error(o.error||'PIN inválido');sessionStorage.setItem('df_facilitator_token',o.token);sessionStorage.setItem('df_facilitator_game_code',game.toUpperCase());setTeacher(o.token)}catch(e){setErr(e.message)}finally{setBusy(false)}}
+ async function authenticateWithPin(nextPin){
+  const base=endpoint.replace(/\/v2-dean-cup$/,'');
+  const r=await fetch(base+'/facilitator-login',{
+   method:'POST',headers:{'content-type':'application/json'},cache:'no-store',
+   body:JSON.stringify({game_code:game.toUpperCase(),pin:nextPin})
+  });
+  const o=await r.json().catch(()=>({}));
+  if(!r.ok||!o?.token)throw Error(o.error||'PIN docente incorrecto');
+  sessionStorage.setItem('df_facilitator_token',o.token);
+  sessionStorage.setItem('df_facilitator_game_code',game.toUpperCase());
+  setTeacher(o.token);
+  return o.token;
+ }
+ async function login(){setBusy(true);setErr('');try{await authenticateWithPin(pin);setPin('')}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function direct(command){setBusy(true);setErr('');try{setState(await call('teacher',{command},'',teacher))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function createFreshCup(){
   setBusy(true);setErr('');
@@ -488,7 +520,7 @@ function Teacher(){
  <div className="dean-teacher-buttons">
   <DeanNewCupControl game={game} disabled={busy} onCreate={createFreshCup}/>
   {state?.available&&state.dgp_version==='zip_dgp_2026'&&
-   <DeanResetControl game={game} disabled={busy} onReset={resetCup}/>}
+   <DeanResetControl game={game} disabled={busy} onReset={resetCup} onReauthenticate={authenticateWithPin}/>}
  </div>
  </div>}/>{!teacher?<main className="dean-join"><h2>Consola de la Copa del Decano</h2><p>Usa el código y PIN docente de V2. El nuevo torneo admite hasta 30 jugadores, sin asistencia mínima ni afectar la versión anterior.</p><label className="dean-label">Código<input value={game} onChange={e=>setGame(e.target.value.toUpperCase())}/></label><label className="dean-label">PIN<input type="password" value={pin} onChange={e=>setPin(e.target.value)}/></label><button className="dean-big" onClick={login} disabled={busy||!pin}>Entrar</button></main>:
  state?.available&&['final','finished'].includes(state.phase)
