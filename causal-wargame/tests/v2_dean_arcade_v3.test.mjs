@@ -76,6 +76,6 @@ test('Arcade hides pedagogy: six rounds to Rector, no prologue',()=>{
  const arcadeMarkup=player.slice(player.indexOf('if(arcade)return <section'),player.indexOf('return <section className="dean-exam"><div className="dean-exam-brief">'));
  assert.match(arcadeMarkup,/examCount/);
  assert.doesNotMatch(arcadeMarkup,/PRÓLOGO|DAG|Python|explicación|definición/i);
- assert.match(player,/game_mode==='real_hours_10_v1'/);
+ assert.match(player,/real_hours_6_v1/);
  assert.match(player,/state\.phase==='lobby'\?<DeanArcadeLobby/);
 });
