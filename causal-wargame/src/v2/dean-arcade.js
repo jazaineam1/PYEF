@@ -1,7 +1,8 @@
 // Versioned arcade mechanics. A fictional 14-hour preparation-day budget.
 // This differs from the historical weekly-wellness model.
 export const ARCADE_PROTOCOL='real_hours_10_v1';
-export const ARCADE_EXAMS=10;
+export const ARCADE_EXAMS=6;
+export const arcadeExamCount=mode=>mode==='real_hours_10_v1'?10:mode==='real_hours_6_v1'?6:ARCADE_EXAMS;
 export const ARCADE_CAP=14;
 export const ARCADE_STEP=.5;
 export const ARCADE_RANGES=Object.freeze({study:[0,8,4],sleep:[5.5,9,8],wellness:[0,4,2]});
@@ -33,7 +34,7 @@ export function arcadeTier(score){
  if(score>=25)return {id:'recover',emoji:'🛡️',label:'¡SE DEFENDIÓ!',line:'Tienes otra oportunidad'};
  return {id:'retry',emoji:'💫',label:'¡TOCA REMONTAR!',line:'La siguiente puede cambiarlo todo'};
 }
-// Stable variety across ten exams, never chosen at random and never altering grades.
+// Stable variety across rounds, never chosen at random and never altering grades.
 const arcadeCheers={
  legend:['¡ERES UNA MÁQUINA!','¡MONICAQUILLO, QUÉ NIVEL!','¡MODO LEYENDA!','¡UNA BESTIA!'],
  epic:['¡QUÉ ÁSPERO!','¡HOMBRECILLO, QUÉ JUGADA!','¡ESTÁS INTRATABLE!','¡MUY ÁSPERO!'],
