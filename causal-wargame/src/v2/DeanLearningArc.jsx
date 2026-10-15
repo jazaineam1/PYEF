@@ -173,7 +173,7 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
   {step==='debrief'&&<div className="dean-quest-solution" role="status">
    <strong>🏆 RESPUESTA DEL DEBRIEF: {learning.correct?.toUpperCase()||'—'}</strong>
    <p>{scene.reveal}</p><p><b>Error frecuente:</b> {scene.trap}</p>
-   <small>Los puntos de maestría causal solo se otorgan a revisiones correctas confirmadas; la intuición no puntúa.</small>
+   <small>Maestría causal: 57 puntos por decisiones revisadas y 43 por prácticas verificadas. La primera intuición no puntúa.</small>
   </div>}
   {error&&<p className="dean-quest-error" role="alert">{error}</p>}
  </section>;
