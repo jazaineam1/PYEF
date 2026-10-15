@@ -52,6 +52,11 @@ begin
  from public.cw_games g join public.cw_dean_tournaments t on t.game_id=g.id
  where g.code=upper(btrim(p_code));
  if gid is null then return jsonb_build_object('available',false); end if;
+ -- Critical isolation: this read must never create new data in a legacy/historical tournament.
+ if (select t.dgp_version from public.cw_dean_tournaments t where t.game_id=gid)
+    is distinct from 'zip_dgp_2026' then
+   return jsonb_build_object('available',false);
+ end if;
  if current_phase not in ('lobby','exams','rector','survey','causal','final','finished') then
   return jsonb_build_object('available',false); end if;
  if current_phase in ('lobby','exams','rector','survey','causal') then
