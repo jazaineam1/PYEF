@@ -84,6 +84,9 @@ async function testView(role,width,height){
   if(width<790){
    assert.equal(await flash.isVisible(),false,'Mobile toast must not cover the exam button');
    assert.match(await page.locator('.dean-hud-earned').innerText(),/43\.2/,'The mobile HUD should display the latest score');
+   const frame=await page.locator('.dean-hud>summary').boundingBox();
+   const award=await page.locator('.dean-hud-earned').boundingBox();
+   assert.ok(frame&&award&&award.y+award.height<=frame.y+frame.height+1,'Mobile grade spills outside Halo HUD frame');
   }else{assert.ok(await flash.isVisible(),'Desktop arcade score toast visible')}
   const exam=await page.locator('.dean-exam').boundingBox();
   const grade=await page.locator('.dean-grade').boundingBox();
