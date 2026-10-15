@@ -10,3 +10,7 @@
 .dean-dag-mission small{font-size:11px;color:#d0eeee;line-height:1.4}
 .dean-dag-feedback{font-size:12px!important;border-left:3px solid #e5cb87;padding:8px;background:#1e3d4d;margin:0!important}
 @media(max-width:650px){.dean-dag-toggles{grid-template-columns:1fr}.dean-dag-toggles button{min-height:35px}}
+
+/* Causal source archetype added to the left; keep all DAG nodes readable on phones. */
+.dean-atlas-scroll svg{min-width:920px}
+@media(max-width:760px){.dean-atlas-scroll svg{min-width:920px}}

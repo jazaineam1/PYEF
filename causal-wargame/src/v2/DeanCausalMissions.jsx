@@ -126,7 +126,8 @@ export function DeanCorrelationLab({rows=[],phase='rector',step='challenge',miss
 export function DeanDAGChallenge({missions,step,onSubmit,busy=false}){
  const [nodes,setNodes]=useState([]),[collider,setCollider]=useState('');
  const saved=missions?.state?.mine?.dag,active=step==='evidence'&&!saved;
- const picks=[['h','PGA previo','Antecedente relevante de selección y rendimiento'],
+ const picks=[['archetype','Arquetipo de origen','Causa común previa de bienestar, PGA, estudio y sueño (medido en la encuesta)'],
+  ['h','PGA previo','Antecedente relevante de bienestar y rendimiento'],
   ['z','Complejidad','Variable pronóstica; no siempre abre un backdoor B←Z→Y'],
   ['study','Estudio','Posterior a bienestar; potencial mediador'],
   ['sleep','Sueño','Posterior a bienestar; potencial mediador'],
@@ -140,10 +141,11 @@ export function DeanDAGChallenge({missions,step,onSubmit,busy=false}){
    </button>)}</div>
   <div className="dean-dag-paths">
    <b>Rutas de la hipótesis causal</b>
-   <span>B ← PGA → Y {nodes.includes('h')?'· Ruta de confusión tratada':'· Ruta potencialmente abierta'}</span>
+   <span>Arquetipo → bienestar y PGA/estudio/sueño → nota {nodes.includes('archetype')?'· Origen común considerado':'· Omisión importante: PGA solo no basta'}</span>
+   <span>B ← PGA → Y {nodes.includes('h')?'· PGA considerado, revisa también arquetipo':'· Ruta potencialmente abierta'}</span>
    <span>B → estudio/sueño → Y {(nodes.includes('study')||nodes.includes('sleep'))?'· MEDIACIÓN BLOQUEADA POR AJUSTE':'· Mecanismo preservado'}</span>
    <span>B → fatiga U → Y {nodes.includes('u')?'· NO observada: selección inválida':'· Mediador latente no ajustado'}</span>
-   <small>Las flechas son SUPUESTOS del DGP, no efectos descubiertos por correlación. Z puede ayudar a precisión sin necesariamente confundir B→Y.</small>
+   <small>Las flechas son SUPUESTOS del DGP, no efectos descubiertos por correlación. La variación de B dentro de cada perfil es pequeña: incluso ajustando por arquetipo y PGA podría faltar solapamiento (positividad). Z puede ayudar a precisión sin necesariamente confundir B→Y.</small>
   </div>
   <div className="dean-collider-vignette">
    <strong>🧩 ESCENA APARTE · NO ES EL DAG DEL GENERADOR</strong>
@@ -154,7 +156,7 @@ export function DeanDAGChallenge({missions,step,onSubmit,busy=false}){
   <Submit mission="dag" done={!!saved} locked={!active||!collider} busy={busy}
     answer={{nodes,collider}} onSubmit={onSubmit}/>
   <MissionReceipt saved={saved} step={step} received={active}/>
-  {step==='debrief'&&<p className="dean-mission-reveal">🧠 Para el efecto total, revisa confusores PREVIOS, no controles posteriores indiscriminados. El collider es una práctica separada de la estructura del ZIP.</p>}
+  {step==='debrief'&&<p className="dean-mission-reveal">🧠 El ARQUETIPO es una causa común de PGA, bienestar y hábitos basales en el DGP. Ajustar solo PGA NO elimina necesariamente la confusión. Selecciona arquetipo y PGA como antecedentes sin afirmar que eso garantiza identificación: el solapamiento dentro del perfil sigue siendo limitado. El collider es un ejemplo EXTERNO al ZIP.</p>}
  </section>;
 }
 export function DeanDMLChallenge({missions,step,onSubmit,busy=false}){
@@ -185,12 +187,13 @@ export function DeanPolicyMission({missions,step,onSubmit,busy=false}){
  const selected=Object.values(counts).reduce((a,b)=>a+b,0);
  const estimated=PROFILE.reduce((a,p)=>a+counts[p.id]*p.estimate,0);
  const benchmarkEfficient=6*PROFILE[0].estimate;
- const benchmarkEquity=5*PROFILE[0].estimate+PROFILE[2].estimate;
+ const benchmarkHarm=5*PROFILE[0].estimate+PROFILE[2].estimate;
+ const [harm,setHarm]=useState('');
  return <section className="dean-causal-mission" aria-label="Política de seis cupos de bienestar">
   <Story title="EL PRESUPUESTO DEL DECANO" subtitle="30 alumnos SINTÉTICOS DE REFERENCIA; seis cupos de B=4 h (20 %). NO son los jugadores conectados."/>
   <div className="dean-policy-stats">
    <strong>🎟️ {selected} / 6 cupos</strong><span>Beneficio TOTAL estimado: <b>{estimated.toFixed(2)} pts</b></span>
-   <small>Predicciones CATE del benchmark DR-Learner · 900 entrenamiento / 300 holdout · NO son resultados de tu Copa actual. Magnitudes, no garantías.</small>
+   <small>Predicciones CATE del benchmark DR-Learner · 900 entrenamiento / 300 holdout · NO son resultados de tu Copa actual. Sin intervalos por perfil: son estimaciones, NO garantías ni resultados de esta Copa.</small>
   </div>
   <div className="dean-policy-profiles">{PROFILE.map(p=><div key={p.id}>
    <span>{p.icon} <b>{p.label}</b><small> CATE estimado {p.estimate>0?'+':''}{p.estimate.toFixed(2)} pts</small></span>
@@ -202,21 +205,27 @@ export function DeanPolicyMission({missions,step,onSubmit,busy=false}){
   </div>)}</div>
   <div className="dean-policy-comparison"><strong>Compara políticas del mismo benchmark</strong>
    <span>Maximizar beneficio estimado: {benchmarkEfficient.toFixed(1)} puntos (seis Sobreexigidos)</span>
-   <span>Reservar un cupo por equidad: {benchmarkEquity.toFixed(1)} puntos (cinco Sobreexigidos y uno En riesgo)</span>
-   <small>La comparación es un escenario pedagógico por CATE promedio, no una selección clínica ni la verdad individual. Puede haber políticas justificables distintas.</small>
+   <span>⚠️ Reservar un cupo B=4 h para En riesgo: {benchmarkHarm.toFixed(1)} puntos estimados frente a {benchmarkEfficient.toFixed(1)} para seis Sobreexigidos. CATE estimado de En riesgo = −1,49.</span>
+   <small>Equidad NO significa imponer una intervención con posible perjuicio. Para apoyar En riesgo debemos INVESTIGAR otra intervención, cuyo beneficio aquí NO se conoce. Tampoco existen intervalos CATE en el benchmark: no podemos asegurar los signos.</small>
   </div>
   <div className="dean-policy-objective"><strong>¿Cuál es tu objetivo institucional?</strong>
-   {[['efficiency','Maximizar beneficio estimado'],['equity','Reservar al menos un cupo a En riesgo']].map(([k,l])=>
+   {[['efficiency','Maximizar beneficio estimado'],['equity','Equidad responsable: evaluar otra intervención para el perfil con CATE negativo']].map(([k,l])=>
     <button type="button" disabled={!active} key={k} aria-pressed={objective===k} onClick={()=>setObjective(k)}>{l}</button>)}
+  </div>
+  <div className="dean-policy-objective"><strong>¿Cómo evitarías perjuicios por asignaciones con CATE negativo?</strong>
+   {[['recognize_negative','Reconocer incertidumbre y reservar B=4 para perfiles con efecto estimado positivo'],
+    ['refer_to_alternative','No imponer B=4 a perfil de CATE negativo; evaluar otra ayuda para ese grupo'],
+    ['ignore_negative','Asignar B=4 a En riesgo de todos modos: la equidad garantiza beneficio']].map(([k,l])=>
+    <button type="button" key={k} disabled={!active} aria-pressed={harm===k} onClick={()=>setHarm(k)}>{l}</button>)}
   </div>
   <div className="dean-policy-objective"><strong>¿Un CATE predicho garantiza el beneficio individual?</strong>
    {[['estimate_not_guarantee','No. Es un promedio por perfil con incertidumbre.'],['certain','Sí. Cada alumno ganará exactamente su CATE.']].map(([k,l])=>
     <button type="button" disabled={!active} key={k} aria-pressed={uncertainty===k} onClick={()=>setUncertainty(k)}>{l}</button>)}
   </div>
-  <Submit mission="policy" answer={{counts,objective,uncertainty}} busy={busy}
-   done={!!saved} locked={!active||selected!==6||!uncertainty} onSubmit={onSubmit}/>
+  <Submit mission="policy" answer={{counts,objective,uncertainty,harm}} busy={busy}
+   done={!!saved} locked={!active||selected!==6||!uncertainty||!harm} onSubmit={onSubmit}/>
   <MissionReceipt saved={saved} step={step} received={active}/>
-  {step==='debrief'&&<p className="dean-mission-reveal">🧠 Una decisión con presupuesto y criterios explícitos es diferente de seleccionar por nota prevista. La política debe balancear beneficio incremental estimado, incertidumbre y equidad.</p>}
+  {step==='debrief'&&<p className="dean-mission-reveal">🧠 Una decisión con presupuesto y criterios explícitos es diferente de seleccionar por nota prevista. El CATE negativo no implica que debamos abandonar a ese grupo; implica que debemos investigar alternativas en lugar de suponer que B=4 ayuda. Nunca se garantiza el beneficio individual por perfil.</p>}
  </section>;
 }
 export function DeanMissionTeacher({missions,phase}){

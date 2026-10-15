@@ -34,7 +34,12 @@ pred=forest.predict(X[b])
 print(origin)
 print("Muestra:",len(d),"registros; prueba:",len(b))
 print("MAE de prueba:",round(mean_absolute_error(y[b],pred),2),"puntos")
-print("R² de prueba:",round(r2_score(y[b],pred),3))
+r2=r2_score(y[b],pred)
+print("R² de prueba:",round(r2,3))
+if r2<0:
+    print("AVISO: R² negativo; en prueba el predictor es peor que predecir la media. Una muestra de sala pequeña puede ser inestable.")
+else:
+    print("AVISO: incluso con R² alto no se identifica por sí mismo el efecto de intervenir.")
 print("PREDICCIÓN: nota prevista. No hay T aleatorizado; NO es efecto causal.")
 `,
  survey:`

@@ -217,6 +217,7 @@ async function testCausalScience(role,phase,width,height){
  if(role==='player'&&phase==='survey'){
   await page.locator('[aria-label="Misión interactiva DAG evaluada"]').waitFor();
   const block=page.locator('[aria-label="Misión interactiva DAG evaluada"]');
+  await block.getByRole('button',{name:/Arquetipo de origen/}).click();
   await block.getByRole('button',{name:/PGA previo/}).click();
   await block.getByRole('button',{name:/Sí: evita condicionar/}).click();
   await block.locator('.dean-mission-submit').click();
@@ -231,6 +232,16 @@ async function testCausalScience(role,phase,width,height){
   await dml.getByRole('button',{name:/requiere un diseño/}).click();
   await dml.locator('.dean-mission-submit').click();
   await dml.locator('.dean-mission-receipt').waitFor();
+  const policy=page.locator('[aria-label="Política de seis cupos de bienestar"]');
+  assert.match(await policy.innerText(),/CATE estimado de En riesgo = −1,49/,'Warn about negative CATE before allocating');
+  for(let i=0;i<6;i++)await policy.getByRole('button',{name:'Añadir cupo Sobreexigido'}).click();
+  await policy.getByRole('button',{name:/Equidad responsable/}).click();
+  await policy.getByRole('button',{name:/No imponer B=4 a perfil/}).click();
+  await policy.getByRole('button',{name:/No. Es un promedio por perfil/}).click();
+  await policy.locator('.dean-mission-submit').click();
+  await policy.locator('.dean-mission-receipt').waitFor();
+  assert.equal(submitted.policy.counts.risk,0,'Equity no longer rewards assigning negative-CATE intervention to En riesgo');
+  assert.equal(submitted.policy.harm,'refer_to_alternative','Evidence documents considered alternatives');
  }
  if(role==='teacher')assert.ok(await page.locator('.dean-teacher-mission').isVisible(),'Teacher skill evidence is visible');
  if(role==='wall')assert.ok(await page.locator('.dean-wall-mission').isVisible(),'Wall evidence separate from academic grade');
