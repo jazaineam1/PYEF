@@ -383,3 +383,10 @@
  .dean-teacher-page .dean-reset-trigger{font-size:10px;padding:5px 6px;min-height:28px}
  .dean-teacher-page .dean-reset-trigger{font-size:10px}
 }
+
+
+/* Teacher: one visible action, evidence and long facilitation guides on demand. */
+.dean-teacher-extras{border:1px solid #628b9d;border-radius:9px;background:#17384f;min-width:0;flex:none}
+.dean-teacher-extras>summary{padding:10px;cursor:pointer;font-size:12px;font-weight:900;color:#f0f4d1}
+.dean-teacher-extras>*:not(summary){margin:7px 8px}
+.dean-teacher-sidebar .dean-teacher-extras .dean-atlas{max-height:420px;overflow:auto}
