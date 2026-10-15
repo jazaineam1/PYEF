@@ -220,8 +220,8 @@ async function testCausalScience(role,phase,width,height){
   assert.match(await page.locator('.dean-reference-values').innerText(),/−0,468/);
  }
  if(role==='player'&&phase==='survey'){
-  await page.locator('[aria-label="Misión interactiva DAG evaluada"]').waitFor();
   await page.locator('.dean-mission-hub>summary').click();
+  await page.locator('[aria-label="Misión interactiva DAG evaluada"]').waitFor();
   const block=page.locator('[aria-label="Misión interactiva DAG evaluada"]');
   await block.getByRole('button',{name:/Arquetipo de origen/}).click();
   await block.getByRole('button',{name:/PGA previo/}).click();
@@ -230,9 +230,9 @@ async function testCausalScience(role,phase,width,height){
   await block.locator('.dean-mission-receipt').waitFor();
  }
  if(role==='player'&&phase==='causal'){
+  await page.locator('.dean-mission-hub>summary').click();
   await page.locator('[aria-label="Microjuego de Double Machine Learning"]').waitFor();
   await page.locator('[aria-label="Política de seis cupos de bienestar"]').waitFor();
-  await page.locator('.dean-mission-hub>summary').click();
   const dml=page.locator('[aria-label="Microjuego de Double Machine Learning"]');
   for(const key of ['Separar en folds','Entrenar modelos','Construir residuos','Relacionar residuos'])
    await dml.getByRole('button',{name:new RegExp(key)}).click();
