@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
 const read=p=>readFileSync(p,'utf8')
-test('Visual causal atlas is sourced to six-node DGP and limited to three teaching phases',()=>{
+test('Visual causal atlas includes real upstream archetype and remains limited to three teaching phases',()=>{
  const ui=read('src/v2/dean-cup.jsx')
  assert.equal((ui.match(/<DeanCausalAtlas phase=/g)||[]).length,3)
  assert.match(ui,/dgp_version==='zip_dgp_2026'/)
@@ -14,7 +14,10 @@ test('Visual causal atlas is sourced to six-node DGP and limited to three teachi
  }
  assert.match(atlas,/phase==='survey'/)
  assert.match(atlas,/phase==='causal'/)
- assert.match(atlas,/no una causa primitiva|no una causa primitiva/i)
+ assert.match(atlas,/A · Arquetipo/)
+ assert.match(atlas,/causa común previa/i)
+ assert.match(atlas,/solapamiento/i)
+ assert.doesNotMatch(atlas,/no una causa primitiva/i)
 })
 test('Projector stays legible in mobile and accessible without requiring clicks',()=>{
  const style=read('src/v2/dean-causal-atlas.css')
