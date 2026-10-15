@@ -125,6 +125,7 @@
 .dean-player .dean-meter i,.dean-wall .dean-meter i,.dean-teacher-page .dean-meter i{
  transition:width .5s cubic-bezier(.23,1,.32,1)
 }
+.dean-hud-earned{color:#f7e7a3;font-size:11px;font-weight:900;letter-spacing:.35px}
 /* Compact leaderboard reusable on projection and instructor board. */
 .dean-wall .dean-board,.dean-teacher-page .dean-board{min-width:0;min-height:0;overflow:hidden;
  display:grid;grid-template-rows:auto repeat(5,minmax(0,1fr));gap:0;
@@ -267,6 +268,10 @@
  .dean-wall .dean-team-empty .dean-rating small::after,.dean-teacher-page .dean-team-empty .dean-rating small::after{content:'VACÍA';font-size:9px;white-space:nowrap}
  .dean-teacher-toolbar small{display:none}
  .dean-teacher-toolbar h2{font-size:16px;white-space:nowrap}
+}
+@media(max-width:790px){
+ .dean-score-flash{display:none}
+ .dean-wall .dean-rating small,.dean-teacher-page .dean-rating small{letter-spacing:0;font-size:8px}
 }
 @media(max-width:410px){
  .dean-wall .dean-banner-meta>span{font-size:0}
