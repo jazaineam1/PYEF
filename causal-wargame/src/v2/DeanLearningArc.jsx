@@ -206,10 +206,15 @@ const GAME_TAKEAWAYS={
  survey:'Ajusta causas previas, no mediadores.',
  causal:'ATE ≠ CATE. Decide con incertidumbre.'
 };
+const RECTOR_ENDINGS={
+ a:{icon:'🚨',title:'¡Recorte sin evidencia!',effect:'La universidad no sabe si la medida ayuda. La correlación no prueba el efecto.'},
+ b:{icon:'💸',title:'¡Presupuesto gastado!',effect:'Compraste predicción, pero no descubriste el efecto de intervenir.'},
+ c:{icon:'🧪',title:'¡Detectaste la trampa!',effect:'Pediste una comparación causal antes de cambiar la política.'}
+};
 const GAME_CHOICES={
  lobby:['Dar a Ana el cupo','Todavía NO sabemos quién gana más','Dar a Bruno el cupo'],
  exams:['Todos deben dormir menos','No generalizar: hay selección','Copiar al líder'],
- rector:['La asociación basta','Más árboles resuelven causalidad','Predecir NO prueba un efecto'],
+ rector:['✂️ Firmar el recorte','🖥️ Comprar más árboles','🧪 Exigir un experimento'],
  survey:['Controlar todo, incluso mediadores','Arquetipo y PGA; proteger mediadores','Ajustar toda variable correlacionada'],
  causal:['Elegir por nota prevista','Prometer el mismo ATE a todos','Usar CATE, incertidumbre y equidad']
 };
@@ -249,6 +254,11 @@ export function DeanLearningQuest({learning,phase,onSubmit,busy=false,error=''})
    </button>:<p className="dean-quest-receipt" role="status">
     {submitted?'✓ Decisión guardada.':'⏳ Esperando la siguiente etapa.'}
    </p>}
+  {step==='debrief'&&phase==='rector'&&<div className={'dean-rector-consequence dean-rector-consequence-'+(revision||initial||'c')} role="status">
+   <span aria-hidden="true">{RECTOR_ENDINGS[revision||initial||'c'].icon}</span>
+   <div><strong>{RECTOR_ENDINGS[revision||initial||'c'].title}</strong>
+     <small>{RECTOR_ENDINGS[revision||initial||'c'].effect}</small></div>
+  </div>}
   {step==='debrief'&&<div className="dean-quest-solution dean-game-victory" role="status">
    <strong>🏆 {GAME_TAKEAWAYS[phase]}</strong>
    <small>Decisión segura: {learning.correct?.toUpperCase()||'—'}. ¡El Rector necesita evidencia!</small>
