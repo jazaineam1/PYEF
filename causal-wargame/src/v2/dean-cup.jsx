@@ -133,7 +133,7 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
   {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
   <div className="dean-meter"><i style={{width:(n-1)/15*100+'%'}}/></div>
   <div className={'dean-state '+(z<6||s>9?'alert':'')}>
-   {z<6||s>9?'⚠️ Fatiga alta posible. Tu nota también depende de tu descanso.':'⚡ Protege tu descanso: también puede mejorar tu nota.'}
+   {z<6||s>9?'⚠️ Dormir poco no es una estrategia saludable. Podrías acumular fatiga.':'⚡ Protege tu descanso: también puede mejorar tu nota.'}
   </div>
   </div><div className="dean-exam-controls">
   <h3>🎮 DISEÑA TU ESTRATEGIA</h3>
