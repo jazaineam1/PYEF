@@ -92,3 +92,15 @@
  .dean-mission-story strong{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.dean-causal-mission button{transition:none}}
+
+
+.dean-ab-numbers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.dean-ab-numbers>div{display:grid;gap:5px;padding:12px;border:1px solid #689bb0;border-radius:9px;background:#173e55}
+.dean-ab-numbers strong{font-size:clamp(16px,2vw,26px);font-variant-numeric:tabular-nums;color:#bffbda}
+.dean-ab-numbers span,.dean-ab-numbers small{font-size:11px;line-height:1.35;color:#d0e9e4}
+.dean-ab-discovery>details{border:1px solid #6697a4;border-radius:10px;min-width:0;background:#15344a}
+.dean-ab-discovery>details>summary{padding:11px;cursor:pointer;font-size:12px;font-weight:900;color:#f6e3a4}
+.dean-ab-reference{display:grid;gap:8px;padding:12px}
+.dean-ab-reference>b{color:#ffe6a5;font-size:13px}
+@media(max-width:660px){.dean-ab-numbers{gap:5px}.dean-ab-numbers>div{padding:7px}
+.dean-ab-numbers strong{font-size:15px}}
