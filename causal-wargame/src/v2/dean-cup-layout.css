@@ -245,6 +245,35 @@
  .dean-player-dock>span{display:none}
  .dean-player-dock .dean-notebook-link{margin-left:auto}
 }
+
+/* Mobile visual QA: prevent base flex-wrap, clipped empty-room labels and exam feedback overlap. */
+@media(max-width:790px){
+ .dean-banner{flex-wrap:nowrap;gap:6px}
+ .dean-banner>div:first-child{min-width:0;flex:1 1 auto}
+ .dean-banner h1{font-size:clamp(15px,4vw,18px);white-space:nowrap}
+ .dean-banner-meta{flex:0 0 auto;max-width:105px;text-align:right}
+ .dean-banner-meta>span{font-size:9px;white-space:nowrap}
+ .dean-banner-meta>b{font-size:12px}
+ .dean-page main.dean-player{gap:6px}
+ .dean-page main.dean-wall-main{gap:6px}
+ .dean-page main.dean-teacher{gap:6px}
+ .dean-player-stage.dean-is-exam .dean-exam{flex:0 0 auto;min-height:max-content}
+ .dean-exam-controls{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+ .dean-exam-controls .dean-slider{flex:0 0 auto;min-height:70px}
+ .dean-exam-controls .dean-exam-action{flex:0 0 auto}
+ .dean-exam-controls .dean-grade{flex:0 0 auto;margin:4px 0 2px;line-height:1.25}
+ .dean-wall .dean-rating,.dean-teacher-page .dean-rating{min-width:0;max-width:100%;overflow:hidden}
+ .dean-wall .dean-team-empty .dean-rating small,.dean-teacher-page .dean-team-empty .dean-rating small{font-size:0;line-height:1}
+ .dean-wall .dean-team-empty .dean-rating small::after,.dean-teacher-page .dean-team-empty .dean-rating small::after{content:'VACÍA';font-size:9px;white-space:nowrap}
+ .dean-teacher-toolbar small{display:none}
+ .dean-teacher-toolbar h2{font-size:16px;white-space:nowrap}
+}
+@media(max-width:410px){
+ .dean-wall .dean-banner-meta>span{font-size:0}
+ .dean-wall .dean-banner-meta>span::after{content:'WALL';font-size:10px}
+ .dean-banner-meta{max-width:94px}
+}
+
 @media(prefers-reduced-motion:reduce){
  .dean-score-flash{animation:none}
  .dean-exam-controls .dean-exam-action:hover:not(:disabled){transform:none}
