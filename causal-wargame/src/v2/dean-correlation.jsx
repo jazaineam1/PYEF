@@ -1,4 +1,4 @@
-import React,{useMemo,useRef,useState} from 'react';
+import React,{useEffect,useMemo,useRef,useState} from 'react';
 import{createRoot}from'react-dom/client';
 import './dean-correlation.css';
 
@@ -126,7 +126,8 @@ function Scatter({points=[],line=null,factor}) {
  </svg>;
 }
 
-function Analysis(){
+// The analysis lives in the player/teacher scene, not in a fourth public game view.
+export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
  const [csvText,setCsvText]=useState('');
  const [fileName,setFileName]=useState('');
  const [factor,setFactor]=useState('horas_bienestar_jornada');
@@ -136,6 +137,21 @@ function Analysis(){
  const [status,setStatus]=useState('');
  const [data,setData]=useState(null);
  const instance=useRef(null);
+ const runtimePromise=useRef(null);
+ async function fetchWholeCup(){
+  if(!loadCsv)return;
+  setBusy(true);setStatus('Consultando los exámenes reales de todas las salas…');
+  try{
+   const blob=await loadCsv();
+   const csv=await blob.text();
+   if(csv.length<40)throw Error('La Copa todavía no tiene registros analizables.');
+   setCsvText(csv);
+   setFileName('CSV completo de la Copa · Datos observados del servidor');
+   setStatus('Datos recibidos. Ejecutando Python WebAssembly…');
+  }catch(e){setBusy(false);setData(null);setStatus('No pudimos obtener el CSV: '+(e?.message||String(e)));}
+ }
+ useEffect(()=>{if(loadCsv)void fetchWholeCup();},[]);
+ useEffect(()=>{if(embedded&&csvText)void analyse();},[csvText,factor,profile,onlyManual]);
  async function pick(e){
   const f=e.target.files?.[0];if(!f)return;
   if(f.size>2_000_000){setStatus('Este archivo supera 2 MB. Usa el CSV de la Copa.');return}
@@ -145,12 +161,12 @@ function Analysis(){
   if(!csvText)return;
   setBusy(true);setStatus('Cargando Python en tu navegador…');
   try{
-   if(!instance.current){
-    const module=await import(/* @vite-ignore */ PYODIDE_URL);
-    instance.current=await module.loadPyodide();
+   if(!runtimePromise.current){
+    runtimePromise.current=import(/* @vite-ignore */ PYODIDE_URL).then(module=>module.loadPyodide());
    }
+   const runtime=await runtimePromise.current;
+   instance.current=runtime;
    setStatus('Python está calculando las correlaciones…');
-   const runtime=instance.current;
    runtime.globals.set('csv_input',csvText);
    runtime.globals.set('selected_var',factor);
    runtime.globals.set('selected_archetype',profile);
@@ -162,15 +178,16 @@ function Analysis(){
  }
  const factorLabel=FACTORS.find(f=>f.key===factor)?.name||factor;
  const detail=useMemo(()=>data?.factors?.[factor]||null,[data,factor]);
- return <div className="corr-page">
-  <header className="corr-top"><div><span>🏆 COPA DEL DECANO · LABORATORIO EXTERNO</span><h1>¿Correlación o efecto del bienestar?</h1><p>Importa el CSV de todas las salas y deja que Python calcule las relaciones.</p></div>
-   <a href="./dean-play.html" className="corr-ghost">← Volver al juego</a></header>
+ return <div className={'corr-page'+(embedded?' corr-embedded':'')}>
+  <header className="corr-top"><div><span>🏆 COPA DEL DECANO · ANÁLISIS DENTRO DEL JUEGO</span><h1>📉 ¿Correlación negativa?</h1><p>Python WebAssembly calcula la relación sobre los parciales reales de todas las salas. El signo se obtiene de los datos; no está predeterminado.</p></div>
+   {embedded&&onContinue&&<button type="button" className="corr-ghost" onClick={onContinue}>🏛️ Ir a decisión →</button>}</header>
   <main className="corr-grid">
    <section className="corr-panel">
     <div className="corr-step">01 · DATOS</div>
-    <h2>Sube los datos de la Copa</h2>
-    <p>Al finalizar los seis exámenes, descarga <strong>TODOS LOS DATOS DE LAS 5 SALAS</strong>. El archivo se analiza localmente.</p>
-    <label className="corr-upload">📂 ELEGIR CSV<input type="file" accept=".csv,text/csv" onChange={pick}/></label>
+    <h2>{embedded?'Datos generados por los participantes':'Importar datos de la Copa'}</h2>
+    <p>{embedded?'Se obtiene automáticamente el CSV del servidor: todas las salas y los exámenes registrados hasta ahora, sin descargas ni cargas manuales.':'Selecciona un CSV de la Copa.'}</p>
+    {embedded?<button type="button" className="corr-refresh" disabled={busy} onClick={fetchWholeCup}>🔄 ACTUALIZAR DATOS DE TODAS LAS SALAS</button>:
+      <label className="corr-upload">📂 ELEGIR CSV<input type="file" accept=".csv,text/csv" onChange={pick}/></label>}
     {fileName&&<small className="corr-muted">Archivo: {fileName}</small>}
     <div className="corr-step">02 · EXPLORAR</div>
     <label className="corr-field">Relación a analizar
@@ -183,26 +200,28 @@ function Analysis(){
       <option value="pragmatic">Pragmático</option>
      </select></label>
     <label className="corr-check"><input type="checkbox" checked={onlyManual} onChange={e=>{setOnlyManual(e.target.checked);setData(null)}}/> Solo decisiones humanas (excluir los simulados)</label>
-    <button className="corr-button" type="button" disabled={busy||!csvText} onClick={analyse}>{busy?'⏳ CALCULANDO…':'🐍 ANALIZAR CON PYTHON'}</button>
+    {!embedded&&<button className="corr-button" type="button" disabled={busy||!csvText} onClick={analyse}>{busy?'⏳ CALCULANDO…':'🐍 ANALIZAR CON PYTHON'}</button>}
     <p className="corr-status" role="status">{status||'Carga un CSV para empezar.'}</p>
-    <div className="corr-step">03 · NOTA GUIADA</div>
-    <p>¿Prefieres Colab? El notebook hace la revisión completa: calidad, Pearson, Spearman, arquetipos, comparaciones individuales y ajuste exploratorio.</p>
-    <a className="corr-notebook" href={COLAB} target="_blank" rel="noreferrer">📓 Abrir notebook en Google Colab ↗</a>
-    <a className="corr-muted" href={NOTEBOOK} download>⬇ Descargar notebook (.ipynb)</a>
+    {!embedded&&<><div className="corr-step">03 · CONCLUSIONES</div>
+    <p>Los cálculos se ejecutan dentro del navegador con Python.</p></>}
    </section>
    <section className="corr-results" aria-live="polite">
     {!data?<div className="corr-empty"><span aria-hidden="true">🔬</span><h2>Tu laboratorio está listo</h2><p>La gráfica y las correlaciones aparecerán aquí tras analizar el CSV.</p></div>:<>
      <div className="corr-result-head"><h2>Relaciones observadas</h2><small>{data.n} parciales analizados · {data.n_students} estudiantes · {data.n_rooms} salas en el archivo · {data.n_simulated} registros simulados en el original</small></div>
-     <p className="corr-reading" role="status">{correlationReading(detail?.r)}</p><div className="corr-stat-grid"><div><small>Pearson r</small><strong>{showR(detail?.r)}</strong><span>Relación lineal</span></div><div><small>Spearman ρ</small><strong>{showR(detail?.rho)}</strong><span>Relación por rangos</span></div><div><small>Pearson dentro del alumno</small><strong>{showR(data.r_within)}</strong><span>{data.n_within} exámenes con repetición</span></div></div>
+     <p className={'corr-reading'+(detail?.r<0?' corr-negative':'')} role="status">{detail?.r<0?'📉 CORRELACIÓN NEGATIVA OBSERVADA · ':detail?.r>=0?'📈 NO SE OBSERVA CORRELACIÓN NEGATIVA · ':''}{correlationReading(detail?.r)}</p><div className="corr-stat-grid"><div><small>Pearson r</small><strong>{showR(detail?.r)}</strong><span>Relación lineal</span></div><div><small>Spearman ρ</small><strong>{showR(detail?.rho)}</strong><span>Relación por rangos</span></div><div><small>Pearson dentro del alumno</small><strong>{showR(data.r_within)}</strong><span>{data.n_within} exámenes con repetición</span></div></div>
      <Scatter points={data.points} line={data.linear} factor={factorLabel}/>
      <div className="corr-legend"><span>🟠 Sobreexigido</span><span>🟢 Equilibrado</span><span>🔴 En riesgo</span><span>🔵 Pragmático</span></div>
      <h3>Comparación por arquetipo</h3>
      <table><thead><tr><th>Perfil</th><th>Exámenes</th><th>Pearson r</th><th>Spearman ρ</th></tr></thead>
       <tbody>{Object.entries(data.profiles).map(([name,item])=><tr key={name}><td>{{over:'Sobreexigido',balanced:'Equilibrado',risk:'En riesgo',pragmatic:'Pragmático'}[name]||name}</td><td>{item.n}</td><td>{showR(item.r)}</td><td>{showR(item.rho)}</td></tr>)}</tbody></table>
-     <div className="corr-conclusion"><strong>🏛️ La decisión del Rector</strong><p>Una asociación, sea positiva o negativa, <b>no permite concluir</b> que quitar los beneficios de bienestar elevará la nota. Los arquetipos, el PGA previo, la complejidad de los exámenes y las decisiones de cada estudiante pueden influir. Cada participante aporta hasta seis notas, no seis personas independientes.</p></div>
+     <div className="corr-conclusion"><strong>🏛️ La decisión del Rector</strong><p>Una asociación, sea positiva o negativa, <b>no permite concluir</b> que quitar los beneficios de bienestar elevará la nota. Los arquetipos, el PGA previo, la complejidad de los exámenes y las decisiones de cada estudiante pueden influir. Cada participante aporta hasta seis notas, no seis personas independientes.</p>
+      {embedded&&onContinue&&<button type="button" className="corr-button corr-decision" onClick={onContinue}>🏛️ DECIDIR COMO RECTOR →</button>}</div>
     </>}
    </section>
   </main>
  </div>;
 }
-createRoot(document.getElementById('root')).render(<Analysis/>);
+// Preserve old bookmarked URL without linking or publishing an extra game resource.
+if(location.pathname.endsWith('/dean-correlacion.html')){
+ createRoot(document.getElementById('root')).render(<CopaCorrelation/>);
+}
