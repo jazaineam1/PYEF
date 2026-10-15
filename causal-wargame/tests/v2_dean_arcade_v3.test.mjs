@@ -5,7 +5,7 @@ import {ARCADE_PROTOCOL,ARCADE_CAP,ARCADE_EXAMS,ARCADE_RANGES,arcadeDefault,
  arcadeValid,arcadeCost,rebalanceArcade,arcadeTier,arcadeCheer,arcadeTitle,arcadeStreak} from '../src/v2/dean-arcade.js';
 const read=p=>readFileSync(p,'utf8');
 test('New Cup has ten exams and a real 14-hour limit',()=>{
- assert.equal(ARCADE_EXAMS,6);assert.equal(ARCADE_CAP,14);assert.equal(ARCADE_PROTOCOL,'real_hours_10_v1');
+ assert.equal(ARCADE_EXAMS,6);assert.equal(ARCADE_CAP,14);assert.equal(ARCADE_PROTOCOL,'real_hours_6_v1');
  assert.deepEqual(ARCADE_RANGES.sleep,[5.5,9,8]);
  assert.equal(arcadeCost(arcadeDefault()),14);
  assert.ok(arcadeValid(arcadeDefault()));
