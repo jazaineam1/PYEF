@@ -255,6 +255,42 @@ async function testCausalScience(role,phase,width,height){
  await page.close();
 }
 
+async function testCompactGameLobby(width,height){
+ const page=await browser.newPage({viewport:{width,height}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(code=>localStorage.setItem('cw-dean-v2-'+code,'a'.repeat(64)),code);
+ await page.route('**/v2-dean-cup',async route=>{
+  const b=route.request().postDataJSON();
+  const response=b.action==='learning_state'?{
+   available:true,phase:'lobby',step:'evidence',paused:false,registered:14,
+   mine:{initial:'b',revision:null},counts:{initial:14,revision:0},
+   rooms:[1,2,3,4,5].map((room_no)=>({room_no,participants:3,learning_points:0}))
+  }:b.action==='mission_state'?{available:false}:{...fixture,game_code:code,phase:'lobby',groups:groupFixture(14)};
+  await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(response)});
+ });
+ await page.goto(base+'/dean-play.html?game='+code,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-game-quest').waitFor({state:'visible',timeout:10000});
+ const options=page.locator('.dean-game-quest .dean-quest-option');
+ assert.equal(await options.count(),3,'Game has only three concise choices');
+ const captions=await options.allTextContents();
+ assert.ok(captions.every(t=>t.length<65),'No prose walls inside game choices');
+ const deep=page.locator('.dean-game-learn-more');
+ assert.equal(await deep.isVisible(),true,'Learning disclosure discoverable');
+ assert.equal(await deep.getAttribute('open'),null,'Theory defaults closed');
+ assert.equal(await page.locator('.dean-game-wait').count(),1,'One concise wait line, no duplicated intro');
+ assert.equal(await page.locator('.dean-game-science-tools').count(),0,'No secondary science atlas on prologue');
+ const action=page.locator('.dean-game-quest .dean-quest-submit');
+ assert.ok(await action.isVisible(),'Primary confirm decision visible');
+ const rect=await action.boundingBox();
+ assert.ok(rect&&rect.x+rect.width<=width+2,'Decision is not cut horizontally');
+ const metrics=await page.evaluate(()=>({sh:document.documentElement.scrollHeight,sw:document.documentElement.scrollWidth}));
+ assert.ok(metrics.sh<=height+3&&metrics.sw<=width+3,'No global scroll in game');
+ assert.deepEqual(errors,[],'No runtime errors');
+ await page.screenshot({path:`visual-qa/lobby-game-first-${width}x${height}.png`,fullPage:false});
+ console.log('PASS_COMPACT_GAME_LOBBY',width+'x'+height);
+ await page.close();
+}
+
 async function testExpiredTeacherReset(){
  const page=await browser.newPage({viewport:{width:1366,height:768}});
  const pageErrors=[];page.on('pageerror',e=>pageErrors.push(e.message));
@@ -461,6 +497,9 @@ async function testFinal(role,width,height,attendees){
 }
 
 try{
+ for(const [w,h] of [[1366,768],[390,844]]){
+  try{await testCompactGameLobby(w,h)}catch(e){failures++;console.error('FAIL_COMPACT_GAME_LOBBY',w,h,e.stack||e)}
+ }
  try{await testExpiredTeacherReset()}catch(e){failures++;console.error('FAIL_EXPIRED_TEACHER_RESET',e.stack||e)}
  for(const [role,phase,w,h] of [
   ['player','rector',1366,768],['player','survey',1366,768],
