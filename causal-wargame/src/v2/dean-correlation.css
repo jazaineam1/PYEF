@@ -1,4 +1,4 @@
-*{box-sizing:border-box}html,body,#root{min-height:100%;margin:0}body{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0a1530;color:#eef6ff}
+.corr-page,.corr-page *{box-sizing:border-box}.corr-page{font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#0a1530;color:#eef6ff}
 .corr-page{max-width:1500px;margin:auto;padding:clamp(14px,2vw,28px)}
 .corr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:7px 0 24px}
 .corr-top span,.corr-step{letter-spacing:.15em;font-size:12px;font-weight:900;color:#76e7d8}
