@@ -6,24 +6,36 @@ export const arcadeExamCount=mode=>mode==='real_hours_10_v1'?10:mode==='real_hou
 export const ARCADE_CAP=14;
 export const ARCADE_STEP=.5;
 export const ARCADE_RANGES=Object.freeze({study:[0,8,4],sleep:[5.5,9,8],wellness:[0,4,2]});
+// 6-exam archetypes have different feasible ranges AND different starting strategies.
+// We keep the old shared ranges for any already-running 10-exam Cups.
+export const ARCADE_ARCHETYPES=Object.freeze({
+ over:{label:'Sobreexigido',study:[2,8,6],sleep:[6,8,6.5],wellness:[0,3,1.5]},
+ balanced:{label:'Equilibrado',study:[1,6,4],sleep:[7,9,8],wellness:[0,4,2]},
+ risk:{label:'En riesgo',study:[0,5,3],sleep:[6,8.5,7],wellness:[0,4,2]},
+ pragmatic:{label:'Pragmático',study:[0,5,3],sleep:[7,9,8],wellness:[1,4,3]}
+});
+export const arcadeRanges=(archetype,mode='real_hours_10_v1')=>
+ mode==='real_hours_6_v1'?(ARCADE_ARCHETYPES[archetype]||ARCADE_ARCHETYPES.balanced):ARCADE_RANGES;
 const KEYS=['study','sleep','wellness'];
 const round=v=>Math.round(v*2)/2;
 export function arcadeCost(values){return KEYS.reduce((sum,k)=>sum+Number(values[k]),0)}
-export function arcadeDefault(){return Object.fromEntries(KEYS.map(k=>[k,ARCADE_RANGES[k][2]]))}
-export function arcadeValid(v){
- return !!v&&KEYS.every(k=>Number.isFinite(v[k])&&v[k]>=ARCADE_RANGES[k][0]&&v[k]<=ARCADE_RANGES[k][1]&&
+export function arcadeDefault(archetype,mode){const limits=arcadeRanges(archetype,mode);return Object.fromEntries(KEYS.map(k=>[k,limits[k][2]]))}
+export function arcadeValid(v,archetype,mode){
+ const limits=arcadeRanges(archetype,mode);
+ return !!v&&KEYS.every(k=>Number.isFinite(v[k])&&v[k]>=limits[k][0]&&v[k]<=limits[k][1]&&
   Math.abs(v[k]*2-Math.round(v[k]*2))<1e-7)&&arcadeCost(v)<=ARCADE_CAP+1e-7;
 }
-export function rebalanceArcade(values,changed,desired){
+export function rebalanceArcade(values,changed,desired,archetype,mode){
+ const limits=arcadeRanges(archetype,mode);
  if(!KEYS.includes(changed))throw Error('Control de horas desconocido');
- const next={...values},[lo,hi]=ARCADE_RANGES[changed];
+ const next={...values},[lo,hi]=limits[changed];
  next[changed]=Math.max(lo,Math.min(hi,round(desired)));
  const donors=changed==='study'?['wellness','sleep']:changed==='sleep'?['study','wellness']:['study','sleep'];
  for(const donor of donors){
-  while(arcadeCost(next)>ARCADE_CAP+1e-7&&next[donor]>ARCADE_RANGES[donor][0])next[donor]=round(next[donor]-.5);
+  while(arcadeCost(next)>ARCADE_CAP+1e-7&&next[donor]>limits[donor][0])next[donor]=round(next[donor]-.5);
  }
  while(arcadeCost(next)>ARCADE_CAP+1e-7&&next[changed]>lo)next[changed]=round(next[changed]-.5);
- if(!arcadeValid(next))throw Error('No hay horas suficientes');
+ if(!arcadeValid(next,archetype,mode))throw Error('No hay horas suficientes');
  return {values:next,sacrificed:donors.filter(k=>next[k]<values[k]).map(k=>({activity:k,hours:round(values[k]-next[k])})),used:arcadeCost(next)};
 }
 export function arcadeTier(score){
