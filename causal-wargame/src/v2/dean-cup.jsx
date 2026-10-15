@@ -8,9 +8,10 @@ import DeanEconMLPanel from './DeanEconMLPanel.jsx';
 import {useDeanMissions,DeanCorrelationLab,DeanDAGChallenge,DeanDMLChallenge,DeanPolicyMission,DeanMissionTeacher,DeanMissionWall,DeanABDiscovery} from './DeanCausalMissions.jsx';
 import DeanQuizArena from './DeanQuizArena.jsx';
 import {agendaCost,rebalanceAgenda,AGENDA_CAP} from './dean-agenda.js';
-import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeStreak,arcadeTitle} from './dean-arcade.js';
+import {ARCADE_EXAMS,ARCADE_CAP,ARCADE_RANGES,arcadeCost,rebalanceArcade,arcadeStreak,arcadeTitle,arcadeExamCount} from './dean-arcade.js';
 import DeanArcadeResult from './DeanArcadeResult.jsx';
 import DeanArcadeMascot from './DeanArcadeMascot.jsx';
+import DeanRectorFinal from './DeanRectorFinal.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -103,7 +104,7 @@ function ExamCountdown({deadline,serverNow,receivedAt}){
  </div>;
 }
 
-function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,receivedAt,arcade=false}){
+function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,receivedAt,arcade=false,examCount=ARCADE_EXAMS}){
  const canonical=version==='zip_dgp_2026';
  const n=Number(person.completed||0)+1,range=arcade?[ARCADE_RANGES.study,ARCADE_RANGES.sleep,ARCADE_RANGES.wellness]:(canonical?canonicalLimits:limits)[person.archetype];
  const [s,setS]=useState(range[0][2]),[z,setZ]=useState(range[1][2]),[w,setW]=useState(range[2][2]);
@@ -141,9 +142,9 @@ function Exam({person,onSubmit,version,agendaEnabled=false,deadline,serverNow,re
  async function submit(){setBusy(true);setErr('');try{setFlash(await onSubmit({exam:n,study:s,sleep:z,wellness:w}))}catch(e){setErr(e.message)}finally{setBusy(false)}}
  if(arcade)return <section className="dean-exam dean-arcade-exam">
   <div className="dean-exam-brief">
-   <span className="dean-kicker">🏆 TEMPORADA · EXAMEN {n} / {ARCADE_EXAMS}</span>
+   <span className="dean-kicker">🏆 TEMPORADA · EXAMEN {n} / {examCount}</span>
    <h2>{sourceSubjects[(n-1)%sourceSubjects.length]}</h2>
-   <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+ARCADE_EXAMS}><i style={{width:(n-1)/ARCADE_EXAMS*100+'%'}}/></div>
+   <div className="dean-meter" aria-label={'Progreso '+(n-1)+' de '+ARCADE_EXAMS}><i style={{width:(n-1)/examCount*100+'%'}}/></div>
    <span className="dean-game-clue">🎯 ¡Consigue la mejor nota de tu sala!</span>
    <div className="dean-arcade-sidekick"><DeanArcadeMascot mood="solid"/></div>
    {canonical&&<ExamCountdown deadline={deadline} serverNow={serverNow} receivedAt={receivedAt}/>}
@@ -406,7 +407,8 @@ function Player(){
  // Do not dismiss arcade achievements before the participant chooses the next round.
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  const me=state?.mine;
- const arcade=state?.game_mode==='real_hours_10_v1';
+ const arcade=['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode);
+ const examCount=arcade?arcadeExamCount(state.game_mode):15;
  // A former player's local token might point to a reset or different Copa.
  // Recover via public game state; never leave the user stuck on "Sesión inválida".
  useEffect(()=>{
@@ -425,7 +427,8 @@ function Player(){
  async function quickComplete(){if(!window.confirm('¿Simular los exámenes restantes usando la estrategia predeterminada de tu arquetipo? Los registros quedarán marcados como simulados automáticamente.'))return;
  setBusy(true);setActionError('');try{await call('auto_finish',{},token);setValue(await call('state',{game_code:code},token))}
  catch(e){setActionError(e.message)}finally{setBusy(false)}}
- async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+'_sala_'+me.room+'_10_examenes.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
+ async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+(state?.game_mode==='real_hours_6_v1'?'_TODAS_LAS_SALAS_6_examenes.csv':'_sala_'+me.room+'_10_examenes.csv');a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
+ async function answerRector(choice){setBusy(true);setActionError('');try{await call('policy_submit',{choice},token);setValue(await call('state',{game_code:code},token))}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function downloadAB(){setBusy(true);setActionError('');try{const blob=await call('ab_download',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_test_2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function download(layer){setBusy(true);setActionError('');try{const blob=await call('export',{layer},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase} examCount={arcade?ARCADE_EXAMS:15}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan (hasta 30). No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: hasta 6 plazas por equipo. No es necesario llenarlas. Recibirás un arquetipo académico ficticio.</p></div>
@@ -589,7 +592,8 @@ function Teacher(){
  const {value:board}=useBoard('',!!teacher,game);
  const learning=useDeanLearning({gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&state?.game_mode!=='real_hours_10_v1',teacherToken:teacher});
  const missions=useDeanMissions({call,gameCode:game,enabled:!!teacher&&state?.dgp_version==='zip_dgp_2026'&&state?.game_mode!=='real_hours_10_v1'});
- const arcade=state?.game_mode==='real_hours_10_v1';
+ const arcade=['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode);
+ const examCount=arcade?arcadeExamCount(state.game_mode):15;
  useEffect(()=>{if(teacher&&board?.game_code===game)setState(board)},[teacher,board,game]);
  async function authenticateWithPin(nextPin){
   const base=endpoint.replace(/\/v2-dean-cup$/,'');
