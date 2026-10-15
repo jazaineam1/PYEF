@@ -57,9 +57,12 @@ Deno.serve(async(req)=>{
       p_hash:hash,p_choice:String(b.choice||'')
     }))
    }
-   if(action==='game_export'){
-    if(!student)return json({error:'Sesión de jugador requerida'},401)
-    const data=await rpc('cw_dean_game_export_v3',{p_hash:hash}) as {columns:unknown[],rows:unknown[][]}
+   if(action==='game_export'||action==='teacher_game_export'){
+    if(action==='teacher_game_export'&&!teacher)return json({error:'Sesión docente requerida'},401)
+    if(action==='game_export'&&!student)return json({error:'Sesión de jugador requerida'},401)
+    const data=await (action==='teacher_game_export'
+      ?rpc('cw_dean_game_export_facilitator_v4',{p_token:teacher})
+      :rpc('cw_dean_game_export_v3',{p_hash:hash})) as {columns:unknown[],rows:unknown[][]}
     const lines=[data.columns,...data.rows].map(row=>row.map(csv).join(','))
     return new Response('\uFEFF'+lines.join('\r\n')+'\r\n',{headers:{...cors,
      'content-type':'text/csv; charset=utf-8',
