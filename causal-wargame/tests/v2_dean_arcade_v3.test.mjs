@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {ARCADE_PROTOCOL,ARCADE_CAP,ARCADE_EXAMS,ARCADE_RANGES,arcadeDefault,
- arcadeValid,arcadeCost,rebalanceArcade,arcadeTier,arcadeTitle,arcadeStreak} from '../src/v2/dean-arcade.js';
+ arcadeValid,arcadeCost,rebalanceArcade,arcadeTier,arcadeCheer,arcadeTitle,arcadeStreak} from '../src/v2/dean-arcade.js';
 const read=p=>readFileSync(p,'utf8');
 test('New Cup has ten exams and a real 14-hour limit',()=>{
  assert.equal(ARCADE_EXAMS,10);assert.equal(ARCADE_CAP,14);assert.equal(ARCADE_PROTOCOL,'real_hours_10_v1');
@@ -54,4 +54,28 @@ test('Bare Cup URL opens code entry, while explicit FUTUROS still accesses histo
  assert.match(jsx,/!explicitCode\?<EnterCupCode/);
  assert.match(jsx,/dean-teacher\.html\?game=FUTUROS/);
  assert.match(jsx,/COPA DEL DECANO/);
+});
+
+test('Mobile-game character, stickers and exact Monicaquillo chant are present',()=>{
+ const result=read('src/v2/DeanArcadeResult.jsx');
+ const mascot=read('src/v2/DeanArcadeMascot.jsx');
+ const css=read('src/v2/dean-arcade.css');
+ assert.match(result,/DeanArcadeMascot/);
+ assert.match(result,/arcade-grade-stars/);
+ assert.match(result,/arcade-character-ribbon/);
+ assert.match(mascot,/<svg/);
+ assert.match(css,/@keyframes arcade-mascot-float/);
+ assert.match(css,/@keyframes arcade-ring-impact/);
+ assert.equal(arcadeCheer(48,2).label,'¡MONICAQUILLO, QUÉ NIVEL!');
+ assert.equal(arcadeCheer(43,2).label,'¡HOMBRECILLO, QUÉ JUGADA!');
+ assert.equal(arcadeCheer(48,1).label,'¡ERES UNA MÁQUINA!');
+ assert.equal(arcadeCheer(44,1).label,'¡QUÉ ÁSPERO!');
+});
+test('Arcade hides pedagogy: ten rounds direct to CSV, no prologue',()=>{
+ const player=read('src/v2/dean-cup.jsx');
+ const arcadeMarkup=player.slice(player.indexOf('if(arcade)return <section'),player.indexOf('return <section className="dean-exam"><div className="dean-exam-brief">'));
+ assert.match(arcadeMarkup,/ARCADE_EXAMS/);
+ assert.doesNotMatch(arcadeMarkup,/PRÓLOGO|DAG|Python|explicación|definición/i);
+ assert.match(player,/game_mode==='real_hours_10_v1'/);
+ assert.match(player,/state\.phase==='lobby'\?<section className="dean-arcade-finish"/);
 });
