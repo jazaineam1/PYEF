@@ -246,6 +246,7 @@ function ABFromObserved({rows}){
 }
 function DeanCausalLab({phase,token,version,step='challenge',missions}){
  const [rows,setRows]=useState(null),[layer,setLayer]=useState(''),[error,setError]=useState(''),[loading,setLoading]=useState(false);
+ useEffect(()=>{setRows(null);setLayer('');setError('')},[phase,token]);
  if(version!=='zip_dgp_2026'||!['rector','survey','causal','final','finished'].includes(phase))return null;
  async function calculate(type){
   setLoading(true);setError('');try{
@@ -265,6 +266,14 @@ function DeanCausalLab({phase,token,version,step='challenge',missions}){
    setRows(records);setLayer(type);
   }catch(e){setError(e.message)}finally{setLoading(false)}
  }
+ useEffect(()=>{
+  // Fetch actual observations automatically after the instructor releases evidence;
+  // never invent points when fewer than four students joined this tournament.
+  if(version!=='zip_dgp_2026'||step!=='evidence'||!['rector','survey'].includes(phase)||!token)return;
+  let live=true;
+  const id=setTimeout(()=>{if(live)calculate(phase==='rector'?'rector':'survey')},500);
+  return()=>{live=false;clearTimeout(id)};
+ },[version,step,phase,token]);
  return <section className="dean-lab" aria-label="Laboratorio causal con datos de la Copa">
   <div className="dean-kicker">🔬 DEL TORNEO A LA EVIDENCIA · ZIP CANÓNICO</div>
   <h2>{phase==='rector'?'La trampa del Rector':phase==='survey'?'La trampa del modelo multivariable':'De correlación a experimento A/B'}</h2>
