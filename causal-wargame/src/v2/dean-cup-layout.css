@@ -21,6 +21,10 @@
 .dean-page .dean-big{min-height:43px;padding:9px 14px;font-size:clamp(12px,1vw,16px);border-radius:10px}
 .dean-page .dean-notebook-link{font-size:13px;padding:8px 12px;border-radius:9px;text-decoration:none}
 .dean-page .dean-join,.dean-page main.dean-hero{max-width:920px;margin:auto;overflow:auto;padding:clamp(14px,2vw,28px)}
+/* Match the specificity of .dean-page main from the base stylesheet. */
+.dean-page main.dean-player{gap:8px}
+.dean-page main.dean-wall-main{gap:8px}
+.dean-page main.dean-teacher{gap:8px}
 /* No invisible global vertical scroll; independent panels retain keyboard scrolling. */
 .dean-player,.dean-teacher,.dean-wall-main{height:100%;overflow:hidden;min-height:0;min-width:0}
 .dean-player{display:grid;grid-template-rows:70px minmax(0,1fr) 38px;gap:8px}
