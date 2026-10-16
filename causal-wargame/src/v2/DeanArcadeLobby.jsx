@@ -9,7 +9,7 @@ export const lobbyCounts=players=>({
 });
 
 export default function DeanArcadeLobby({players=[],phase='lobby',room=null,compact=false,
- ownReady=false,readyBusy=false,onReady=null,examCount=6}){
+ ownReady=false,readyBusy=false,onReady=null,examCount=6,roomCount=5}){
  const isWaiting=phase==='lobby';
  const list=room==null?players:players.filter(p=>Number(p.room_no)===Number(room));
  const {total,ready}=lobbyCounts(players);
@@ -26,7 +26,7 @@ export default function DeanArcadeLobby({players=[],phase='lobby',room=null,comp
   {isWaiting&&room!=null&&<p className="dean-lobby-hint">Marca listo y espera a que el docente abra los {examCount} exámenes.</p>}
   {list.length===0&&<p className="dean-lobby-hint">Aún no se ha unido nadie a esta sala.</p>}
   <div className="dean-lobby-room-grid">
-   {(room!=null?[Number(room)]:[1,2,3,4,5]).map(roomNo=>{
+   {(room!=null?[Number(room)]:Array.from({length:roomCount},(_,i)=>i+1)).map(roomNo=>{
     const members=list.filter(p=>Number(p.room_no)===roomNo);
     return <div className="dean-lobby-room" key={roomNo}>
      <div className="dean-lobby-room-title"><b>SALA {roomNo} · {rooms[roomNo-1]}</b><small>{members.length}/6</small></div>
@@ -40,7 +40,7 @@ export default function DeanArcadeLobby({players=[],phase='lobby',room=null,comp
    })}
   </div>
   {room==null&&isWaiting&&<div className="dean-lobby-footer" role="status">
-   <span>{total}/30 inscritos</span><b>{ready} preparados</b><span>{total-ready} pendientes</span>
+   <span>{total}/{roomCount*6} inscritos</span><b>{ready} preparados</b><span>{total-ready} pendientes</span>
   </div>}
  </section>;
 }
