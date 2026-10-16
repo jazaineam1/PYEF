@@ -160,6 +160,10 @@ Deno.serve(async(req)=>{
        {p_code:code,p_alias:String(b.alias||''),p_hash:hash}) as Record<string,unknown>
      :await rpc('cw_dean_join_v3',
        {p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}) as Record<string,unknown>
+   if(joined?.queued===true){
+     const waiting=await rpc('cw_dean_queue_status_v9',{p_code:code,p_hash:hash}) as Record<string,unknown>
+     return json({...joined,...waiting})
+   }
    if(joined?.dgp_version==='zip_dgp_2026'){
     const agenda=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
     return json({...joined,game_mode:agenda?.protocol||null,
