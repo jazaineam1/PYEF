@@ -480,7 +480,7 @@ function Player(){
         :<div className="dean-arcade-return">🎧 En Teams, elige «Regresar» para volver a la sala principal</div>}
      </section>:
      state.phase==='lobby'?<DeanArcadeLobby players={state.lobby_players||[]} phase="lobby" room={me.room}
-      ownReady={state.my_lobby_ready===true} readyBusy={readyBusy} onReady={markReady} examCount={examCount}/>:
+      ownReady={state.my_lobby_ready===true} readyBusy={readyBusy} onReady={markReady} examCount={examCount} roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}/>:
      <Exam person={me} version={state.dgp_version} gameMode={state.game_mode} arcade examCount={examCount} agendaEnabled deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit} onSkip={state.game_mode==='real_hours_6_v1'?()=>quickComplete({skipConfirm:true}):null}/>)
    :['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
@@ -515,7 +515,7 @@ function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','
  <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 {value.game_mode==='real_hours_6_v1'?'2':'5'} SALAS · MARCADOR EN VIVO</span></div>
  
  <div className="dean-wall-grid">{arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'
- ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.groups} examCount={examCount}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
+ ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.groups} examCount={examCount}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount} roomCount={value.game_mode==='real_hours_6_v1'&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
  {value.phase==='final'&&value.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="wall"/>}
  {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}</>}
  </aside></div>
@@ -714,7 +714,7 @@ function Teacher(){
    <Board groups={state.groups} examCount={examCount}/>} 
  <aside className="dean-teacher-sidebar">
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · {state.game_mode==='real_hours_6_v1'?'dos':'cinco'} salas.</p>
-     <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
+     <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount} roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}/>
      {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LAS 5 SALAS</button>}
      <p>Un clic para iniciar, ninguno entre exámenes. La correlación se calcula dentro del juego con datos del servidor.</p>
      {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={state.phase==='lobby'} onClick={()=>setShowCorrelation(true)}>📉 VER CORRELACIÓN DE LAS CINCO SALAS</button>}
