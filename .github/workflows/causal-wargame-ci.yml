@@ -53,3 +53,11 @@ jobs:
         env:
           CW_BASE_URL: https://nedsrnqwvxtelddmtvtv.supabase.co/functions/v1
         run: node scripts/v2_simple_flow_smoke.mjs
+
+      - name: Temporary real 20-player concurrent Edge load (isolated synthetic game)
+        if: github.event_name == 'pull_request' && github.head_ref == 'qa/dean-20-concurrent-20261016'
+        env:
+          CW_BASE_URL: https://nedsrnqwvxtelddmtvtv.supabase.co/functions/v1
+          QA_GAME_CODE: QA20L-16102026
+          QA_FAC_TOKEN: qa20fac-16oct2026-concurrent-94a2
+        run: node scripts/dean_20_live_load_qa.mjs
