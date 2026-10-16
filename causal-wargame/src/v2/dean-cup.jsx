@@ -21,7 +21,7 @@ import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWal
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
 const icons={over:'🧠',balanced:'🏃',risk:'🧩',pragmatic:'🏖️'};
-const profiles={over:'Sobreexigido',balanced:'Equilibrado',risk:'En riesgo',pragmatic:'Pragmático'};
+const profiles={over:'Sobreexigido',balanced:'Equilibrado',risk:'Con obstáculos',pragmatic:'Pragmático (histórico)'};
 const limits={over:[[5,14,10],[1,5,3.5],[0,3,1]],balanced:[[2,9,6],[6,9,7.5],[1,6,3.5]],risk:[[2,9,5],[4,7.5,5.5],[0,4,1]],pragmatic:[[0,5,2],[6.5,10,8.5],[0,5,2.5]]};
 const canonicalLimits={over:[[8,14,11.5],[2,5,3.5],[0,1.5,0.6]],balanced:[[4,8,6],[6.5,8.5,7.5],[1.5,3.5,2.5]],risk:[[2,5.5,3.5],[4.5,7,6],[1.5,4,2.5]],pragmatic:[[0.5,3.5,1.5],[7,9.5,8.5],[3.5,6,4.8]]};
 const sourceSubjects=['Cálculo Multivariable','Física Mecánica y Ondas','Econometría Aplicada','Estructuras de Datos y Algoritmos','Estadística y Probabilidad','Bases de Datos Relacionales','Metodología de la Investigación','Fundamentos de Gestión y Finanzas','Innovación y Emprendimiento','Comunicación Oral y Escrita','Ética Profesional y Ciudadanía'];
@@ -452,9 +452,9 @@ function Player(){
  return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase} examCount={examCount}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan (hasta 30). No necesitas instalar nada.</p></main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>Elige una sala de Teams: hasta 6 plazas por equipo. No es necesario llenarlas. Recibirás un arquetipo académico ficticio.</p></div>
  <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: maria_ds"/></label>
  <p className="dean-room-recommendation">🎯 Sala sugerida (menor ocupación):
- <b> {names[(state.groups.filter(g=>g.members<6).sort((a,b)=>a.members-b.members||a.room_no-b.room_no)[0]?.room_no||1)-1]}</b>.
- Es una recomendación, no una obligación. Puedes jugar con 1–30 personas en total.</p>
- <div className="dean-rooms">{state.groups.map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
+ <b> {names[(state.groups.filter(g=>(state.game_mode!=='real_hours_6_v1'||g.room_no<=2)&&g.members<6).sort((a,b)=>a.members-b.members||a.room_no-b.room_no)[0]?.room_no||1)-1]}</b>.
+ Es una recomendación, no una obligación. La Copa nueva permite hasta dos salas, con seis personas por sala.</p>
+ <div className="dean-rooms">{state.groups.filter(g=>state.game_mode!=='real_hours_6_v1'||g.room_no<=2).map(g=><button key={g.room_no} type="button" disabled={g.members>=6} className={room===g.room_no?'active':''} aria-pressed={room===g.room_no} onClick={()=>setRoom(g.room_no)}><b>Grupo {g.room_no}</b><span>{names[g.room_no-1]}</span><small>{g.members}/6 plazas</small></button>)}</div><button className="dean-big" type="button" disabled={busy||alias.trim().length<2} onClick={join}>🚀 {busy?'Entrando…':'ENTRAR A LA COPA'}</button></main>:
  <main className={'dean-player'+(arcade?' dean-arcade-player':'')}>
    <div className="dean-player-topbar">
     <div className="dean-carnet"><span aria-hidden="true">{arcade?lobbyAvatar(state.my_avatar_no):icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
@@ -512,7 +512,7 @@ function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','
  const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase} examCount={examCount}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
- <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 5 SALAS · MARCADOR EN VIVO</span></div>
+ <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 {value.game_mode==='real_hours_6_v1'?'2':'5'} SALAS · MARCADOR EN VIVO</span></div>
  
  <div className="dean-wall-grid">{arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'
  ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.groups} examCount={examCount}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
@@ -713,7 +713,7 @@ function Teacher(){
    ?<DeanLifePodium recap={state.life_recap} large/>:
    <Board groups={state.groups} examCount={examCount}/>} 
  <aside className="dean-teacher-sidebar">
-  {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · cinco salas.</p>
+  {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · {state.game_mode==='real_hours_6_v1'?'dos':'cinco'} salas.</p>
      <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}/>
      {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LAS 5 SALAS</button>}
      <p>Un clic para iniciar, ninguno entre exámenes. La correlación se calcula dentro del juego con datos del servidor.</p>
