@@ -54,14 +54,16 @@ test('Exam action and the compact instructor phase action remain available',()=>
  assert.match(teacher,/dean-teacher-sidebar/);
  assert.match(teacher,/dean-teacher-next/);
  assert.match(teacher,/onClick=\{\(\)=>direct\(arcade&&state\.phase==='exams'\?'finish_game':'next'\)\}/);
- assert.match(teacher,/state\.phase==='lobby'\?'🚀 ABRIR LOS '\+examCount\+' EXÁMENES'/);
+ assert.match(teacher,/INICIAR LA SALA ÚNICA/);
+  assert.match(teacher,/state\.phase==='lobby'/);
  assert.match(teacher,/game_code:game/);
 });
 test('Wall provides all five room rows with a separate bounded explainer',()=>{
  const wall=section('function Wall(){','function Teacher(){');
  assert.match(wall,/dean-wall-main/);
  assert.match(wall,/dean-wall-grid/);
- assert.match(wall,/<Board groups=\{value\.groups\}/);
+ assert.match(wall,/<Board groups=\{value\.game_mode/);
+  assert.match(wall,/singleRoom=/);
  assert.match(wall,/className="dean-wall-story"/);
  assert.match(css,/\.dean-wall-story\{[^}]*overflow:auto/);
  assert.match(css,/@media\(max-height:760px\)/);

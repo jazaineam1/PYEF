@@ -102,15 +102,15 @@ async function wallAndTeacher(mode='real_hours_10_v1'){
    if(b.action==='teacher'){assert.equal(b.command,'next');phase='exams'}
    if(b.action==='game_finish')phase='finished';
    const isSix=mode==='real_hours_6_v1';
-   const people=Array.from({length:30},(_,i)=>({alias:'Jugador '+(i+1),room_no:1+Math.floor(i/6),avatar_no:i%12,ready:i%2===0}));
+   const people=Array.from({length:30},(_,i)=>({alias:'Jugador '+(i+1),room_no:isSix?1:1+Math.floor(i/6),avatar_no:i%12,ready:i%2===0}));
    const state={available:true,game_code:code,game_mode:mode,
-    dgp_version:'zip_dgp_2026',phase,groups:groups.map(g=>({...g,target_exams:isSix?36:60})),mine:null,
+    dgp_version:'zip_dgp_2026',phase,groups:isSix?[{room_no:1,members:30,target_exams:180,exams_completed:0,coverage_pct:0,fair_score:0,average_score:null,is_complete:false}]:groups.map(g=>({...g,target_exams:60})),mine:null,
     lobby_players:people,agenda_enabled:true,
     exam_count:isSix?6:10,server_now:new Date().toISOString(),
     life_recap:isSix?{finished:phase==='finished',eligible_count:3,
       top3:[{place:1,alias:'Jugador 1',room_no:1,avatar_no:1,decision_index:43.2,avg_grade:46},
-            {place:2,alias:'Jugador 9',room_no:2,avatar_no:4,decision_index:41.1,avg_grade:43},
-            {place:3,alias:'Jugador 16',room_no:3,avatar_no:7,decision_index:39.4,avg_grade:40}],my:null}:null};
+            {place:2,alias:'Jugador 9',room_no:1,avatar_no:4,decision_index:41.1,avg_grade:43},
+            {place:3,alias:'Jugador 16',room_no:1,avatar_no:7,decision_index:39.4,avg_grade:40}],my:null}:null};
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(state)});
   });
   await page.goto(base+'/dean-'+(role==='wall'?'wall':'teacher')+'.html?game='+code,
@@ -118,7 +118,7 @@ async function wallAndTeacher(mode='real_hours_10_v1'){
   if(role==='teacher'){
    const next=page.locator('.dean-teacher-next');
    await next.waitFor({state:'visible'});
-   assert.match(await next.innerText(),mode==='real_hours_6_v1'?/ABRIR LOS 6 EXÁMENES/:/ABRIR LOS 10 EXÁMENES/);
+   assert.match(await next.innerText(),mode==='real_hours_6_v1'?/INICIAR LA SALA ÚNICA/:/ABRIR LOS 10 EXÁMENES/);
    await next.click();
    await page.waitForFunction(()=>document.querySelector('.dean-teacher-next')?.textContent?.includes('CERRAR JUEGO'),{timeout:10000});
    await next.click();
@@ -131,7 +131,8 @@ async function wallAndTeacher(mode='real_hours_10_v1'){
    }
    assert.equal(await page.locator('.dean-quest-control').count(),0);
   }else{
-   assert.equal(await page.locator('.dean-wall .dean-board>article').count(),5);
+   assert.equal(await page.locator('.dean-wall .dean-board>article').count(),mode==='real_hours_6_v1'?0:5);
+   if(mode==='real_hours_6_v1')assert.equal(await page.locator('.dean-single-room-board').count(),1);
    assert.equal(await page.locator('.dean-quest-wall').count(),0);
    if(mode==='real_hours_6_v1'){
     phase='finished';
@@ -187,18 +188,18 @@ async function sixRoundViewport(width,height,skip=false){
  const roster=[
   {alias:'QA Player',room_no:1,avatar_no:3,ready:false},
   {alias:'Companera',room_no:1,avatar_no:8,ready:true},
-  {alias:'Sala Delta',room_no:4,avatar_no:6,ready:true}
+  {alias:'Tercer participante',room_no:1,avatar_no:6,ready:true}
  ];
  const buildState=()=>({available:true,game_code:sixCode,game_mode:'real_hours_6_v1',
   phase,dgp_version:'zip_dgp_2026',exam_count:6,agenda_enabled:true,
-  groups:groups.map(g=>({...g,target_exams:36})),lobby_players:roster.map((p,i)=>i===0?{...p,ready}:p),
+  groups:[{room_no:1,members:3,target_exams:18,exams_completed:scores.length,coverage_pct:0,fair_score:0,average_score:null,is_complete:false}],lobby_players:roster.map((p,i)=>i===0?{...p,ready}:p),
   my_avatar_no:3,my_lobby_ready:ready,
   mine:{alias:'QA Player',room:1,archetype:'balanced',pga:3.6,completed:scores.length,
    scores:[...scores],policy_choice:policy,average_score:scores.length?scores.reduce((a,n)=>a+n,0)/scores.length:null},
   life_recap:{finished:phase==='finished',eligible_count:skip?0:3,
    top3:skip?[]:[{place:1,alias:'QA Player',room_no:1,avatar_no:3,decision_index:43,avg_grade:43},
                  {place:2,alias:'Companera',room_no:1,avatar_no:8,decision_index:41,avg_grade:42},
-                 {place:3,alias:'Sala Delta',room_no:4,avatar_no:6,decision_index:39,avg_grade:40}],
+                 {place:3,alias:'Tercer participante',room_no:1,avatar_no:6,decision_index:39,avg_grade:40}],
    my:{alias:'QA Player',archetype:'balanced',exams:scores.length,simulated_exams:skip?6:0,
       avg_grade:scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:0,
       avg_study:4,avg_sleep:8,avg_wellness:2,place:skip?null:1}},
@@ -221,7 +222,7 @@ async function sixRoundViewport(width,height,skip=false){
   if(b.action==='game_export'){
    const columns=['estudiante_id','sala','examen_nro','arquetipo','pga_previo','complejidad','horas_estudio_jornada','horas_sueno_jornada','horas_bienestar_jornada','nota_final','auto_simulado'];
    const rows=Array.from({length:30},(_,i)=>{
-    const sala=Math.floor(i/6)+1,well=(i%6)/2;
+    const sala=1,well=(i%6)/2;
     return ['Alumno '+(i+1),sala,i%6+1,'balanced',3.5,1.2,5-well,8,well,49-well*8,false];
    });
    return route.fulfill({status:200,contentType:'text/csv',
@@ -230,8 +231,11 @@ async function sixRoundViewport(width,height,skip=false){
   return reply(buildState());
  });
  await page.goto(base+'/dean-play.html?game='+sixCode,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-profile-intro').waitFor({timeout:12000});
+ assert.equal(await page.locator('.dean-profile-card').count(),3,'Three starting conditions explained in one scene');
+ await page.locator('.dean-profile-continue').click();
  await page.locator('.dean-arcade-lobby').waitFor({timeout:12000});
- assert.equal(await page.locator('.dean-lobby-member').count(),2);
+ assert.equal(await page.locator('.dean-lobby-member').count(),3,'All registered players share one room');
  await page.locator('.dean-lobby-ready-button').click();
  await page.getByText(/¡ESTOY LISTO!/).first().waitFor({timeout:10000});
  await page.screenshot({path:'visual-qa/six-lobby-'+width+'.png',fullPage:false});
@@ -265,7 +269,7 @@ async function sixRoundViewport(width,height,skip=false){
  assert.equal(scores.length,6,'exactly six exams');
  assert.equal(await page.locator('.corr-embedded input[type=file]').count(),0,
   'Data must come from the server automatically; never ask players to upload CSV');
- assert.match(await page.locator('.corr-embedded').innerText(),/5 SALAS|cinco salas|todas las salas/i);
+ assert.match(await page.locator('.corr-embedded').innerText(),/todos los participantes|exámenes registrados/i);
  if(width===1366){
   await page.locator('.corr-stat-grid').waitFor({timeout:90000});
   let result=Number(await page.locator('.corr-stat-grid strong').first().innerText());
@@ -285,7 +289,7 @@ async function sixRoundViewport(width,height,skip=false){
  assert.match(await page.locator('.dean-rector-final h3').innerText(),/quitar los beneficios de bienestar/);
  const [dl]=await Promise.all([page.waitForEvent('download',{timeout:10000}),
   page.locator('.dean-arcade-download').click()]);
- assert.match(dl.suggestedFilename(),/TODAS_LAS_SALAS_6_examenes/);
+ assert.match(dl.suggestedFilename(),/COPA_COMPLETA_6_examenes/);
  await page.locator('.dean-rector-choice').last().click();
  await page.locator('.dean-rector-submit').click();
  await page.getByText(/DECISIÓN GUARDADA/).waitFor({timeout:10000});

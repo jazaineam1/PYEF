@@ -1,0 +1,41 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import{readFileSync}from'node:fs';
+const get=p=>readFileSync(p,'utf8');
+test('New Cup registers 30 before start without choosing any room',()=>{
+ const migration=get('supabase/migrations/202610160003_two_rooms_after_lobby_v9.sql');
+ const edge=get('supabase/functions/v2-dean-cup/index.ts');
+ const ui=get('src/v2/dean-cup.jsx');
+ assert.match(migration,/cw_dean_pending_v9/);
+ assert.match(migration,/waiting>=30/);
+ assert.match(migration,/new_room:=1;/);
+ assert.match(migration,/mod\(counter,3\)/);
+ assert.doesNotMatch(migration,/new_room:=1\+mod\(counter,2\)/);
+ assert.match(edge,/cw_dean_queue_register_v9/);
+ assert.match(edge,/cw_dean_queue_status_v9/);
+ assert.match(edge,/joined\?\.queued===true/);
+ assert.match(ui,/!me&&state\?\.mine_queued/);
+ assert.match(ui,/SALA ÚNICA/);
+ assert.match(ui,/INICIAR LA SALA ÚNICA/);
+ assert.match(ui,/HASTA 30 CUPOS/);
+});
+test('One single player room and real individual competition, no fake team winner',()=>{
+ const ui=get('src/v2/dean-cup.jsx');
+ const lobby=get('src/v2/DeanArcadeLobby.jsx');
+ assert.match(ui,/function Board\(\{groups=\[\],examCount=15,roomCapacity=6,singleRoom=false/);
+ assert.match(ui,/Una sala · competencia individual/);
+ assert.match(ui,/singleRoom=\{state\.game_mode/);
+ assert.match(ui,/Top 3 individual/);
+ assert.match(lobby,/roomCount===1\?'SALA ÚNICA'/);
+});
+test('Historical Cups retain their five-room joining flow and new Cup retains same code on reset',()=>{
+ const edge=get('supabase/functions/v2-dean-cup/index.ts');
+ const ui=get('src/v2/dean-cup.jsx');
+ const sql=get('supabase/migrations/202610160003_two_rooms_after_lobby_v9.sql');
+ assert.match(edge,/currentAgenda\?\.protocol==='real_hours_6_v1'/);
+ assert.match(edge,/cw_dean_join_v3/);
+ assert.match(edge,/cw_dean_reset_queue_v9/);
+ assert.match(sql,/cw_dean_reset_confirmed/);
+ assert.match(ui,/state\?\.game_mode!=='real_hours_6_v1'&&<DeanNewCupControl/);
+ assert.match(ui,/confirmation_code:game/);
+});

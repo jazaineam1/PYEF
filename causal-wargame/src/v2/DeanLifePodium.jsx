@@ -20,7 +20,7 @@ export default function DeanLifePodium({recap=null,showMy=false,large=false}){
     <div className="dean-life-medal">{medals[i]}</div>
     <div className="dean-life-avatar" aria-hidden="true">{lobbyAvatar(p.avatar_no)}</div>
     <strong className="dean-life-name">{p.alias}</strong>
-    <small>Sala {p.room_no} · {complete&&i===0?'CAMPEÓN':'POSICIÓN #'+p.place}</small>
+    <small>{top.every(x=>x.room_no===1)?'Competencia individual':'Sala '+p.room_no} · {complete&&i===0?'CAMPEÓN':'POSICIÓN #'+p.place}</small>
     <div className="dean-life-index">{fmt(p.decision_index)}<span>/50</span></div>
     <small>Nota media {fmt(p.avg_grade)}/50</small>
    </article>)}

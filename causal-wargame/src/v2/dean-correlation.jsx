@@ -87,9 +87,40 @@ for observations in by_student.values():
     cy.extend(o[selected_y]-avg_y for o in observations)
 within=pearson(cx,cy)
 by_profile={}
-for profile in ['over','balanced','risk','pragmatic']:
+for profile in ['over','balanced','risk']:
     sub=[r for r in rows if r['arquetipo']==profile]
     by_profile[profile]=metrics(sub,selected_var,selected_y)
+# Simpson's paradox is assessed at the STUDENT level to avoid treating
+# six repeated exams by one person as six independent participants.
+# Ignore automatic answers and avoid forcing a reversal when it is not observed.
+student_means=[]
+eligible=[r for r in raw if not r['auto_simulado']]
+by_person=collections.defaultdict(list)
+for obs in eligible:
+    by_person[(obs['sala'],obs['estudiante_id'])].append(obs)
+for person_obs in by_person.values():
+    student_means.append({
+        'profile':person_obs[0]['arquetipo'],
+        'x':statistics.mean(v[selected_var] for v in person_obs),
+        'y':statistics.mean(v[selected_y] for v in person_obs)
+    })
+all_r=pearson([v['x'] for v in student_means],[v['y'] for v in student_means])
+within_profiles={}
+for ar in ['over','balanced','risk']:
+    subset=[v for v in student_means if v['profile']==ar]
+    within_profiles[ar]={'n':len(subset),
+      'r':pearson([v['x'] for v in subset],[v['y'] for v in subset])}
+enough=(selected_y=='nota_final'
+    and all(within_profiles[a]['n']>=3 and within_profiles[a]['r'] is not None
+            for a in ['over','balanced','risk'])
+    and all_r is not None)
+reversal=(enough and
+    ((all_r<=-.15 and all(within_profiles[a]['r']>=.15 for a in within_profiles))
+     or (all_r>=.15 and all(within_profiles[a]['r']<=-.15 for a in within_profiles))))
+simpson={'status':('detected' if reversal else 'not_detected' if enough
+                  else 'not_applicable' if selected_y!='nota_final' else 'insufficient'),
+   'global_r':all_r,'groups':within_profiles,
+   'students':len(student_means),'auto_excluded':len(raw)-len(eligible)}
 x=[r[selected_var] for r in rows];y=[r[selected_y] for r in rows]
 linear=None
 if len(rows)>=3 and len(set(x))>1:
@@ -100,7 +131,7 @@ result={'n':len(rows),'n_total':total,'n_students':len(by_student),'n_students_t
         'n_rooms':len({r['sala'] for r in raw}),
         'n_simulated':sum(r['auto_simulado'] for r in raw),
         'factors':factors,'r_within':within,'n_within':len(cx),
-        'profiles':by_profile,'linear':linear,
+        'profiles':by_profile,'simpson':simpson,'linear':linear,
         'points':[{'x':r[selected_var],'y':r[selected_y],'profile':r['arquetipo']} for r in rows]}
 json.dumps(result,ensure_ascii=False,allow_nan=False)
 `;
@@ -145,7 +176,7 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
  const runtimePromise=useRef(null);
  async function fetchWholeCup(){
   if(!loadCsv)return;
-  setBusy(true);setStatus('Consultando los exámenes reales de todas las salas…');
+  setBusy(true);setStatus('Consultando los exámenes reales de la Copa…');
   try{
    const blob=await loadCsv();
    const csv=await blob.text();
@@ -187,14 +218,14 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
  const factorLabel=selectedFactor.name;
  const detail=useMemo(()=>data?.factors?.[factor]||null,[data,factor]);
  return <div className={'corr-page'+(embedded?' corr-embedded':'')}>
-  <header className="corr-top"><div><span>🏆 COPA DEL DECANO · ANÁLISIS DENTRO DEL JUEGO</span><h1>📉 ¿Correlación negativa?</h1><p>Python WebAssembly calcula la relación sobre los parciales reales de todas las salas. El signo se obtiene de los datos; no está predeterminado.</p></div>
+  <header className="corr-top"><div><span>🏆 COPA DEL DECANO · ANÁLISIS DENTRO DEL JUEGO</span><h1>📉 ¿Correlación negativa?</h1><p>Python WebAssembly calcula la relación sobre los parciales reales de todos los participantes. El signo se obtiene de los datos; no está predeterminado.</p></div>
    {embedded&&onContinue&&<button type="button" className="corr-ghost" onClick={onContinue}>🏛️ Ir a decisión →</button>}</header>
   <main className="corr-grid">
    <section className="corr-panel">
     <div className="corr-step">01 · DATOS</div>
     <h2>{embedded?'Datos generados por los participantes':'Importar datos de la Copa'}</h2>
-    <p>{embedded?'Se obtiene automáticamente el CSV del servidor: todas las salas y los exámenes registrados hasta ahora, sin descargas ni cargas manuales.':'Selecciona un CSV de la Copa.'}</p>
-    {embedded?<button type="button" className="corr-refresh" disabled={busy} onClick={fetchWholeCup}>🔄 ACTUALIZAR DATOS DE TODAS LAS SALAS</button>:
+    <p>{embedded?'Se obtiene automáticamente el CSV del servidor: todos los participantes y los exámenes registrados hasta ahora, sin descargas ni cargas manuales.':'Selecciona un CSV de la Copa.'}</p>
+    {embedded?<button type="button" className="corr-refresh" disabled={busy} onClick={fetchWholeCup}>🔄 ACTUALIZAR DATOS DE LA COPA</button>:
       <label className="corr-upload">📂 ELEGIR CSV<input type="file" accept=".csv,text/csv" onChange={pick}/></label>}
     {fileName&&<small className="corr-muted">Archivo: {fileName}</small>}
     <div className="corr-step">02 · EXPLORAR</div>
@@ -204,8 +235,7 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
     <label className="corr-field">Arquetipo
      <select value={profile} onChange={e=>{setProfile(e.target.value);setData(null)}}>
       <option value="todos">Todos</option><option value="over">Sobreexigido</option>
-      <option value="balanced">Equilibrado</option><option value="risk">En riesgo</option>
-      <option value="pragmatic">Pragmático</option>
+      <option value="balanced">Equilibrado</option><option value="risk">Con obstáculos</option>
      </select></label>
     <label className="corr-check"><input type="checkbox" checked={onlyManual} onChange={e=>{setOnlyManual(e.target.checked);setData(null)}}/> Solo decisiones humanas (excluir los simulados)</label>
     {!embedded&&<button className="corr-button" type="button" disabled={busy||!csvText} onClick={analyse}>{busy?'⏳ CALCULANDO…':'🐍 ANALIZAR CON PYTHON'}</button>}
@@ -219,10 +249,28 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
      <p className={'corr-reading'+(detail?.r<0?' corr-negative':'')} role="status">{detail?.r<0?'📉 CORRELACIÓN NEGATIVA OBSERVADA · ':detail?.r>=0?'📈 NO SE OBSERVA CORRELACIÓN NEGATIVA · ':''}{correlationReading(detail?.r)}</p><div className="corr-stat-grid"><div><small>Pearson r</small><strong>{showR(detail?.r)}</strong><span>Relación lineal</span></div><div><small>Spearman ρ</small><strong>{showR(detail?.rho)}</strong><span>Relación por rangos</span></div><div><small>Pearson dentro del alumno</small><strong>{showR(data.r_within)}</strong><span>{data.n_within} exámenes con repetición</span></div></div>
      <Scatter points={data.points} line={data.linear} factor={selectedFactor.x==='horas_estudio_jornada'?'Horas de estudio':selectedFactor.x==='horas_sueno_jornada'?'Horas de sueño':'Horas de bienestar'} outcome={selectedFactor.y==='nota_final'?'Nota final / 50':'Horas de bienestar'} yMax={selectedFactor.y==='nota_final'?50:4}/>
      {selectedFactor.y!=='nota_final'&&<p className="corr-reading">Esta gráfica muestra el sacrificio entre actividades: más estudio puede implicar menos horas de bienestar por el límite de 14 horas. Es una relación observada, no un efecto sobre las notas.</p>}
-     <div className="corr-legend"><span>🟠 Sobreexigido</span><span>🟢 Equilibrado</span><span>🔴 En riesgo</span><span>🔵 Pragmático</span></div>
+     <div className="corr-legend"><span>🟠 Sobreexigido</span><span>🟢 Equilibrado</span><span>🔴 Con obstáculos</span></div>
+     {data.simpson&&<section className={'corr-simpson'+(data.simpson.status==='detected'?' is-reversal':'')} aria-label="Comprobar paradoja de Simpson">
+      <h3>{data.simpson.status==='detected'?'🔀 ¡Paradoja de Simpson detectada!':
+        data.simpson.status==='not_detected'?'🔍 ¿Es la paradoja de Simpson?':
+        data.simpson.status==='not_applicable'?'⚖️ Este contraste es un intercambio de tiempo':
+        '🔎 Aún no podemos comprobar la paradoja de Simpson'}</h3>
+      <p>{data.simpson.status==='detected'
+       ?'Al juntar personas, la asociación entre horas y nota apunta en una dirección; dentro de los tres perfiles, apunta en la contraria.'
+       :data.simpson.status==='not_detected'
+       ?'Los grupos no muestran una inversión completa de la asociación. Puede haber confusión o relaciones distintas, pero no debemos llamarlo paradoja de Simpson.'
+       :data.simpson.status==='not_applicable'
+       ?'Estudio y bienestar comparten un presupuesto fijo de horas: eso puede crear una asociación negativa mecánica, sin que sea un efecto sobre las notas.'
+       :'Se necesitan al menos tres estudiantes con decisiones manuales por cada perfil y variación suficiente para comparar asociaciones. No se inventará un resultado.'}</p>
+      {data.simpson.status!=='not_applicable'&&<div className="corr-simpson-pills">
+       <span>Todos: <b>{showR(data.simpson.global_r)}</b></span>
+       {Object.entries(data.simpson.groups).map(([name,v])=><span key={name}>{({over:'Sobreexigido',balanced:'Equilibrado',risk:'Con obstáculos'}[name]||name)} · {v.n} estudiantes: <b>{showR(v.r)}</b></span>)}
+      </div>}
+      <p>Se comparan <b>promedios por estudiante</b>, no seis personas ficticias por seis exámenes. Las decisiones automáticas quedan fuera de esta prueba. Incluso detectar la inversión no demuestra causalidad.</p>
+     </section>}
      <h3>Comparación por arquetipo</h3>
      <table><thead><tr><th>Perfil</th><th>Exámenes</th><th>Pearson r</th><th>Spearman ρ</th></tr></thead>
-      <tbody>{Object.entries(data.profiles).map(([name,item])=><tr key={name}><td>{{over:'Sobreexigido',balanced:'Equilibrado',risk:'En riesgo',pragmatic:'Pragmático'}[name]||name}</td><td>{item.n}</td><td>{showR(item.r)}</td><td>{showR(item.rho)}</td></tr>)}</tbody></table>
+      <tbody>{Object.entries(data.profiles).map(([name,item])=><tr key={name}><td>{{over:'Sobreexigido',balanced:'Equilibrado',risk:'Con obstáculos'}[name]||name}</td><td>{item.n}</td><td>{showR(item.r)}</td><td>{showR(item.rho)}</td></tr>)}</tbody></table>
      <div className="corr-conclusion"><strong>🏛️ La decisión del Rector</strong><p>Una asociación, sea positiva o negativa, <b>no permite concluir</b> que quitar los beneficios de bienestar elevará la nota. Los arquetipos, el PGA previo, la complejidad de los exámenes y las decisiones de cada estudiante pueden influir. Cada participante aporta hasta seis notas, no seis personas independientes.</p>
       {embedded&&onContinue&&<button type="button" className="corr-button corr-decision" onClick={onContinue}>🏛️ DECIDIR COMO RECTOR →</button>}</div>
     </>}

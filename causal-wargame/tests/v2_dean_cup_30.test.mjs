@@ -70,7 +70,7 @@ test('attendance from 0 to 30 is optional, ranking uses actual seated players',(
  for(const term of ['s.members*15','nullif(s.members*15,0)','s.members>0','registered_players','target_exams','fair_score','coverage_pct','participants'])assert.ok(sql.includes(term),term)
  assert.doesNotMatch(sql,/count\(e.exam_no\)=90/)
  const ui=readFileSync('src/v2/dean-cup.jsx','utf8')
- assert.match(ui,/0\/6 inscritos · Sala disponible/)
+ assert.match(ui,/0\/\{roomCapacity\} inscritos · Sala disponible/)
  assert.match(ui,/filter\(g=>Number\(g.members\)>0\)/)
  assert.match(ui,/g\.target_exams/)
  assert.match(ui,/data\?\.participants\|\|0/)
