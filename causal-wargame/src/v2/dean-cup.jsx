@@ -16,6 +16,7 @@ import DeanArcadeMascot from './DeanArcadeMascot.jsx';
 import DeanRectorFinal from './DeanRectorFinal.jsx';
 import {CopaCorrelation} from './dean-correlation.jsx';
 import DeanArcadeLobby,{lobbyAvatar} from './DeanArcadeLobby.jsx';
+import DeanThreeProfilesIntro from './DeanThreeProfilesIntro.jsx';
 import {useDeanLearning,DeanLearningQuest,DeanLearningInstructor,DeanLearningWall} from './DeanLearningArc.jsx';
 const endpoint=(import.meta.env.VITE_FUNCTIONS_BASE_URL||'').replace(/\/$/,'')+'/v2-dean-cup';
 const names=['Alpha','Beta','Gamma','Delta','Épsilon'];
@@ -416,11 +417,15 @@ function Player(){
  const [token,setToken]=useState(localStorage.getItem(storageKey)||'');
  const [lastAward,setLastAward]=useState(null);
  const [readyBusy,setReadyBusy]=useState(false);
+ const [profileIntroDismissed,setProfileIntroDismissed]=useState(false);
  // Do not dismiss arcade achievements before the participant chooses the next round.
  const {value:state,error,setValue}=useBoard(token),[alias,setAlias]=useState(''),[room,setRoom]=useState(1),[busy,setBusy]=useState(false),[actionError,setActionError]=useState('');
  const me=state?.mine;
  const arcade=['real_hours_6_v1','real_hours_10_v1'].includes(state?.game_mode);
  const examCount=arcade?arcadeExamCount(state.game_mode):15;
+ const introKey='cw-dean-intro-v8-'+code+'-'+token.slice(0,12);
+ const showProfileIntro=state?.game_mode==='real_hours_6_v1'&&me&&Number(me.completed||0)<examCount&&['lobby','exams'].includes(state.phase)&&!profileIntroDismissed&&localStorage.getItem(introKey)!=='seen';
+ function closeProfileIntro(){localStorage.setItem(introKey,'seen');setProfileIntroDismissed(true)}
  // A former player's local token might point to a reset or different Copa.
  // Recover via public game state; never leave the user stuck on "Sesión inválida".
  useEffect(()=>{
@@ -457,7 +462,8 @@ function Player(){
    </div>
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')+(['final','finished'].includes(state.phase)?' dean-quiz-only':'')} tabIndex={0} aria-label="Escena principal de la Copa">
     {arcade?
-    (Number(me.completed)>=examCount || !['lobby','exams'].includes(state.phase)?
+    (showProfileIntro?<DeanThreeProfilesIntro archetype={me.archetype} onContinue={closeProfileIntro}/>:
+     Number(me.completed)>=examCount || !['lobby','exams'].includes(state.phase)?
      state.game_mode==='real_hours_6_v1'?
      <DeanRectorFinal player={me} recap={state.life_recap} phase={state.phase} busy={busy} onDownload={downloadGameData} onGetCsv={()=>call('game_export',{},token)} onSubmit={answerRector} error={actionError}/>:
      <section className="dean-arcade-finish">
