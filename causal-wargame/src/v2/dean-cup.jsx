@@ -466,7 +466,7 @@ function Player(){
  setBusy(true);setActionError('');try{await call('auto_finish',{},token);setValue(await call('state',{game_code:code},token))}
  catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function markReady(next){setReadyBusy(true);setActionError('');try{setValue(await call('lobby_ready',{ready:next},token))}catch(e){setActionError(e.message)}finally{setReadyBusy(false)}}
- async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+(state?.game_mode==='real_hours_6_v1'?'_TODAS_LAS_SALAS_6_examenes.csv':'_sala_'+me.room+'_10_examenes.csv');a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
+ async function downloadGameData(){setBusy(true);setActionError('');try{const blob=await call('game_export',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='copa_decano_'+code+(state?.game_mode==='real_hours_6_v1'?'_COPA_COMPLETA_6_examenes.csv':'_sala_'+me.room+'_10_examenes.csv');a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function answerRector(choice){setBusy(true);setActionError('');try{await call('policy_submit',{choice},token);setValue(await call('state',{game_code:code},token))}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function downloadAB(){setBusy(true);setActionError('');try{const blob=await call('ab_download',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_test_2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function download(layer){setBusy(true);setActionError('');try{const blob=await call('export',{layer},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
@@ -541,7 +541,7 @@ function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','
  const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase} examCount={examCount} roomCount={value?.game_mode==="real_hours_6_v1"&&(value?.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
- <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 {value.game_mode==='real_hours_6_v1'?'2':'5'} SALAS · MARCADOR EN VIVO</span></div>
+ <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Quién ganará la Copa?'}</h2><span>🏆 {value.game_mode==='real_hours_6_v1'?'SALA ÚNICA · COMPETENCIA INDIVIDUAL':'5 SALAS · MARCADOR EN VIVO'}</span></div>
  
  <div className="dean-wall-grid">{arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'
  ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=1)?value.groups.filter(g=>g.room_no<=1):value.groups} examCount={examCount} roomCapacity={value.game_mode==="real_hours_6_v1"?30:6} singleRoom={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=1)}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2>{value.game_mode==='real_hours_6_v1'&&value.phase==='lobby'&&Number(value.waiting_count||0)>0
@@ -717,7 +717,7 @@ function Teacher(){
  async function downloadAllObserved(){setBusy(true);setErr('');try{
    const blob=await call('teacher_game_export',{},'',teacher);
    const url=URL.createObjectURL(blob),a=document.createElement('a');
-   a.href=url;a.download='copa_decano_'+game+'_TODAS_LAS_SALAS_6_examenes.csv';
+   a.href=url;a.download='copa_decano_'+game+'_COPA_COMPLETA_6_examenes.csv';
    a.click();setTimeout(()=>URL.revokeObjectURL(url),7000);
   }catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
@@ -785,7 +785,7 @@ function Teacher(){
   <div className="dean-actions"><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ Estudiantes</a><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ Wall / proyección</a><a href="./dean-emergency.md" target="_blank" rel="noreferrer" download>📄 Guion de contingencia</a></div>
  </>}
  </aside></div>:
- <div className="dean-hero"><h2>Crear Copa para cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
+ <div className="dean-hero"><h2>Crear torneo histórico de cinco salas</h2><p>La creación es aditiva y no reinicia ninguna ronda de V1 ni de FUTUROS.</p><button className="dean-big" disabled={busy} onClick={()=>direct('create')}>Crear torneo V2</button></div>}</main>}
  {err&&<p role="alert" className="dean-error">{err}</p>}</div>;
 }
 const role=document.body.dataset.role||'student';
