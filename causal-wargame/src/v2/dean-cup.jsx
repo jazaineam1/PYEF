@@ -51,8 +51,8 @@ function useBoard(token='',enabled=true,gameCode=code){
  },[token,enabled,gameCode]);
  return{value,error,setValue};
 }
-function Banner({kind,phase,controls=null,examCount=15,showCode=true,roomCount=5}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&showCode&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>{roomCount} SALAS · HASTA {roomCount*6} PARTICIPANTES · {examCount} EXÁMENES</small></div></header>}
-function Board({groups=[],examCount=15}){
+function Banner({kind,phase,controls=null,examCount=15,showCode=true,roomCount=5}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&showCode&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>{roomCount} SALAS · HASTA 30 PARTICIPANTES · {examCount} EXÁMENES</small></div></header>}
+function Board({groups=[],examCount=15,roomCapacity=6}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
  const empty=groups.filter(g=>!Number(g.members)).sort((a,b)=>a.room_no-b.room_no)
@@ -63,14 +63,14 @@ function Board({groups=[],examCount=15}){
  {ranked.map((g,i)=>{const target=Number(g.target_exams??Number(g.members)*examCount),completed=Number(g.exams_completed||0),progress=target?Math.min(100,100*completed/target):0;return <article key={g.room_no}>
  <div className="dean-medal">{['🥇','🥈','🥉'][i]||'#'+(i+1)}</div>
  <div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b>
- <span>{g.members}/6 participantes · {completed}/{target} exámenes ({Math.round(progress)} %)</span>
+ <span>{g.members}/{roomCapacity} participantes · {completed}/{target} exámenes ({Math.round(progress)} %)</span>
  <div className="dean-meter"><i style={{width:progress+'%'}}/></div>
  <small>Media de notas rendidas: {g.average_score==null?'—':Number(g.average_score).toFixed(1)} / 50</small>
  </div><div className="dean-rating"><strong>{g.fair_score==null?'—':Number(g.fair_score).toFixed(1)}</strong>
  <small>{g.is_complete?'FINAL':'PROVISIONAL'}</small></div>
  </article>})}
  {empty.map(g=><article key={g.room_no} className="dean-team-empty"><div className="dean-medal">—</div>
- <div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b><span>0/6 inscritos · Sala disponible</span></div>
+ <div className="dean-board-main"><b>Grupo {g.room_no} · {names[g.room_no-1]}</b><span>0/{roomCapacity} inscritos · Sala disponible</span></div>
  <div className="dean-rating"><small>SIN PARTICIPANTES</small></div></article>)}
  </section>;
 }
@@ -523,7 +523,14 @@ function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','
  <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 {value.game_mode==='real_hours_6_v1'?'2':'5'} SALAS · MARCADOR EN VIVO</span></div>
  
  <div className="dean-wall-grid">{arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'
- ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?value.groups.filter(g=>g.room_no<=2):value.groups} examCount={examCount}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2><DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount} roomCount={value.game_mode==='real_hours_6_v1'&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}/></section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
+ ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?value.groups.filter(g=>g.room_no<=2):value.groups} examCount={examCount} roomCapacity={value.game_mode==="real_hours_6_v1"?15:6}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2>{value.game_mode==='real_hours_6_v1'&&value.phase==='lobby'&&Number(value.waiting_count||0)>0
+ ?<section className="dean-queue-preview"><h3>👥 {value.waiting_count} PERSONAS EN EL LOBBY</h3>
+   <p>El docente asignará Alpha y Beta cuando hayan ingresado todos.</p>
+   <div>{(value.waiting_players||[]).map((p,i)=><span key={i}>{lobbyAvatar(i)} {p.alias}</span>)}</div>
+  </section>:
+ <DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}
+   roomCount={value.game_mode==='real_hours_6_v1'&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}
+   roomCapacity={value.game_mode==='real_hours_6_v1'?15:6}/>}</section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
  {value.phase==='final'&&value.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="wall"/>}
  {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}</>}
  </aside></div>
@@ -713,19 +720,27 @@ function Teacher(){
  :<main className="dean-teacher">
  <div className="dean-teacher-toolbar"><div><small>🎛️ PANEL DEL CAPACITADOR · 120 MINUTOS</small><h2>Control de sesión</h2></div>
  {state?.available&&(arcade?['lobby','exams'].includes(state.phase):actions[state.phase])&&<button className="dean-big dean-teacher-next"
- disabled={busy||(!arcade&&state.dgp_version==='zip_dgp_2026'&&['lobby','exams','rector','survey','causal'].includes(state.phase)&&learning.data?.step!=='debrief')}
+ disabled={busy||(state.game_mode==='real_hours_6_v1'&&state.phase==='lobby'&&Number(state.waiting_count||0)===0&&(state.lobby_players||[]).length===0)||(!arcade&&state.dgp_version==='zip_dgp_2026'&&['lobby','exams','rector','survey','causal'].includes(state.phase)&&learning.data?.step!=='debrief')}
  title={learning.data?.step!=='debrief'?'Antes de avanzar, proyecta evidencia y revela la conclusión del acto.':''}
- onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?'🚀 ABRIR LOS '+examCount+' EXÁMENES':'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
+ onClick={()=>direct(arcade&&state.phase==='exams'?'finish_game':'next')}>{busy?'Actualizando…':arcade?(state.phase==='lobby'?(state.game_mode==='real_hours_6_v1'?'👥 ASIGNAR 2 SALAS E INICIAR':'🚀 ABRIR LOS '+examCount+' EXÁMENES'):'🏁 CERRAR JUEGO'):actions[state.phase]} →</button>}</div>
  {state?.available?<div className="dean-teacher-grid">
  {arcade&&state.game_mode==='real_hours_6_v1'&&state.phase==='finished'
    ?<DeanLifePodium recap={state.life_recap} large/>:
-   <Board groups={state.game_mode==="real_hours_6_v1"&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?state.groups.filter(g=>g.room_no<=2):state.groups} examCount={examCount}/>} 
+   <Board groups={state.game_mode==="real_hours_6_v1"&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?state.groups.filter(g=>g.room_no<=2):state.groups} examCount={examCount} roomCapacity={state.game_mode==="real_hours_6_v1"?15:6}/>} 
  <aside className="dean-teacher-sidebar">
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · {state.game_mode==='real_hours_6_v1'?'dos':'cinco'} salas.</p>
-     <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount} roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}/>
-     {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LAS 5 SALAS</button>}
+     {state.game_mode==='real_hours_6_v1'&&state.phase==='lobby'&&Number(state.waiting_count||0)>0?
+       <section className="dean-queue-preview" aria-label="Participantes esperando reparto">
+        <strong>👥 {state.waiting_count} registrados · hasta 30</strong>
+        <p>Confirma que ingresaron todos. Al iniciar se asignan Alpha y Beta con una diferencia máxima de una persona.</p>
+        <div>{(state.waiting_players||[]).map((p,i)=><span key={i}>🎮 {p.alias}</span>)}</div>
+       </section>:
+       <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}
+         roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?2:5}
+         roomCapacity={state.game_mode==='real_hours_6_v1'?15:6}/>} 
+     {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LA COPA</button>}
      <p>Un clic para iniciar, ninguno entre exámenes. La correlación se calcula dentro del juego con datos del servidor.</p>
-     {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={state.phase==='lobby'} onClick={()=>setShowCorrelation(true)}>📉 VER CORRELACIÓN DE LAS CINCO SALAS</button>}
+     {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={state.phase==='lobby'} onClick={()=>setShowCorrelation(true)}>📉 VER CORRELACIONES DE LA COPA</button>}
      <div className="dean-actions"><a href={'./dean-wall.html?game='+game} target="_blank" rel="noreferrer">↗ MARCADOR EN VIVO</a><a href={'./dean-play.html?game='+game} target="_blank" rel="noreferrer">↗ JUGADORES</a></div></>:<>
   {state.dgp_version==='zip_dgp_2026'&&<DeanLearningInstructor learning={learning.data} phase={state.phase}
     busy={learning.busy} error={learning.error} onAction={command=>learning.act({action:'learning_teacher',command})}/>}
