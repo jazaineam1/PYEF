@@ -316,3 +316,20 @@
 .corr-simpson .corr-simpson-pills{display:flex;gap:6px;flex-wrap:wrap}
 .corr-simpson-pills span{border:1px solid #568c9c;border-radius:8px;padding:5px 9px;background:#173a54;font-size:clamp(10px,1vw,13px)}
 .corr-simpson-pills b{color:#ffdf9f}
+
+
+/* Enrollment-first lobby for up to 30 students in two automatically balanced rooms. */
+.dean-queue-wait{width:min(100% - 30px,1040px);margin:clamp(15px,5vh,70px) auto;padding:clamp(18px,2.4vw,32px);border:1px solid #6ba8aa;border-radius:20px;background:linear-gradient(155deg,#213f5c,#10213b);color:#f0fafd;text-align:center;display:grid;justify-items:center;gap:10px;min-height:280px}
+.dean-queue-wait h2{font-size:clamp(23px,3.3vw,42px);line-height:1.1;color:#ffdc9d;margin:0}
+.dean-queue-wait p{max-width:65ch;font-size:clamp(12px,1.15vw,16px);line-height:1.4;margin:0;color:#dbf2f7}
+.dean-queue-icon{font-size:clamp(35px,5vw,64px)}
+.dean-queue-count{background:#154750;color:#b2f8da;font-size:clamp(17px,2vw,24px);padding:8px 14px;border-radius:10px;border:1px solid #8fdac9}
+.dean-queue-avatars{display:flex;flex-wrap:wrap;justify-content:center;gap:7px;max-height:29vh;overflow:auto}
+.dean-queue-avatars>span,.dean-queue-preview>div>span{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;background:#213957;color:#def3fc;border:1px solid #547d94;border-radius:9px;font-size:clamp(10px,1vw,13px)}
+.dean-queue-avatars small{font-size:inherit}
+.dean-queue-hint{color:#92efd4!important}
+.dean-queue-preview{border:1px solid #72c4c6;border-radius:13px;background:#183953;padding:12px;display:grid;gap:8px}
+.dean-queue-preview>strong,.dean-queue-preview>h3{font-size:clamp(15px,1.7vw,22px);margin:0;color:#ffdf9a}
+.dean-queue-preview>p{font-size:clamp(11px,1vw,14px);line-height:1.4;margin:0;color:#d1f3fb}
+.dean-queue-preview>div{display:flex;flex-wrap:wrap;gap:6px;max-height:31vh;overflow:auto}
+@media(max-width:600px){.dean-queue-wait{width:calc(100% - 14px);padding:14px}.dean-queue-count{font-size:16px}.dean-queue-preview{padding:8px}}
