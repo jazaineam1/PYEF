@@ -1,6 +1,6 @@
 -- Lobby-first admissions. Teachers begin only once everyone has logged in.
--- 30 seats across two rooms; membership differs by at most one.
--- Two separate notions: queue of enrolled users, and started players with archetypes.
+-- 30 seats in ONE room; three starting archetypes distributed evenly.
+-- Two states: queue before teacher starts, one room with assigned profiles afterwards.
 -- Existing games and legacy 10/15 protocols keep their registrations unchanged.
 
 create table if not exists public.cw_dean_pending_v9(
@@ -74,7 +74,7 @@ begin
    from public.cw_dean_pending_v9 p where p.game_id=gid),'[]'::jsonb));
 end $f$;
 
--- Atomic allocation when teacher starts; no auto-reassignment of active games.
+-- Atomic single-room assignment when teacher starts; no auto-reassignment of active games.
 create or replace function public.cw_dean_game_start_v3(p_token text)
 returns jsonb language plpgsql security invoker set search_path=public as $f$
 declare gid uuid;protocol_name text;stage text;code_name text;
@@ -96,9 +96,9 @@ begin
   for row_player in select token_hash,alias from public.cw_dean_pending_v9
     where game_id=gid order by joined_at,token_hash
   loop
-   new_room:=1+mod(counter,2);
-   -- Round-robin within each room: 3 profiles, with count differences <=1.
-   new_profile:=(array['over','balanced','risk'])[1+mod(floor(counter/2)::int,3)];
+   new_room:=1;
+   -- Three profiles assigned evenly among all players (difference at most one).
+   new_profile:=(array['over','balanced','risk'])[1+mod(counter,3)];
    pga:=round((case new_profile
      when 'over' then 3.8+random()
      when 'balanced' then 3.4+0.9*random()
