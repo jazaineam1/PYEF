@@ -230,6 +230,9 @@ async function sixRoundViewport(width,height,skip=false){
   return reply(buildState());
  });
  await page.goto(base+'/dean-play.html?game='+sixCode,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-profile-intro').waitFor({timeout:12000});
+ assert.equal(await page.locator('.dean-profile-card').count(),3,'Three starting conditions explained in one scene');
+ await page.locator('.dean-profile-continue').click();
  await page.locator('.dean-arcade-lobby').waitFor({timeout:12000});
  assert.equal(await page.locator('.dean-lobby-member').count(),2);
  await page.locator('.dean-lobby-ready-button').click();
