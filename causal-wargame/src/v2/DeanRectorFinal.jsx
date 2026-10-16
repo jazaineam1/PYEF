@@ -29,7 +29,7 @@ export default function DeanRectorFinal({player,recap=null,phase='exams',busy=fa
     <span className="dean-rector-chapter">⚡ DECISIÓN FINAL · NO SUMA NI RESTA PUNTOS</span>
     <h3>Según los datos del juego, ¿el Rector debería quitar los beneficios de bienestar para aumentar la nota final de los parciales?</h3>
     <button type="button" className="dean-arcade-download" disabled={!complete||busy} onClick={onDownload}>
-     📥 DESCARGAR TODOS LOS DATOS DE LAS 5 SALAS
+     📥 DESCARGAR TODOS LOS DATOS DE LA COPA
     </button>
     <small className="dean-rector-help">Descarga el CSV de toda la Copa. Incluye los registros disponibles hasta este momento; vuelve a descargarlo cuando tus compañeros terminen.</small>
     <button type="button" className="dean-rector-analysis-link" onClick={()=>setScene('correlation')}>📉 REVISAR CORRELACIONES REALES DE LA COPA</button>
