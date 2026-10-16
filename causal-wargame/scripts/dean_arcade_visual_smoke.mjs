@@ -181,15 +181,19 @@ async function staleSessionRecovers(){
 }
 
 async function waitingPlayerDoesNotGetExpiredSessionWarning(){
- const game='QAQUEUED',student='c'.repeat(64);
+ const game='QAQUEUED';
  const page=await browser.newPage({viewport:{width:1280,height:800}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- let joined=false,started=false;
+ let joined=false,started=false,issuedToken=null;
  await page.route('**/v2-dean-cup',async route=>{
   const input=bodyOf(route.request());
   const headers=route.request().headers();
-  const authenticated=headers['x-game-token']===student;
-  if(input.action==='join')joined=true;
+  if(input.action==='join'){
+   joined=true;
+   issuedToken=headers['x-game-token'];
+   assert.equal(issuedToken?.length,64,'The game creates its own secure student token');
+  }
+  const authenticated=!!issuedToken&&headers['x-game-token']===issuedToken;
   const queue=joined&&!started&&authenticated;
   const mine=started&&authenticated?{alias:'Camila',room:1,archetype:'balanced',pga:3.5,completed:0,scores:[]}:null;
   const state={available:true,game_code:game,game_mode:'real_hours_6_v1',
