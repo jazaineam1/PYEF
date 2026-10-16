@@ -84,7 +84,7 @@ Deno.serve(async(req)=>{
    if(!teacher)return json({error:'Autorización del facilitador requerida'},401)
    if(!code||String(b.confirmation_code||'')!==code)
      return json({error:'Para reiniciar escribe el código exacto de la Copa'},400)
-   return json(await rpc('cw_dean_reset_confirmed',{p_token:teacher,p_confirmation_code:code}))
+   return json(await rpc('cw_dean_reset_queue_v9',{p_token:teacher,p_confirmation_code:code}))
   }
   if(action==='mission_state'){
    if(!code)return json({error:'Código requerido'},400)
