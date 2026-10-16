@@ -29,7 +29,7 @@ export default function DeanArcadeLobby({players=[],phase='lobby',room=null,comp
    {(room!=null?[Number(room)]:Array.from({length:roomCount},(_,i)=>i+1)).map(roomNo=>{
     const members=list.filter(p=>Number(p.room_no)===roomNo);
     return <div className="dean-lobby-room" key={roomNo}>
-     <div className="dean-lobby-room-title"><b>SALA {roomNo} · {rooms[roomNo-1]}</b><small>{members.length}/{roomCapacity}</small></div>
+     <div className="dean-lobby-room-title"><b>{roomCount===1?'SALA ÚNICA':`SALA ${roomNo} · ${rooms[roomNo-1]}`}</b><small>{members.length}/{roomCapacity}</small></div>
      {members.length?<div className="dean-lobby-members">{members.map((p,i)=>
       <div className="dean-lobby-member" key={roomNo+'-'+i+'-'+p.alias}>
        <span className="dean-lobby-avatar" aria-hidden="true">{lobbyAvatar(p.avatar_no)}</span>
