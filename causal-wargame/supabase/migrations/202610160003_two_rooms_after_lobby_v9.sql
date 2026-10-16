@@ -41,8 +41,9 @@ begin
  if phase_name<>'lobby' then raise exception 'El registro ya cerró';end if;
  select count(*) into people from public.cw_dean_players where game_id=gid;
  if people>0 then
-  -- A pre-existing game with players already assigned keeps those memberships.
-  return public.cw_dean_join_three_profiles_v8(p_code,p_alias,
+  -- Old six-exam games that already have several assigned rooms retain the
+  -- original join policy. This queue only changes new, empty tournaments.
+  return public.cw_dean_join_v3(p_code,p_alias,
     (select v.room_no from generate_series(1,5) v(room_no)
       left join public.cw_dean_players p on p.game_id=gid and p.room_no=v.room_no
       group by v.room_no having count(p.id)<6 order by count(p.id),v.room_no limit 1),p_hash);
