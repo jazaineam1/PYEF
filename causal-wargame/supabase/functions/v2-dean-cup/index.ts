@@ -13,20 +13,25 @@ Deno.serve(async(req)=>{
   if(action==='state'){
    if(!code)return json({error:'Código requerido'},400)
    await rpc('cw_dean_tick_v3',{p_game_code:code})
-   const state=await rpc('cw_dean_state_v3',{p_code:code,p_hash:hash}) as Record<string,unknown>
+   // In the six-exam lobby participants have a VALID reserved token but no
+   // cw_dean_players row until the teacher starts. Do not treat their pending
+   // registration as an expired student session.
+   const schedule=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
+   const queue=schedule?.protocol==='real_hours_6_v1'
+     ?await rpc('cw_dean_queue_status_v9',{p_code:code,p_hash:hash}) as Record<string,unknown>
+     :null
+   const waitingStudent=queue?.mine_queued===true
+   const state=await rpc('cw_dean_state_v3',
+     {p_code:code,p_hash:waitingStudent?null:hash}) as Record<string,unknown>
    if(state?.dgp_version==='zip_dgp_2026'){
-    const schedule=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
     // Personal decisions are visible only to their signed student.
     // Public top-three names match the already public room roster.
     const recap=schedule?.protocol==='real_hours_6_v1'
       ?await rpc('cw_dean_arcade_recap_v6',{p_code:code,p_hash:hash})
       :null
-    const queued=schedule?.protocol==='real_hours_6_v1'
-      ?await rpc('cw_dean_queue_status_v9',{p_code:code,p_hash:hash})
-      :null;
     return json({...state,agenda_enabled:schedule?.enabled===true,
       agenda_cap:Number(schedule?.cap||6),game_mode:schedule?.protocol||null,
-      life_recap:recap,...(queued||{})})
+      life_recap:recap,...(queue||{})})
    }
    return json(state)
   }

@@ -168,6 +168,7 @@ async function staleSessionRecovers(){
  });
  await page.goto(base+'/dean-play.html?game='+code,{waitUntil:'networkidle',timeout:45000});
  await page.locator('.dean-join').waitFor({timeout:10000});
+ assert.equal(await page.locator('.dean-error').count(),0,'Expired old session should recover silently');
  assert.equal(await page.evaluate(code=>localStorage.getItem('cw-dean-v2-'+code),code),null,
   'Stale player credential should be discarded automatically');
  await page.locator('.dean-label input').fill('Recuperado');
@@ -176,6 +177,46 @@ async function staleSessionRecovers(){
  const stored=await page.evaluate(code=>localStorage.getItem('cw-dean-v2-'+code),code);
  assert.ok(stored&&stored!==stale,'Rejoined player gets a new token');
  console.log('ARCADE PASS expired local token repaired without cache clearing or teacher clicks');
+ await page.close();
+}
+
+async function waitingPlayerDoesNotGetExpiredSessionWarning(){
+ const game='QAQUEUED',student='c'.repeat(64);
+ const page=await browser.newPage({viewport:{width:1280,height:800}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ let joined=false,started=false;
+ await page.route('**/v2-dean-cup',async route=>{
+  const input=bodyOf(route.request());
+  const headers=route.request().headers();
+  const authenticated=headers['x-game-token']===student;
+  if(input.action==='join')joined=true;
+  const queue=joined&&!started&&authenticated;
+  const mine=started&&authenticated?{alias:'Camila',room:1,archetype:'balanced',pga:3.5,completed:0,scores:[]}:null;
+  const state={available:true,game_code:game,game_mode:'real_hours_6_v1',
+   exam_count:6,dgp_version:'zip_dgp_2026',phase:started?'exams':'lobby',
+   groups:[{room_no:1,members:started?1:0,target_exams:6,exams_completed:0}],
+   lobby_players:started?[{alias:'Camila',room_no:1,avatar_no:0,ready:true}]:[],
+   mine,mine_queued:queue,waiting_count:queue?1:0,
+   waiting_players:queue?[{alias:'Camila',ready:true}]:[],
+   server_now:new Date().toISOString()};
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(state)});
+ });
+ await page.goto(base+'/dean-play.html?game='+game,{waitUntil:'networkidle',timeout:45000});
+ await page.locator('.dean-join').waitFor({timeout:10000});
+ await page.locator('.dean-label input').fill('Camila');
+ await page.getByRole('button',{name:/ENTRAR A LA COPA/}).click();
+ await page.locator('.dean-queue-wait').waitFor({timeout:10000});
+ assert.equal(await page.locator('.dean-error').count(),0,'Joining a queued student must not display an expired session error');
+ assert.equal(await page.evaluate(game=>localStorage.getItem('cw-dean-v2-'+game)?.length,game),64);
+ await page.reload({waitUntil:'networkidle'});
+ await page.locator('.dean-queue-wait').waitFor({timeout:10000});
+ assert.equal(await page.locator('.dean-error').count(),0,'Polling and reloading the waiting student must not invalidate the token');
+ started=true;
+ await page.reload({waitUntil:'networkidle'});
+ await page.locator('.dean-profile-intro').waitFor({timeout:10000});
+ assert.equal(await page.locator('.dean-error').count(),0,'Assigned student must transition from lobby to three-profile intro');
+ assert.deepEqual(errors,[]);
+ console.log('SIX ARCADE PASS queued student joins, reloads, keeps session and receives profile without red errors');
  await page.close();
 }
 
@@ -312,6 +353,7 @@ try{
  await wallAndTeacher();
  await wallAndTeacher('real_hours_6_v1');
  await staleSessionRecovers();
+ await waitingPlayerDoesNotGetExpiredSessionWarning();
  await sixRoundViewport(1366,768,false);
  await sixRoundViewport(1280,720,false);
  await sixRoundViewport(390,844,true);

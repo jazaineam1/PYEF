@@ -43,6 +43,7 @@ async function call(action,payload={},student='',teacher=''){
 function useBoard(token='',enabled=true,gameCode=code){
  const [value,setValue]=useState(null),[error,setError]=useState('');
  useEffect(()=>{
+  setError(''); // A previous identity's polling error must not outlive that identity.
   if(!enabled)return;
   let dead=false,t;
   async function poll(){try{const s=await call('state',{game_code:gameCode},token);if(!dead){setValue({...s,_receivedAt:Date.now()});setError('')}}catch(e){if(!dead)setError(e.message)}
@@ -454,7 +455,9 @@ function Player(){
   localStorage.removeItem(storageKey);
   setToken('');
   setLastAward(null);
-  setActionError('Tu sesión anterior ya no existe. Ingresa de nuevo a esta Copa.');
+  // Old tokens are recovered silently. The lobby is not an error and the
+  // participant must not see a persistent red warning after recovery.
+  setActionError('');
  },[token,error]);
  useEffect(()=>{if(!lastAward||arcade)return;const t=setTimeout(()=>setLastAward(null),4200);return()=>clearTimeout(t)},[lastAward,arcade]);
  const learning=useDeanLearning({token,gameCode:code,enabled:!!token&&state?.dgp_version==='zip_dgp_2026'&&!arcade});
@@ -479,7 +482,7 @@ function Player(){
    <div className="dean-queue-avatars">{(state.waiting_players||[]).map((p,i)=><span key={i} title={p.alias}>{lobbyAvatar(i)} <small>{p.alias}</small></span>)}</div>
    <p className="dean-queue-hint">Esta pantalla se actualizará automáticamente al empezar.</p>
   </main>:!me?<main className="dean-join"><div><small className="dean-kicker">TEMPORADA 01 · HASTA 30 CUPOS</small><h2>🪪 Reclama tu carné y entra al torneo</h2><p>{state.game_mode==='real_hours_6_v1'?'Ingresa con tu alias. Cuando estén todos, el docente iniciará una única sala con hasta 30 participantes y tres perfiles académicos.':'Elige tu sala. Recibirás un arquetipo académico ficticio.'}</p></div>
- <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: maria_ds"/></label>
+ <label className="dean-label">Tu alias<input value={alias} maxLength={30} onChange={e=>setAlias(e.target.value)} placeholder="Ej.: Camila"/></label>
  {state.game_mode!=='real_hours_6_v1'&&<p className="dean-room-recommendation">🎯 Elige una sala disponible. La inscripción conserva el comportamiento de esta partida histórica.</p>}
  {state.game_mode==='real_hours_6_v1'
  ?<p className="dean-room-recommendation">👥 <b>Primero entran todos al lobby.</b> Tendrás tu personaje cuando comience la partida. Nadie tiene que elegir sala.</p>
@@ -535,7 +538,8 @@ function Player(){
    </div>
    <div className="dean-player-dock">{arcade?<span>🏆 {examCount} EXÁMENES · JUEGA Y DESCARGA LOS DATOS</span>:<><span>🏆 {state.dgp_version==='zip_dgp_2026'?'DGP canónico · 2026':'COPA HISTÓRICA · FÓRMULA ORIGINAL'}</span><a className="dean-notebook-link" href="./notebooks/causalidad_copa_decano_scaffold.ipynb" download>📓 Cuaderno Python / Colab <span aria-hidden="true">↗</span></a></>}</div>
   </main>}
- {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
+ {(actionError||(!/^Sesi[oó]n (?:estudiantil )?inv[aá]lida\.?$/i.test((error||'').trim())&&error))&&
+  <p className="dean-error" role="alert">{actionError||error}</p>}</div>;
 }
 function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','real_hours_10_v1'].includes(value?.game_mode);const examCount=arcade?arcadeExamCount(value.game_mode):15;const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});
  const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase} examCount={examCount} roomCount={value?.game_mode==="real_hours_6_v1"&&(value?.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
