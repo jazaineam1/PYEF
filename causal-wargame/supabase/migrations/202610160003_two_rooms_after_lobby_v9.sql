@@ -120,3 +120,20 @@ revoke all on function public.cw_dean_game_start_v3(text) from public,anon,authe
 grant execute on function public.cw_dean_queue_register_v9(text,text,text) to service_role;
 grant execute on function public.cw_dean_queue_status_v9(text,text) to service_role;
 grant execute on function public.cw_dean_game_start_v3(text) to service_role;
+
+-- On reset, waiting registrations are cleared as well; old student tokens can no
+-- longer silently rejoin a new session before the facilitator invites them.
+create or replace function public.cw_dean_reset_queue_v9(p_token text,p_confirmation_code text)
+returns jsonb language plpgsql security invoker set search_path=public as $f$
+declare gid uuid;actual_code text;
+begin
+ select public.cw_validate_facilitator_token(p_token) into gid;
+ if gid is null then raise exception 'Sesión docente inválida';end if;
+ select g.code into actual_code from public.cw_games g where g.id=gid;
+ if actual_code is null or p_confirmation_code is distinct from actual_code
+   then raise exception 'Confirma el código exacto para reiniciar';end if;
+ delete from public.cw_dean_pending_v9 where game_id=gid;
+ return public.cw_dean_reset_confirmed(p_token,p_confirmation_code);
+end $f$;
+revoke all on function public.cw_dean_reset_queue_v9(text,text) from public,anon,authenticated;
+grant execute on function public.cw_dean_reset_queue_v9(text,text) to service_role;
