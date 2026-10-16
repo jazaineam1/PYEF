@@ -52,10 +52,24 @@ function useBoard(token='',enabled=true,gameCode=code){
  return{value,error,setValue};
 }
 function Banner({kind,phase,controls=null,examCount=15,showCode=true,roomCount=5}){return <header className="dean-banner"><div><small>DOS FUTUROS · CAMPUS V2</small><h1>🏆 LA COPA DEL DECANO</h1></div>{controls}<div className="dean-banner-meta"><span>{kind}</span><b>{phase||'PREPARACIÓN'}</b>{kind!=='FACILITADOR'&&showCode&&<small className="dean-game-code">PARTIDA · {code}</small>}<small>{roomCount===1?"SALA ÚNICA":roomCount+" SALAS"} · HASTA 30 PARTICIPANTES · {examCount} EXÁMENES</small></div></header>}
-function Board({groups=[],examCount=15,roomCapacity=6}){
+function Board({groups=[],examCount=15,roomCapacity=6,singleRoom=false}){
  const attendees=groups.reduce((n,g)=>n+Number(g.members||0),0)
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no)
  const empty=groups.filter(g=>!Number(g.members)).sort((a,b)=>a.room_no-b.room_no)
+ if(singleRoom){
+   const g=groups.find(x=>x.room_no===1)||{members:0,exams_completed:0,target_exams:0};
+   const done=Number(g.exams_completed||0),target=Number(g.target_exams||Number(g.members||0)*examCount);
+   const progress=target?Math.round(100*done/target):0;
+   return <section className="dean-board dean-single-room-board">
+    <h2>🎮 Una sala · competencia individual</h2>
+    <p>👥 {Number(g.members||0)} participantes. Cada persona compite por sus decisiones, no por equipos.</p>
+    <div className="dean-single-room-progress">
+     <strong>📝 {done}/{target} exámenes completados</strong><span>{progress}% de avance colectivo</span>
+     <div className="dean-meter"><i style={{width:progress+'%'}}/></div>
+    </div>
+    <p>🏆 El campeón y el Top 3 se determinan por las seis decisiones manuales de cada jugador. El Wall mostrará el podio al cerrar el torneo.</p>
+   </section>
+ }
  return <section className="dean-board"><h2>🏆 Clasificación en vivo</h2>
  <p>{attendees} inscritos de máximo 30. No hay asistencia mínima: cada sala avanza con quienes llegaron.</p>
  <p>Puntaje comparable: suma de notas / ({examCount} × inscritos). Los exámenes pendientes cuentan provisionalmente como cero; la media de exámenes realizados se muestra aparte.</p>
@@ -76,13 +90,20 @@ function Board({groups=[],examCount=15,roomCapacity=6}){
 }
 
 // Score bug: a compact, always-visible room score. The full board is an optional popover.
-function MiniWall({groups=[],room,completed=0,lastAward=null,examCount=15}){
+function MiniWall({groups=[],room,completed=0,lastAward=null,examCount=15,singleRoom=false}){
  const ranked=groups.filter(g=>Number(g.members)>0).sort((a,b)=>Number(b.fair_score??-1)-Number(a.fair_score??-1)||Number(b.coverage_pct||0)-Number(a.coverage_pct||0)||a.room_no-b.room_no);
  const mine=groups.find(g=>Number(g.room_no)===Number(room));
  const position=ranked.findIndex(g=>Number(g.room_no)===Number(room))+1;
  const score=mine?.fair_score==null?'—':Number(mine.fair_score).toFixed(1);
  const target=Number(mine?.target_exams??Number(mine?.members||0)*examCount);
  const done=Number(mine?.exams_completed||0);
+ if(singleRoom)return <details className="dean-hud" aria-label="Avance individual en la Copa">
+  <summary><span className="dean-hud-label">● SIMULADOR EN VIVO</span>
+    <span className="dean-hud-row"><strong>🎮 Mi temporada</strong><b>{completed}<small> / {examCount}</small></b></span>
+    <span className="dean-hud-foot">{lastAward?<strong className="dean-hud-earned">✨ NOTA {Number(lastAward.score).toFixed(1)}/50</strong>:'TUS DECISIONES CUENTAN'} <span>▾ VER OBJETIVO</span></span>
+  </summary>
+  <div className="dean-hud-popover"><b>🏆 Top 3 individual</b><p>El podio se calcula con seis exámenes manuales: 80% rendimiento, 10% sueño, 10% bienestar.</p><small>Una sola sala; no hay competencia entre grupos.</small></div>
+ </details>;
  return <details className="dean-hud" aria-label="Marcador de salas en vivo">
   <summary><span className="dean-hud-label">● COPA EN VIVO</span><span className="dean-hud-row">
    <strong>{position?'#'+position:'—'} · {names[Number(room)-1]||'Sin sala'}</strong>
@@ -449,7 +470,7 @@ function Player(){
  async function answerRector(choice){setBusy(true);setActionError('');try{await call('policy_submit',{choice},token);setValue(await call('state',{game_code:code},token))}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function downloadAB(){setBusy(true);setActionError('');try{const blob=await call('ab_download',{},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='cohorte_ab_test_2026.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
  async function download(layer){setBusy(true);setActionError('');try{const blob=await call('export',{layer},token),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=layer==='rector'?'sistema_academico_rector.csv':'encuesta_estudiantes_juego.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),7000)}catch(e){setActionError(e.message)}finally{setBusy(false)}}
- return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase} examCount={examCount} roomCount={state?.game_mode==="real_hours_6_v1"&&(state?.lobby_players||[]).every(p=>Number(p.room_no)<=2)?1:5}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan. No necesitas instalar nada.</p></main>:!me&&state?.mine_queued?<main className="dean-queue-wait" aria-label="Lobby sin asignación">
+ return <div className="dean-page"><Banner kind="PARTICIPANTE" phase={state?.phase} examCount={examCount} roomCount={state?.game_mode==="real_hours_6_v1"&&(state?.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}/>{!state?.available?<main className="dean-hero"><div className="dean-emoji">🎓</div><h2>Esperando al Decano</h2><p>El docente abrirá el torneo para quienes asistan. No necesitas instalar nada.</p></main>:!me&&state?.mine_queued?<main className="dean-queue-wait" aria-label="Lobby sin asignación">
    <div className="dean-queue-icon" aria-hidden="true">🎮</div>
    <h2>¡Ya estás dentro de la Copa!</h2>
    <p>Esperamos a que ingresen los demás. <b>Aún no tienes sala ni arquetipo</b>: se repartirán automáticamente cuando el docente inicie el torneo.</p>
@@ -466,7 +487,7 @@ function Player(){
  <main className={'dean-player'+(arcade?' dean-arcade-player':'')}>
    <div className="dean-player-topbar">
     <div className="dean-carnet"><span aria-hidden="true">{arcade?lobbyAvatar(state.my_avatar_no):icons[me.archetype]}</span><div><small>SALA {me.room} · {names[me.room-1]} · {profiles[me.archetype]}</small><h2>{me.alias} <span className="dean-carnet-pga">PGA {Number(me.pga).toFixed(1)}/5</span></h2></div></div>
-    <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward} examCount={examCount}/>
+    <MiniWall groups={state.groups} room={me.room} completed={me.completed} lastAward={lastAward} examCount={examCount} singleRoom={state.game_mode==="real_hours_6_v1"&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=1)}/>
    </div>
    <div className={'dean-player-stage '+(state.phase==='exams'?'dean-is-exam':'')+(['final','finished'].includes(state.phase)?' dean-quiz-only':'')} tabIndex={0} aria-label="Escena principal de la Copa">
     {arcade?
@@ -488,7 +509,7 @@ function Player(){
         :<div className="dean-arcade-return">🎧 En Teams, elige «Regresar» para volver a la sala principal</div>}
      </section>:
      state.phase==='lobby'?<DeanArcadeLobby players={state.lobby_players||[]} phase="lobby" room={me.room}
-      ownReady={state.my_lobby_ready===true} readyBusy={readyBusy} onReady={markReady} examCount={examCount} roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?1:5}/>:
+      ownReady={state.my_lobby_ready===true} readyBusy={readyBusy} onReady={markReady} examCount={examCount} roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}/>:
      <Exam person={me} version={state.dgp_version} gameMode={state.game_mode} arcade examCount={examCount} agendaEnabled deadline={state.exam_deadline_at} serverNow={state.server_now} receivedAt={state._receivedAt} onSubmit={submit} onSkip={state.game_mode==='real_hours_6_v1'?()=>quickComplete({skipConfirm:true}):null}/>)
    :['final','finished'].includes(state.phase)?<CupQuiz role="student" canonical={state.dgp_version==='zip_dgp_2026'} token={token}/>:<>
     {state.dgp_version==='zip_dgp_2026'&&state.phase!=='exams'&&<DeanLearningQuest learning={learning.data} phase={state.phase} onSubmit={learning.act} busy={learning.busy} error={learning.error}/>}
@@ -517,19 +538,19 @@ function Player(){
  {(error||actionError)&&<p className="dean-error" role="alert">{error||actionError}</p>}</div>;
 }
 function Wall(){const {value,error}=useBoard();const arcade=['real_hours_6_v1','real_hours_10_v1'].includes(value?.game_mode);const examCount=arcade?arcadeExamCount(value.game_mode):15;const learning=useDeanLearning({gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});
- const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase} examCount={examCount} roomCount={value?.game_mode==="real_hours_6_v1"&&(value?.lobby_players||[]).every(p=>Number(p.room_no)<=2)?1:5}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
+ const missions=useDeanMissions({call,gameCode:code,enabled:value?.dgp_version==='zip_dgp_2026'&&!arcade});return <div className="dean-page dean-wall"><Banner kind="WALL · PROYECCIÓN" phase={value?.phase} examCount={examCount} roomCount={value?.game_mode==="real_hours_6_v1"&&(value?.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}/>{value?.available&&!arcade&&['final','finished'].includes(value.phase)
  ?<main className="dean-quiz-stage dean-quiz-wall-stage"><CupQuiz role="wall" canonical/></main>
  :value?.available?<main className="dean-wall-main">
  <div className="dean-wall-head"><h2>{arcade&&value.phase==='finished'?'Campeón y mejores decisiones':'¿Qué sala dominará el semestre?'}</h2><span>🏆 {value.game_mode==='real_hours_6_v1'?'2':'5'} SALAS · MARCADOR EN VIVO</span></div>
  
  <div className="dean-wall-grid">{arcade&&value.game_mode==='real_hours_6_v1'&&value.phase==='finished'
- ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?value.groups.filter(g=>g.room_no<=1):value.groups} examCount={examCount} roomCapacity={value.game_mode==="real_hours_6_v1"?30:6}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2>{value.game_mode==='real_hours_6_v1'&&value.phase==='lobby'&&Number(value.waiting_count||0)>0
+ ?<DeanLifePodium recap={value.life_recap} large/>:<Board groups={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=1)?value.groups.filter(g=>g.room_no<=1):value.groups} examCount={examCount} roomCapacity={value.game_mode==="real_hours_6_v1"?30:6} singleRoom={value.game_mode==="real_hours_6_v1"&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=1)}/>}<aside className="dean-wall-story">{arcade?<section className="dean-arcade-wall-brief"><h2>🏆 {examCount} EXÁMENES</h2>{value.game_mode==='real_hours_6_v1'&&value.phase==='lobby'&&Number(value.waiting_count||0)>0
  ?<section className="dean-queue-preview"><h3>👥 {value.waiting_count} PERSONAS EN EL LOBBY</h3>
    <p>El docente iniciará una única sala cuando hayan ingresado todos.</p>
    <div>{(value.waiting_players||[]).map((p,i)=><span key={i}>{lobbyAvatar(i)} {p.alias}</span>)}</div>
   </section>:
  <DeanArcadeLobby players={value.lobby_players||[]} phase={value.phase} compact examCount={examCount}
-   roomCount={value.game_mode==='real_hours_6_v1'&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=2)?1:5}
+   roomCount={value.game_mode==='real_hours_6_v1'&&(value.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}
    roomCapacity={value.game_mode==='real_hours_6_v1'?30:6}/>}</section>:<><DeanLearningWall learning={learning.data} phase={value.phase}/><DeanMissionWall missions={missions}/>
  {value.phase==='final'&&value.dgp_version!=='zip_dgp_2026'&&<CupQuiz role="wall"/>}
  {value.dgp_version==='zip_dgp_2026'&&['rector','survey','causal'].includes(value.phase)?<DeanCausalAtlas phase={value.phase} teachingStep={learning.data?.step}/>:<DeanGuidance phase={value.phase} role="wall"/>}</>}
@@ -701,7 +722,7 @@ function Teacher(){
   }catch(e){setErr(e.message)}finally{setBusy(false)}}
  async function downloadTruth(){setBusy(true);setErr('');try{const blob=await call('teacher_truth',{},'',teacher),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='verdad_sintetica_docente.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),7000)}catch(e){setErr(e.message)}finally{setBusy(false)}}
  const actions={lobby:'Abrir los 15 exámenes',exams:'Terminar torneo · liberar Rector',rector:'Publicar encuesta',survey:'Revelar la trampa causal',causal:'Comenzar Kahoot',final:'Cerrar torneo al terminar Kahoot'};
- return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} examCount={examCount} roomCount={state?.game_mode==="real_hours_6_v1"&&(state?.lobby_players||[]).every(p=>Number(p.room_no)<=2)?1:5} controls={teacher&&<div className="dean-teacher-banner-actions">
+ return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} examCount={examCount} roomCount={state?.game_mode==="real_hours_6_v1"&&(state?.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5} controls={teacher&&<div className="dean-teacher-banner-actions">
  <span className="dean-active-cup-code" title="Código para compartir con participantes">🎮 {game}</span>
  <div className="dean-teacher-buttons">
   <DeanNewCupControl game={game} disabled={busy} onCreate={createFreshCup}/>
@@ -726,7 +747,7 @@ function Teacher(){
  {state?.available?<div className="dean-teacher-grid">
  {arcade&&state.game_mode==='real_hours_6_v1'&&state.phase==='finished'
    ?<DeanLifePodium recap={state.life_recap} large/>:
-   <Board groups={state.game_mode==="real_hours_6_v1"&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?state.groups.filter(g=>g.room_no<=1):state.groups} examCount={examCount} roomCapacity={state.game_mode==="real_hours_6_v1"?30:6}/>} 
+   <Board groups={state.game_mode==="real_hours_6_v1"&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=1)?state.groups.filter(g=>g.room_no<=1):state.groups} examCount={examCount} roomCapacity={state.game_mode==="real_hours_6_v1"?30:6} singleRoom={state.game_mode==="real_hours_6_v1"&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=1)}/>} 
  <aside className="dean-teacher-sidebar">
   {arcade?<><h2>🎮 Modo juego</h2><p>{examCount} parciales · límite de 14 horas · {state.game_mode==='real_hours_6_v1'?'una':'cinco'} salas.</p>
      {state.game_mode==='real_hours_6_v1'&&state.phase==='lobby'&&Number(state.waiting_count||0)>0?
@@ -736,7 +757,7 @@ function Teacher(){
         <div>{(state.waiting_players||[]).map((p,i)=><span key={i}>🎮 {p.alias}</span>)}</div>
        </section>:
        <DeanArcadeLobby players={state.lobby_players||[]} phase={state.phase} compact examCount={examCount}
-         roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=2)?1:5}
+         roomCount={state.game_mode==='real_hours_6_v1'&&(state.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5}
          roomCapacity={state.game_mode==='real_hours_6_v1'?30:6}/>} 
      {state.game_mode==='real_hours_6_v1'&&<button type="button" className="dean-arcade-download" disabled={busy||state.phase==='lobby'} onClick={downloadAllObserved}>📥 DESCARGAR LOS DATOS DE LA COPA</button>}
      <p>Un clic para iniciar, ninguno entre exámenes. La correlación se calcula dentro del juego con datos del servidor.</p>
