@@ -176,7 +176,7 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
  const runtimePromise=useRef(null);
  async function fetchWholeCup(){
   if(!loadCsv)return;
-  setBusy(true);setStatus('Consultando los exámenes reales de todas las salas…');
+  setBusy(true);setStatus('Consultando los exámenes reales de la Copa…');
   try{
    const blob=await loadCsv();
    const csv=await blob.text();
@@ -218,14 +218,14 @@ export function CopaCorrelation({loadCsv=null,onContinue=null,embedded=false}){
  const factorLabel=selectedFactor.name;
  const detail=useMemo(()=>data?.factors?.[factor]||null,[data,factor]);
  return <div className={'corr-page'+(embedded?' corr-embedded':'')}>
-  <header className="corr-top"><div><span>🏆 COPA DEL DECANO · ANÁLISIS DENTRO DEL JUEGO</span><h1>📉 ¿Correlación negativa?</h1><p>Python WebAssembly calcula la relación sobre los parciales reales de todas las salas. El signo se obtiene de los datos; no está predeterminado.</p></div>
+  <header className="corr-top"><div><span>🏆 COPA DEL DECANO · ANÁLISIS DENTRO DEL JUEGO</span><h1>📉 ¿Correlación negativa?</h1><p>Python WebAssembly calcula la relación sobre los parciales reales de todos los participantes. El signo se obtiene de los datos; no está predeterminado.</p></div>
    {embedded&&onContinue&&<button type="button" className="corr-ghost" onClick={onContinue}>🏛️ Ir a decisión →</button>}</header>
   <main className="corr-grid">
    <section className="corr-panel">
     <div className="corr-step">01 · DATOS</div>
     <h2>{embedded?'Datos generados por los participantes':'Importar datos de la Copa'}</h2>
-    <p>{embedded?'Se obtiene automáticamente el CSV del servidor: todas las salas y los exámenes registrados hasta ahora, sin descargas ni cargas manuales.':'Selecciona un CSV de la Copa.'}</p>
-    {embedded?<button type="button" className="corr-refresh" disabled={busy} onClick={fetchWholeCup}>🔄 ACTUALIZAR DATOS DE TODAS LAS SALAS</button>:
+    <p>{embedded?'Se obtiene automáticamente el CSV del servidor: todos los participantes y los exámenes registrados hasta ahora, sin descargas ni cargas manuales.':'Selecciona un CSV de la Copa.'}</p>
+    {embedded?<button type="button" className="corr-refresh" disabled={busy} onClick={fetchWholeCup}>🔄 ACTUALIZAR DATOS DE LA COPA</button>:
       <label className="corr-upload">📂 ELEGIR CSV<input type="file" accept=".csv,text/csv" onChange={pick}/></label>}
     {fileName&&<small className="corr-muted">Archivo: {fileName}</small>}
     <div className="corr-step">02 · EXPLORAR</div>
