@@ -725,7 +725,7 @@ function Teacher(){
  return <div className="dean-page dean-teacher-page"><Banner kind="FACILITADOR" phase={state?.phase} examCount={examCount} roomCount={state?.game_mode==="real_hours_6_v1"&&(state?.lobby_players||[]).every(p=>Number(p.room_no)<=1)?1:5} controls={teacher&&<div className="dean-teacher-banner-actions">
  <span className="dean-active-cup-code" title="Código para compartir con participantes">🎮 {game}</span>
  <div className="dean-teacher-buttons">
-  <DeanNewCupControl game={game} disabled={busy} onCreate={createFreshCup}/>
+  {state?.game_mode!=='real_hours_6_v1'&&<DeanNewCupControl game={game} disabled={busy} onCreate={createFreshCup}/>}
   {state?.available&&state.dgp_version==='zip_dgp_2026'&&
    <DeanResetControl game={game} disabled={busy} onReset={resetCup} onReauthenticate={authenticateWithPin}/>}
  </div>
