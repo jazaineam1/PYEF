@@ -25,15 +25,16 @@ test('The 6-exam onboarding teaches only three explicit and different conditions
  assert.equal((intro.match(/id:'(over|balanced|risk)'/g)||[]).length,3);
  const join=file('supabase/migrations/202610160002_three_profiles_simpson.sql');
  assert.match(join,/values\('over',1\),\('balanced',2\),\('risk',3\)/);
- assert.match(join,/p_room not between 1 and 2/);
+ assert.match(join,/p_room <> 1/);
  assert.match(join,/cw_dean_join_v3/);
  assert.match(join,/p.id<>created/);
- assert.match(file('supabase/functions/v2-dean-cup/index.ts'),/cw_dean_join_three_profiles_v8/);
+ assert.match(file('supabase/functions/v2-dean-cup/index.ts'),/cw_dean_queue_register_v9/);
+ assert.match(file('supabase/migrations/202610160003_two_rooms_after_lobby_v9.sql'),/new_room:=1;/);
 });
 test('Simpson reversal is proven with three disjoint student groups and Python itself',t=>{
  if(spawnSync('python3',['--version']).status!==0){t.skip('Python not available');return}
  const entries=[];
- for(const [profile,baseX,baseY,room] of [['over',2,12,1],['balanced',3,26,1],['risk',4,43,2]]){
+ for(const [profile,baseX,baseY,room] of [['over',2,12,1],['balanced',3,26,1],['risk',4,43,1]]){
   for(let i=0;i<3;i++)entries.push({id:profile+i,room,profile,study:baseX+i*.5,grade:baseY-i});
  }
  const got=pyRun(entries);
