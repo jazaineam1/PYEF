@@ -154,8 +154,12 @@ Deno.serve(async(req)=>{
   }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
-   const joined=await rpc('cw_dean_queue_register_v9',
-     {p_code:code,p_alias:String(b.alias||''),p_hash:hash}) as Record<string,unknown>
+   const currentAgenda=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
+   const joined=currentAgenda?.protocol==='real_hours_6_v1'
+     ?await rpc('cw_dean_queue_register_v9',
+       {p_code:code,p_alias:String(b.alias||''),p_hash:hash}) as Record<string,unknown>
+     :await rpc('cw_dean_join_v3',
+       {p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}) as Record<string,unknown>
    if(joined?.dgp_version==='zip_dgp_2026'){
     const agenda=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
     return json({...joined,game_mode:agenda?.protocol||null,
