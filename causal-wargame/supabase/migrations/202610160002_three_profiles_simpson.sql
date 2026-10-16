@@ -16,10 +16,10 @@ begin
  if protocol_name is distinct from 'real_hours_6_v1' or existing is not null then
    return public.cw_dean_join_v3(p_code,p_alias,p_room,p_token_hash);
  end if;
- -- New six-exam registrations use only Alpha and Beta; historical 10/15 Cups
+ -- New six-exam registrations use one room; historical 10/15 Cups
  -- retain all five rooms and previously enrolled players are not moved.
- if p_room not between 1 and 2 then
-   raise exception 'Este simulador admite únicamente las salas Alpha y Beta';end if;
+ if p_room <> 1 then
+   raise exception 'Este simulador utiliza una sala única para todos los participantes';end if;
  -- cw_dean_join_v3 validates registration and locks tournament; never bypass controls.
  perform public.cw_dean_join_v3(p_code,p_alias,p_room,p_token_hash);
  select p.id into created from public.cw_dean_players p
