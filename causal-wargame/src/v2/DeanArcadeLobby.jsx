@@ -9,7 +9,7 @@ export const lobbyCounts=players=>({
 });
 
 export default function DeanArcadeLobby({players=[],phase='lobby',room=null,compact=false,
- ownReady=false,readyBusy=false,onReady=null,examCount=6,roomCount=5}){
+ ownReady=false,readyBusy=false,onReady=null,examCount=6,roomCount=5,roomCapacity=6}){
  const isWaiting=phase==='lobby';
  const list=room==null?players:players.filter(p=>Number(p.room_no)===Number(room));
  const {total,ready}=lobbyCounts(players);
@@ -29,7 +29,7 @@ export default function DeanArcadeLobby({players=[],phase='lobby',room=null,comp
    {(room!=null?[Number(room)]:Array.from({length:roomCount},(_,i)=>i+1)).map(roomNo=>{
     const members=list.filter(p=>Number(p.room_no)===roomNo);
     return <div className="dean-lobby-room" key={roomNo}>
-     <div className="dean-lobby-room-title"><b>SALA {roomNo} · {rooms[roomNo-1]}</b><small>{members.length}/6</small></div>
+     <div className="dean-lobby-room-title"><b>SALA {roomNo} · {rooms[roomNo-1]}</b><small>{members.length}/{roomCapacity}</small></div>
      {members.length?<div className="dean-lobby-members">{members.map((p,i)=>
       <div className="dean-lobby-member" key={roomNo+'-'+i+'-'+p.alias}>
        <span className="dean-lobby-avatar" aria-hidden="true">{lobbyAvatar(p.avatar_no)}</span>
@@ -40,7 +40,7 @@ export default function DeanArcadeLobby({players=[],phase='lobby',room=null,comp
    })}
   </div>
   {room==null&&isWaiting&&<div className="dean-lobby-footer" role="status">
-   <span>{total}/{roomCount*6} inscritos</span><b>{ready} preparados</b><span>{total-ready} pendientes</span>
+   <span>{total}/{roomCount*roomCapacity} inscritos</span><b>{ready} preparados</b><span>{total-ready} pendientes</span>
   </div>}
  </section>;
 }
