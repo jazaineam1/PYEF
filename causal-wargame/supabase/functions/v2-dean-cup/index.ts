@@ -151,7 +151,15 @@ Deno.serve(async(req)=>{
   }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
-   return json(await rpc('cw_dean_join_three_profiles_v8',{p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}))
+   const joined=await rpc('cw_dean_join_three_profiles_v8',
+     {p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}) as Record<string,unknown>
+   if(joined?.dgp_version==='zip_dgp_2026'){
+    const agenda=await rpc('cw_dean_agenda_status',{p_code:code}) as Record<string,unknown>
+    return json({...joined,game_mode:agenda?.protocol||null,
+     exam_count:agenda?.protocol==='real_hours_6_v1'?6:
+      agenda?.protocol==='real_hours_10_v1'?10:15})
+   }
+   return json(joined)
   }
   if(action==='exam'){
    if(!student)return json({error:'Falta sesión de estudiante'},401)
