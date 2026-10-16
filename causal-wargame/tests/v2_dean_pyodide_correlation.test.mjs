@@ -28,8 +28,9 @@ test('Python computes real Pearson, Spearman, within-person correlations and nev
    'only_manual','by_student','r_within','arquetipo','pga_previo','complejidad','nota_final']){
    assert.ok(src.includes(token),token);
  }
- assert.match(src,/Una asociación, sea positiva o negativa/);
- assert.match(src,/no permite concluir/);
+ assert.match(src,/El expediente del Rector/);
+ assert.match(src,/Toma tu decisión y recibirás la respuesta del Rector/);
+ assert.doesNotMatch(src,/simpson/i);
  assert.match(src,/accept=".csv,text\/csv"/);
  assert.match(src,/Scatter points=\{data.points\}/);
 });

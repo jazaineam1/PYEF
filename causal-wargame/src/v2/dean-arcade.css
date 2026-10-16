@@ -151,6 +151,14 @@
 .dean-rector-submit:disabled{cursor:not-allowed;opacity:.5}
 .dean-rector-answer{padding:10px 12px;display:grid;gap:3px;border:2px solid #74dfbb;border-radius:14px;background:#153c4b;color:#ddfff6;text-align:center}
 .dean-rector-answer strong{color:#aefcd7;font-size:17px}
+.dean-rector-answer{text-align:left;gap:8px;line-height:1.45;overflow-wrap:anywhere}
+.dean-rector-answer h4{font-size:clamp(16px,1.6vw,22px);margin:0;color:#fff0c0}
+.dean-rector-answer p{font-size:clamp(12px,1.05vw,15px);margin:0;color:#e6f6ff}
+.dean-rector-answer .dean-rector-saved{font-size:clamp(11px,1vw,13px);color:#bbf6e1}
+.dean-rector-answer .dean-rector-next{border-top:1px solid #5a9db0;padding-top:8px}
+.dean-rector-answer-si{border-color:#ffc18a;background:#46352f}
+.dean-rector-answer-no{border-color:#b3ddff;background:#173c56}
+.dean-rector-answer-evidencia_insuficiente{border-color:#88f2ce;background:#17463f}
 .dean-rector-return{display:flex;justify-content:center;width:100%;padding-top:4px}
 .dean-rector-return .dean-arcade-return{font-size:clamp(11px,1.05vw,16px);width:auto;max-width:100%;min-height:43px}
 .dean-arcade-player .dean-player-stage:has(.dean-rector-final){overflow:auto}

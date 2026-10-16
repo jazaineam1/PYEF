@@ -9,6 +9,24 @@ export const RECTOR_CHOICES=[
  {id:'no',icon:'🛡️',label:'NO, MANTENERLOS'},
  {id:'evidencia_insuficiente',icon:'🔍',label:'NO SE PUEDE CONCLUIR'}
 ];
+// The rector responds only after the vote has been persisted by Supabase.
+export const RECTOR_FEEDBACK={
+ si:{
+  title:'⛔ No puedo justificar retirar el auxilio con estos datos',
+  explanation:'Aunque el juego muestre una correlación negativa, no sabemos qué nota habría obtenido el mismo estudiante si le hubiéramos quitado el auxilio. El perfil, el descanso, el tiempo disponible y la dificultad de los parciales pueden influir. Quitar el beneficio ahora sería atribuir causalidad sin haberla identificado.',
+  next:'Antes de recortar, compararíamos alternativas mediante un experimento ético o un estudio causal bien diseñado. Las correlaciones por sí solas no bastan.'
+ },
+ no:{
+  title:'🛡️ Mantenerlo puede ser prudente, pero no demuestra su efecto',
+  explanation:'Decidir no quitar el auxilio evita un recorte basado solo en asociaciones. Sin embargo, estos datos tampoco prueban que mantenerlo aumente las notas: una decisión prudente de política no equivale a demostrar un efecto causal.',
+  next:'Podemos mantenerlo mientras reunimos evidencia adicional y evaluamos su impacto con grupos comparables, resultados y costos.'
+ },
+ evidencia_insuficiente:{
+  title:'🔍 Correcto: todavía no sabemos si quitarlo mejoraría las notas',
+  explanation:'Esta es la conclusión metodológica que sí permiten los datos. Vemos asociaciones entre bienestar y rendimiento, pero los participantes no parten de las mismas condiciones y no observamos el resultado alternativo de cada persona. Una correlación no identifica el efecto de eliminar el auxilio.',
+  next:'Para responder la pregunta causal necesitamos un diseño creíble: por ejemplo, una prueba A/B ética, o ajuste de confusores con supuestos explícitos y análisis de sensibilidad.'
+ }
+};
 const returnLink=import.meta.env.VITE_DEAN_MAIN_ROOM_URL||'';
 
 export default function DeanRectorFinal({player,recap=null,phase='exams',busy=false,onDownload,onGetCsv,onSubmit,error=''}) {
@@ -33,10 +51,12 @@ export default function DeanRectorFinal({player,recap=null,phase='exams',busy=fa
     </button>
     <small className="dean-rector-help">Descarga el CSV de toda la Copa. Incluye los registros disponibles hasta este momento; vuelve a descargarlo cuando tus compañeros terminen.</small>
     <button type="button" className="dean-rector-analysis-link" onClick={()=>setScene('correlation')}>📉 REVISAR CORRELACIONES REALES DE LA COPA</button>
-    {answer?<div className="dean-rector-answer" role="status">
-      <strong>✅ DECISIÓN GUARDADA</strong>
-      <span>{RECTOR_CHOICES.find(c=>c.id===answer)?.label||'Registrada'}</span>
-      <small>Tu voto quedó registrado. La decisión se debatirá fuera del juego.</small>
+    {answer?<div className={'dean-rector-answer dean-rector-answer-'+answer} role="status" aria-live="polite" aria-atomic="true">
+      <strong>🏛️ EL RECTOR RESPONDE</strong>
+      <span className="dean-rector-saved">✅ Decisión registrada: {RECTOR_CHOICES.find(c=>c.id===answer)?.label||'Registrada'}</span>
+      <h4>{RECTOR_FEEDBACK[answer]?.title||'Decisión recibida'}</h4>
+      <p>{RECTOR_FEEDBACK[answer]?.explanation||'Tu voto ha quedado registrado.'}</p>
+      <p className="dean-rector-next"><b>¿Qué haríamos después?</b> {RECTOR_FEEDBACK[answer]?.next||'Revisar la evidencia.'}</p>
     </div>:<>
      <div className="dean-rector-choices" role="group" aria-label="Elige una decisión final">
       {RECTOR_CHOICES.map(c=><button type="button" key={c.id}
