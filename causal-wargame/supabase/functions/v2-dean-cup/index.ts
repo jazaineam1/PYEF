@@ -151,7 +151,7 @@ Deno.serve(async(req)=>{
   }
   if(action==='join'){
    if(!student||student.length<35)return json({error:'Sesión local de estudiante inválida'},401)
-   return json(await rpc('cw_dean_join_v3',{p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}))
+   return json(await rpc('cw_dean_join_three_profiles_v8',{p_code:code,p_alias:String(b.alias||''),p_room:Number(b.room),p_token_hash:hash}))
   }
   if(action==='exam'){
    if(!student)return json({error:'Falta sesión de estudiante'},401)
