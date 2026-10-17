@@ -1,10 +1,5 @@
 name: campus-v2-econml-real-training
 on:
-  push:
-    branches: [main, v2/econml-campus-real]
-    paths:
-      - 'causal-wargame/scripts/precompute_econml_v2.py'
-      - '.github/workflows/causal-wargame-econml-v2.yml'
   workflow_dispatch:
 permissions:
   contents: write

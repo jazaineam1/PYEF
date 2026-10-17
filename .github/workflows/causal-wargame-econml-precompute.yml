@@ -2,12 +2,6 @@ name: causal-wargame-econml-precompute
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'causal-wargame/scripts/precompute_econml.py'
-      - '.github/workflows/causal-wargame-econml-precompute.yml'
-
 permissions:
   contents: write
 

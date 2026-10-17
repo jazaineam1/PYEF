@@ -1,11 +1,6 @@
 name: causal-wargame-ci
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'causal-wargame/**'
-      - '.github/workflows/causal-wargame-ci.yml'
   pull_request:
     paths:
       - 'causal-wargame/**'
@@ -13,8 +8,8 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: causal-wargame-ci-live-shared
-  cancel-in-progress: false
+  group: qa-pr-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read

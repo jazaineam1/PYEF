@@ -1,10 +1,5 @@
 name: dean-cup-canonical-econml-training
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'causal-wargame/scripts/precompute_econml_dean.py'
-      - '.github/workflows/dean-cup-canonical-econml.yml'
   workflow_dispatch:
 permissions:
   contents: write
